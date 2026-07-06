@@ -10,7 +10,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="AzurePipelines.Guidelines.Parsing.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="YamlDotNet" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
 
 </Project>

@@ -1,14 +1,15 @@
-using Microsoft.Extensions.DependencyInjection;
+using AzurePipelines.Guidelines.Mcp;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-// Minimal MCP server host entry point.
-// Wires up DI and starts listening for AI assistant requests.
-
+// MCP servers communicate over stdio: stdout is the protocol channel.
+// Redirect all logging to stderr so it does not interfere with MCP messages.
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-// TODO: Register the MCP server and analysis services once implemented:
-// builder.Services.AddGuidelinesAnalysis();
-// builder.Services.AddGuidelinesMcp();
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace);
+
+builder.Services.AddGuidelinesMcp();
 
 IHost host = builder.Build();
 
