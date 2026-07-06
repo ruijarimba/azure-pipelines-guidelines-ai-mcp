@@ -1,0 +1,23 @@
+<Project>
+
+  <!--
+    Settings for all class library projects under src/.
+    Projects here are NuGet package candidates.
+  -->
+
+  <!-- Import shared root settings first -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Authors>Rui Jarimba</Authors>
+    <PackageProjectUrl>https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>azure-devops;azure-pipelines;yaml;linter;mcp</PackageTags>
+    <!-- PackageVersion is set at CI time via /p:PackageVersion=x.y.z — do not hard-code here -->
+  </PropertyGroup>
+
+</Project>

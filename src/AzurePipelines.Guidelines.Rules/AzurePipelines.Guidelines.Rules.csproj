@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>AzurePipelines.Guidelines.Rules</PackageId>
+    <Description>Individual guideline rule implementations for the AzurePipelines.Guidelines toolchain. Each rule maps to a stable ADOG-{CATEGORY}-{NNN} guideline identifier.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AzurePipelines.Guidelines.Core\AzurePipelines.Guidelines.Core.csproj" />
+  </ItemGroup>
+
+</Project>

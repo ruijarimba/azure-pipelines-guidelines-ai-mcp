@@ -1,0 +1,22 @@
+<Project>
+
+  <!--
+    Settings for all test projects under tests/.
+    Test projects are never packaged or published.
+  -->
+
+  <!-- Import shared root settings first -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!--
+      CA1707: Identifiers should not contain underscores.
+      Suppressed to allow the test method naming convention:
+        MethodName_GivenContext_ShouldExpectedOutcome
+    -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>AzurePipelines.Guidelines.Core</PackageId>
+    <Description>Core domain models, interfaces, and enums for the AzurePipelines.Guidelines toolchain. Every other library in this solution depends on this package.</Description>
+  </PropertyGroup>
+
+  <!--
+    No PackageReference or ProjectReference entries.
+    Core must not depend on any other src/ project or non-BCL NuGet package.
+  -->
+
+</Project>

@@ -1,0 +1,110 @@
+# EditorConfig: https://EditorConfig.org
+root = true
+
+# ── All files ────────────────────────────────────────────────────────────────
+[*]
+end_of_line              = lf
+insert_final_newline     = true
+trim_trailing_whitespace = true
+charset                  = utf-8
+indent_style             = space
+
+# ── C# source files ──────────────────────────────────────────────────────────
+[*.cs]
+indent_size = 4
+
+# Using directives
+dotnet_sort_system_directives_first        = true
+dotnet_separate_import_directive_groups    = false
+
+# 'var' — explicit types preferred; only use var when type is obvious
+csharp_style_var_for_built_in_types        = false:warning
+csharp_style_var_when_type_is_apparent     = false:warning
+csharp_style_var_elsewhere                 = false:warning
+
+# Expression-bodied members
+csharp_style_expression_bodied_methods         = when_on_single_line:suggestion
+csharp_style_expression_bodied_constructors    = false:suggestion
+csharp_style_expression_bodied_operators       = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties      = true:suggestion
+csharp_style_expression_bodied_indexers        = true:suggestion
+csharp_style_expression_bodied_accessors       = true:suggestion
+csharp_style_expression_bodied_lambdas         = true:suggestion
+csharp_style_expression_bodied_local_functions = when_on_single_line:suggestion
+
+# Braces — always required
+csharp_prefer_braces = true:warning
+
+# Namespace declarations — file-scoped only
+csharp_style_namespace_declarations = file_scoped:warning
+
+# Primary constructors
+csharp_style_prefer_primary_constructors = true:suggestion
+
+# Pattern matching
+csharp_style_pattern_matching_over_is_with_cast_check = true:warning
+csharp_style_pattern_matching_over_as_with_null_check = true:warning
+csharp_style_prefer_switch_expression                 = true:suggestion
+csharp_style_prefer_pattern_matching                  = true:suggestion
+csharp_style_prefer_not_pattern                       = true:suggestion
+
+# Null checks
+csharp_style_throw_expression           = true:suggestion
+csharp_style_conditional_delegate_call  = true:warning
+
+# Modifier order and requirements
+dotnet_style_require_accessibility_modifiers = always:warning
+csharp_preferred_modifier_order = public,private,protected,internal,file,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,required,volatile,async:warning
+csharp_prefer_static_local_function = true:suggestion
+
+# Object / collection initializers
+dotnet_style_object_initializer                              = true:suggestion
+dotnet_style_collection_initializer                          = true:suggestion
+dotnet_style_prefer_collection_expression                    = when_types_loosely_match:suggestion
+
+# Null / coalescing
+dotnet_style_null_propagation                                = true:warning
+dotnet_style_coalesce_expression                             = true:warning
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:warning
+
+# Misc quality
+dotnet_style_prefer_auto_properties                          = true:suggestion
+dotnet_style_prefer_conditional_expression_over_assignment   = true:suggestion
+dotnet_style_explicit_tuple_names                            = true:warning
+dotnet_style_prefer_inferred_tuple_names                     = true:suggestion
+dotnet_style_prefer_compound_assignment                      = true:suggestion
+dotnet_style_prefer_simplified_interpolation                 = true:suggestion
+
+# Naming — private fields must use _camelCase
+dotnet_naming_rule.private_fields_underscore_camel.severity  = warning
+dotnet_naming_rule.private_fields_underscore_camel.symbols   = private_instance_fields
+dotnet_naming_rule.private_fields_underscore_camel.style     = underscore_camel_case
+
+dotnet_naming_symbols.private_instance_fields.applicable_kinds          = field
+dotnet_naming_symbols.private_instance_fields.applicable_accessibilities = private,private_protected
+dotnet_naming_symbols.private_instance_fields.required_modifiers         =
+
+dotnet_naming_style.underscore_camel_case.capitalization   = camel_case
+dotnet_naming_style.underscore_camel_case.required_prefix  = _
+
+# ── Key diagnostic severities ─────────────────────────────────────────────────
+[*.cs]
+dotnet_diagnostic.CA1031.severity = warning  # Do not catch general exception types
+dotnet_diagnostic.CA1062.severity = warning  # Validate public method arguments
+dotnet_diagnostic.CA2007.severity = suggestion # Consider ConfigureAwait (libraries)
+
+# ── MSBuild / project files ───────────────────────────────────────────────────
+[*.{csproj,props,targets,slnx}]
+indent_size = 2
+
+# ── JSON / JSONL ──────────────────────────────────────────────────────────────
+[*.{json,jsonl}]
+indent_size = 2
+
+# ── YAML ─────────────────────────────────────────────────────────────────────
+[*.{yaml,yml}]
+indent_size = 2
+
+# ── Markdown ─────────────────────────────────────────────────────────────────
+[*.md]
+trim_trailing_whitespace = false

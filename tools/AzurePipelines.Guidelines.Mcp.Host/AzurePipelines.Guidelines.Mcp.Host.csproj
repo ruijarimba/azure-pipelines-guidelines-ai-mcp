@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PackageId>AzurePipelines.Guidelines.Mcp.Host</PackageId>
+    <Description>MCP server host for AzurePipelines.Guidelines. Standalone executable that exposes guideline analysis as Model Context Protocol tools and resources.</Description>
+    <!-- This is an exe; override the src/Directory.Build.props setting -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AzurePipelines.Guidelines.Mcp\AzurePipelines.Guidelines.Mcp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      The full hosting runtime is needed here to run the MCP server.
+      The underlying Mcp library only depends on Hosting.Abstractions.
+    -->
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+
+</Project>

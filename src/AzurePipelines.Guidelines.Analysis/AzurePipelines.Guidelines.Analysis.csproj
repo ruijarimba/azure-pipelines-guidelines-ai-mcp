@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>AzurePipelines.Guidelines.Analysis</PackageId>
+    <Description>Analyzer engine for the AzurePipelines.Guidelines toolchain. Orchestrates YAML parsing and rule execution to produce actionable diagnostics with fix suggestions.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AzurePipelines.Guidelines.Core\AzurePipelines.Guidelines.Core.csproj" />
+    <ProjectReference Include="..\AzurePipelines.Guidelines.Parsing\AzurePipelines.Guidelines.Parsing.csproj" />
+    <ProjectReference Include="..\AzurePipelines.Guidelines.Rules\AzurePipelines.Guidelines.Rules.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Use the Abstractions package, not the full Microsoft.Extensions.DependencyInjection,
+      to avoid pulling a concrete runtime dependency into this library.
+    -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+</Project>

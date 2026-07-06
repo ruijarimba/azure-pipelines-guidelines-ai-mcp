@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>AzurePipelines.Guidelines.Parsing</PackageId>
+    <Description>Azure Pipelines YAML parsing for the AzurePipelines.Guidelines toolchain. Converts YAML text into the domain model defined in AzurePipelines.Guidelines.Core.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AzurePipelines.Guidelines.Core\AzurePipelines.Guidelines.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>AzurePipelines.Guidelines.Mcp</PackageId>
+    <Description>Model Context Protocol (MCP) server implementation for AzurePipelines.Guidelines. Exposes guideline lookup and YAML analysis as MCP tools and resources for AI assistants.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AzurePipelines.Guidelines.Core\AzurePipelines.Guidelines.Core.csproj" />
+    <ProjectReference Include="..\AzurePipelines.Guidelines.Analysis\AzurePipelines.Guidelines.Analysis.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+    <!--
+      Use the Abstractions package to avoid pulling the full hosting runtime into this library.
+      The concrete Microsoft.Extensions.Hosting is added by Mcp.Host.
+    -->
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+</Project>
