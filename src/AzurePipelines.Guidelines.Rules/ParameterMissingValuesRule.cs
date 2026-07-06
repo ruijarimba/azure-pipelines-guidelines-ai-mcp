@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Runtime.CompilerServices;
 using AzurePipelines.Guidelines.Core;
 
@@ -13,9 +14,9 @@ internal sealed class ParameterMissingValuesRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-PARAMETERS-002");
 
-    // Types whose values can be enumerated meaningfully
-    private static readonly HashSet<string> _enumerableTypes =
-        new(StringComparer.OrdinalIgnoreCase) { "string" };
+    // Types whose allowed values can be enumerated meaningfully.
+    private static readonly FrozenSet<string> _enumerableTypes =
+        new[] { "string" }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     /// <inheritdoc/>
     public GuidelineId GuidelineId => _id;
@@ -26,8 +27,6 @@ internal sealed class ParameterMissingValuesRule : IGuidelineRule
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(document);
-
-        await Task.CompletedTask;
 
         foreach (ParameterNode param in document.Parameters)
         {

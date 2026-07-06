@@ -29,8 +29,6 @@ internal sealed partial class MacroSyntaxInStepsRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        await Task.CompletedTask;
-
         foreach (Match match in MacroPattern().Matches(document.RawContent))
         {
             cancellationToken.ThrowIfCancellationRequested();

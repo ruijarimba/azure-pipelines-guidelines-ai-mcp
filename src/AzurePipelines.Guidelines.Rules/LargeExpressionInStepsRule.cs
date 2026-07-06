@@ -11,7 +11,11 @@ namespace AzurePipelines.Guidelines.Rules;
 /// </summary>
 internal sealed partial class LargeExpressionInStepsRule : IGuidelineRule
 {
-    // Matches ${{ ... }} template expressions and $( ... ) macro expressions
+    // Matches: ${{ ... }} template expressions or $( ... ) macro expressions.
+    // This pattern intentionally matches both opening forms; the closing delimiters
+    // are optional so that partial or multi-line expressions are also detected.
+    // One diagnostic per file is reported (see below) to avoid flooding output.
+    // Example:  "${{ variables.buildConfig }}"  or  "$(Build.SourceBranch)"
     [GeneratedRegex(
         @"(\$\{\{|\$\()[^)]*\}?\}?",
         RegexOptions.Multiline | RegexOptions.CultureInvariant)]
@@ -28,8 +32,6 @@ internal sealed partial class LargeExpressionInStepsRule : IGuidelineRule
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(document);
-
-        await Task.CompletedTask;
 
         // Report at most one diagnostic per file to avoid flooding the output
         // with every individual expression occurrence.

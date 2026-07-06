@@ -29,8 +29,6 @@ internal sealed partial class AzureKeyVaultTaskRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        await Task.CompletedTask;
-
         foreach (Match match in AzureKeyVaultPattern().Matches(document.RawContent))
         {
             cancellationToken.ThrowIfCancellationRequested();

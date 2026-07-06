@@ -23,8 +23,6 @@ internal sealed class JobMissingCheckoutRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        await Task.CompletedTask;
-
         foreach (JobNode job in document.AllJobs)
         {
             cancellationToken.ThrowIfCancellationRequested();

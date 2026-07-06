@@ -21,8 +21,6 @@ internal sealed class JobMissingTimeoutRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        await Task.CompletedTask;
-
         foreach (JobNode job in document.AllJobs)
         {
             cancellationToken.ThrowIfCancellationRequested();

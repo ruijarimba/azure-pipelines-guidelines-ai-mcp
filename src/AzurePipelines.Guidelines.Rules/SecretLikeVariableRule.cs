@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using AzurePipelines.Guidelines.Core;
 
@@ -13,13 +13,24 @@ namespace AzurePipelines.Guidelines.Rules;
 /// </summary>
 internal sealed partial class SecretLikeVariableRule : IGuidelineRule
 {
-    // Matches two YAML variable styles that look like secrets with a plain-text value:
-    //   Sequence block:   name: apiKey\n    value: plaintext
-    //   Mapping:          password: plaintext
+    // Matches the YAML sequence block style where the variable name looks like a secret
+    // and a plain-text value is set on the following line.
+    // Matches:  name: apiKey\n    value: plaintext
+    // Excludes: variables with no value line, or value set to a group/template reference
+    // Example:  "  - name: apiToken\n    value: abc123"
     [GeneratedRegex(
-        @"(?i)(?:name:\s*\S*(?:password|secret|token|api[_\-]?key|client[_\-]?secret)\S*[^\n]*\n\s*value:\s*\S+|(?:password|secret|token|api[_\-]?key|client[_\-]?secret)\s*:\s*\S+)",
-        RegexOptions.Multiline | RegexOptions.CultureInvariant)]
-    private static partial Regex SecretLikePattern();
+        @"name:\s*\S*(?:password|secret|token|api[_\-]?key|client[_\-]?secret)\S*[^\n]*\n\s*value:\s*\S+",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex BlockStyleSecretPattern();
+
+    // Matches the YAML mapping style where a key that looks like a secret has a plain-text value.
+    // Matches:  password: plaintext
+    // Excludes: keys that are not secret-like names
+    // Example:  "  password: hunter2"
+    [GeneratedRegex(
+        @"(?:password|secret|token|api[_\-]?key|client[_\-]?secret)\s*:\s*\S+",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex MappingStyleSecretPattern();
 
     private static readonly GuidelineId _id = new("ADOG-VARIABLES-003");
 
@@ -33,23 +44,33 @@ internal sealed partial class SecretLikeVariableRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        await Task.CompletedTask;
-
-        foreach (Match match in SecretLikePattern().Matches(document.RawContent))
+        foreach (Match match in BlockStyleSecretPattern().Matches(document.RawContent))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             int line = RuleHelpers.GetLineNumber(document.RawContent, match.Index);
 
-            yield return new Diagnostic(
-                _id,
-                DiagnosticSeverity.Error,
-                $"Variable name at line {line} looks like a secret. " +
-                "Do not store secrets as plain-text pipeline variables. " +
-                "Use a secret variable group or Azure Key Vault.",
-                document.FilePath,
-                line,
-                Column: null);
+            yield return CreateDiagnostic(document.FilePath, line);
+        }
+
+        foreach (Match match in MappingStyleSecretPattern().Matches(document.RawContent))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            int line = RuleHelpers.GetLineNumber(document.RawContent, match.Index);
+
+            yield return CreateDiagnostic(document.FilePath, line);
         }
     }
+
+    private static Diagnostic CreateDiagnostic(string filePath, int line) =>
+        new(
+            _id,
+            DiagnosticSeverity.Error,
+            "Variable name looks like a secret (password, token, or key). " +
+            "Storing secrets as plain-text pipeline variables risks exposure in logs. " +
+            "Use a secret variable group or Azure Key Vault instead.",
+            filePath,
+            line,
+            Column: null);
 }

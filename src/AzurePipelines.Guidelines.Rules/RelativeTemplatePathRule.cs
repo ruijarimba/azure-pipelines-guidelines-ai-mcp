@@ -11,10 +11,12 @@ namespace AzurePipelines.Guidelines.Rules;
 /// </summary>
 internal sealed partial class RelativeTemplatePathRule : IGuidelineRule
 {
-    // Matches: template: <value> where:
-    //   - value does NOT start with / (absolute path)
-    //   - value does NOT contain @ (cross-repo reference like path.yml@alias)
-    //   - value ends with .yml or .yaml
+    // Matches:  template: <value> where value ends with .yml or .yaml
+    // Requires: at least one space after the colon (so \s+ prevents the lookahead
+    //           from inspecting the colon character itself).
+    // Excludes: absolute paths (value starts with /) via negative lookahead (?!/)
+    // Excludes: cross-repo references (value contains @alias) via trailing (?!\s*@)
+    // Example:  "  - template: steps/build.yml"
     [GeneratedRegex(
         @"template:\s+(?!/)[^@\n]+\.ya?ml(?!\s*@)",
         RegexOptions.Multiline | RegexOptions.CultureInvariant)]
@@ -31,8 +33,6 @@ internal sealed partial class RelativeTemplatePathRule : IGuidelineRule
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(document);
-
-        await Task.CompletedTask; // satisfy async interface; work is synchronous
 
         foreach (Match match in RelativeTemplatePattern().Matches(document.RawContent))
         {

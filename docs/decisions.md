@@ -229,6 +229,39 @@ code equally.
 
 ---
 
+## ADR-012: C# implementation patterns for `IGuidelineRule`, logging, and static sets
+
+**Date:** 2025-01-26
+**Context:** Agents implementing new `IGuidelineRule` classes repeatedly introduced the same
+quality issues: a redundant `await Task.CompletedTask` no-op, `HashSet<string>` used in place
+of `FrozenSet<T>` for static lookup sets, `[LoggerMessage]` attribute on partial methods
+(which requires the full `Microsoft.Extensions.Logging` package that `src/` libraries must not
+reference), overly complex regex alternations, and diagnostic messages that repeated
+information already available in structured fields. These issues were not covered by the
+existing instruction files.
+**Decision:** Add `.github/instructions/csharp-patterns.instructions.md` that documents the
+correct pattern for each concern, with before/after examples drawn from real code.
+**Rationale:**
+- Rules that are written down are repeatable. Rules that live only in a code-review comment
+  are lost after the session ends.
+- `FrozenSet<T>` is the BCL-recommended type for immutable, read-heavy lookup sets (.NET 8+).
+  Using `HashSet<string>` signals mutability that does not exist.
+- `[LoggerMessage]` source-generates partial methods and requires the full Logging package.
+  `LoggerMessage.Define` achieves the same goal with the Abstractions package only.
+- One large regex alternation combining two structurally different YAML patterns violates the
+  "no clever code" rule (maintainability rule 7). Two focused patterns are independently
+  testable and readable.
+- Diagnostic messages that embed `line` or `column` values duplicate structured fields and
+  bloat the message text.
+
+**Consequences:**
+- All new `IGuidelineRule` implementations must follow the patterns in the instruction file.
+- The instruction file is listed in `.github/copilot-instructions.md` under Active instruction
+  files so agents read it before writing code.
+- Before changing any pattern, re-read the relevant source(s) in ADR-011 and update this ADR.
+
+---
+
 ## Template for new decisions
 
 Copy this block when recording a new decision:

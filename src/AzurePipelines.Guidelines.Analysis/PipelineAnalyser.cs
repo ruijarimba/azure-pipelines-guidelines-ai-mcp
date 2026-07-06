@@ -82,12 +82,6 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
     {
         IEnumerable<IGuidelineRule> filtered = rules;
 
-        if (options.IncludedCategories is { Count: > 0 })
-        {
-            // Rules don't carry a category — filtering by category is a no-op here;
-            // category filtering is applied at the guideline-definition level by callers.
-        }
-
         if (options.IncludedGuidelineIds is { Count: > 0 })
         {
             HashSet<string> ids = options.IncludedGuidelineIds

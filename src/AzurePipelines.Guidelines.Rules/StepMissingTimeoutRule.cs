@@ -22,8 +22,6 @@ internal sealed class StepMissingTimeoutRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        await Task.CompletedTask;
-
         foreach (StepNode step in document.AllSteps)
         {
             cancellationToken.ThrowIfCancellationRequested();
