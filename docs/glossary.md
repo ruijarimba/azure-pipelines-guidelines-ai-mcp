@@ -9,12 +9,12 @@
 | Term | Definition |
 | --- | --- |
 | **Guideline** | A single recommendation from the [azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines) repository. Each guideline maps to a stable `GuidelineId`. |
-| **GuidelineId** | Stable unique identifier: `ADOG-{CATEGORY}-{NNN}` (e.g., `ADOG-STEPS-001`). Never reused after a guideline is renamed or removed. |
+| **GuidelineId** | Stable unique identifier: `ADOG-{CATEGORY}-{NNN}` (for example, `ADOG-STEPS-001`). Never reused after a guideline is renamed or removed. |
 | **GuidelineCategory** | One of: `General`, `Jobs`, `Parameters`, `Pipelines`, `Stages`, `Steps`, `Variables`. |
 | **GuidelineSeverity** | Indicates how strongly a recommendation should be followed: `Do`, `DoNot`, `Avoid`, `Consider`. |
 | **DetectionHint** | Machine-readable guidance for detecting a violation. Includes `kind`, `pattern`, `appliesTo`, and `message`. |
-| **DetectionKind** | Type of detection hint: `Regex` (match raw YAML text), `YamlPath` (parsed YAML path/key condition), or `Heuristic` (LLM or custom logic). |
-| **Diagnostic** | A violation found in a pipeline file. References a `GuidelineId`, includes severity, message, and location (line/column). |
+| **DetectionKind** | Type of detection hint: `Regex` (match raw YAML text), `YamlPath` (parsed YAML path or key condition), or `Heuristic` (LLM or custom logic). |
+| **Diagnostic** | A violation found in a pipeline file. References a `GuidelineId`, includes severity, message, and location (line and column). |
 | **FixGuidance** | Remediation instructions for a detected violation. Includes `summary`, `autofixable` flag, ordered `steps`, and `exampleRef`. |
 | **PipelineDocument** | Parsed AST representation of an Azure Pipelines YAML file. Root of the domain model for pipeline structure. |
 
@@ -75,8 +75,8 @@ they are the same value. Parsing code maps between the two forms.
 
 | Term | Definition |
 | --- | --- |
-| **`adog`** | The command-line tool name (short for "Azure DevOps Guidelines"). Published as a .NET global tool (`dotnet tool install -g adog`). |
-| **Exit code** | `0` = no violations at threshold; `1` = violations found; `2` = analysis error (invalid YAML, file not found). |
+| **adog** | The command-line tool name (short for "Azure DevOps Guidelines"). Published as a .NET global tool (`dotnet tool install -g adog`). |
+| **Exit code** | `0` = no violations at threshold; `1` = violations found; `2` = analysis error (invalid YAML or file not found). |
 
 ---
 

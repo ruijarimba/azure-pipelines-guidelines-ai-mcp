@@ -9,7 +9,7 @@ Read this file **and the linked instruction files** before generating or modifyi
 - `.github/instructions/architecture.instructions.md` — layer responsibilities and dependency rules.
 - `.github/instructions/code-style.instructions.md` — C# coding conventions and patterns.
 - `.github/instructions/maintainability.instructions.md` — file size, method size, comment discipline, and change scope rules.
-- `.github/instructions/markdown.instructions.md` — writing rules for all `.md` files; plain English for non-native readers.
+- `.github/instructions/documentation.instructions.md` — documentation writing rules for Markdown files; plain English for non-native readers.
 - `.github/instructions/testing.instructions.md` — unit testing conventions and coverage expectations.
 - `.github/instructions/nuget-packaging.instructions.md` — NuGet packaging rules for `src/` projects.
 

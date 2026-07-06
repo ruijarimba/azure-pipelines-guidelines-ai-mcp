@@ -18,7 +18,7 @@ machine-readable manifest:
 
 The guidelines themselves live in the companion repository. Their machine-readable
 manifest is at `data/guidelines.json` and uses stable rule IDs of the form
-`ADOG-{CATEGORY}-{NNN}` (e.g., `ADOG-STEPS-001`).
+`ADOG-{CATEGORY}-{NNN}` (for example, `ADOG-STEPS-001`).
 
 ## Repository layout
 

@@ -65,7 +65,7 @@ these, it must re-read the rationale first; if the context has changed, document
 - NSubstitute: minimal ceremony, natural syntax for substitutes.
 
 **Consequences:**  
-- Never use `Assert.*` from xUnit directly — always FluentAssertions.
+- Never use `Assert.*` from xUnit directly — always use FluentAssertions.
 - Never use Moq, FakeItEasy, or other mocking libraries.
 - Test method naming: `MethodName_GivenContext_ShouldOutcome`.
 
@@ -77,7 +77,7 @@ these, it must re-read the rationale first; if the context has changed, document
 **Context:** MSBuild 17.11+ supports `.slnx` (XML solution format), but not all tooling does.  
 **Decision:** Use traditional `.sln` format.  
 **Rationale:**  
-- Broadest toolchain compatibility (older VS versions, CI systems, build automation).
+- Broadest toolchain compatibility (older VS versions, CI systems, and build automation).
 - `.slnx` offers no critical benefit for this repository's structure.
 - Can migrate later if ecosystem adoption improves.
 
@@ -99,7 +99,7 @@ these, it must re-read the rationale first; if the context has changed, document
 
 **Consequences:**  
 - Every new warning is a build break.
-- Use `#pragma warning disable` **only** with an inline comment explaining the permanent exception.
+- Use `#pragma warning disable` only with an inline comment explaining the permanent exception.
 - Suppressions in `.editorconfig` or `.globalconfig` must be justified in this file or in code comments.
 
 ---
@@ -134,7 +134,7 @@ these, it must re-read the rationale first; if the context has changed, document
 **Consequences:**  
 - Every `public` API must be documented via XML comments.
 - Breaking changes require a major version bump (SemVer 2.0 strict).
-- `tools/` projects are **not** NuGet packages — they are executables only.
+- `tools/` projects are not NuGet packages — they are executables only.
 
 ---
 
@@ -149,7 +149,7 @@ these, it must re-read the rationale first; if the context has changed, document
 - Alternative (System.Text.Json) does not support YAML natively.
 
 **Consequences:**  
-- YamlDotNet types must **never** appear in public APIs — only `Core` domain models.
+- YamlDotNet types must never appear in public APIs — only `Core` domain models.
 - `Parsing` is the only project that references YamlDotNet.
 
 ---

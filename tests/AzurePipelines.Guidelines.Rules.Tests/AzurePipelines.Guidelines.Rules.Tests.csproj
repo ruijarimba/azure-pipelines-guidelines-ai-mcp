@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AzurePipelines.Guidelines.Rules\AzurePipelines.Guidelines.Rules.csproj" />
+    <ProjectReference Include="..\..\src\AzurePipelines.Guidelines.Parsing\AzurePipelines.Guidelines.Parsing.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,6 +16,12 @@
     <PackageReference Include="NSubstitute" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Fixtures\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

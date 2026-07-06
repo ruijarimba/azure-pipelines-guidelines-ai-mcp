@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using AzurePipelines.Guidelines.Core;
+using AzurePipelines.Guidelines.Core.Tests.Fixtures;
 using FluentAssertions;
 using Xunit;
 
@@ -50,7 +51,8 @@ public sealed class HttpGuidelineLoaderTests
     public async Task LoadAsync_GivenEmptyGuidelinesArray_ShouldReturnEmptyList()
     {
         // Arrange
-        using HttpClient client = MakeClient("""{ "guidelines": [] }""");
+        string json = TestFixtures.Load("HttpGuidelineLoader/EmptyGuidelines.json");
+        using HttpClient client = MakeClient(json);
         HttpGuidelineLoader sut = new(client);
 
         // Act
@@ -64,7 +66,8 @@ public sealed class HttpGuidelineLoaderTests
     public async Task LoadAsync_GivenMissingGuidelinesProperty_ShouldReturnEmptyList()
     {
         // Arrange
-        using HttpClient client = MakeClient("""{ "schemaVersion": "1.0.0" }""");
+        string json = TestFixtures.Load("HttpGuidelineLoader/MissingGuidelinesProperty.json");
+        using HttpClient client = MakeClient(json);
         HttpGuidelineLoader sut = new(client);
 
         // Act
@@ -80,23 +83,8 @@ public sealed class HttpGuidelineLoaderTests
     public async Task LoadAsync_GivenValidGuideline_ShouldReturnOneDefinition()
     {
         // Arrange
-        using HttpClient client = MakeClient("""
-            {
-              "guidelines": [
-                {
-                  "id": "ADOG-STEPS-001",
-                  "category": "steps",
-                  "severity": "do",
-                  "title": "DO: Use script tasks",
-                  "summary": "Use script tasks for shell commands.",
-                  "tags": ["steps"],
-                  "related": [],
-                  "detection": [],
-                  "fix": null
-                }
-              ]
-            }
-            """);
+        string json = TestFixtures.Load("HttpGuidelineLoader/ValidGuideline.json");
+        using HttpClient client = MakeClient(json);
         HttpGuidelineLoader sut = new(client);
 
         // Act

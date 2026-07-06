@@ -2,12 +2,12 @@
 
 ## Overview
 
-`azure-pipelines-guidelines-ai-mcp` is a layered .NET 10 solution that builds two tools on top of
+This project is a layered .NET 10 solution that builds two tools on top of
 the [azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines)
-machine-readable manifest:
+machine-readable definitions:
 
-1. **MCP server** — AI assistants call it to look up guidelines and analyse pipeline YAML files.
-2. **CLI static analyser** (`adog`) — runs in CI or locally to flag violations.
+1. **MCP server** — AI assistants call it to look up guidelines and analyze pipeline YAML files.
+2. **CLI static analyzer** (`adog`) — runs in CI or locally to flag violations.
 
 ## Dependency graph
 
@@ -56,18 +56,18 @@ tools/AzurePipelines.Guidelines.Cli  [exe]
 | Interface | Purpose |
 | --- | --- |
 | `IPipelineParser` | Parses YAML text into a `PipelineDocument` |
-| `IRule` | Analyses a `PipelineDocument` and returns `Diagnostic` instances |
+| `IRule` | Analyzes a `PipelineDocument` and returns `Diagnostic` instances |
 | `IGuidelineRepository` | Loads `GuidelineDefinition` records from the manifest |
-| `IAnalysisEngine` | Orchestrates parsing + rules → `AnalysisResult` |
+| `IAnalysisEngine` | Orchestrates parsing and rules to produce `AnalysisResult` |
 
 ## Extension points
 
 | Goal | Where to add |
 | --- | --- |
-| New lint rule | Implement `IRule` in `Rules`; register via DI |
+| New lint rule | Implement `IRule` in `Rules` and register via DI |
 | New MCP tool | Add handler class in `Mcp` |
 | New CLI command | Add `Command` subclass in `Cli` |
-| New output format (SARIF, etc.) | Add formatter in `Cli` |
+| New output format | Add formatter in `Cli` (for example, SARIF) |
 | Alternative YAML parser | Replace `IPipelineParser` implementation in `Parsing` |
 
 ## Guideline manifest
@@ -78,8 +78,8 @@ Rule ID pattern:
 ADOG-(GENERAL|JOBS|PARAMETERS|PIPELINES|STAGES|STEPS|VARIABLES)-[0-9]{3}
 ```
 
-For severity → diagnostic level mapping, detection kinds, and all domain terms,
-see [`glossary.md`](glossary.md) (the single source of truth).
+For severity mapping to diagnostic level, detection kinds, and all domain terms,
+see [`glossary.md`](glossary.md).
 
 ## Build infrastructure
 
@@ -107,4 +107,4 @@ Exit codes: `0` = no violations at threshold, `1` = violations found, `2` = anal
 
 All `src/` projects are published as independent packages (`AzurePipelines.Guidelines.*`).
 `Cli` is published as a .NET global tool via `dotnet tool install`.
-`Mcp.Host` is distributed as a standalone executable / container image.
+`Mcp.Host` is distributed as a standalone executable or container image.

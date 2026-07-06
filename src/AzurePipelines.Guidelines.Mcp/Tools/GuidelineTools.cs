@@ -15,7 +15,7 @@ namespace AzurePipelines.Guidelines.Mcp.Tools;
     Justification = "Instantiated by the MCP SDK via dependency injection.")]
 internal sealed class GuidelineTools(IGuidelineRepository repository)
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = false,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -54,7 +54,7 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
             return JsonSerializer.Serialize(
                 new ErrorResponse($"Unknown category '{category}'. " +
                     "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables."),
-                JsonOptions);
+                _jsonOptions);
         }
 
         GuidelineSummary[] summaries = new GuidelineSummary[guidelines.Count];
@@ -68,7 +68,7 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
                 EnumToJsonString(g.Severity));
         }
 
-        return JsonSerializer.Serialize(summaries, JsonOptions);
+        return JsonSerializer.Serialize(summaries, _jsonOptions);
     }
 
     // ── get_guideline ─────────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         if (string.IsNullOrWhiteSpace(id))
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse("Parameter 'id' is required."), JsonOptions);
+                new ErrorResponse("Parameter 'id' is required."), _jsonOptions);
         }
 
         GuidelineId guidelineId;
@@ -102,7 +102,7 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
                 new ErrorResponse(
                     $"'{id}' is not a valid guideline ID. " +
                     "Expected format: ADOG-{CATEGORY}-{NNN}, e.g. ADOG-STEPS-001."),
-                JsonOptions);
+                _jsonOptions);
         }
 
         GuidelineDefinition? guideline = repository.FindById(guidelineId);
@@ -110,10 +110,10 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         if (guideline is null)
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse($"Guideline '{id}' not found."), JsonOptions);
+                new ErrorResponse($"Guideline '{id}' not found."), _jsonOptions);
         }
 
-        return JsonSerializer.Serialize(ToDetailDto(guideline), JsonOptions);
+        return JsonSerializer.Serialize(ToDetailDto(guideline), _jsonOptions);
     }
 
     // ── search_guidelines ─────────────────────────────────────────────────────
@@ -132,7 +132,7 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         if (string.IsNullOrWhiteSpace(keyword))
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse("Parameter 'keyword' is required."), JsonOptions);
+                new ErrorResponse("Parameter 'keyword' is required."), _jsonOptions);
         }
 
         IReadOnlyList<GuidelineDefinition> all = repository.GetAll();
@@ -151,7 +151,7 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
             }
         }
 
-        return JsonSerializer.Serialize(matches, JsonOptions);
+        return JsonSerializer.Serialize(matches, _jsonOptions);
     }
 
     // ── list_categories ───────────────────────────────────────────────────────
@@ -184,7 +184,7 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         Array.Sort(result, static (a, b) =>
             string.Compare(a.Category, b.Category, StringComparison.Ordinal));
 
-        return JsonSerializer.Serialize(result, JsonOptions);
+        return JsonSerializer.Serialize(result, _jsonOptions);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

@@ -8,7 +8,7 @@ namespace AzurePipelines.Guidelines.Core;
 /// </summary>
 public sealed class GuidelineId : IEquatable<GuidelineId>
 {
-    private static readonly Regex ValidPattern = new(
+    private static readonly Regex _validPattern = new(
         @"^ADOG-(GENERAL|JOBS|PARAMETERS|PIPELINES|STAGES|STEPS|VARIABLES)-[0-9]{3}$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
@@ -29,7 +29,7 @@ public sealed class GuidelineId : IEquatable<GuidelineId>
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
 
-        if (!ValidPattern.IsMatch(value))
+        if (!_validPattern.IsMatch(value))
         {
             throw new ArgumentException(
                 $"'{value}' is not a valid guideline ID. " +

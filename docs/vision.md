@@ -36,9 +36,9 @@ Both tools consume the same `data/guidelines.json` manifest from the companion r
 
 ### Permanently out of scope
 
-- Authoring the guidelines themselves — they live in the companion repository.
+- Authoring the guidelines — they live in the companion repository.
 - Linting for GitHub Actions, GitLab CI, Jenkins, or other CI/CD systems.
-- Runtime analysis or monitoring — this is a **static** analyser only.
+- Runtime analysis or monitoring — this is a static analyser only.
 - Pipeline execution simulation or validation.
 
 ### Deferred to Phase 2 or later

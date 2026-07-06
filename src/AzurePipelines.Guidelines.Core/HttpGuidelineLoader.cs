@@ -16,7 +16,7 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
     public static readonly Uri DefaultManifestUrl = new(
         "https://raw.githubusercontent.com/ruijarimba/azure-pipelines-guidelines/main/data/guidelines.json");
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
     };
@@ -48,7 +48,7 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
         CancellationToken cancellationToken = default)
     {
         ManifestDto? manifest = await _httpClient
-            .GetFromJsonAsync<ManifestDto>(_manifestUrl, JsonOptions, cancellationToken)
+            .GetFromJsonAsync<ManifestDto>(_manifestUrl, _jsonOptions, cancellationToken)
             .ConfigureAwait(false);
 
         if (manifest?.Guidelines is null)

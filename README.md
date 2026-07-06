@@ -1,9 +1,8 @@
 # azure-pipelines-guidelines-ai-mcp
 
-A .NET 10 implementation of an **MCP server** and **CLI static analyser** for the
-[azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
+This project provides tools that help you follow Azure Pipelines best practices. It offers both a static analyser you can run in CI/CD and an AI assistant integration.
 
-## What this does
+## What it does
 
 | Tool | Description |
 | --- | --- |
@@ -13,17 +12,17 @@ A .NET 10 implementation of an **MCP server** and **CLI static analyser** for th
 ## Repository layout
 
 ```
-src/      Class libraries (NuGet packages)
-tools/    Executable entry points
-tests/    Unit test projects
-docs/     Architecture documentation
-.github/  Copilot instructions and CI workflows
+src/      Core libraries (published as NuGet packages)
+tools/    Command-line and server executables
+tests/    Unit tests
+docs/     Design and architecture documentation
+.github/  AI agent instructions and CI workflows
 ```
 
 See [`docs/architecture.md`](docs/architecture.md) for the full design and dependency graph.
 
 ## Companion repository
 
-The guidelines and their machine-readable manifest live in
+The guidelines and their machine-readable definitions live in
 [ruijarimba/azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
-Rule IDs follow the pattern `ADOG-{CATEGORY}-{NNN}` (e.g., `ADOG-STEPS-001`).
+Each rule has a unique ID following the pattern `ADOG-{CATEGORY}-{NNN}` (for example, `ADOG-STEPS-001`).

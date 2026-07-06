@@ -1,0 +1,5 @@
+parameters:
+  - name: first
+    type: string
+  - name: second
+    type: boolean

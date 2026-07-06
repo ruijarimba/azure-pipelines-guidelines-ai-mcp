@@ -1,0 +1,15 @@
+{
+  "guidelines": [
+    {
+      "id": "ADOG-STEPS-001",
+      "category": "steps",
+      "severity": "do",
+      "title": "DO: Use script tasks",
+      "summary": "Use script tasks for shell commands.",
+      "tags": ["steps"],
+      "related": [],
+      "detection": [],
+      "fix": null
+    }
+  ]
+}
