@@ -275,4 +275,60 @@ public sealed class PipelineAnalysisToolsTests
         JsonElement[] items = Deserialize<JsonElement[]>(result);
         items[0].TryGetProperty("line", out _).Should().BeFalse();
     }
+
+    // ── GuidelineId filter: malformed IDs are silently skipped ───────────────
+
+    [Fact]
+    public async Task AnalyzePipelineAsync_GivenOneMalformedAndOneValidGuidelineId_ShouldFilterOnlyValidId()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+
+        Diagnostic validDiag = MakeDiagnostic("ADOG-STEPS-001");
+        Diagnostic otherDiag = MakeDiagnostic("ADOG-STEPS-002");
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(
+                Arg.Any<PipelineDocument>(),
+                Arg.Is<AnalysisOptions>(o =>
+                    o.IncludedGuidelineIds != null &&
+                    o.IncludedGuidelineIds.Count == 1),
+                Arg.Any<CancellationToken>())
+                .Returns(MakeResult([validDiag]));
+
+        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+
+        // Act — "NOTVALID" is malformed and should be skipped; only ADOG-STEPS-001 survives
+        string result = await sut.AnalyzePipelineAsync("steps: []", guidelineIds: "ADOG-STEPS-001, NOTVALID");
+
+        // Assert
+        JsonElement[] items = Deserialize<JsonElement[]>(result);
+        items.Should().ContainSingle();
+        items[0].GetProperty("ruleId").GetString().Should().Be("ADOG-STEPS-001");
+    }
+
+    [Fact]
+    public async Task AnalyzePipelineAsync_GivenAllMalformedGuidelineIds_ShouldUseDefaultOptions()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+
+        Diagnostic diag = MakeDiagnostic("ADOG-STEPS-001");
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(
+                Arg.Any<PipelineDocument>(),
+                Arg.Is<AnalysisOptions>(o => o.IncludedGuidelineIds == null),
+                Arg.Any<CancellationToken>())
+                .Returns(MakeResult([diag]));
+
+        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+
+        // Act — all IDs are malformed; parser should fall back to AnalysisOptions.Default
+        string result = await sut.AnalyzePipelineAsync("steps: []", guidelineIds: "NOTVALID, ALSOBAD");
+
+        // Assert
+        JsonElement[] items = Deserialize<JsonElement[]>(result);
+        items.Should().ContainSingle();
+    }
 }

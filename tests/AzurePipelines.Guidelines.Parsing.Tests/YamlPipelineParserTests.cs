@@ -340,4 +340,150 @@ public sealed class YamlPipelineParserTests
 
         doc.Steps[0].Line.Should().BeGreaterThan(0);
     }
+
+    // ── Edge cases: empty document / non-mapping items ─────────────────────
+
+    [Fact]
+    public void Parse_GivenEmptyYamlDocument_ShouldThrowPipelineParsingException()
+    {
+        // A YAML stream with a document that contains only "---" produces an empty document.
+        Action act = () => _parser.Parse("---", "empty.yml");
+        act.Should().Throw<PipelineParsingException>();
+    }
+
+    [Fact]
+    public void Parse_GivenParameterItemThatIsNotAMapping_ShouldSkipIt()
+    {
+        const string yaml = """
+            parameters:
+              - scalarValue
+            """;
+
+        PipelineDocument doc = _parser.Parse(yaml, "f.yml");
+
+        doc.Parameters.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Parse_GivenVariablesAsScalar_ShouldReturnNoVariables()
+    {
+        const string yaml = """
+            variables: justAScalar
+            """;
+
+        PipelineDocument doc = _parser.Parse(yaml, "f.yml");
+
+        doc.Variables.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Parse_GivenVariableSequenceWithNonMappingItem_ShouldSkipIt()
+    {
+        const string yaml = """
+            variables:
+              - scalarValue
+              - name: buildConfig
+                value: Release
+            """;
+
+        PipelineDocument doc = _parser.Parse(yaml, "f.yml");
+
+        doc.Variables.Should().ContainSingle(v => v.Name == "buildConfig");
+    }
+
+    [Fact]
+    public void Parse_GivenStageWithNonMappingItem_ShouldSkipIt()
+    {
+        const string yaml = """
+            stages:
+              - scalarStage
+              - stage: CI
+                jobs: []
+            """;
+
+        PipelineDocument doc = _parser.Parse(yaml, "f.yml");
+
+        doc.Stages.Should().ContainSingle(s => s.Name == "CI");
+    }
+
+    [Fact]
+    public void Parse_GivenJobWithNonMappingItem_ShouldSkipIt()
+    {
+        const string yaml = """
+            jobs:
+              - scalarJob
+              - job: Build
+                steps: []
+            """;
+
+        PipelineDocument doc = _parser.Parse(yaml, "f.yml");
+
+        doc.Jobs.Should().ContainSingle(j => j.Name == "Build");
+    }
+
+    [Fact]
+    public void Parse_GivenStepWithNonMappingItem_ShouldSkipIt()
+    {
+        const string yaml = """
+            steps:
+              - scalarStep
+              - task: SomeTask@1
+            """;
+
+        PipelineDocument doc = _parser.Parse(yaml, "f.yml");
+
+        doc.Steps.Should().ContainSingle(s => s.Task == "SomeTask@1");
+    }
+
+    // ── BoolOrFalse casing ──────────────────────────────────────────────────
+
+    [Theory]
+    [InlineData("True")]
+    [InlineData("TRUE")]
+    public void Parse_GivenReadOnlyVariableWithAlternateTrueCasing_ShouldSetIsReadOnly(string trueValue)
+    {
+        string yaml = $"""
+            variables:
+              - name: buildConfig
+                value: Release
+                readonly: {trueValue}
+            """;
+
+        PipelineDocument doc = _parser.Parse(yaml, "f.yml");
+
+        doc.Variables[0].IsReadOnly.Should().BeTrue();
+    }
+
+    // ── Parameters: skipped items ───────────────────────────────────────────
+
+    [Fact]
+    public void Parse_GivenParameterItemWithoutName_ShouldSkipIt()
+    {
+        const string yaml = """
+            parameters:
+              - type: string
+                default: dev
+            """;
+
+        PipelineDocument doc = _parser.Parse(yaml, "f.yml");
+
+        doc.Parameters.Should().BeEmpty();
+    }
+
+    // ── Variables: mapping form with non-scalar value ───────────────────────
+
+    [Fact]
+    public void Parse_GivenVariableMappingWithNonScalarValue_ShouldSkipNullValue()
+    {
+        const string yaml = """
+            variables:
+              buildConfig: Release
+              nested:
+                - item1
+            """;
+
+        PipelineDocument doc = _parser.Parse(yaml, "f.yml");
+
+        doc.Variables.Should().ContainSingle(v => v.Name == "buildConfig");
+    }
 }

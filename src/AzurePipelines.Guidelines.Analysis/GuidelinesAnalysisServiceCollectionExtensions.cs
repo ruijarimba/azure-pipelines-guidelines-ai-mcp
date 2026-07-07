@@ -9,6 +9,7 @@ namespace AzurePipelines.Guidelines.Analysis;
 /// Extension methods for registering the full analysis stack with an
 /// <see cref="IServiceCollection"/>.
 /// </summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 public static class GuidelinesAnalysisServiceCollectionExtensions
 {
     /// <summary>

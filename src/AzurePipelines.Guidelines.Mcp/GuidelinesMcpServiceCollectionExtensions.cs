@@ -9,6 +9,7 @@ namespace AzurePipelines.Guidelines.Mcp;
 /// <summary>
 /// DI registration extensions for the MCP server layer.
 /// </summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 public static class GuidelinesMcpServiceCollectionExtensions
 {
     /// <summary>
@@ -88,6 +89,7 @@ public static class GuidelinesMcpServiceCollectionExtensions
 }
 
 /// <summary>High-performance logger messages for the guidelines loader.</summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 internal static partial class LoaderLog
 {
     [LoggerMessage(

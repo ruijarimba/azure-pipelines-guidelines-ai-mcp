@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Parsing;
 /// Extension methods for registering the parsing layer into an
 /// <see cref="IServiceCollection"/>.
 /// </summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 public static class ParsingServiceCollectionExtensions
 {
     /// <summary>

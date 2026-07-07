@@ -226,4 +226,38 @@ public sealed class GuidelineResourcesTests
         result.Should().NotContain("\"references\"");
         result.Should().NotContain("\"detectionHints\"");
     }
+
+    [Fact]
+    public async Task GetGuidelineAsync_GivenGuidelineWithDetectionHints_ShouldIncludeHintsInResponse()
+    {
+        // Arrange
+        GuidelineDefinition guideline = new(
+            new GuidelineId("ADOG-STEPS-001"),
+            GuidelineCategory.Steps,
+            GuidelineSeverity.Do,
+            "Title",
+            "Desc",
+            Rationale: null,
+            Tags: [],
+            DetectionHints:
+            [
+                new DetectionHint(DetectionKind.Regex, PipelineScope.Step, @"task:\s*", "Matches task steps"),
+            ],
+            Fix: null,
+            References: []);
+
+        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
+        repo.FindById(Arg.Any<GuidelineId>()).Returns(guideline);
+        GuidelineResources sut = MakeSutWithRepo(repo);
+
+        // Act
+        string result = await sut.GetGuidelineAsync("ADOG-STEPS-001");
+
+        // Assert
+        JsonElement doc = Deserialize<JsonElement>(result);
+        JsonElement hints = doc.GetProperty("detectionHints");
+        hints.GetArrayLength().Should().Be(1);
+        hints[0].GetProperty("kind").GetString().Should().Be("regex");
+        hints[0].GetProperty("scope").GetString().Should().Be("step");
+    }
 }

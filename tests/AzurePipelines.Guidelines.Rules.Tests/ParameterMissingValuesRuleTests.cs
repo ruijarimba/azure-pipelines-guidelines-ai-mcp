@@ -61,4 +61,16 @@ public sealed class ParameterMissingValuesRuleTests
 
         diagnostics.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenImplicitStringTypeParameterWithNoValues_ShouldReturnOneDiagnostic()
+    {
+        string yaml = TestFixtures.Load("ParameterMissingValues/ImplicitStringType.yml");
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().ContainSingle();
+        diagnostics[0].GuidelineId.Value.Should().Be("ADOG-PARAMETERS-002");
+        diagnostics[0].Message.Should().Contain("environment");
+    }
 }

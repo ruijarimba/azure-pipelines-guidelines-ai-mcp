@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// Extension methods for registering all guideline rules with an
 /// <see cref="IServiceCollection"/>.
 /// </summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 public static class GuidelineRulesServiceCollectionExtensions
 {
     /// <summary>

@@ -39,7 +39,19 @@ public sealed class StepMissingTimeoutRuleTests
         diagnostics[0].Severity.Should().Be(DiagnosticSeverity.Info);
     }
 
-    // ── No violations ─────────────────────────────────────────────────────────
+    [Fact]
+    public async Task EvaluateAsync_GivenTaskStepWithDisplayNameButNoTimeout_ShouldReturnDiagnosticWithDisplayName()
+    {
+        string yaml = TestFixtures.Load("StepMissingTimeout/TaskWithDisplayNameNoTimeout.yml");
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().ContainSingle();
+        diagnostics[0].GuidelineId.Value.Should().Be("ADOG-STEPS-006");
+        diagnostics[0].Message.Should().Contain("Deploy to Azure");
+    }
+
+    // ── No violations
 
     [Fact]
     public async Task EvaluateAsync_GivenTaskStepWithTimeout_ShouldReturnNoDiagnostics()

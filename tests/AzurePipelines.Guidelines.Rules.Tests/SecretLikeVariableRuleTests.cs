@@ -39,7 +39,19 @@ public sealed class SecretLikeVariableRuleTests
         diagnostics[0].Severity.Should().Be(DiagnosticSeverity.Error);
     }
 
-    // ── No violations ─────────────────────────────────────────────────────────
+    [Fact]
+    public async Task EvaluateAsync_GivenMappingStyleSecretVariable_ShouldReturnDiagnostic()
+    {
+        string yaml = TestFixtures.Load("SecretLikeVariable/WithMappingStyleSecretName.yml");
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().ContainSingle();
+        diagnostics[0].GuidelineId.Value.Should().Be("ADOG-VARIABLES-003");
+        diagnostics[0].Severity.Should().Be(DiagnosticSeverity.Error);
+    }
+
+    // ── No violations
 
     [Fact]
     public async Task EvaluateAsync_GivenSafeVariableName_ShouldReturnNoDiagnostics()

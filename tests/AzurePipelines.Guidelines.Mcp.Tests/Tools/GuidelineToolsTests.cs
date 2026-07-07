@@ -129,16 +129,40 @@ public sealed class GuidelineToolsTests
         obj.GetProperty("error").GetString().Should().Contain("not-a-real-category");
     }
 
+    [Theory]
+    [InlineData("general", GuidelineCategory.General)]
+    [InlineData("jobs", GuidelineCategory.Jobs)]
+    [InlineData("parameters", GuidelineCategory.Parameters)]
+    [InlineData("pipelines", GuidelineCategory.Pipelines)]
+    [InlineData("stages", GuidelineCategory.Stages)]
+    [InlineData("variables", GuidelineCategory.Variables)]
+    public void ListGuidelines_GivenAllKnownCategories_ShouldCallRepositoryWithCorrectCategory(
+        string categoryFilter, GuidelineCategory expectedEnum)
+    {
+        // Arrange
+        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
+        repo.GetByCategory(Arg.Any<GuidelineCategory>()).Returns([]);
+        GuidelineTools sut = MakeSutWithRepo(repo);
+
+        // Act
+        _ = sut.ListGuidelines(categoryFilter);
+
+        // Assert
+        repo.Received(1).GetByCategory(expectedEnum);
+    }
+
     // ── GetGuideline ──────────────────────────────────────────────────────────
 
-    [Fact]
-    public void GetGuideline_GivenNullOrEmptyId_ShouldReturnErrorObject()
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void GetGuideline_GivenNullOrWhitespaceId_ShouldReturnErrorObject(string id)
     {
         // Arrange
         GuidelineTools sut = MakeSut();
 
         // Act
-        string result = sut.GetGuideline(string.Empty);
+        string result = sut.GetGuideline(id);
 
         // Assert
         JsonElement obj = Deserialize<JsonElement>(result);
@@ -231,6 +255,42 @@ public sealed class GuidelineToolsTests
         fix.GetProperty("summary").GetString().Should().Be("Do this instead.");
         fix.GetProperty("before").GetString().Should().Be("bad");
         fix.GetProperty("after").GetString().Should().Be("good");
+    }
+
+    [Fact]
+    public void GetGuideline_GivenGuidelineWithDetectionHints_ShouldIncludeHintsInResponse()
+    {
+        // Arrange
+        GuidelineDefinition guideline = new(
+            new GuidelineId("ADOG-STEPS-001"),
+            GuidelineCategory.Steps,
+            GuidelineSeverity.Do,
+            "Title",
+            "Desc",
+            Rationale: null,
+            Tags: [],
+            DetectionHints:
+            [
+                new DetectionHint(DetectionKind.Regex, PipelineScope.Step, @"task:\s*", "Matches task steps"),
+            ],
+            Fix: null,
+            References: []);
+
+        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
+        repo.FindById(Arg.Any<GuidelineId>()).Returns(guideline);
+        GuidelineTools sut = MakeSutWithRepo(repo);
+
+        // Act
+        string result = sut.GetGuideline("ADOG-STEPS-001");
+
+        // Assert
+        JsonElement obj = Deserialize<JsonElement>(result);
+        JsonElement hints = obj.GetProperty("detectionHints");
+        hints.GetArrayLength().Should().Be(1);
+        hints[0].GetProperty("kind").GetString().Should().Be("regex");
+        hints[0].GetProperty("scope").GetString().Should().Be("step");
+        hints[0].GetProperty("expression").GetString().Should().Be(@"task:\s*");
+        hints[0].GetProperty("description").GetString().Should().Be("Matches task steps");
     }
 
     // ── SearchGuidelines ──────────────────────────────────────────────────────
