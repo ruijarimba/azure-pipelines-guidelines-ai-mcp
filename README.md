@@ -88,12 +88,17 @@ For the full rule list and definitions, see the
 ### Option 1 — CLI static analyzer
 
 Install the CLI as a [.NET global tool](https://learn.microsoft.com/dotnet/core/tools/global-tools) and
-run it against a pipeline file:
+run it against one or more pipeline files or directories:
 
 ```bash
 dotnet tool install -g adog
 adog analyze azure-pipelines.yml
+adog analyze path/to/pipelines path/to/another-pipeline.yml
+adog analyze path/to/pipelines-directory
 ```
+
+The analyzer accepts `.yml` and `.yaml` files, and it expands directories recursively to find
+pipeline YAML files.
 
 Example output:
 

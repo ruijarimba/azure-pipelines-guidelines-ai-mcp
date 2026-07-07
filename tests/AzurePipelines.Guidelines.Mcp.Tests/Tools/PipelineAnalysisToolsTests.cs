@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AzurePipelines.Guidelines.Analysis;
 using AzurePipelines.Guidelines.Core;
 using AzurePipelines.Guidelines.Mcp.Tools;
 using FluentAssertions;
@@ -13,13 +14,22 @@ public sealed class PipelineAnalysisToolsTests
 
     private static PipelineAnalysisTools MakeSut(
         IPipelineParser? parser = null,
-        IPipelineAnalyser? analyser = null) =>
+        IPipelineAnalyser? analyser = null,
+        PipelinePathResolver? pathResolver = null) =>
         new(
             parser ?? Substitute.For<IPipelineParser>(),
-            analyser ?? Substitute.For<IPipelineAnalyser>());
+            analyser ?? Substitute.For<IPipelineAnalyser>(),
+            pathResolver ?? new PipelinePathResolver());
 
     private static T Deserialize<T>(string json) =>
         JsonSerializer.Deserialize<T>(json)!;
+
+    private static string CreateTempDirectory()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "adog-mcp-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(path);
+        return path;
+    }
 
     private static PipelineDocument EmptyDocument() =>
         new(
@@ -330,5 +340,40 @@ public sealed class PipelineAnalysisToolsTests
         // Assert
         JsonElement[] items = Deserialize<JsonElement[]>(result);
         items.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task AnalyzePipelinePathsAsync_GivenDirectoryInput_ShouldReturnFileResults()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+                .Returns(MakeResult([MakeDiagnostic()]));
+
+        PipelineAnalysisTools sut = MakeSut(parser, analyser, new PipelinePathResolver());
+        string tempDirectory = CreateTempDirectory();
+        string nestedDirectory = Path.Combine(tempDirectory, "nested");
+        Directory.CreateDirectory(nestedDirectory);
+        await File.WriteAllTextAsync(Path.Combine(tempDirectory, "one.yml"), "steps: []");
+        await File.WriteAllTextAsync(Path.Combine(nestedDirectory, "two.yaml"), "steps: []");
+
+        try
+        {
+            // Act
+            string result = await sut.AnalyzePipelinePathsAsync([tempDirectory]);
+
+            // Assert
+            JsonElement[] items = Deserialize<JsonElement[]>(result);
+            items.Should().HaveCount(2);
+            items[0].GetProperty("filePath").GetString().Should().NotBeNull();
+            items[1].GetProperty("filePath").GetString().Should().NotBeNull();
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, recursive: true);
+        }
     }
 }

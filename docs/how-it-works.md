@@ -75,9 +75,11 @@ format.
 | | CLI (`adog`) | MCP server (`adog-mcp`) |
 | --- | --- | --- |
 | Caller | Human or CI pipeline | AI assistant (MCP client) |
-| Input | Path to a YAML file | YAML text passed in a tool call |
+| Input | One or more file or directory paths | YAML text passed in a tool call |
 | Output | Console text or JSON | Structured MCP response |
 | Transport | Standard file I/O | stdio JSON-RPC |
+
+The CLI expands each directory recursively and analyzes every `.yml` and `.yaml` file it finds.
 
 ## Detection kinds
 

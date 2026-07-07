@@ -12,7 +12,7 @@ Published as a **.NET global tool** via `dotnet tool install -g adog`.
 
 - `Program.cs` — `System.CommandLine` root command + subcommands.
 - Commands:
-  - `analyze <path>` — run analysis, output diagnostics
+  - `analyze <path> [<path> ...]` — run analysis on one or more YAML files or directories, output diagnostics
   - `rules list` — list all available rules
   - `rules show <rule-id>` — show details for a specific rule
 - Output formatters: console (default), JSON, SARIF.
@@ -48,9 +48,9 @@ Published as a **.NET global tool** via `dotnet tool install -g adog`.
 ## CLI surface (planned)
 
 ```bash
-adog analyze <path> [--format console|json|sarif] [--severity error|warning|info] [--category <category>]
-adog rules list [--category <category>]
-adog rules show <rule-id>
+adog analyze <path> [<path> ...] [--format console|json] [--severity error|warning|info]
+adog rules list [--category <category>] [--format console|json]
+adog rules show <rule-id> [--format console|json]
 ```
 
 ## Distribution

@@ -1,3 +1,4 @@
+using AzurePipelines.Guidelines.Analysis;
 using AzurePipelines.Guidelines.Cli;
 using AzurePipelines.Guidelines.Core;
 using FluentAssertions;
@@ -13,15 +14,22 @@ public sealed class AnalyzeCommandTests
     private static FileInfo FixtureFile(string name) =>
         new(Path.Combine(AppContext.BaseDirectory, "Fixtures", name));
 
+    private static string CreateTempDirectory()
+    {
+        string path = Path.Combine(Path.GetTempPath(), "adog-cli-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(path);
+        return path;
+    }
+
     private static PipelineDocument EmptyDocument(string filePath = "(test)") =>
         new(
-            Jobs: [],
-            Stages: [],
-            Steps: [],
-            Variables: [],
-            Parameters: [],
-            RawContent: string.Empty,
-            FilePath: filePath);
+            filePath,
+            string.Empty,
+            [],
+            [],
+            [],
+            [],
+            []);
 
     private static AnalysisResult CleanResult(string filePath = "(test)") =>
         new(EmptyDocument(filePath), []);
@@ -164,5 +172,95 @@ public sealed class AnalyzeCommandTests
 
         // Assert
         await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task RunAsync_GivenMultiplePaths_ShouldAnalyseEachDiscoveredFile()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(callInfo =>
+            EmptyDocument(callInfo.ArgAt<string>(1)));
+
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+                .Returns(callInfo =>
+                {
+                    PipelineDocument document = (PipelineDocument)callInfo[0]!;
+                    return document.FilePath.EndsWith("two.yml", StringComparison.OrdinalIgnoreCase)
+                        ? ViolationResult(document.FilePath)
+                        : CleanResult(document.FilePath);
+                });
+
+        string tempDirectory = CreateTempDirectory();
+        string firstPath = Path.Combine(tempDirectory, "one.yml");
+        string secondPath = Path.Combine(tempDirectory, "two.yml");
+        await File.WriteAllTextAsync(firstPath, "steps: []");
+        await File.WriteAllTextAsync(secondPath, "steps: []");
+
+        try
+        {
+            // Act
+            int exitCode = await AnalyzeCommand.RunAsync(
+                parser,
+                analyser,
+                new PipelinePathResolver(),
+                [firstPath, secondPath],
+                "console",
+                "info");
+
+            // Assert
+            exitCode.Should().Be(ExitCodes.Violations);
+            await analyser.Received(2).AnalyseAsync(
+                Arg.Any<PipelineDocument>(),
+                Arg.Any<AnalysisOptions>(),
+                Arg.Any<CancellationToken>());
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsync_GivenDirectoryInput_ShouldAnalyseFilesRecursively()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(callInfo =>
+            EmptyDocument(callInfo.ArgAt<string>(1)));
+
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+                .Returns(callInfo => CleanResult(callInfo.Arg<PipelineDocument>(0).FilePath));
+
+        string tempDirectory = CreateTempDirectory();
+        string nestedDirectory = Path.Combine(tempDirectory, "nested");
+        Directory.CreateDirectory(nestedDirectory);
+        string nestedPath = Path.Combine(nestedDirectory, "pipeline.yaml");
+        await File.WriteAllTextAsync(nestedPath, "steps: []");
+
+        try
+        {
+            // Act
+            int exitCode = await AnalyzeCommand.RunAsync(
+                parser,
+                analyser,
+                new PipelinePathResolver(),
+                [tempDirectory],
+                "console",
+                "info");
+
+            // Assert
+            exitCode.Should().Be(ExitCodes.Clean);
+            await analyser.Received(1).AnalyseAsync(
+                Arg.Any<PipelineDocument>(),
+                Arg.Any<AnalysisOptions>(),
+                Arg.Any<CancellationToken>());
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, recursive: true);
+        }
     }
 }

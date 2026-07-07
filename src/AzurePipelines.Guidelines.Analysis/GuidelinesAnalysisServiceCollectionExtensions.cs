@@ -27,6 +27,7 @@ public static class GuidelinesAnalysisServiceCollectionExtensions
         services.AddSingleton<IPipelineParser, YamlPipelineParser>();
         services.AddGuidelineRules();
         services.AddSingleton<IPipelineAnalyser, PipelineAnalyser>();
+        services.AddSingleton<PipelinePathResolver>();
 
         return services;
     }

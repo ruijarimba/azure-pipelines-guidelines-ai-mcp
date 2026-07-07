@@ -150,6 +150,22 @@ internal static class ConsoleFormatter
         return sb.ToString();
     }
 
+    internal static string Format(IReadOnlyList<AnalysisResult> results)
+    {
+        if (results.Count == 0)
+        {
+            return $"No files analysed.{Environment.NewLine}";
+        }
+
+        StringBuilder sb = new();
+        foreach (AnalysisResult result in results)
+        {
+            sb.Append(Format(result));
+        }
+
+        return sb.ToString();
+    }
+
     // Lowercase label matching the JSON serialisation convention.
     private static string SeverityLabel(DiagnosticSeverity severity) =>
         severity switch

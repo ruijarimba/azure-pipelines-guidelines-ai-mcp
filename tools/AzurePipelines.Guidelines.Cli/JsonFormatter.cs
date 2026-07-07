@@ -57,10 +57,30 @@ internal static class JsonFormatter
 
     internal static string Format(AnalysisResult result)
     {
-        DiagnosticDto[] dtos = new DiagnosticDto[result.Diagnostics.Count];
-        for (int i = 0; i < result.Diagnostics.Count; i++)
+        DiagnosticDto[] dtos = BuildDiagnosticDtos(result.Diagnostics);
+        return JsonSerializer.Serialize(dtos, _options);
+    }
+
+    internal static string Format(IReadOnlyList<AnalysisResult> results)
+    {
+        FileAnalysisResultDto[] dtos = new FileAnalysisResultDto[results.Count];
+        for (int i = 0; i < results.Count; i++)
         {
-            Diagnostic d = result.Diagnostics[i];
+            AnalysisResult result = results[i];
+            dtos[i] = new FileAnalysisResultDto(
+                result.Document.FilePath,
+                BuildDiagnosticDtos(result.Diagnostics));
+        }
+
+        return JsonSerializer.Serialize(dtos, _options);
+    }
+
+    private static DiagnosticDto[] BuildDiagnosticDtos(IReadOnlyList<Diagnostic> diagnostics)
+    {
+        DiagnosticDto[] dtos = new DiagnosticDto[diagnostics.Count];
+        for (int i = 0; i < diagnostics.Count; i++)
+        {
+            Diagnostic d = diagnostics[i];
             dtos[i] = new DiagnosticDto(
                 d.GuidelineId.Value,
                 EnumToLower(d.Severity),
@@ -69,7 +89,7 @@ internal static class JsonFormatter
                 d.Line);
         }
 
-        return JsonSerializer.Serialize(dtos, _options);
+        return dtos;
     }
 
     // Converts an enum value to lowercase ASCII — avoids CA1308 (ToLowerInvariant).
@@ -116,5 +136,9 @@ internal static class JsonFormatter
         [property: JsonPropertyName("message")]  string Message,
         [property: JsonPropertyName("filePath")] string FilePath,
         [property: JsonPropertyName("line")]     int? Line);
+
+    private sealed record FileAnalysisResultDto(
+        [property: JsonPropertyName("filePath")] string FilePath,
+        [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics);
 }
 

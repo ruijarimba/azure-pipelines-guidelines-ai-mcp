@@ -14,12 +14,13 @@ await using ServiceProvider sp = services.BuildServiceProvider();
 
 IPipelineParser parser = sp.GetRequiredService<IPipelineParser>();
 IPipelineAnalyser analyser = sp.GetRequiredService<IPipelineAnalyser>();
+PipelinePathResolver pathResolver = sp.GetRequiredService<PipelinePathResolver>();
 
 // Load the guideline catalogue once at startup for the rules commands.
 IGuidelineRepository repository = await LoadGuidelinesAsync();
 
 RootCommand rootCommand = new("Azure Pipelines Guidelines static analyser (adog)");
-rootCommand.AddCommand(AnalyzeCommand.Create(parser, analyser));
+rootCommand.AddCommand(AnalyzeCommand.Create(parser, analyser, pathResolver));
 rootCommand.AddCommand(RulesCommand.Create(repository));
 
 return await rootCommand.InvokeAsync(args);

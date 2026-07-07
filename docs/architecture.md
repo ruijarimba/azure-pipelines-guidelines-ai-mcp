@@ -121,10 +121,13 @@ see [`glossary.md`](glossary.md).
 ## CLI surface
 
 ```
-adog analyze <path> [--format console|json] [--severity error|warning|info]
+adog analyze <path> [<path> ...] [--format console|json] [--severity error|warning|info]
 adog rules list [--category <category>] [--format console|json]
 adog rules show <rule-id> [--format console|json]
 ```
+
+Each `path` can point to a `.yml` or `.yaml` file, or to a directory. Directories are expanded
+recursively to find pipeline YAML files.
 
 Exit codes: `0` = no violations at threshold, `1` = violations found, `2` = analysis error.
 
