@@ -1,3 +1,4 @@
+using AzurePipelines.Guidelines.Analysis;
 using AzurePipelines.Guidelines.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,10 @@ public static class GuidelinesMcpServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        // Register the loader as a singleton. A dedicated HttpClient is created once
+        // Register the parser, all guideline rules, and the analysis engine.
+        services.AddGuidelinesAnalysis();
+
+        // Register the loader as a singleton.
         // and shared for the lifetime of the process (manifest is loaded at startup only).
         services.AddSingleton<IGuidelineLoader>(sp =>
         {
