@@ -15,7 +15,33 @@ await using ServiceProvider sp = services.BuildServiceProvider();
 IPipelineParser parser = sp.GetRequiredService<IPipelineParser>();
 IPipelineAnalyser analyser = sp.GetRequiredService<IPipelineAnalyser>();
 
+// Load the guideline catalogue once at startup for the rules commands.
+IGuidelineRepository repository = await LoadGuidelinesAsync();
+
 RootCommand rootCommand = new("Azure Pipelines Guidelines static analyser (adog)");
 rootCommand.AddCommand(AnalyzeCommand.Create(parser, analyser));
+rootCommand.AddCommand(RulesCommand.Create(repository));
 
 return await rootCommand.InvokeAsync(args);
+
+static async Task<IGuidelineRepository> LoadGuidelinesAsync()
+{
+    using HttpClient httpClient = new();
+    httpClient.DefaultRequestHeaders.Add("User-Agent", "adog/1.0");
+    HttpGuidelineLoader loader = new(httpClient);
+
+    try
+    {
+        IReadOnlyList<GuidelineDefinition> guidelines = await loader.LoadAsync().ConfigureAwait(false);
+        return new GuidelineRepository(guidelines);
+    }
+    catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+    {
+        await Console.Error.WriteLineAsync(
+            $"warning: Failed to load guideline catalogue: {ex.Message} " +
+            "— 'rules' commands will return no results.")
+            .ConfigureAwait(false);
+        return new GuidelineRepository([]);
+    }
+}
+
