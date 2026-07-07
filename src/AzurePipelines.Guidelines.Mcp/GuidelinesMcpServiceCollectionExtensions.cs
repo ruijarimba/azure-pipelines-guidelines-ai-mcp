@@ -69,7 +69,7 @@ public static class GuidelinesMcpServiceCollectionExtensions
             return new GuidelineRepository(guidelines);
         });
 
-        // MCP server: stdio transport + tool discovery from the Mcp assembly.
+        // MCP server: stdio transport + tool and resource discovery from the Mcp assembly.
         services
             .AddMcpServer(options =>
             {
@@ -80,7 +80,8 @@ public static class GuidelinesMcpServiceCollectionExtensions
                 };
             })
             .WithStdioServerTransport()
-            .WithToolsFromAssembly(typeof(GuidelinesMcpServiceCollectionExtensions).Assembly);
+            .WithToolsFromAssembly(typeof(GuidelinesMcpServiceCollectionExtensions).Assembly)
+            .WithResourcesFromAssembly(typeof(GuidelinesMcpServiceCollectionExtensions).Assembly);
 
         return services;
     }

@@ -1,0 +1,79 @@
+name: Release
+
+# Fires when a version tag is pushed (e.g. v1.0.0 or v1.2.3-preview.1).
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish NuGet packages & global tool
+    runs-on: ubuntu-latest
+
+    # -------------------------------------------------------------------
+    # SETUP REQUIRED before this workflow can publish:
+    #
+    # 1. Create a "release" environment in the repository settings
+    #    (Settings → Environments → New environment).
+    # 2. Add a required reviewer to that environment.
+    # 3. Add the NUGET_API_KEY secret to that environment.
+    #
+    # Until those steps are completed this job will be skipped entirely.
+    # -------------------------------------------------------------------
+    environment: release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Derive version from tag
+        id: version
+        # Strip the leading 'v' from the tag name (e.g. v1.2.3 → 1.2.3).
+        run: echo "PACKAGE_VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test --no-build --configuration Release
+
+      - name: Pack src/ libraries
+        run: >
+          dotnet pack
+          --no-build
+          --configuration Release
+          /p:PackageVersion=${{ steps.version.outputs.PACKAGE_VERSION }}
+          --output nupkgs
+          src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj
+          src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj
+          src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj
+          src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj
+          src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj
+
+      - name: Pack CLI global tool
+        run: >
+          dotnet pack
+          --no-build
+          --configuration Release
+          /p:PackageVersion=${{ steps.version.outputs.PACKAGE_VERSION }}
+          --output nupkgs
+          tools/AzurePipelines.Guidelines.Cli/AzurePipelines.Guidelines.Cli.csproj
+
+      - name: Push to NuGet.org
+        run: >
+          dotnet nuget push "nupkgs/*.nupkg"
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
