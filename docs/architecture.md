@@ -3,7 +3,7 @@
 ## Overview
 
 This project is a layered .NET 10 solution that builds two tools on top of
-the [azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines)
+the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
 machine-readable definitions:
 
 1. **MCP server** — AI assistants call it to look up guidelines and analyze pipeline YAML files.
@@ -34,6 +34,30 @@ tools/AzurePipelines.Guidelines.Cli  [exe]
      └── AzurePipelines.Guidelines.Analysis
      └── [NuGet] System.CommandLine
      └── [NuGet] Microsoft.Extensions.Hosting
+```
+
+```mermaid
+graph TD
+    subgraph src["src/"]
+        Core["Core"]
+        Parsing["Parsing"]
+        Rules["Rules"]
+        Analysis["Analysis"]
+        Mcp["Mcp"]
+    end
+    subgraph tools["tools/"]
+        McpHost["Mcp.Host [exe]"]
+        Cli["Cli [exe]"]
+    end
+    Parsing --> Core
+    Rules --> Core
+    Analysis --> Core
+    Analysis --> Parsing
+    Analysis --> Rules
+    Mcp --> Core
+    Mcp --> Analysis
+    McpHost --> Mcp
+    Cli --> Analysis
 ```
 
 **Rule:** arrows point from dependent → dependency. Cycles are forbidden.

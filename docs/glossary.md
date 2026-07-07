@@ -8,7 +8,7 @@
 
 | Term | Definition |
 | --- | --- |
-| **Guideline** | A single recommendation from the [azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines) repository. Each guideline maps to a stable `GuidelineId`. |
+| **Guideline** | A single recommendation from the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines). Each guideline maps to a stable `GuidelineId`. |
 | **GuidelineId** | Stable unique identifier: `ADOG-{CATEGORY}-{NNN}` (for example, `ADOG-STEPS-001`). Never reused after a guideline is renamed or removed. |
 | **GuidelineCategory** | One of: `General`, `Jobs`, `Parameters`, `Pipelines`, `Stages`, `Steps`, `Variables`. |
 | **GuidelineSeverity** | Indicates how strongly a recommendation should be followed: `Do`, `DoNot`, `Avoid`, `Consider`. |

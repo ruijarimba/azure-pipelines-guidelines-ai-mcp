@@ -2,7 +2,7 @@
 
 ## North star
 
-Build **two tools** on top of the [azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines)
+Build **two tools** on top of the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
 machine-readable manifest that make the guidelines **actionable** for humans and AI assistants:
 
 1. **MCP server** — AI assistants call it to look up guidelines and analyse pipeline YAML.

@@ -108,7 +108,7 @@ these, it must re-read the rationale first; if the context has changed, document
 
 **Date:** 2025-01-25  
 **Context:** Need a single source of truth for rule definitions.  
-**Decision:** Consume `data/guidelines.json` from [azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).  
+**Decision:** Consume `data/guidelines.json` from the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).  
 **Rationale:**  
 - Guidelines evolve independently of the tooling.
 - Manifest schema is versioned and stable (`schemaVersion` field).

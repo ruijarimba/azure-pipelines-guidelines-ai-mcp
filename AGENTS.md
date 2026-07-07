@@ -6,7 +6,7 @@ Read this file **and the `AGENTS.md` in each subdirectory** before making any ch
 ## What this repository does
 
 Provides a .NET 10 implementation of two tools built on top of the
-[azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines)
+[Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
 machine-readable manifest:
 
 1. **MCP server** â€” exposes guideline lookup and Azure Pipelines YAML analysis as
@@ -37,16 +37,16 @@ consistent across sessions:
 
 | Document | Purpose |
 | --- | --- |
-| [`docs/vision.md`](docs/vision.md) | North star, phased roadmap, in-scope / out-of-scope |
-| [`docs/decisions.md`](docs/decisions.md) | Architecture decisions + rationale (ADRs) â€” read before reversing any choice |
-| [`docs/glossary.md`](docs/glossary.md) | Single source of truth for domain terms |
-| [`docs/architecture.md`](docs/architecture.md) | Dependency graph, layer responsibilities, extension points |
+[the vision and roadmap guide](docs/vision.md)
+[the architecture decisions record](docs/decisions.md)
+[the glossary reference](docs/glossary.md)
+[the architecture guide](docs/architecture.md)
 
 ## Agent behaviour
 
 The canonical rules are in
-[`.github/instructions/agent-behaviour.instructions.md`](.github/instructions/agent-behaviour.instructions.md)
-(grounded in published frameworks â€” see [ADR-010](docs/decisions.md)).
+[the agent behaviour instructions](.github/instructions/agent-behaviour.instructions.md)
+[ADR-010 in the architecture decisions record](docs/decisions.md)
 They apply to every task in this repository.
 
 Seven principles in brief:
@@ -82,7 +82,7 @@ Core
 
 `Core` imports **no other `src/` project**.
 
-See [`docs/architecture.md`](docs/architecture.md) for the full design rationale and
+See [the architecture guide](docs/architecture.md) for the full design rationale and
 extension-point catalogue.
 
 ## Quality standards
@@ -97,9 +97,9 @@ extension-point catalogue.
 - Tests use **xUnit**, **FluentAssertions**, and **NSubstitute** â€” no other test libraries.
 - No logic that belongs in production code may live in a test file.
 - **Human maintainability is a first-class requirement** â€” see
-  [`.github/instructions/maintainability.instructions.md`](.github/instructions/maintainability.instructions.md)
+  [the maintainability instructions](.github/instructions/maintainability.instructions.md)
   for file size limits, method size limits, comment discipline, and change scope rules
-  (grounded in published style guides â€” see [ADR-011](docs/decisions.md)).
+  [ADR-011 in the architecture decisions record](docs/decisions.md)
 
 ## NuGet packaging intent
 
@@ -113,7 +113,7 @@ All `src/` projects are destined for independent NuGet publication. They must:
 
 ## Key domain vocabulary
 
-See [`docs/glossary.md`](docs/glossary.md) for the single source of truth.
+See [the glossary reference](docs/glossary.md) for the single source of truth.
 
 Quick reference:
 

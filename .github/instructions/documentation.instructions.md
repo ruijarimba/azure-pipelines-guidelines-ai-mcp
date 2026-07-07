@@ -75,10 +75,22 @@ Good structure makes documents easier to scan. Use headings, lists, and tables i
 ### Link text
 
 - Use descriptive link text that explains where the link goes or what the reader will find.
-- Avoid generic link text such as `click here`, `read more`, or `see this`.
+- Avoid generic link text such as `click here`, `read more`, `see this`, or simply the file name when the file name is not helpful.
 - Prefer natural phrasing: `For more detail, see [Markdown link best practices](link).`
 - Do not put links in headings; put link text in body copy instead.
 - Use relative links for documentation within the repository when possible.
+
+Good examples:
+
+- [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
+- [the architecture guide](docs/architecture.md)
+- [the contribution guide](CONTRIBUTING.md)
+
+Bad examples:
+
+- [here](link)
+- [read more](link)
+- [docs](docs/architecture.md)
 
 ### Heading examples
 
@@ -108,10 +120,21 @@ Show concrete examples in Markdown or YAML code blocks. Always explain what the 
 
 ### Use diagrams for flow or structure
 
-Use simple diagrams when a process is hard to explain in text. Use Mermaid when needed. Use tools and syntax supported by the target Markdown renderer. For Azure DevOps, prefer `graph LR` instead of `flowchart LR`.
+Use simple diagrams when a process is hard to explain in text. Use Mermaid when needed.
+
+**Direction:** prefer `graph TD` (top-down) over `graph LR` (left-right). Top-down diagrams
+fit narrow screens better and match the vertical reading direction of the page. Use `graph LR`
+only when the content is a left-to-right pipeline where the horizontal direction carries
+meaning that top-down would lose.
+
+**Sequence interactions:** use `sequenceDiagram` for ordered message exchanges between
+participants. Sequence diagrams are top-down by nature.
+
+**Renderer compatibility:** use `graph` syntax instead of `flowchart` syntax when the target
+renderer is Azure DevOps, as `flowchart` rendering is less reliable there.
 
 ```mermaid
-graph LR
+graph TD
   A[Choose the document purpose] --> B[Write a short outline]
   B --> C[Create clear headings]
   C --> D[Add examples or diagrams]
