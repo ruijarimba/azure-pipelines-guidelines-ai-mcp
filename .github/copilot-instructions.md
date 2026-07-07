@@ -15,6 +15,7 @@ Read this file **and the linked instruction files** before generating or modifyi
 
 ## Durable project context (read first)
 
+- `docs/progress.md` — **current session state**: recently completed work, what is in progress, and next steps.
 - `AGENTS.md` — root map of the repository and quality standards.
 - `docs/vision.md` — north star, phased roadmap, in-scope / out-of-scope.
 - `docs/decisions.md` — architecture decisions + rationale (ADRs).
