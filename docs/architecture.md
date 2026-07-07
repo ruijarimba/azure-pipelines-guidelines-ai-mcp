@@ -104,8 +104,16 @@ adog rules show <rule-id> [--format console|json]
 
 Exit codes: `0` = no violations at threshold, `1` = violations found, `2` = analysis error.
 
-## NuGet packages
+## NuGet packages and distribution
 
 All `src/` projects are published as independent packages (`AzurePipelines.Guidelines.*`).
-`Cli` is published as a .NET global tool via `dotnet tool install`.
-`Mcp.Host` is distributed as a standalone executable or container image.
+
+| Artefact | Package ID | Distribution |
+| --- | --- | --- |
+| CLI analyser | `adog` | NuGet.org global tool (`dotnet tool install -g adog`) |
+| MCP server | `adog-mcp` | NuGet.org global tool (`dotnet tool install -g adog-mcp`) |
+| MCP server | — | Docker Hub (`ruijarimba/azure-pipelines-guidelines-mcp`) |
+
+`Mcp.Host` is the executable entry point for both the global tool and the Docker image.
+No application code changes are needed between the two distribution forms — the same
+binary runs in both contexts.

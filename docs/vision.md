@@ -20,7 +20,9 @@ Both tools consume the same `data/guidelines.json` manifest from the companion r
 - CLI tool (`adog analyze`, `adog rules list`, `adog rules show`).
 - JSON and console output formats.
 - NuGet packages for all `src/` libraries.
-- .NET global tool distribution for `adog`.
+- .NET global tool distribution for `adog` (CLI) and `adog-mcp` (MCP server).
+- Docker image for the MCP server (`ruijarimba/azure-pipelines-guidelines-mcp` on Docker Hub),
+  so anyone can run the server without installing .NET.
 - Comprehensive unit test coverage (xUnit + FluentAssertions + NSubstitute).
 
 ### Phase 2 (future enhancements)
@@ -55,7 +57,8 @@ Both tools consume the same `data/guidelines.json` manifest from the companion r
 - All `ADOG-…` rules from `guidelines.json` are implemented.
 - MCP server responds correctly to all defined tools and resources.
 - CLI produces accurate diagnostics and exits with correct codes.
-- `src/` packages published to NuGet.org, CLI published as a global tool.
+- `src/` packages published to NuGet.org, `adog` and `adog-mcp` published as global tools.
+- Docker image published to Docker Hub (`ruijarimba/azure-pipelines-guidelines-mcp`).
 - Test coverage ≥ 90% for all logical branches (measured via `dotnet test --collect:"XPlat Code Coverage"`).
 - Documentation complete: `AGENTS.md`, `architecture.md`, this file, and per-project `AGENTS.md`.
 

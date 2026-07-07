@@ -1,0 +1,34 @@
+# Build outputs — excluded to keep the context small and prevent stale
+# local binaries from leaking into the Docker build cache.
+**/bin/
+**/obj/
+
+# Test projects — not needed for the production image.
+tests/
+
+# Git metadata.
+.git/
+.gitignore
+.gitattributes
+
+# IDE and editor artefacts.
+.vs/
+.vscode/
+*.user
+*.suo
+
+# CI and GitHub-specific files — not needed inside the image.
+.github/
+
+# Documentation — not needed inside the image.
+docs/
+*.md
+
+# Coverage and test results produced locally.
+TestResults/
+coverage/
+nupkgs*/
+
+# Docker files themselves (no need to copy them into the build context).
+Dockerfile
+.dockerignore
