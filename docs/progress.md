@@ -20,6 +20,9 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `8c3b576` | chore: mirror filesystem structure in Solution Explorer — rule 8 in agent-behaviour, slnx hierarchy fixes |
+| `572af54` | chore: add non-code files to Solution Explorer (AGENTS.md per project, docs, .github) |
+| `eec4316` | docs: expand CLI AGENTS.md with full option/example/format documentation |
 | `699f2e4` | docs: add `docs/progress.md` session handoff log and link from `AGENTS.md` and `copilot-instructions` |
 | `d72bf64` | feat: add `--category` filter to `adog analyze` and `--severity` filter to `adog rules list` — CLI and MCP |
 | `e874e24` | docs: improve MCP tools documentation and fix accuracy issues |
@@ -53,7 +56,7 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-Nothing — working tree is clean. CLI AGENTS.md updated this session with full option/example documentation (see next up for the implementation tasks that follow from that).
+Nothing — working tree is clean after `8c3b576`.
 
 ---
 
