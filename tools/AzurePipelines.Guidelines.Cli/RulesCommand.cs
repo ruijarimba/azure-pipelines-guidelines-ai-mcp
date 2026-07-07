@@ -13,6 +13,10 @@ internal static class RulesCommand
         new[] { "general", "jobs", "parameters", "pipelines", "stages", "steps", "variables" }
             .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
+    private static readonly FrozenSet<string> _validSeverities =
+        new[] { "do", "do-not", "avoid", "consider" }
+            .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
     internal static Command Create(IGuidelineRepository repository)
     {
         Command rulesCommand = new("rules", "Browse and query the loaded Azure Pipelines guidelines.");
@@ -30,6 +34,11 @@ internal static class RulesCommand
             description: "Filter by category: general, jobs, parameters, pipelines, stages, steps, variables.",
             getDefaultValue: () => null);
 
+        Option<string?> severityOpt = new(
+            name: "--severity",
+            description: "Filter by severity: do, do-not, avoid, consider.",
+            getDefaultValue: () => null);
+
         Option<string> formatOpt = new(
             name: "--format",
             description: "Output format: console (default) or json.",
@@ -38,13 +47,14 @@ internal static class RulesCommand
         Command listCommand = new("list", "List all available guidelines.")
         {
             categoryOpt,
+            severityOpt,
             formatOpt,
         };
 
         listCommand.SetHandler(
-            async (string? category, string format) =>
-                Environment.Exit(await RunListAsync(repository, category, format)),
-            categoryOpt, formatOpt);
+            async (string? category, string? severity, string format) =>
+                Environment.Exit(await RunListAsync(repository, category, severity, format)),
+            categoryOpt, severityOpt, formatOpt);
 
         return listCommand;
     }
@@ -52,7 +62,8 @@ internal static class RulesCommand
     internal static async Task<int> RunListAsync(
         IGuidelineRepository repository,
         string? category,
-        string format)
+        string? severity = null,
+        string format = "console")
     {
         IReadOnlyList<GuidelineDefinition> guidelines;
 
@@ -71,6 +82,20 @@ internal static class RulesCommand
                 "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.")
                 .ConfigureAwait(false);
             return ExitCodes.Error;
+        }
+
+        if (severity is not null)
+        {
+            if (!TryParseSeverity(severity, out GuidelineSeverity parsedSeverity))
+            {
+                await Console.Error.WriteLineAsync(
+                    $"error: Unknown severity '{severity}'. " +
+                    "Allowed values: do, do-not, avoid, consider.")
+                    .ConfigureAwait(false);
+                return ExitCodes.Error;
+            }
+
+            guidelines = [.. guidelines.Where(g => g.Severity == parsedSeverity)];
         }
 
         string output = format.Equals("json", StringComparison.OrdinalIgnoreCase)
@@ -169,6 +194,26 @@ internal static class RulesCommand
             "STEPS"      => GuidelineCategory.Steps,
             "VARIABLES"  => GuidelineCategory.Variables,
             _            => GuidelineCategory.General,
+        };
+
+        return true;
+    }
+
+    private static bool TryParseSeverity(string value, out GuidelineSeverity result)
+    {
+        if (!_validSeverities.Contains(value))
+        {
+            result = default;
+            return false;
+        }
+
+        result = value.ToUpperInvariant() switch
+        {
+            "DO"      => GuidelineSeverity.Do,
+            "DO-NOT"  => GuidelineSeverity.DoNot,
+            "AVOID"   => GuidelineSeverity.Avoid,
+            "CONSIDER" => GuidelineSeverity.Consider,
+            _          => GuidelineSeverity.Consider,
         };
 
         return true;

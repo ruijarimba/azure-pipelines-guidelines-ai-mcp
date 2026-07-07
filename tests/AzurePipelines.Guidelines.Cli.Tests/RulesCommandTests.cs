@@ -189,4 +189,54 @@ public sealed class RulesCommandTests
         doc.RootElement.GetProperty("title").GetString().Should().Be("Use templates");
         doc.RootElement.GetProperty("severity").GetString().Should().Be("do");
     }
+
+    // ── rules list — severity filter ──────────────────────────────────────────
+
+    [Fact]
+    public async Task RunListAsync_GivenSeverityFilter_ShouldReturnOnlyMatchingGuidelines()
+    {
+        // Arrange
+        IGuidelineRepository repo = MakeRepo([
+            MakeGuideline("ADOG-STEPS-001", severity: GuidelineSeverity.Do),
+            MakeGuideline("ADOG-JOBS-006",  severity: GuidelineSeverity.Avoid),
+        ]);
+
+        // Act
+        int exitCode = await RulesCommand.RunListAsync(
+            repo, category: null, severity: "avoid", format: "console");
+
+        // Assert
+        exitCode.Should().Be(ExitCodes.Clean);
+    }
+
+    [Fact]
+    public async Task RunListAsync_GivenUnknownSeverity_ShouldReturnExitCodeError()
+    {
+        // Arrange
+        IGuidelineRepository repo = MakeRepo();
+
+        // Act
+        int exitCode = await RulesCommand.RunListAsync(
+            repo, category: null, severity: "not-a-severity", format: "console");
+
+        // Assert
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
+    public async Task RunListAsync_GivenNullSeverity_ShouldReturnAllGuidelines()
+    {
+        // Arrange
+        IGuidelineRepository repo = MakeRepo([
+            MakeGuideline("ADOG-STEPS-001", severity: GuidelineSeverity.Do),
+            MakeGuideline("ADOG-JOBS-006",  severity: GuidelineSeverity.Avoid),
+        ]);
+
+        // Act
+        int exitCode = await RulesCommand.RunListAsync(
+            repo, category: null, severity: null, format: "console");
+
+        // Assert
+        exitCode.Should().Be(ExitCodes.Clean);
+    }
 }

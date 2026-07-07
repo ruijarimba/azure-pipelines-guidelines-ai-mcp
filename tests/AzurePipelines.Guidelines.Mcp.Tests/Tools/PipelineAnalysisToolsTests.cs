@@ -376,4 +376,104 @@ public sealed class PipelineAnalysisToolsTests
             Directory.Delete(tempDirectory, recursive: true);
         }
     }
+
+    // ── category filter ─────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task AnalyzePipelineAsync_GivenValidCategory_ShouldPassIncludedCategoriesToAnalyser()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+                .Returns(MakeResult([]));
+
+        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+
+        // Act
+        await sut.AnalyzePipelineAsync("steps: []", category: "steps");
+
+        // Assert
+        await analyser.Received(1).AnalyseAsync(
+            Arg.Any<PipelineDocument>(),
+            Arg.Is<AnalysisOptions>(o =>
+                o.IncludedCategories != null &&
+                o.IncludedCategories.Count == 1),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task AnalyzePipelineAsync_GivenUnknownCategory_ShouldReturnErrorResponse()
+    {
+        // Arrange
+        PipelineAnalysisTools sut = MakeSut();
+
+        // Act
+        string result = await sut.AnalyzePipelineAsync("steps: []", category: "not-a-category");
+
+        // Assert
+        JsonElement obj = Deserialize<JsonElement>(result);
+        obj.GetProperty("error").GetString().Should().Contain("not-a-category");
+    }
+
+    [Fact]
+    public async Task AnalyzePipelinePathsAsync_GivenValidCategory_ShouldPassIncludedCategoriesToAnalyser()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+                .Returns(MakeResult([]));
+
+        string tempDirectory = CreateTempDirectory();
+        await File.WriteAllTextAsync(Path.Combine(tempDirectory, "pipeline.yml"), "steps: []");
+
+        try
+        {
+            PipelineAnalysisTools sut = MakeSut(parser, analyser, new PipelinePathResolver());
+
+            // Act
+            await sut.AnalyzePipelinePathsAsync([tempDirectory], category: "jobs");
+
+            // Assert
+            await analyser.Received(1).AnalyseAsync(
+                Arg.Any<PipelineDocument>(),
+                Arg.Is<AnalysisOptions>(o =>
+                    o.IncludedCategories != null &&
+                    o.IncludedCategories.Count == 1),
+                Arg.Any<CancellationToken>());
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task AnalyzePipelinePathsAsync_GivenUnknownCategory_ShouldReturnErrorResponse()
+    {
+        // Arrange
+        string tempDirectory = CreateTempDirectory();
+        await File.WriteAllTextAsync(Path.Combine(tempDirectory, "pipeline.yml"), "steps: []");
+
+        try
+        {
+            PipelineAnalysisTools sut = MakeSut(pathResolver: new PipelinePathResolver());
+
+            // Act
+            string result = await sut.AnalyzePipelinePathsAsync([tempDirectory], category: "not-a-category");
+
+            // Assert
+            JsonElement obj = Deserialize<JsonElement>(result);
+            obj.GetProperty("error").GetString().Should().Contain("not-a-category");
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, recursive: true);
+        }
+    }
 }

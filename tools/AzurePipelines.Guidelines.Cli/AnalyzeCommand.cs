@@ -29,17 +29,23 @@ internal static class AnalyzeCommand
             description: "Minimum severity to report: error, warning, or info (default).",
             getDefaultValue: () => "info");
 
+        Option<string?> categoryOpt = new(
+            name: "--category",
+            description: "Limit analysis to a single category: general, jobs, parameters, pipelines, stages, steps, or variables.",
+            getDefaultValue: () => null);
+
         Command command = new("analyze", "Analyse an Azure Pipelines YAML file against the guidelines.")
         {
             pathArg,
             formatOpt,
             severityOpt,
+            categoryOpt,
         };
 
         command.SetHandler(
-            async (string[] paths, string format, string severity) =>
-                await RunAsync(parser, analyser, pathResolver, paths, format, severity),
-            pathArg, formatOpt, severityOpt);
+            async (string[] paths, string format, string severity, string? category) =>
+                await RunAsync(parser, analyser, pathResolver, paths, format, severity, category),
+            pathArg, formatOpt, severityOpt, categoryOpt);
 
         return command;
     }
@@ -50,7 +56,7 @@ internal static class AnalyzeCommand
         FileInfo path,
         string format,
         string severity)
-        => RunAsync(parser, analyser, new PipelinePathResolver(), [path.FullName], format, severity);
+        => RunAsync(parser, analyser, new PipelinePathResolver(), [path.FullName], format, severity, category: null);
 
     internal static async Task<int> RunAsync(
         IPipelineParser parser,
@@ -58,7 +64,8 @@ internal static class AnalyzeCommand
         PipelinePathResolver pathResolver,
         IEnumerable<string> paths,
         string format,
-        string severity)
+        string severity,
+        string? category = null)
     {
         ArgumentNullException.ThrowIfNull(parser);
         ArgumentNullException.ThrowIfNull(analyser);
@@ -73,6 +80,21 @@ internal static class AnalyzeCommand
         }
 
         DiagnosticSeverity minimumSeverity = ParseSeverity(severity);
+
+        IReadOnlyList<GuidelineCategory>? includedCategories = null;
+        if (category is not null)
+        {
+            if (!TryParseCategory(category, out GuidelineCategory parsedCategory))
+            {
+                await Console.Error.WriteLineAsync(
+                    $"error: Unknown category '{category}'. " +
+                    "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.")
+                    .ConfigureAwait(false);
+                return ExitCodes.Error;
+            }
+
+            includedCategories = [parsedCategory];
+        }
 
         IReadOnlyList<string> discoveredPaths;
         try
@@ -110,7 +132,10 @@ internal static class AnalyzeCommand
                 return ExitCodes.Error;
             }
 
-            AnalysisOptions options = new(MinimumSeverity: minimumSeverity);
+            AnalysisOptions options = new(
+                MinimumSeverity: minimumSeverity,
+                IncludedCategories: includedCategories);
+
             AnalysisResult result = await analyser
                 .AnalyseAsync(document, options)
                 .ConfigureAwait(false);
@@ -134,4 +159,21 @@ internal static class AnalyzeCommand
             "WARNING" => DiagnosticSeverity.Warning,
             _         => DiagnosticSeverity.Info,
         };
+
+    private static bool TryParseCategory(string value, out GuidelineCategory result)
+    {
+        result = value.ToUpperInvariant() switch
+        {
+            "GENERAL"    => GuidelineCategory.General,
+            "JOBS"       => GuidelineCategory.Jobs,
+            "PARAMETERS" => GuidelineCategory.Parameters,
+            "PIPELINES"  => GuidelineCategory.Pipelines,
+            "STAGES"     => GuidelineCategory.Stages,
+            "STEPS"      => GuidelineCategory.Steps,
+            "VARIABLES"  => GuidelineCategory.Variables,
+            _            => (GuidelineCategory)(-1),
+        };
+
+        return (int)result >= 0;
+    }
 }

@@ -13,6 +13,9 @@ public sealed class PipelineAnalyserTests
     private static PipelineDocument EmptyDocument(string filePath = "pipeline.yml") =>
         new(filePath, string.Empty, [], [], [], [], []);
 
+    private static IGuidelineRepository NullRepository() =>
+        Substitute.For<IGuidelineRepository>();
+
     private static IGuidelineRule MakeRule(string id, params Diagnostic[] diagnostics)
     {
         IGuidelineRule rule = Substitute.For<IGuidelineRule>();
@@ -32,7 +35,7 @@ public sealed class PipelineAnalyserTests
     [Fact]
     public void Constructor_GivenNullRules_ShouldThrowArgumentNullException()
     {
-        Action act = () => _ = new PipelineAnalyser(null!, NullLogger<PipelineAnalyser>.Instance);
+        Action act = () => _ = new PipelineAnalyser(null!, NullRepository(), NullLogger<PipelineAnalyser>.Instance);
 
         act.Should().Throw<ArgumentNullException>();
     }
@@ -40,7 +43,7 @@ public sealed class PipelineAnalyserTests
     [Fact]
     public void Constructor_GivenNullLogger_ShouldThrowArgumentNullException()
     {
-        Action act = () => _ = new PipelineAnalyser([], null!);
+        Action act = () => _ = new PipelineAnalyser([], NullRepository(), null!);
 
         act.Should().Throw<ArgumentNullException>();
     }
@@ -50,7 +53,7 @@ public sealed class PipelineAnalyserTests
     [Fact]
     public async Task AnalyseAsync_GivenNullDocument_ShouldThrowArgumentNullException()
     {
-        PipelineAnalyser sut = new([], NullLogger<PipelineAnalyser>.Instance);
+        PipelineAnalyser sut = new([], NullRepository(), NullLogger<PipelineAnalyser>.Instance);
 
         Func<Task> act = async () => await sut.AnalyseAsync(null!);
 
@@ -62,7 +65,7 @@ public sealed class PipelineAnalyserTests
     [Fact]
     public async Task AnalyseAsync_GivenNoRules_ShouldReturnCleanResult()
     {
-        PipelineAnalyser sut = new([], NullLogger<PipelineAnalyser>.Instance);
+        PipelineAnalyser sut = new([], NullRepository(), NullLogger<PipelineAnalyser>.Instance);
         PipelineDocument doc = EmptyDocument();
 
         AnalysisResult result = await sut.AnalyseAsync(doc);
@@ -78,7 +81,7 @@ public sealed class PipelineAnalyserTests
     public async Task AnalyseAsync_GivenOneRuleWithNoDiagnostics_ShouldReturnCleanResult()
     {
         IGuidelineRule rule = MakeRule("ADOG-STEPS-001");
-        PipelineAnalyser sut = new([rule], NullLogger<PipelineAnalyser>.Instance);
+        PipelineAnalyser sut = new([rule], NullRepository(), NullLogger<PipelineAnalyser>.Instance);
 
         AnalysisResult result = await sut.AnalyseAsync(EmptyDocument());
 
@@ -90,7 +93,7 @@ public sealed class PipelineAnalyserTests
     {
         Diagnostic expected = MakeDiagnostic("ADOG-STEPS-001");
         IGuidelineRule rule = MakeRule("ADOG-STEPS-001", expected);
-        PipelineAnalyser sut = new([rule], NullLogger<PipelineAnalyser>.Instance);
+        PipelineAnalyser sut = new([rule], NullRepository(), NullLogger<PipelineAnalyser>.Instance);
 
         AnalysisResult result = await sut.AnalyseAsync(EmptyDocument());
 
@@ -106,7 +109,7 @@ public sealed class PipelineAnalyserTests
         Diagnostic d2 = MakeDiagnostic("ADOG-JOBS-006", DiagnosticSeverity.Error);
         IGuidelineRule rule1 = MakeRule("ADOG-STEPS-001", d1);
         IGuidelineRule rule2 = MakeRule("ADOG-JOBS-006", d2);
-        PipelineAnalyser sut = new([rule1, rule2], NullLogger<PipelineAnalyser>.Instance);
+        PipelineAnalyser sut = new([rule1, rule2], NullRepository(), NullLogger<PipelineAnalyser>.Instance);
 
         AnalysisResult result = await sut.AnalyseAsync(EmptyDocument());
 
@@ -121,7 +124,7 @@ public sealed class PipelineAnalyserTests
         Diagnostic infoD = MakeDiagnostic("ADOG-GENERAL-001", DiagnosticSeverity.Info);
         Diagnostic warnD = MakeDiagnostic("ADOG-STEPS-001", DiagnosticSeverity.Warning);
         IGuidelineRule rule = MakeRule("ADOG-GENERAL-001", infoD, warnD);
-        PipelineAnalyser sut = new([rule], NullLogger<PipelineAnalyser>.Instance);
+        PipelineAnalyser sut = new([rule], NullRepository(), NullLogger<PipelineAnalyser>.Instance);
         AnalysisOptions options = new(MinimumSeverity: DiagnosticSeverity.Warning);
 
         AnalysisResult result = await sut.AnalyseAsync(EmptyDocument(), options);
@@ -138,7 +141,7 @@ public sealed class PipelineAnalyserTests
         Diagnostic d2 = MakeDiagnostic("ADOG-JOBS-006");
         IGuidelineRule rule1 = MakeRule("ADOG-STEPS-001", d1);
         IGuidelineRule rule2 = MakeRule("ADOG-JOBS-006", d2);
-        PipelineAnalyser sut = new([rule1, rule2], NullLogger<PipelineAnalyser>.Instance);
+        PipelineAnalyser sut = new([rule1, rule2], NullRepository(), NullLogger<PipelineAnalyser>.Instance);
         AnalysisOptions options = new(IncludedGuidelineIds: [new GuidelineId("ADOG-STEPS-001")]);
 
         AnalysisResult result = await sut.AnalyseAsync(EmptyDocument(), options);
@@ -152,12 +155,50 @@ public sealed class PipelineAnalyserTests
     public async Task AnalyseAsync_GivenCancelledToken_ShouldThrowOperationCanceledException()
     {
         IGuidelineRule rule = MakeRule("ADOG-STEPS-001");
-        PipelineAnalyser sut = new([rule], NullLogger<PipelineAnalyser>.Instance);
+        PipelineAnalyser sut = new([rule], NullRepository(), NullLogger<PipelineAnalyser>.Instance);
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();
 
         Func<Task> act = async () => await sut.AnalyseAsync(EmptyDocument(), cancellationToken: cts.Token);
 
         await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    // ── AnalyseAsync: IncludedCategories filtering ──────────────────────────────
+
+    [Fact]
+    public async Task AnalyseAsync_GivenIncludedCategories_ShouldOnlyRunRulesInMatchingCategory()
+    {
+        Diagnostic d1 = MakeDiagnostic("ADOG-STEPS-001");
+        Diagnostic d2 = MakeDiagnostic("ADOG-JOBS-006");
+        IGuidelineRule stepsRule = MakeRule("ADOG-STEPS-001", d1);
+        IGuidelineRule jobsRule  = MakeRule("ADOG-JOBS-006",  d2);
+
+        IGuidelineRepository repository = Substitute.For<IGuidelineRepository>();
+        repository.FindById(new GuidelineId("ADOG-STEPS-001"))
+            .Returns(new GuidelineDefinition(
+                new GuidelineId("ADOG-STEPS-001"),
+                GuidelineCategory.Steps,
+                GuidelineSeverity.Avoid,
+                "Title", "Desc",
+                Rationale: null, Tags: [], DetectionHints: [], Fix: null, References: []));
+        repository.FindById(new GuidelineId("ADOG-JOBS-006"))
+            .Returns(new GuidelineDefinition(
+                new GuidelineId("ADOG-JOBS-006"),
+                GuidelineCategory.Jobs,
+                GuidelineSeverity.Do,
+                "Title", "Desc",
+                Rationale: null, Tags: [], DetectionHints: [], Fix: null, References: []));
+
+        PipelineAnalyser sut = new(
+            [stepsRule, jobsRule],
+            repository,
+            NullLogger<PipelineAnalyser>.Instance);
+
+        AnalysisOptions options = new(IncludedCategories: [GuidelineCategory.Steps]);
+
+        AnalysisResult result = await sut.AnalyseAsync(EmptyDocument(), options);
+
+        result.Diagnostics.Should().ContainSingle().Which.Should().Be(d1);
     }
 }

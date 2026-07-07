@@ -29,16 +29,20 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
         => _logAnalysisComplete(logger, filePath, count, null);
 
     private readonly IReadOnlyList<IGuidelineRule> _rules;
+    private readonly IGuidelineRepository _repository;
     private readonly ILogger<PipelineAnalyser> _logger;
 
     public PipelineAnalyser(
         IEnumerable<IGuidelineRule> rules,
+        IGuidelineRepository repository,
         ILogger<PipelineAnalyser> logger)
     {
         ArgumentNullException.ThrowIfNull(rules);
+        ArgumentNullException.ThrowIfNull(repository);
         ArgumentNullException.ThrowIfNull(logger);
 
         _rules = [.. rules];
+        _repository = repository;
         _logger = logger;
     }
 
@@ -52,7 +56,7 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
 
         options ??= AnalysisOptions.Default;
 
-        IEnumerable<IGuidelineRule> applicableRules = FilterRules(_rules, options);
+        IEnumerable<IGuidelineRule> applicableRules = FilterRules(_rules, options, _repository);
 
         List<Diagnostic> diagnostics = [];
 
@@ -78,9 +82,20 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
 
     private static IEnumerable<IGuidelineRule> FilterRules(
         IReadOnlyList<IGuidelineRule> rules,
-        AnalysisOptions options)
+        AnalysisOptions options,
+        IGuidelineRepository repository)
     {
         IEnumerable<IGuidelineRule> filtered = rules;
+
+        if (options.IncludedCategories is { Count: > 0 })
+        {
+            HashSet<GuidelineCategory> categories = [.. options.IncludedCategories];
+            filtered = filtered.Where(r =>
+            {
+                GuidelineDefinition? def = repository.FindById(r.GuidelineId);
+                return def is not null && categories.Contains(def.Category);
+            });
+        }
 
         if (options.IncludedGuidelineIds is { Count: > 0 })
         {

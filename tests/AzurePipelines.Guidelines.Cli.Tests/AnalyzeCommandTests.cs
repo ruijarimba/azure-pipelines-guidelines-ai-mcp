@@ -174,6 +174,53 @@ public sealed class AnalyzeCommandTests
         await act.Should().NotThrowAsync();
     }
 
+    // ── Category filter ──────────────────────────────────────────────────
+
+    [Fact]
+    public async Task RunAsync_GivenCategoryFilter_ShouldPassIncludedCategoriesToAnalyser()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+                .Returns(CleanResult());
+
+        FileInfo file = FixtureFile("clean-pipeline.yml");
+
+        // Act
+        await AnalyzeCommand.RunAsync(
+            parser, analyser, new PipelinePathResolver(),
+            [file.FullName], "console", "info", category: "steps");
+
+        // Assert
+        await analyser.Received(1).AnalyseAsync(
+            Arg.Any<PipelineDocument>(),
+            Arg.Is<AnalysisOptions>(o =>
+                o.IncludedCategories != null &&
+                o.IncludedCategories.Count == 1 &&
+                o.IncludedCategories[0] == GuidelineCategory.Steps),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RunAsync_GivenUnknownCategory_ShouldReturnExitCodeError()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        FileInfo file = FixtureFile("clean-pipeline.yml");
+
+        // Act
+        int exitCode = await AnalyzeCommand.RunAsync(
+            parser, analyser, new PipelinePathResolver(),
+            [file.FullName], "console", "info", category: "not-a-category");
+
+        // Assert
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
     [Fact]
     public async Task RunAsync_GivenMultiplePaths_ShouldAnalyseEachDiscoveredFile()
     {

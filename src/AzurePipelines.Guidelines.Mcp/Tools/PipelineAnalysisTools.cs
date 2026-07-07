@@ -36,8 +36,8 @@ internal sealed class PipelineAnalysisTools(
         "Analyses Azure Pipelines YAML content against the loaded guidelines and returns " +
         "a JSON array of violations. Each item includes the guideline ID, severity, message, " +
         "and the line number where the violation was detected. " +
-        "Pass an optional comma-separated list of guideline IDs to restrict analysis to " +
-        "specific rules (e.g. \"ADOG-STEPS-001,ADOG-JOBS-006\").")]
+        "Pass an optional category to restrict analysis to one guideline category, or an " +
+        "optional comma-separated list of guideline IDs to restrict to specific rules.")]
     internal async Task<string> AnalyzePipelineAsync(
         [Description("The raw YAML content of the Azure Pipelines file to analyse.")]
         string yaml,
@@ -45,7 +45,12 @@ internal sealed class PipelineAnalysisTools(
             "Optional comma-separated list of guideline IDs to check " +
             "(e.g. \"ADOG-STEPS-001,ADOG-JOBS-006\"). " +
             "Omit or pass null to run all rules.")]
-        string? guidelineIds = null)
+        string? guidelineIds = null,
+        [Description(
+            "Optional category filter. " +
+            "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables. " +
+            "Omit or pass null to include all categories.")]
+        string? category = null)
     {
         if (string.IsNullOrWhiteSpace(yaml))
         {
@@ -64,7 +69,11 @@ internal sealed class PipelineAnalysisTools(
                 new ErrorResponse($"Failed to parse YAML: {ex.Message}"), _jsonOptions);
         }
 
-        AnalysisOptions options = BuildOptions(guidelineIds);
+        if (!TryBuildOptions(guidelineIds, category, out AnalysisOptions options, out string? optionsError))
+        {
+            return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
+        }
+
         AnalysisResult result = await analyser
             .AnalyseAsync(document, options)
             .ConfigureAwait(false);
@@ -81,14 +90,20 @@ internal sealed class PipelineAnalysisTools(
     [Description(
         "Analyses one or more Azure Pipelines YAML files or directories against the loaded guidelines " +
         "and returns aggregated violations. Directories are scanned recursively. " +
-        "Pass an optional comma-separated list of guideline IDs to restrict analysis to specific rules.")]
+        "Pass an optional category to restrict analysis to one guideline category, or an " +
+        "optional comma-separated list of guideline IDs to restrict to specific rules.")]
     internal async Task<string> AnalyzePipelinePathsAsync(
         [Description("One or more file or directory paths to analyse. Directories are scanned recursively.")]
         string[] paths,
         [Description(
             "Optional comma-separated list of guideline IDs to check " +
             "(e.g. \"ADOG-STEPS-001,ADOG-JOBS-006\"). Omit or pass null to run all rules.")]
-        string? guidelineIds = null)
+        string? guidelineIds = null,
+        [Description(
+            "Optional category filter. " +
+            "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables. " +
+            "Omit or pass null to include all categories.")]
+        string? category = null)
     {
         if (paths is null || paths.Length == 0 || paths.All(string.IsNullOrWhiteSpace))
         {
@@ -106,8 +121,12 @@ internal sealed class PipelineAnalysisTools(
             return JsonSerializer.Serialize(new ErrorResponse(ex.Message), _jsonOptions);
         }
 
+        if (!TryBuildOptions(guidelineIds, category, out AnalysisOptions options, out string? optionsError))
+        {
+            return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
+        }
+
         List<FileAnalysisResultDto> fileResults = [];
-        AnalysisOptions options = BuildOptions(guidelineIds);
 
         foreach (string discoveredPath in discoveredPaths)
         {
@@ -145,29 +164,74 @@ internal sealed class PipelineAnalysisTools(
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private static AnalysisOptions BuildOptions(string? guidelineIds)
+    private static bool TryBuildOptions(
+        string? guidelineIds,
+        string? category,
+        out AnalysisOptions options,
+        out string? error)
     {
-        if (string.IsNullOrWhiteSpace(guidelineIds))
+        error = null;
+
+        IReadOnlyList<GuidelineCategory>? includedCategories = null;
+        if (!string.IsNullOrWhiteSpace(category))
         {
-            return AnalysisOptions.Default;
+            if (!TryParseCategory(category, out GuidelineCategory parsedCategory))
+            {
+                options = AnalysisOptions.Default;
+                error = $"Unknown category '{category}'. " +
+                    "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.";
+                return false;
+            }
+
+            includedCategories = [parsedCategory];
         }
 
-        List<GuidelineId> ids = [];
-        foreach (string part in guidelineIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        IReadOnlyList<GuidelineId>? includedIds = null;
+        if (!string.IsNullOrWhiteSpace(guidelineIds))
         {
-            try
+            List<GuidelineId> ids = [];
+            foreach (string part in guidelineIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                ids.Add(new GuidelineId(part));
+                try
+                {
+                    ids.Add(new GuidelineId(part));
+                }
+                catch (ArgumentException)
+                {
+                    // Skip malformed IDs silently; the caller will see no results for them.
+                }
             }
-            catch (ArgumentException)
+
+            if (ids.Count > 0)
             {
-                // Skip malformed IDs silently; the caller will see no results for them.
+                includedIds = ids;
             }
         }
 
-        return ids.Count > 0
-            ? new AnalysisOptions(IncludedGuidelineIds: ids)
-            : AnalysisOptions.Default;
+        options = includedCategories is null && includedIds is null
+            ? AnalysisOptions.Default
+            : new AnalysisOptions(
+                IncludedCategories: includedCategories,
+                IncludedGuidelineIds: includedIds);
+
+        return true;
+    }
+
+    private static bool TryParseCategory(string value, out GuidelineCategory result)
+    {
+        result = value.ToUpperInvariant() switch
+        {
+            "GENERAL"    => GuidelineCategory.General,
+            "JOBS"       => GuidelineCategory.Jobs,
+            "PARAMETERS" => GuidelineCategory.Parameters,
+            "PIPELINES"  => GuidelineCategory.Pipelines,
+            "STAGES"     => GuidelineCategory.Stages,
+            "STEPS"      => GuidelineCategory.Steps,
+            "VARIABLES"  => GuidelineCategory.Variables,
+            _            => (GuidelineCategory)(-1),
+        };
+
+        return (int)result >= 0;
     }
 
     private static DiagnosticDto[] BuildDiagnosticDtos(IReadOnlyList<Diagnostic> diagnostics)
