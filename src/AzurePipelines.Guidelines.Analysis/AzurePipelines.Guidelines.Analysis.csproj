@@ -20,4 +20,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="AGENTS.md" />
+  </ItemGroup>
+
 </Project>

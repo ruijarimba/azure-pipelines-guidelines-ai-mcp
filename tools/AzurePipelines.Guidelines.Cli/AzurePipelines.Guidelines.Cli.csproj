@@ -33,4 +33,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="AGENTS.md" />
+  </ItemGroup>
+
 </Project>

@@ -23,4 +23,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="AGENTS.md" />
+  </ItemGroup>
+
 </Project>

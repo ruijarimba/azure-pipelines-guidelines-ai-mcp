@@ -10,4 +10,8 @@
     Core must not depend on any other src/ project or non-BCL NuGet package.
   -->
 
+  <ItemGroup>
+    <None Include="AGENTS.md" />
+  </ItemGroup>
+
 </Project>
