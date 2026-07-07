@@ -1,7 +1,7 @@
 # Azure Pipelines Guidelines MCP Server and CLI
 
-A sample [Model Context Protocol (MCP) specification](https://modelcontextprotocol.io) server and CLI analyzer
-built on the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
+An [MCP](https://modelcontextprotocol.io) server and CLI tool for checking Azure Pipelines YAML
+against the [Azure Pipelines Guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
 
 ## Why use it?
 
@@ -173,6 +173,18 @@ docker pull ruijarimba/azure-pipelines-guidelines-mcp:latest
 ```
 
 The `-i` flag keeps stdin open, which is required for the stdio transport.
+
+### MCP tools
+
+Both the global tool and the Docker image expose the same two tools:
+
+| Tool | Input | What it does |
+| --- | --- | --- |
+| `analyze_pipeline` | YAML text | Analyzes inline pipeline content against the loaded guidelines. |
+| `analyze_pipeline_paths` | File or directory paths | Analyzes one or more files or a full directory tree and returns per-file results. |
+
+Both tools accept an optional `guidelineIds` parameter: a comma-separated list such as
+`ADOG-STEPS-001,ADOG-JOBS-006` to restrict the run to specific rules.
 
 ## Architecture
 

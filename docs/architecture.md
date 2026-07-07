@@ -84,6 +84,21 @@ graph TD
 | `IGuidelineRepository` | Loads and queries `GuidelineDefinition` records from the manifest |
 | `IPipelineAnalyser` | Orchestrates parsing and rules to produce `AnalysisResult` |
 
+## MCP tool surface
+
+The server provides two analysis tools:
+
+| Tool | Parameters | Returns |
+| --- | --- | --- |
+| `analyze_pipeline` | `yaml` (required), `guidelineIds` (optional) | Flat diagnostic list |
+| `analyze_pipeline_paths` | `paths` (required), `guidelineIds` (optional) | Per-file diagnostic list |
+
+`guidelineIds` is a comma-separated list of rule IDs (for example, `ADOG-STEPS-001,ADOG-JOBS-006`).
+Omit it to run all rules.
+
+Tool handlers live in `src/AzurePipelines.Guidelines.Mcp/Tools/` and are discovered automatically
+by the MCP host via `WithToolsFromAssembly`.
+
 ## Extension points
 
 | Goal | Where to add |

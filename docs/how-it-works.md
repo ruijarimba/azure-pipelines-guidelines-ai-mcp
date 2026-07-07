@@ -67,6 +67,16 @@ sequenceDiagram
 The server uses **stdio transport**: the AI client starts `adog-mcp` as a child process and
 communicates with it over `stdin`/`stdout`. No network port is opened.
 
+The current MCP surface exposes two tools:
+
+- `analyze_pipeline` accepts YAML text and returns a flat list of diagnostics.
+- `analyze_pipeline_paths` accepts one or more file or directory paths and returns per-file results.
+
+Both tools accept an optional `guidelineIds` parameter. Pass a comma-separated list such as
+`ADOG-STEPS-001,ADOG-JOBS-006` to restrict analysis to specific rules. Omit it to run all rules.
+
+Both tools use the same analysis engine as the CLI.
+
 ## How the CLI works
 
 The CLI (`adog`) uses the same analysis engine. The difference is the entry point and output
@@ -75,8 +85,8 @@ format.
 | | CLI (`adog`) | MCP server (`adog-mcp`) |
 | --- | --- | --- |
 | Caller | Human or CI pipeline | AI assistant (MCP client) |
-| Input | One or more file or directory paths | YAML text passed in a tool call |
-| Output | Console text or JSON | Structured MCP response |
+| Input | One or more file or directory paths | YAML text (`analyze_pipeline`) or file paths (`analyze_pipeline_paths`) |
+| Output | Console text or JSON | Structured MCP response (JSON) |
 | Transport | Standard file I/O | stdio JSON-RPC |
 
 The CLI expands each directory recursively and analyzes every `.yml` and `.yaml` file it finds.
@@ -111,5 +121,5 @@ Rule IDs appear in:
 - The manifest (`data/guidelines.json` in the companion repository)
 - The `IGuidelineRule.GuidelineId` property of each rule implementation
 
-For severity mapping (`Do` → Error, `Avoid` → Warning, `Consider` → Info), see
+For the full severity mapping (`Do`/`DoNot` → Error, `Avoid` → Warning, `Consider` → Info), see
 [the glossary reference](glossary.md).
