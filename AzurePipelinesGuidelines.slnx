@@ -43,6 +43,7 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
+    <File Path="src/Directory.Build.props" />
     <Project Path="src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj" />
     <Project Path="src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj" />
     <Project Path="src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj" />

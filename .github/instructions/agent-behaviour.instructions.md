@@ -134,22 +134,40 @@ changes.
 
 ## 8. Solution Explorer visibility
 
-**Every file that belongs to the repository must be visible in Visual Studio Solution Explorer.**
+**Every file that belongs to the repository must be visible in Visual Studio Solution Explorer,
+inside a folder that mirrors its real location in the filesystem.**
 
 Non-code files (`.md`, `.yml`, `.props`, `.json`, configuration files, etc.) are not
 automatically picked up by the .NET SDK build system. If a file you create or touch will not
 appear in Solution Explorer by default, make it visible before committing.
 
-- **Project-level files** — files that live inside a project directory (e.g. `AGENTS.md`
-  alongside a `.csproj`) → add `<None Include="filename" />` in an `<ItemGroup>` in the
-  project's `.csproj` file.
-- **Solution-level files** — files in `docs/`, `.github/`, or the repository root → add a
-  `<File Path="..." />` entry in `AzurePipelinesGuidelines.slnx` under the matching solution
-  folder (`/docs/`, `/.github/`, `/Solution Items/`, etc.).
+### Where to register the file
 
-This rule applies to every task, not only C# tasks. When you create a new file as part of
-any task, immediately check whether it will appear in Solution Explorer and add it if not.
+| File location | How to register |
+| --- | --- |
+| Inside a project directory (e.g. `src/Core/AGENTS.md`) | Add `<None Include="filename" />` in an `<ItemGroup>` in that project's `.csproj` file. |
+| Anywhere else (root, `docs/`, `.github/`, `tests/`, `src/`, `tools/`) | Add a `<File Path="..." />` entry in `AzurePipelinesGuidelines.slnx`. |
+
+### Folder hierarchy rules
+
+The Solution Explorer hierarchy **must mirror Windows Explorer exactly**:
+
+- Files that live in `docs/` go under the `/docs/` solution folder — not under `/Solution Items/`.
+- Files that live in `.github/instructions/` go under the `/.github/instructions/` solution folder
+  — not flat under `/.github/`.
+- If a new subdirectory is created in the filesystem, create a matching `<Folder>` entry in the
+  `.slnx` file before adding `<File>` children to it.
+- Never flatten a nested directory into a parent solution folder.
+
+### Verification step
+
+After creating or registering any file, run the following mental check:
+
+> Does Solution Explorer show this file in the same location as Windows Explorer?
+> Is every parent folder visible as a nested solution folder?
+
+If the answer to either question is "no", fix it before committing.
 
 *Rationale: files invisible to the IDE are invisible to human reviewers. Keeping everything
-visible supports the Human authority principle (principle 2) by ensuring reviewers can see
-and oversee all agent-generated content.*
+visible and correctly nested supports the Human authority principle (principle 2) by ensuring
+reviewers can see and oversee all agent-generated content.*
