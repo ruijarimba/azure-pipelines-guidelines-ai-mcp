@@ -8,6 +8,9 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
+    <Project Path="tests/AzurePipelines.Guidelines.Cli.Tests/AzurePipelines.Guidelines.Cli.Tests.csproj">
+      <Build Solution="Debug|*" Project="false" />
+    </Project>
     <Project Path="tests/AzurePipelines.Guidelines.Core.Tests/AzurePipelines.Guidelines.Core.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AzurePipelines.Guidelines.Mcp.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />

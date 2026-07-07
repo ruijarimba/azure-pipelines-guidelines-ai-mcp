@@ -1,21 +1,21 @@
 using System.CommandLine;
+using AzurePipelines.Guidelines.Analysis;
+using AzurePipelines.Guidelines.Cli;
+using AzurePipelines.Guidelines.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
-// Minimal CLI entry point.
-// TODO: Add commands (analyze, rules list, rules show) once Analysis is implemented.
+// Wire services without a full IHost — keeps startup fast for a CLI tool.
+ServiceCollection services = new();
+services.AddLogging(b => b.AddConsole().SetMinimumLevel(LogLevel.Warning));
+services.AddGuidelinesAnalysis();
 
-RootCommand rootCommand = new("Azure Pipelines Guidelines static analyzer");
+await using ServiceProvider sp = services.BuildServiceProvider();
 
-// Placeholder command until implementation
-Command analyzeCommand = new("analyze", "Analyze an Azure Pipelines YAML file")
-{
-    new Argument<string>("path", "Path to the YAML file to analyze")
-};
+IPipelineParser parser = sp.GetRequiredService<IPipelineParser>();
+IPipelineAnalyser analyser = sp.GetRequiredService<IPipelineAnalyser>();
 
-analyzeCommand.SetHandler((string path) =>
-{
-    Console.WriteLine($"[Placeholder] Would analyze: {path}");
-}, analyzeCommand.Arguments.OfType<Argument<string>>().First());
-
-rootCommand.AddCommand(analyzeCommand);
+RootCommand rootCommand = new("Azure Pipelines Guidelines static analyser (adog)");
+rootCommand.AddCommand(AnalyzeCommand.Create(parser, analyser));
 
 return await rootCommand.InvokeAsync(args);
