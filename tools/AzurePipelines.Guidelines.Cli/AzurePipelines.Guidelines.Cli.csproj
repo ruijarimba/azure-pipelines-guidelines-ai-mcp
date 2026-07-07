@@ -9,6 +9,11 @@
         dotnet tool install -g adog
       This requires PackAsTool=true and ToolCommandName.
     -->
+    <!--
+      Override the tools/Directory.Build.props default of IsPackable=false.
+      This project is published as a .NET global tool via NuGet and must be packable.
+    -->
+    <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>adog</ToolCommandName>
   </PropertyGroup>

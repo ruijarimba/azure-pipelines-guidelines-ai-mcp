@@ -50,26 +50,25 @@ jobs:
         run: dotnet test --no-build --configuration Release
 
       - name: Pack src/ libraries
-        run: >
-          dotnet pack
-          --no-build
-          --configuration Release
-          /p:PackageVersion=${{ steps.version.outputs.PACKAGE_VERSION }}
-          --output nupkgs
-          src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj
-          src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj
-          src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj
-          src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj
-          src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj
+        # dotnet pack accepts only one project per invocation, so we loop.
+        run: |
+          for proj in \
+            src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj \
+            src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj \
+            src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj \
+            src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj \
+            src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj; do
+            dotnet pack "$proj" --no-build --configuration Release /p:PackageVersion=${{ steps.version.outputs.PACKAGE_VERSION }} --output nupkgs
+          done
 
       - name: Pack CLI global tool
         run: >
           dotnet pack
+          tools/AzurePipelines.Guidelines.Cli/AzurePipelines.Guidelines.Cli.csproj
           --no-build
           --configuration Release
           /p:PackageVersion=${{ steps.version.outputs.PACKAGE_VERSION }}
           --output nupkgs
-          tools/AzurePipelines.Guidelines.Cli/AzurePipelines.Guidelines.Cli.csproj
 
       - name: Push to NuGet.org
         run: >

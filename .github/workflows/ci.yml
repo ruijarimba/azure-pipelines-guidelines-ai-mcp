@@ -38,10 +38,9 @@ jobs:
           dotnet test
           --no-build
           --configuration Release
+          --settings coverlet.runsettings
           --collect:"XPlat Code Coverage"
           --results-directory coverage
-          --
-          DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
 
       - name: Upload coverage
         uses: actions/upload-artifact@v4
@@ -68,29 +67,32 @@ jobs:
       - name: Restore
         run: dotnet restore
 
-      - name: Pack all src/ libraries
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Pack src/ libraries
         # Inject a deterministic preview version so the pack step never fails
-        # due to a missing PackageVersion.  Real versions are set at release time.
-        run: >
-          dotnet pack
-          --no-restore
-          --configuration Release
-          /p:PackageVersion=0.0.0-ci
-          --output nupkgs
-          src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj
-          src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj
-          src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj
-          src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj
-          src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj
+        # due to a missing PackageVersion. Real versions are set at release time.
+        # dotnet pack accepts only one project per invocation, so we loop.
+        run: |
+          for proj in \
+            src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj \
+            src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj \
+            src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj \
+            src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj \
+            src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj; do
+            dotnet pack "$proj" --no-build --configuration Release /p:PackageVersion=0.0.0-ci --output nupkgs
+          done
 
       - name: Pack CLI global tool
         run: >
           dotnet pack
-          --no-restore
+          tools/AzurePipelines.Guidelines.Cli/AzurePipelines.Guidelines.Cli.csproj
+          --no-build
           --configuration Release
           /p:PackageVersion=0.0.0-ci
           --output nupkgs
-          tools/AzurePipelines.Guidelines.Cli/AzurePipelines.Guidelines.Cli.csproj
 
       - name: List produced packages
+        run: ls -la nupkgs/
         run: ls -la nupkgs/
