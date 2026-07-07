@@ -262,6 +262,42 @@ correct pattern for each concern, with before/after examples drawn from real cod
 
 ---
 
+## ADR-013: Heuristic detection rules are deferred to Phase 2
+
+**Date:** 2025-06-13
+**Context:** The `docs/vision.md` Phase 1 scope says "Implement rules for all
+`ADOG-{CATEGORY}-{NNN}` guidelines in the manifest." After auditing the live
+`guidelines.json` manifest, 36 guideline IDs exist. 9 have `detection.kind` of
+`regex` or `yamlPath` — these are statically detectable and were implemented in
+Phase 1. The remaining 27 all have `detection.kind = heuristic`, meaning they
+require reasoning about intent, architecture, or context that a regex or YAML
+path expression cannot express. Phase 2 explicitly lists "LLM-assisted analysis
+for `heuristic` detection rules" as a future enhancement.
+**Decision:** The Phase 1 "all rules implemented" criterion applies only to rules
+with `detection.kind` of `regex` or `yamlPath`. Rules with `detection.kind =
+heuristic` are deferred to Phase 2. This interpretation resolves the apparent
+contradiction between "implement all rules" and "LLM-assisted heuristics are
+Phase 2."
+**Rationale:**
+- A static analyser cannot reliably detect heuristic patterns without producing
+  excessive false positives or false negatives.
+- Implementing stub rules that always return no diagnostics provides no value and
+  misleads users.
+- Phase 2 LLM-assisted analysis is the correct vehicle for heuristic rules.
+- The split aligns with the detection kinds defined in the manifest itself.
+
+**Consequences:**
+- Do not implement `IGuidelineRule` classes for `heuristic` rules in Phase 1.
+  If you encounter a heuristic rule ID while working in the `Rules` project, skip
+  it and note the ADR number.
+- The `IGuidelineRepository` and `IGuidelineLoader` already load all 36 rules
+  from the manifest at runtime, so heuristic rules are available for lookup via
+  `list_guidelines`, `get_guideline`, and `adog rules show` even without a
+  corresponding `IGuidelineRule` implementation.
+- When Phase 2 begins, re-read this ADR to understand the design boundary.
+
+---
+
 ## Template for new decisions
 
 Copy this block when recording a new decision:

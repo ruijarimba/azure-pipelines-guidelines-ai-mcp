@@ -33,12 +33,29 @@ Azure Pipelines YAML analysis as MCP **tools** and **resources** that AI assista
 
 ## Key patterns
 
-- Each MCP tool is a separate `internal sealed` class annotated with the MCP SDK tool attribute.
-- Tool handlers depend on `IAnalysisEngine` and `IGuidelineRepository` via constructor injection.
-- Only the DI extension method (`AddGuidelinesMcp`) is `public`; all handler classes are `internal`.
-- Tool descriptions shown to AI clients must be concise, accurate, and derived from the
-  guideline manifest vocabulary.
+- Each MCP tool is a separate `internal sealed` class in `Tools/`, annotated with
+  `[McpServerToolType]`. Methods are annotated with `[McpServerTool(Name = "…")]`.
+- Each MCP resource type is a separate `internal sealed` class in `Resources/`,
+  annotated with `[McpServerResourceType]`. Methods are annotated with
+  `[McpServerResource(UriTemplate = "…", Name = "…", MimeType = "…")]`.
+- Both tools and resources depend on `IGuidelineRepository` (and/or `IPipelineParser` /
+  `IPipelineAnalyser`) via constructor injection.
+- Only the DI extension method (`AddGuidelinesMcp`) is `public`; all handler classes
+  are `internal`.
+- Tool and resource descriptions shown to AI clients must be concise, accurate, and
+  derived from the guideline manifest vocabulary.
 
 ## Adding a new tool
 
 Follow the guided workflow in `.github/prompts/add-mcp-tool.prompt.md`.
+
+## Adding a new resource
+
+1. Create a new `internal sealed` class in `Resources/` annotated with
+   `[McpServerResourceType]`.
+2. Suppress CA1812 with the standard justification comment (SDK instantiates the class).
+3. Annotate each handler method with `[McpServerResource(UriTemplate = …)]` and
+   `[Description(…)]`.
+4. Use `Task<string>` as the return type; return serialised JSON.
+5. `WithResourcesFromAssembly(…)` in `GuidelinesMcpServiceCollectionExtensions.cs`
+   already discovers all `[McpServerResourceType]` classes — no registration change needed.

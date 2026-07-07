@@ -4,11 +4,19 @@
 
 Unit tests for `AzurePipelines.Guidelines.Mcp` — MCP tool and resource handlers.
 
+## Folder layout
+
+| Folder | Tests for |
+| --- | --- |
+| `Tools/` | MCP tool handlers (`GuidelineTools`, `PipelineAnalysisTools`) |
+| `Resources/` | MCP resource handlers (`GuidelineResources`) |
+
 ## What gets tested here
 
-Each MCP tool handler gets its own test class: `{ToolName}ToolTests`.
+Each MCP tool handler gets its own test class in `Tools/`: `{HandlerName}Tests.cs`.
+Each MCP resource handler gets its own test class in `Resources/`: `{HandlerName}Tests.cs`.
 
-For every tool:
+For every handler:
 
 - **Valid inputs** → correct response shape and content.
 - **Invalid inputs** → appropriate error response (not exceptions).
@@ -16,18 +24,18 @@ For every tool:
 
 ## Test naming
 
-`AnalyzePipelineTool_GivenValidYaml_ShouldReturnDiagnostics`
-`GetGuidelineTool_GivenUnknownRuleId_ShouldReturnNotFoundResponse`
-`ListRulesTool_GivenCategoryFilter_ShouldReturnMatchingRules`
+`ListGuidelines_GivenEmptyRepository_ShouldReturnEmptyArray`
+`GetGuidelineAsync_GivenUnknownId_ShouldReturnErrorResponse`
+`AnalyzePipelineAsync_GivenValidYaml_ShouldReturnDiagnostics`
 
 ## Coverage expectations
 
-- All tool method branches (success, validation failures, business logic errors).
+- All handler method branches (success, validation failures, business logic errors).
 - Response schema conformance (the AI client expects a specific shape).
-- Dependency injection: correct `IAnalysisEngine` / `IGuidelineRepository` usage.
+- Dependency injection: correct `IPipelineParser` / `IPipelineAnalyser` / `IGuidelineRepository` usage.
 
 ## Test doubles
 
-- Substitute `IAnalysisEngine`, `IGuidelineRepository` via NSubstitute.
-- Never test the MCP protocol transport layer — that's the SDK's job.
+- Substitute `IPipelineParser`, `IPipelineAnalyser`, `IGuidelineRepository` via NSubstitute.
+- Never test the MCP protocol transport layer — that is the SDK's job.
   Focus on handler logic only.

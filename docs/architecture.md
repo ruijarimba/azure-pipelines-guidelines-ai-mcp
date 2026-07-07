@@ -56,18 +56,19 @@ tools/AzurePipelines.Guidelines.Cli  [exe]
 | Interface | Purpose |
 | --- | --- |
 | `IPipelineParser` | Parses YAML text into a `PipelineDocument` |
-| `IRule` | Analyzes a `PipelineDocument` and returns `Diagnostic` instances |
-| `IGuidelineRepository` | Loads `GuidelineDefinition` records from the manifest |
-| `IAnalysisEngine` | Orchestrates parsing and rules to produce `AnalysisResult` |
+| `IGuidelineRule` | Analyzes a `PipelineDocument` and returns `Diagnostic` instances |
+| `IGuidelineRepository` | Loads and queries `GuidelineDefinition` records from the manifest |
+| `IPipelineAnalyser` | Orchestrates parsing and rules to produce `AnalysisResult` |
 
 ## Extension points
 
 | Goal | Where to add |
 | --- | --- |
-| New lint rule | Implement `IRule` in `Rules` and register via DI |
-| New MCP tool | Add handler class in `Mcp` |
-| New CLI command | Add `Command` subclass in `Cli` |
-| New output format | Add formatter in `Cli` (for example, SARIF) |
+| New lint rule | Implement `IGuidelineRule` in `Rules` and register in `GuidelineRulesServiceCollectionExtensions` |
+| New MCP tool | Add handler class in `Mcp/Tools/` — `WithToolsFromAssembly` discovers it automatically |
+| New MCP resource | Add handler class in `Mcp/Resources/` — `WithResourcesFromAssembly` discovers it automatically |
+| New CLI command | Add a `Command` subclass in `Cli` and wire it in `Program.cs` |
+| New output format | Add a formatter in `Cli` (for example, SARIF) |
 | Alternative YAML parser | Replace `IPipelineParser` implementation in `Parsing` |
 
 ## Guideline manifest
@@ -93,12 +94,12 @@ see [`glossary.md`](glossary.md).
 | `Directory.Packages.props` | Central NuGet version management |
 | `.editorconfig` | C# code style rules |
 
-## CLI surface (planned)
+## CLI surface
 
 ```
-adog analyze <path> [--format console|json|sarif] [--severity error|warning|info]
-adog rules list [--category <category>]
-adog rules show <rule-id>
+adog analyze <path> [--format console|json] [--severity error|warning|info]
+adog rules list [--category <category>] [--format console|json]
+adog rules show <rule-id> [--format console|json]
 ```
 
 Exit codes: `0` = no violations at threshold, `1` = violations found, `2` = analysis error.
