@@ -74,15 +74,31 @@ internal static class AnalyzeCommand
         command.SetHandler(
             async (context) =>
             {
+                AnalyzeCommandEnvironment environment = AnalyzeCommandEnvironment.Load();
+                if (!string.IsNullOrWhiteSpace(environment.ErrorMessage))
+                {
+                    await Console.Error.WriteLineAsync(environment.ErrorMessage).ConfigureAwait(false);
+                    context.ExitCode = ExitCodes.Error;
+                    return;
+                }
+
                 string[] paths = context.ParseResult.GetValueForArgument(pathArg);
-                string format = context.ParseResult.GetValueForOption(formatOpt)!;
-                string severity = context.ParseResult.GetValueForOption(severityOpt)!;
-                string? category = context.ParseResult.GetValueForOption(categoryOpt);
-                string? output = context.ParseResult.GetValueForOption(outputOpt);
-                bool softFail = context.ParseResult.GetValueForOption(softFailOpt);
-                bool noColor = context.ParseResult.GetValueForOption(noColorOpt);
-                bool quiet = context.ParseResult.GetValueForOption(quietOpt);
-                bool verbose = context.ParseResult.GetValueForOption(verboseOpt);
+                string format = AnalyzeCommandOptionResolver.ResolveStringOption(
+                    context, formatOpt, "--format", environment.Format);
+                string severity = AnalyzeCommandOptionResolver.ResolveStringOption(
+                    context, severityOpt, "--severity", environment.Severity);
+                string? category = AnalyzeCommandOptionResolver.ResolveNullableStringOption(
+                    context, categoryOpt, "--category", environment.Category);
+                string? output = AnalyzeCommandOptionResolver.ResolveOutputOption(
+                    context, outputOpt, environment.Output);
+                bool softFail = AnalyzeCommandOptionResolver.ResolveBooleanOption(
+                    context, softFailOpt, "--soft-fail", environment.SoftFail);
+                bool noColor = AnalyzeCommandOptionResolver.ResolveBooleanOption(
+                    context, noColorOpt, "--no-color", environment.NoColor);
+                bool quiet = AnalyzeCommandOptionResolver.ResolveQuietOption(
+                    context, quietOpt, environment.Quiet);
+                bool verbose = AnalyzeCommandOptionResolver.ResolveVerboseOption(
+                    context, verboseOpt, environment.Verbose);
 
                 int exitCode = await RunAsync(parser, analyser, pathResolver, paths, format, severity, category,
                                               output, softFail, noColor, quiet, verbose);
