@@ -41,6 +41,10 @@ Before committing, edit the sections below:
 | `2ea87d0` | docs: add TOC to CLI reference for easier navigation |
 | `b8b1955` | docs: simplify command headings and fix markdown anchors in CLI reference |
 | `55d9ed6` | docs: remove CI/CD platform-specific examples from CLI reference |
+| `ea6e0a2` | docs: update progress log with CLI docs cleanup completion |
+| `857b623` | docs: replace best-practice wording with azure guidelines link |
+| `53046f6` | docs: point to user Azure Pipelines guidelines repo |
+| `38cfb82` | docs: restructure README to be tool-focused |
 
 ---
 
@@ -67,18 +71,20 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**Documentation cleanup** ✅ **COMPLETED**
+**README restructure** ✅ **COMPLETED**
 
-Finished refactoring CLI docs for better user experience and maintainability:
-- ✅ Created `docs/cli-reference.md` user-facing reference
-- ✅ Refactored `tools/AzurePipelines.Guidelines.Cli/AGENTS.md` to agent-only instructions
-- ✅ Updated `README.md` with link to CLI reference
-- ✅ Registered `cli-reference.md` in solution file
-- ✅ Added TOC for easier navigation
-- ✅ Fixed markdown anchors by simplifying command headings
-- ✅ Removed platform-specific CI/CD examples to reduce duplication
+Restructured README to be tool-focused with clear navigation to documentation:
+- ✅ Changed header to "Azure Pipelines Guidelines tools"
+- ✅ Created dedicated MCP Server Reference (`docs/mcp-reference.md`)
+- ✅ Moved MCP explanation and architecture details out of README
+- ✅ Presented tools first (CLI and MCP server) with links to docs
+- ✅ Simplified Getting started to three concise options
+- ✅ Improved discoverability of "What does it analyze?" section
+- ✅ Added Project documentation section with guide links
+- ✅ Registered `mcp-reference.md` in solution file
+- ✅ Removed "best-practice" wording (replaced with neutral guideline language)
 
-Next: implement remaining rules or other CLI enhancements.
+Next: implement remaining rules or other enhancements.
 
 ---
 
