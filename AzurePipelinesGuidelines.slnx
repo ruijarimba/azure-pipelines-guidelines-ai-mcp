@@ -43,27 +43,53 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
+    <Folder Name="/src/AzurePipelines.Guidelines.Analysis/">
+      <Project Path="src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj" />
+    </Folder>
+    <Folder Name="/src/AzurePipelines.Guidelines.Core/">
+      <Project Path="src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj" />
+    </Folder>
+    <Folder Name="/src/AzurePipelines.Guidelines.Mcp/">
+      <Project Path="src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj" />
+    </Folder>
+    <Folder Name="/src/AzurePipelines.Guidelines.Parsing/">
+      <Project Path="src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj" />
+    </Folder>
+    <Folder Name="/src/AzurePipelines.Guidelines.Rules/">
+      <Project Path="src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj" />
+    </Folder>
     <File Path="src/Directory.Build.props" />
-    <Project Path="src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj" />
-    <Project Path="src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj" />
-    <Project Path="src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj" />
-    <Project Path="src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj" />
-    <Project Path="src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
+    </Folder>
+    <Folder Name="/tests/AzurePipelines.Guidelines.Cli.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Cli.Tests/AzurePipelines.Guidelines.Cli.Tests.csproj">
+        <Build Solution="Debug|*" Project="false" />
+      </Project>
+    </Folder>
+    <Folder Name="/tests/AzurePipelines.Guidelines.Core.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Core.Tests/AzurePipelines.Guidelines.Core.Tests.csproj" />
+    </Folder>
+    <Folder Name="/tests/AzurePipelines.Guidelines.Mcp.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AzurePipelines.Guidelines.Mcp.Tests.csproj" />
+    </Folder>
+    <Folder Name="/tests/AzurePipelines.Guidelines.Parsing.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />
+    </Folder>
+    <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Rules.Tests/AzurePipelines.Guidelines.Rules.Tests.csproj" />
+    </Folder>
     <File Path="tests/Directory.Build.props" />
-    <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
-    <Project Path="tests/AzurePipelines.Guidelines.Cli.Tests/AzurePipelines.Guidelines.Cli.Tests.csproj">
-      <Build Solution="Debug|*" Project="false" />
-    </Project>
-    <Project Path="tests/AzurePipelines.Guidelines.Core.Tests/AzurePipelines.Guidelines.Core.Tests.csproj" />
-    <Project Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AzurePipelines.Guidelines.Mcp.Tests.csproj" />
-    <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />
-    <Project Path="tests/AzurePipelines.Guidelines.Rules.Tests/AzurePipelines.Guidelines.Rules.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">
+    <Folder Name="/tools/AzurePipelines.Guidelines.Cli/">
+      <Project Path="tools/AzurePipelines.Guidelines.Cli/AzurePipelines.Guidelines.Cli.csproj" />
+    </Folder>
+    <Folder Name="/tools/AzurePipelines.Guidelines.Mcp.Host/">
+      <Project Path="tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj" />
+    </Folder>
     <File Path="tools/Directory.Build.props" />
-    <Project Path="tools/AzurePipelines.Guidelines.Cli/AzurePipelines.Guidelines.Cli.csproj" />
-    <Project Path="tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj" />
   </Folder>
 </Solution>
