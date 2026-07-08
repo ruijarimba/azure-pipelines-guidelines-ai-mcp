@@ -49,7 +49,7 @@ public sealed class RulesCommandTests
         int exitCode = await RulesCommand.RunListAsync(repo, category: null, format: "console");
 
         // Assert
-        exitCode.Should().Be(ExitCodes.Clean);
+        exitCode.Should().Be(ExitCodes.Success);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public sealed class RulesCommandTests
         int exitCode = await RulesCommand.RunListAsync(repo, category: null, format: "console");
 
         // Assert
-        exitCode.Should().Be(ExitCodes.Clean);
+        exitCode.Should().Be(ExitCodes.Success);
     }
 
     [Fact]
@@ -81,7 +81,7 @@ public sealed class RulesCommandTests
         int exitCode = await RulesCommand.RunListAsync(repo, category: "steps", format: "console");
 
         // Assert
-        exitCode.Should().Be(ExitCodes.Clean);
+        exitCode.Should().Be(ExitCodes.Success);
         repo.Received(1).GetByCategory(GuidelineCategory.Steps);
     }
 
@@ -110,7 +110,7 @@ public sealed class RulesCommandTests
         int exitCode = await RulesCommand.RunListAsync(repo, category: null, format: "json");
 
         // Assert
-        exitCode.Should().Be(ExitCodes.Clean);
+        exitCode.Should().Be(ExitCodes.Success);
     }
 
     // ── rules show — console ──────────────────────────────────────────────────
@@ -127,7 +127,7 @@ public sealed class RulesCommandTests
         int exitCode = await RulesCommand.RunShowAsync(repo, id: "ADOG-STEPS-001", format: "console");
 
         // Assert
-        exitCode.Should().Be(ExitCodes.Clean);
+        exitCode.Should().Be(ExitCodes.Success);
     }
 
     [Fact]
@@ -171,7 +171,7 @@ public sealed class RulesCommandTests
         int exitCode = await RulesCommand.RunShowAsync(repo, id: "ADOG-STEPS-001", format: "json");
 
         // Assert
-        exitCode.Should().Be(ExitCodes.Clean);
+        exitCode.Should().Be(ExitCodes.Success);
     }
 
     [Fact]
@@ -206,7 +206,7 @@ public sealed class RulesCommandTests
             repo, category: null, severity: "avoid", format: "console");
 
         // Assert
-        exitCode.Should().Be(ExitCodes.Clean);
+        exitCode.Should().Be(ExitCodes.Success);
     }
 
     [Fact]
@@ -237,6 +237,6 @@ public sealed class RulesCommandTests
             repo, category: null, severity: null, format: "console");
 
         // Assert
-        exitCode.Should().Be(ExitCodes.Clean);
+        exitCode.Should().Be(ExitCodes.Success);
     }
 }

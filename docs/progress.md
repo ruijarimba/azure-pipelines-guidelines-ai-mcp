@@ -56,7 +56,20 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-Nothing — working tree is clean after `8c3b576`.
+**CLI output formatters enhancement** (multi-step plan active):
+
+- **Completed steps (1-9)**:
+  - Created `IOutputFormatter` interface and `OutputFormatterFactory`
+  - Renamed `ExitCodes.Clean` → `ExitCodes.Success` for audit-mode semantics
+  - Added `AnalyzeCommand` CLI flags: `--output`, `--soft-fail`, `--no-color`, `--quiet`, `--verbose`
+  - Implemented `ConsoleOutputFormatter` with ANSI color support, file grouping, and summary statistics
+  - Wrote comprehensive unit tests for console formatter
+  - Fixed all build errors (naming conventions, culture-sensitive calls, accessibility modifiers)
+  - Build is green ✅
+
+- **Next**: Implement remaining formatters (`compact`, `json`, `junit`, `sarif`, `markdown`), wire up formatter factory in `AnalyzeCommand`, add multi-flag CLI tests, expand documentation.
+
+See active plan in memory for detailed step breakdown.
 
 ---
 

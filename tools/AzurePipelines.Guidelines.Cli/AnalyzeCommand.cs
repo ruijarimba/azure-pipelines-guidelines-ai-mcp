@@ -21,7 +21,7 @@ internal static class AnalyzeCommand
 
         Option<string> formatOpt = new(
             name: "--format",
-            description: "Output format: console (default) or json.",
+            description: "Output format (comma-separated for multiple): console, compact, json, junit, sarif, markdown. Default: console.",
             getDefaultValue: () => "console");
 
         Option<string> severityOpt = new(
@@ -34,18 +34,60 @@ internal static class AnalyzeCommand
             description: "Limit analysis to a single category: general, jobs, parameters, pipelines, stages, steps, or variables.",
             getDefaultValue: () => null);
 
+        Option<string?> outputOpt = new(
+            aliases: ["--output", "-o"],
+            description: "Write output to file instead of stdout.");
+
+        Option<bool> softFailOpt = new(
+            name: "--soft-fail",
+            description: "Always exit with code 0, even if violations are found (audit mode).",
+            getDefaultValue: () => false);
+
+        Option<bool> noColorOpt = new(
+            name: "--no-color",
+            description: "Disable ANSI color codes in console output.",
+            getDefaultValue: () => false);
+
+        Option<bool> quietOpt = new(
+            aliases: ["--quiet", "-q"],
+            description: "Suppress detailed output, show summary only.",
+            getDefaultValue: () => false);
+
+        Option<bool> verboseOpt = new(
+            aliases: ["--verbose", "-v"],
+            description: "Enable detailed logging.",
+            getDefaultValue: () => false);
+
         Command command = new("analyze", "Analyse an Azure Pipelines YAML file against the guidelines.")
         {
             pathArg,
             formatOpt,
             severityOpt,
             categoryOpt,
+            outputOpt,
+            softFailOpt,
+            noColorOpt,
+            quietOpt,
+            verboseOpt,
         };
 
         command.SetHandler(
-            async (string[] paths, string format, string severity, string? category) =>
-                await RunAsync(parser, analyser, pathResolver, paths, format, severity, category),
-            pathArg, formatOpt, severityOpt, categoryOpt);
+            async (context) =>
+            {
+                string[] paths = context.ParseResult.GetValueForArgument(pathArg);
+                string format = context.ParseResult.GetValueForOption(formatOpt)!;
+                string severity = context.ParseResult.GetValueForOption(severityOpt)!;
+                string? category = context.ParseResult.GetValueForOption(categoryOpt);
+                string? output = context.ParseResult.GetValueForOption(outputOpt);
+                bool softFail = context.ParseResult.GetValueForOption(softFailOpt);
+                bool noColor = context.ParseResult.GetValueForOption(noColorOpt);
+                bool quiet = context.ParseResult.GetValueForOption(quietOpt);
+                bool verbose = context.ParseResult.GetValueForOption(verboseOpt);
+
+                int exitCode = await RunAsync(parser, analyser, pathResolver, paths, format, severity, category,
+                                              output, softFail, noColor, quiet, verbose);
+                context.ExitCode = exitCode;
+            });
 
         return command;
     }
@@ -56,7 +98,8 @@ internal static class AnalyzeCommand
         FileInfo path,
         string format,
         string severity)
-        => RunAsync(parser, analyser, new PipelinePathResolver(), [path.FullName], format, severity, category: null);
+        => RunAsync(parser, analyser, new PipelinePathResolver(), [path.FullName], format, severity,
+                   category: null, output: null, softFail: false, noColor: false, quiet: false, verbose: false);
 
     internal static async Task<int> RunAsync(
         IPipelineParser parser,
@@ -65,7 +108,12 @@ internal static class AnalyzeCommand
         IEnumerable<string> paths,
         string format,
         string severity,
-        string? category = null)
+        string? category = null,
+        string? output = null,
+        bool softFail = false,
+        bool noColor = false,
+        bool quiet = false,
+        bool verbose = false)
     {
         ArgumentNullException.ThrowIfNull(parser);
         ArgumentNullException.ThrowIfNull(analyser);
@@ -143,13 +191,37 @@ internal static class AnalyzeCommand
             results.Add(result);
         }
 
-        string output = format.Equals("json", StringComparison.OrdinalIgnoreCase)
+        // TODO: Replace with formatter factory once all formatters are implemented
+        // For now, keep existing behavior
+        string formattedOutput = format.Equals("json", StringComparison.OrdinalIgnoreCase)
             ? JsonFormatter.Format(results)
             : ConsoleFormatter.Format(results);
 
-        Console.Write(output);
+        // Write to file if --output specified, otherwise stdout
+        if (!string.IsNullOrWhiteSpace(output))
+        {
+            try
+            {
+                await File.WriteAllTextAsync(output, formattedOutput).ConfigureAwait(false);
+            }
+            catch (IOException ex)
+            {
+                await Console.Error.WriteLineAsync($"error: Cannot write to file {output}: {ex.Message}").ConfigureAwait(false);
+                return ExitCodes.Error;
+            }
+        }
+        else
+        {
+            Console.Write(formattedOutput);
+        }
 
-        return results.Any(result => !result.IsClean) ? ExitCodes.Violations : ExitCodes.Clean;
+        // Soft-fail mode: always exit 0 (audit mode)
+        if (softFail)
+        {
+            return ExitCodes.Success;
+        }
+
+        return results.Any(result => !result.IsClean) ? ExitCodes.Violations : ExitCodes.Success;
     }
 
     private static DiagnosticSeverity ParseSeverity(string value) =>

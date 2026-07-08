@@ -103,7 +103,7 @@ internal static class RulesCommand
             : ConsoleFormatter.FormatGuidelineList(guidelines);
 
         Console.Write(output);
-        return ExitCodes.Clean;
+        return ExitCodes.Success;
     }
 
     // ── rules show ────────────────────────────────────────────────────────────
@@ -171,7 +171,7 @@ internal static class RulesCommand
             : ConsoleFormatter.FormatGuidelineDetail(guideline);
 
         Console.Write(output);
-        return ExitCodes.Clean;
+        return ExitCodes.Success;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
