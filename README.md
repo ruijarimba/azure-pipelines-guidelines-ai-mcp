@@ -118,6 +118,8 @@ adog rules list --category steps     # filter by category
 adog rules show ADOG-STEPS-001       # show a rule with fix guidance
 ```
 
+**→ See [CLI Reference](docs/cli-reference.md) for all commands, options, output formats, and CI integration examples.**
+
 Exit codes: `0` = no violations, `1` = violations found, `2` = analysis error.
 
 ### Option 2 — MCP server (global tool)
