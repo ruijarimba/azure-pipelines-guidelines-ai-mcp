@@ -159,6 +159,14 @@ docs/      Architecture, decisions, glossary, and vision documents
 .github/   AI agent instructions, prompt files, and CI workflows
 ```
 
+## Disclaimer
+
+This is a **proof-of-concept project** developed in the author's spare time. It is **not production-ready** and is provided **as-is** with no guarantees of support, maintenance, or fitness for any particular purpose.
+
+**Use at your own risk.** Do not expect frequent updates or bug fixes. The project is experimental and may contain bugs, breaking changes, or incomplete features.
+
+If you find issues or have suggestions, contributions are welcome — but there is no commitment to addressing them in any particular timeframe.
+
 ## Companion repository
 
 The rule definitions live in the
@@ -166,3 +174,8 @@ The rule definitions live in the
 That repository owns the `data/guidelines.json` manifest and assigns rule IDs.
 
 This repository only **implements** the tooling. It does not define or own the rules.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
