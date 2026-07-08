@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace AzurePipelines.Guidelines.Core;
 
 /// <summary>
@@ -22,8 +24,10 @@ namespace AzurePipelines.Guidelines.Core;
 /// Steps declared at the top level (steps-only template). Empty when the
 /// pipeline uses jobs or stages.
 /// </param>
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed record PipelineDocument(
     string FilePath,
+    [property: DebuggerBrowsable(DebuggerBrowsableState.Never)]
     string RawContent,
     IReadOnlyList<ParameterNode> Parameters,
     IReadOnlyList<VariableNode> Variables,
@@ -42,4 +46,8 @@ public sealed record PipelineDocument(
     /// </summary>
     public IEnumerable<StepNode> AllSteps =>
         AllJobs.SelectMany(j => j.Steps).Concat(Steps);
+
+    /// <inheritdoc/>
+    public override string ToString() =>
+        $"{FilePath} ({Stages.Count} stages, {Jobs.Count} top-level jobs, {Steps.Count} top-level steps)";
 }

@@ -148,4 +148,35 @@ public sealed class PipelineDocumentTests
         // Act + Assert
         doc.AllSteps.Should().BeEmpty();
     }
+
+    // ── ToString ─────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void ToString_GivenDocumentWithStagesJobsAndSteps_ShouldReturnConciseSummary()
+    {
+        // Arrange
+        PipelineDocument doc = MakeDocument(
+            stages: [MakeStage("S1"), MakeStage("S2")],
+            jobs: [MakeJob("J1")],
+            steps: [MakeStep()]);
+
+        // Act
+        string result = doc.ToString();
+
+        // Assert
+        result.Should().Be("azure-pipelines.yml (2 stages, 1 top-level jobs, 1 top-level steps)");
+    }
+
+    [Fact]
+    public void ToString_GivenEmptyDocument_ShouldShowZeroCounts()
+    {
+        // Arrange
+        PipelineDocument doc = MakeDocument();
+
+        // Act
+        string result = doc.ToString();
+
+        // Assert
+        result.Should().Be("azure-pipelines.yml (0 stages, 0 top-level jobs, 0 top-level steps)");
+    }
 }

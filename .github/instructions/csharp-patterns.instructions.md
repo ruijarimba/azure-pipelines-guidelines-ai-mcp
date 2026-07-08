@@ -221,3 +221,106 @@ await SomeOperationAsync().ConfigureAwait(false);
 ```
 
 This rule does not apply to test code under `tests/`.
+
+---
+
+## 9. Debuggability
+
+Debuggability is a first-class quality concern, on par with testability. Every type that
+appears in a watch window, test failure message, or log output must represent itself clearly
+without requiring a developer to expand every nested field.
+
+> **ADR reference:** ADR-014 in [`docs/decisions.md`](../../docs/decisions.md) records
+> the decision, the external sources that ground these rules, and the consequences.
+
+---
+
+### Rule 1: Override `ToString()` on every domain type
+
+**DO override `ToString()`** on every `record` and `class` in `src/` whose instances are
+inspected during debugging or appear in test output or log messages.
+
+```csharp
+// Bad — auto-generated record dump: every field including large nested collections.
+// StageNode { Name = Build, DisplayName = null, Jobs = [...], Variables = [...], ... }
+
+// Good — concise developer summary.
+public override string ToString() =>
+    $"Stage '{Name ?? "(unnamed)"}' (line {Line?.ToString(CultureInfo.InvariantCulture) ?? "?"}, {Jobs.Count} jobs)";
+```
+
+Rules for the body:
+
+- Return a concise summary — enough to identify the instance, not a data dump.
+- Do **not** throw exceptions from `ToString()`.
+- Do **not** return `null` from `ToString()`.
+- Do **not** include properties that are too large to scan at a glance (e.g. raw YAML or
+  script bodies) or that merely duplicate the type name.
+- Use `CultureInfo.InvariantCulture` for all numeric values to satisfy CA1305 (which is
+  a build error in this project — see ADR-006). Add `using System.Globalization;`.
+- Prefer `Line?.ToString(CultureInfo.InvariantCulture) ?? "?"` for optional line numbers.
+- Prefer `"(unnamed)"` as a fallback for optional string identifiers.
+
+---
+
+### Rule 2: Apply `[DebuggerDisplay]` to every type with a `ToString()` override
+
+**DO add `[DebuggerDisplay("{ToString(),nq}")]`** to every type that has a `ToString()`
+override. This controls the primary display in the debugger locals, watch, and autos panels
+and in hover tooltips, using `ToString()` as the single source of truth.
+
+```csharp
+// Bad — debugger shows the verbose auto-generated record representation.
+public sealed record StageNode(string? Name, ...) { }
+
+// Good — debugger shows exactly what ToString() returns.
+[DebuggerDisplay("{ToString(),nq}")]
+public sealed record StageNode(string? Name, ...)
+{
+    public override string ToString() => ...;
+}
+```
+
+For types that are not records and whose `ToString()` already returns a single property
+value, reference that property directly to avoid an unnecessary method call:
+
+```csharp
+// GuidelineId.ToString() returns Value — use the property directly.
+[DebuggerDisplay("{Value,nq}")]
+public sealed class GuidelineId : IEquatable<GuidelineId> { ... }
+```
+
+---
+
+### Rule 3: Suppress large or redundant properties with `[DebuggerBrowsable]`
+
+**DO apply `[property: DebuggerBrowsable(DebuggerBrowsableState.Never)]`** to positional
+record parameters whose generated properties would clutter the watch window.
+
+```csharp
+// Bad — RawContent expands to a multi-kilobyte YAML blob in the watch window.
+public sealed record PipelineDocument(string FilePath, string RawContent, ...)
+
+// Good — suppressed in the debugger; the property is still accessible in code.
+public sealed record PipelineDocument(
+    string FilePath,
+    [property: DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    string RawContent,
+    ...)
+```
+
+Apply to properties that are:
+
+- Large raw strings (YAML content, script bodies, full file text).
+- Pure projections of data already visible through other browsable child nodes.
+
+---
+
+### Rule 4: Test every `ToString()` override
+
+Every `ToString()` override must have dedicated tests in the corresponding `*Tests.cs` file
+(see [`testing.instructions.md`](testing.instructions.md)). Tests must cover:
+
+- The expected output for a well-populated instance.
+- Every logical branch in the formatting expression (named vs. unnamed, line known vs. unknown).
+- Every null/missing-field fallback (`"(unnamed)"`, `"?"` line placeholder, empty value count).

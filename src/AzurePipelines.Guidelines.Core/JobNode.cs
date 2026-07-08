@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Globalization;
+
 namespace AzurePipelines.Guidelines.Core;
 
 /// <summary>
@@ -12,6 +15,7 @@ namespace AzurePipelines.Guidelines.Core;
 /// <param name="Variables">Variables defined at job scope.</param>
 /// <param name="Condition">The optional condition expression string.</param>
 /// <param name="Line">The one-based line number in the source YAML, when available.</param>
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed record JobNode(
     string? Name,
     string? DisplayName,
@@ -19,4 +23,9 @@ public sealed record JobNode(
     IReadOnlyList<StepNode> Steps,
     IReadOnlyList<VariableNode> Variables,
     string? Condition,
-    int? Line);
+    int? Line)
+{
+    /// <inheritdoc/>
+    public override string ToString() =>
+        $"Job '{Name ?? "(unnamed)"}' (line {Line?.ToString(CultureInfo.InvariantCulture) ?? "?"}, {Steps.Count} steps)";
+}

@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Globalization;
+
 namespace AzurePipelines.Guidelines.Core;
 
 /// <summary>
@@ -10,10 +13,16 @@ namespace AzurePipelines.Guidelines.Core;
 /// <param name="FilePath">The file path where the finding was detected.</param>
 /// <param name="Line">The one-based line number, or <see langword="null"/> if unavailable.</param>
 /// <param name="Column">The one-based column number, or <see langword="null"/> if unavailable.</param>
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed record Diagnostic(
     GuidelineId GuidelineId,
     DiagnosticSeverity Severity,
     string Message,
     string FilePath,
     int? Line,
-    int? Column);
+    int? Column)
+{
+    /// <inheritdoc/>
+    public override string ToString() =>
+        $"[{Severity}] {GuidelineId}: {Message} ({FilePath}:{Line?.ToString(CultureInfo.InvariantCulture) ?? "?"})";
+}

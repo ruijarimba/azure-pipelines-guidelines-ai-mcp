@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace AzurePipelines.Guidelines.Core;
 
 /// <summary>
@@ -9,8 +11,14 @@ namespace AzurePipelines.Guidelines.Core;
 /// <param name="Values">
 /// Allowed values when the parameter acts as an enum, or an empty list when unrestricted.
 /// </param>
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed record ParameterNode(
     string Name,
     string? Type,
     string? Default,
-    IReadOnlyList<string> Values);
+    IReadOnlyList<string> Values)
+{
+    /// <inheritdoc/>
+    public override string ToString() =>
+        $"Parameter '{Name}' (type: {Type ?? "string"}{(Values.Count > 0 ? $", {Values.Count} values" : string.Empty)})";
+}

@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Globalization;
+
 namespace AzurePipelines.Guidelines.Core;
 
 /// <summary>
@@ -17,6 +20,7 @@ namespace AzurePipelines.Guidelines.Core;
 /// </param>
 /// <param name="Condition">The optional condition expression string.</param>
 /// <param name="Line">The one-based line number in the source YAML, when available.</param>
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed record StepNode(
     string? Task,
     string? Script,
@@ -24,4 +28,9 @@ public sealed record StepNode(
     int? TimeoutInMinutes,
     bool IsCheckout,
     string? Condition,
-    int? Line);
+    int? Line)
+{
+    /// <inheritdoc/>
+    public override string ToString() =>
+        $"Step {(IsCheckout ? "checkout" : Task ?? "script")} '{DisplayName ?? "(unnamed)"}' (line {Line?.ToString(CultureInfo.InvariantCulture) ?? "?"})";
+}

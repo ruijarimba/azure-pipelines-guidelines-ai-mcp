@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace AzurePipelines.Guidelines.Core;
@@ -6,6 +7,7 @@ namespace AzurePipelines.Guidelines.Core;
 /// Stable unique identifier for a guideline in the form <c>ADOG-{CATEGORY}-{NNN}</c>,
 /// for example <c>ADOG-STEPS-001</c>. Validates the format at construction time.
 /// </summary>
+[DebuggerDisplay("{Value,nq}")]
 public sealed class GuidelineId : IEquatable<GuidelineId>
 {
     private static readonly Regex _validPattern = new(

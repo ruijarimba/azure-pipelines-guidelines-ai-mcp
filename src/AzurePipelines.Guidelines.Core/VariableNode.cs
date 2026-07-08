@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace AzurePipelines.Guidelines.Core;
 
 /// <summary>
@@ -16,8 +18,16 @@ namespace AzurePipelines.Guidelines.Core;
 /// <param name="Group">
 /// The variable group name when this entry is a <c>group:</c> reference.
 /// </param>
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed record VariableNode(
     string? Name,
     string? Value,
     bool IsReadOnly,
-    string? Group);
+    string? Group)
+{
+    /// <inheritdoc/>
+    public override string ToString() =>
+        Group is not null
+            ? $"Variable group:{Group}"
+            : $"Variable '{Name ?? "(unnamed)"}' = '{Value}'";
+}

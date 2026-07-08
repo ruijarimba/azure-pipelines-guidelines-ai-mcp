@@ -7,7 +7,7 @@ these, it must re-read the rationale first; if the context has changed, document
 
 ## ADR-001: .NET 10 as target framework
 
-**Date:** 2025-01-25  
+**Date:** 2026-07-06  
 **Context:** Need to choose a .NET version that balances latest language features with stability.  
 **Decision:** Target `net10.0` (C# 13) exclusively; no multi-targeting.  
 **Rationale:**  
@@ -24,8 +24,8 @@ these, it must re-read the rationale first; if the context has changed, document
 
 ## ADR-002: Central package management via `Directory.Packages.props`
 
-**Date:** 2025-01-25  
-**Context:** 12 projects, shared dependencies — want single source of truth for package versions.  
+**Date:** 2026-07-06  
+**Context:** 13 projects, shared dependencies — want single source of truth for package versions.  
 **Decision:** Use MSBuild central package management (`ManagePackageVersionsCentrally`).  
 **Rationale:**  
 - All `<PackageReference>` elements omit `Version` — declared once in `Directory.Packages.props`.
@@ -40,7 +40,7 @@ these, it must re-read the rationale first; if the context has changed, document
 
 ## ADR-003: Strict layered architecture (no cycles)
 
-**Date:** 2025-01-25  
+**Date:** 2026-07-06  
 **Context:** Want maintainable, testable code that resists architectural drift.  
 **Decision:** Enforce strict dependency graph via project references; Core has zero internal deps.  
 **Rationale:**  
@@ -56,7 +56,7 @@ these, it must re-read the rationale first; if the context has changed, document
 
 ## ADR-004: xUnit, FluentAssertions, NSubstitute — no other test libraries
 
-**Date:** 2025-01-25  
+**Date:** 2026-07-06  
 **Context:** Consistency in test style and readability across the codebase.  
 **Decision:** Single stack for all tests; no mixing of assertion or mocking libraries.  
 **Rationale:**  
@@ -71,25 +71,26 @@ these, it must re-read the rationale first; if the context has changed, document
 
 ---
 
-## ADR-005: `.sln` format (not `.slnx`)
+## ADR-005: Solution file format (.slnx)
 
-**Date:** 2025-01-25  
+**Date:** 2026-07-06 (revised 2026-07-08)  
 **Context:** MSBuild 17.11+ supports `.slnx` (XML solution format), but not all tooling does.  
-**Decision:** Use traditional `.sln` format.  
-**Rationale:**  
-- Broadest toolchain compatibility (older VS versions, CI systems, and build automation).
-- `.slnx` offers no critical benefit for this repository's structure.
-- Can migrate later if ecosystem adoption improves.
+**Original decision:** Use traditional `.sln` format for broadest toolchain compatibility.  
+**Reversal (2025-06-14):** The repository uses `.slnx` in practice. The original compatibility
+concern no longer applies — Visual Studio 2022 17.11+, Visual Studio 2026, and the .NET CLI
+all support `.slnx` fully. The XML format is human-readable, produces clean diffs, and is the
+preferred format for new projects going forward.
 
 **Consequences:**  
-- Solution file remains binary/text hybrid format.
-- No impact on build performance or project management.
+- The solution file is `AzurePipelinesGuidelines.slnx` (XML format, not the legacy binary-text hybrid).
+- New files and projects must be registered in the `.slnx` file following the rules in
+  `solution-files.instructions.md`.
 
 ---
 
 ## ADR-006: `TreatWarningsAsErrors = true` everywhere
 
-**Date:** 2025-01-25  
+**Date:** 2026-07-06  
 **Context:** Want zero-tolerance for code quality issues.  
 **Decision:** Set `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` in root `Directory.Build.props`.  
 **Rationale:**  
@@ -106,7 +107,7 @@ these, it must re-read the rationale first; if the context has changed, document
 
 ## ADR-007: Guidelines manifest lives in the companion repository
 
-**Date:** 2025-01-25  
+**Date:** 2026-07-06  
 **Context:** Need a single source of truth for rule definitions.  
 **Decision:** Consume `data/guidelines.json` from the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).  
 **Rationale:**  
@@ -123,7 +124,7 @@ these, it must re-read the rationale first; if the context has changed, document
 
 ## ADR-008: All `src/` projects are NuGet packages
 
-**Date:** 2025-01-25  
+**Date:** 2026-07-06  
 **Context:** Want reusable libraries that consumers can compose as needed.  
 **Decision:** Every project under `src/` sets `<IsPackable>true</IsPackable>` and will be published to NuGet.  
 **Rationale:**  
@@ -140,7 +141,7 @@ these, it must re-read the rationale first; if the context has changed, document
 
 ## ADR-009: Parser uses YamlDotNet, not System.Text.Json or custom parser
 
-**Date:** 2025-01-25  
+**Date:** 2026-07-06  
 **Context:** Azure Pipelines YAML schema is complex and non-standard.  
 **Decision:** Use YamlDotNet for parsing; keep it internal to `Parsing`.  
 **Rationale:**  
@@ -156,10 +157,10 @@ these, it must re-read the rationale first; if the context has changed, document
 
 ## ADR-010: Agent behaviour governed by published human-AI collaboration frameworks
 
-**Date:** 2025-01-25
+**Date:** 2026-07-06  
 **Context:** AI agents working in this repository need clear, principled guardrails covering
 destructive actions, human authority, epistemic honesty, and other safety-relevant behaviours.
-Ad-hoc or informal safety notes drift and conflict across sessions.
+Ad-hoc or informal safety notes drift and conflict across sessions.  
 **Decision:** Adopt a coherent set of agent behaviour principles grounded in the following
 publicly available frameworks. Record them as the canonical reference so any future change to
 the guardrails must re-consult these sources and update this ADR.
@@ -173,7 +174,7 @@ the guardrails must re-consult these sources and update this ADR.
 | [OWASP LLM Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/) | LLM06 Excessive Agency, LLM07 Overreliance, LLM01 Prompt Injection |
 | [GitHub Copilot — Responsible use](https://docs.github.com/en/copilot/responsible-use-of-github-copilot-features/responsible-use-of-github-copilot-chat-in-your-ide) | Agent confirmation before destructive Git operations |
 
-**Rationale:**
+**Rationale:**  
 - These are authoritative, maintained, public documents — not ad-hoc opinions.
 - Grounding guardrails in named sources gives future agents (and humans) a way to resolve
   ambiguity: "what does the MCP spec say about this?" is answerable; "what did someone mean
@@ -181,8 +182,8 @@ the guardrails must re-consult these sources and update this ADR.
 - OWASP LLM06 (Excessive Agency) and LLM01 (Prompt Injection) are directly relevant because
   this repo reads and analyses untrusted YAML pipeline files and exposes MCP tools to AI clients.
 
-**Consequences:**
-- The seven behaviour principles are documented in
+**Consequences:**  
+- The eight behaviour principles are documented in
   `.github/instructions/agent-behaviour.instructions.md` with `applyTo: "**"`.
 - Before changing any guardrail, re-read the relevant source(s) above and update this ADR.
 - The instruction file links back here so the rationale chain is always traceable.
@@ -191,12 +192,12 @@ the guardrails must re-consult these sources and update this ADR.
 
 ## ADR-011: Human readability as a first-class requirement
 
-**Date:** 2025-01-25
+**Date:** 2026-07-06  
 **Context:** AI agents can generate large volumes of code quickly. Without explicit constraints,
 this leads to oversized files, long methods, speculative scaffolding, and "clever" constructs
 that are hard to follow without the original context. The codebase must remain maintainable
 by humans who do not have access to an AI assistant, including contributors who are not native
-English speakers.
+English speakers.  
 **Decision:** Adopt explicit, measurable maintainability rules for code and documentation,
 grounded in the following public style guides. These apply to agent-generated and human-written
 code equally.
@@ -211,7 +212,7 @@ code equally.
 | [GOV.UK Content Design guide](https://www.gov.uk/guidance/content-design/writing-for-gov-uk) | Short sentences, common words, no idioms — written for non-native readers |
 | [Plain Language guidelines (plainlanguage.gov)](https://www.plainlanguage.gov/guidelines/) | Write for the reader, use "you", prefer simple words, one idea per sentence |
 
-**Rationale:**
+**Rationale:**  
 - Code is read far more often than it is written (Fowler, *Refactoring*, 1999).
 - Agents optimise for task completion, not for the next human who opens the file.
 - Non-native English speakers are part of the target audience for both code comments and
@@ -219,7 +220,7 @@ code equally.
 - Measurable limits (line counts, parameter counts) are enforceable in reviews and by
   analysers, unlike vague guidance such as "keep it simple."
 
-**Consequences:**
+**Consequences:**  
 - Maintainability rules are documented in
   `.github/instructions/maintainability.instructions.md` with `applyTo: "**/*.cs"`.
 - Markdown writing rules are documented in
@@ -231,17 +232,17 @@ code equally.
 
 ## ADR-012: C# implementation patterns for `IGuidelineRule`, logging, and static sets
 
-**Date:** 2025-01-26
+**Date:** 2026-07-07  
 **Context:** Agents implementing new `IGuidelineRule` classes repeatedly introduced the same
 quality issues: a redundant `await Task.CompletedTask` no-op, `HashSet<string>` used in place
 of `FrozenSet<T>` for static lookup sets, `[LoggerMessage]` attribute on partial methods
 (which requires the full `Microsoft.Extensions.Logging` package that `src/` libraries must not
 reference), overly complex regex alternations, and diagnostic messages that repeated
 information already available in structured fields. These issues were not covered by the
-existing instruction files.
+existing instruction files.  
 **Decision:** Add `.github/instructions/csharp-patterns.instructions.md` that documents the
-correct pattern for each concern, with before/after examples drawn from real code.
-**Rationale:**
+correct pattern for each concern, with before/after examples drawn from real code.  
+**Rationale:**  
 - Rules that are written down are repeatable. Rules that live only in a code-review comment
   are lost after the session ends.
 - `FrozenSet<T>` is the BCL-recommended type for immutable, read-heavy lookup sets (.NET 8+).
@@ -254,7 +255,7 @@ correct pattern for each concern, with before/after examples drawn from real cod
 - Diagnostic messages that embed `line` or `column` values duplicate structured fields and
   bloat the message text.
 
-**Consequences:**
+**Consequences:**  
 - All new `IGuidelineRule` implementations must follow the patterns in the instruction file.
 - The instruction file is listed in `.github/copilot-instructions.md` under Active instruction
   files so agents read it before writing code.
@@ -264,7 +265,7 @@ correct pattern for each concern, with before/after examples drawn from real cod
 
 ## ADR-013: Heuristic detection rules are deferred to Phase 2
 
-**Date:** 2025-06-13
+**Date:** 2026-07-07  
 **Context:** The `docs/vision.md` Phase 1 scope says "Implement rules for all
 `ADOG-{CATEGORY}-{NNN}` guidelines in the manifest." After auditing the live
 `guidelines.json` manifest, 36 guideline IDs exist. 9 have `detection.kind` of
@@ -272,13 +273,13 @@ correct pattern for each concern, with before/after examples drawn from real cod
 Phase 1. The remaining 27 all have `detection.kind = heuristic`, meaning they
 require reasoning about intent, architecture, or context that a regex or YAML
 path expression cannot express. Phase 2 explicitly lists "LLM-assisted analysis
-for `heuristic` detection rules" as a future enhancement.
+for `heuristic` detection rules" as a future enhancement.  
 **Decision:** The Phase 1 "all rules implemented" criterion applies only to rules
 with `detection.kind` of `regex` or `yamlPath`. Rules with `detection.kind =
 heuristic` are deferred to Phase 2. This interpretation resolves the apparent
 contradiction between "implement all rules" and "LLM-assisted heuristics are
-Phase 2."
-**Rationale:**
+Phase 2."  
+**Rationale:**  
 - A static analyser cannot reliably detect heuristic patterns without producing
   excessive false positives or false negatives.
 - Implementing stub rules that always return no diagnostics provides no value and
@@ -286,7 +287,7 @@ Phase 2."
 - Phase 2 LLM-assisted analysis is the correct vehicle for heuristic rules.
 - The split aligns with the detection kinds defined in the manifest itself.
 
-**Consequences:**
+**Consequences:**  
 - Do not implement `IGuidelineRule` classes for `heuristic` rules in Phase 1.
   If you encounter a heuristic rule ID while working in the `Rules` project, skip
   it and note the ADR number.
@@ -295,6 +296,55 @@ Phase 2."
   `list_guidelines`, `get_guideline`, and `adog rules show` even without a
   corresponding `IGuidelineRule` implementation.
 - When Phase 2 begins, re-read this ADR to understand the design boundary.
+
+---
+
+## ADR-014: Debuggability as a first-class concern
+
+**Date:** 2026-07-08  
+**Context:** Domain model types (`PipelineDocument`, node records, `Diagnostic`, etc.) had no
+`ToString()` overrides. The auto-generated positional record `ToString()` dumps every property
+in declaration order, including large nested collections and multi-kilobyte YAML strings. This
+made watch-window inspection slow, hover tooltips unreadable, and test failure messages hard to
+diagnose without expanding each object manually.  
+**Decision:** Treat debuggability as a first-class quality concern, on par with testability.
+All domain types in `Core/` must implement `ToString()`, `[DebuggerDisplay]`, and
+`[property: DebuggerBrowsable(Never)]` where applicable, following the four rules in
+`csharp-patterns.instructions.md` section 9.
+
+**Rationale:**
+
+| Source | Key principle used |
+| --- | --- |
+| [Microsoft Framework Design Guidelines — Object.ToString](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/object-tostring) | "DO override `ToString` to return a human-readable, developer-oriented representation." Also: do not throw, do not return null. |
+| [Visual Studio — Using the DebuggerDisplay attribute](https://learn.microsoft.com/en-us/visualstudio/debugger/using-the-debuggerdisplay-attribute) | Official guidance on `[DebuggerDisplay]`, `[DebuggerBrowsable]`, and `[DebuggerTypeProxy]`. |
+| [.NET BCL source (dotnet/runtime)](https://github.com/dotnet/runtime) | `List<T>`, `Dictionary<TKey,TValue>`, `Span<T>`, `KeyValuePair<TK,TV>` and hundreds of other BCL types carry `[DebuggerDisplay]`. The runtime team applies it consistently — this is the strongest available signal that Microsoft engineers treat it as non-negotiable. |
+| [CA1305 — Specify IFormatProvider](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1305) | Calling `int.ToString()` without a format provider is locale-sensitive. CA1305 is a build error in this project (ADR-006), so `CultureInfo.InvariantCulture` is required in every `ToString()` that formats a number. |
+
+Additional reasoning:
+
+- Poor debugger representations slow down development proportionally to the depth and size of
+  the object graph. For a type like `PipelineDocument` that carries a full YAML string plus
+  collections of stages, jobs, and steps, the default dump is unusable at a glance.
+- Missing `ToString()` overrides produce unhelpful FluentAssertions failure messages such as
+  `Expected "StageNode { Name = ..., Jobs = [...] }" but found ...` — the noise obscures the
+  actual assertion.
+- These are productivity and correctness costs comparable to missing unit test coverage;
+  treating one as mandatory and the other as optional is inconsistent.
+
+**Consequences:**
+
+- Every new domain type in `Core/` must include `ToString()` and `[DebuggerDisplay]` from
+  day one. A missing override is a code-review defect, not optional polish.
+- `[property: DebuggerBrowsable(DebuggerBrowsableState.Never)]` must be applied to any
+  property whose expanded view in the watch window would obscure more useful adjacent data
+  (e.g. raw YAML strings, flattened projection properties).
+- All numeric values in `ToString()` implementations must use `CultureInfo.InvariantCulture`
+  and `using System.Globalization;`.
+- Every `ToString()` override must have dedicated unit tests covering all logical branches,
+  per the coverage rules in `testing.instructions.md`.
+- The four concrete rules are documented in `csharp-patterns.instructions.md` section 9 with
+  before/after examples. That file links back here so the rationale chain is traceable.
 
 ---
 
