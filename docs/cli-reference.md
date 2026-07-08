@@ -6,9 +6,9 @@ The `adog` command-line tool analyzes Azure Pipelines YAML files against best-pr
 
 - [Installation](#installation)
 - [Commands](#commands)
-  - [`adog analyze`](#adog-analyze-path-path-)
+  - [`adog analyze`](#adog-analyze)
   - [`adog rules list`](#adog-rules-list)
-  - [`adog rules show`](#adog-rules-show-rule-id)
+  - [`adog rules show`](#adog-rules-show)
 - [Output Formats](#output-formats)
 - [Exit Codes](#exit-codes)
 - [CI/CD Integration Examples](#cicd-integration-examples)
@@ -41,7 +41,12 @@ dotnet tool uninstall -g adog
 
 ## Commands
 
-### `adog analyze <path> [<path> ...]`
+### `adog analyze`
+
+**Syntax:**
+```
+adog analyze <path> [<path> ...]
+```
 
 Analyze one or more pipeline files or directories against the guidelines.
 Directories are scanned recursively for `*.yml` and `*.yaml` files.
@@ -166,6 +171,11 @@ adog analyze ./pipelines/ --format compact --no-color | grep "ADOG-STEPS"
 
 ### `adog rules list`
 
+**Syntax:**
+```
+adog rules list [options]
+```
+
 List all available guideline rules.
 
 #### Options
@@ -204,7 +214,12 @@ adog rules list --category steps --format console,json
 
 ---
 
-### `adog rules show <rule-id>`
+### `adog rules show`
+
+**Syntax:**
+```
+adog rules show <rule-id> [options]
+```
 
 Show detailed information for a specific rule.
 
