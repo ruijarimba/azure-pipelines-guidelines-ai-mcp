@@ -47,6 +47,8 @@ Before committing, edit the sections below:
 | `38cfb82` | docs: restructure README to be tool-focused |
 | `f4a3b66` | docs: update progress log with README restructure completion |
 | `54c4aca` | docs: front-load repository purpose in README intro |
+| `d7e2bf3` | docs: update progress log with README intro polish commit |
+| `73d8bcf` | docs: add MIT license and PoC disclaimer |
 
 ---
 
