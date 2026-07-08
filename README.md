@@ -1,13 +1,15 @@
 # Azure Pipelines Guidelines tools
 
-Two tools for analyzing Azure Pipelines YAML against the [Azure Pipelines coding guidelines published at https://github.com/ruijarimba/azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines):
+Command-line and AI assistant tools for checking Azure Pipelines YAML against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines). Get rule-backed diagnostics for your pipeline files with stable rule IDs and fix suggestions — enforce coding guidelines across your team and catch issues early.
+
+**Two tools:**
 
 - **CLI (`adog`)** — static analyzer for local development and CI/CD pipelines
-- **MCP server (`adog-mcp`)** — AI assistant integration for real-time guideline analysis
+- **MCP server (`adog-mcp`)** — AI assistant integration (GitHub Copilot, Claude, Cursor, etc.)
 
-## Tools
+---
 
-### CLI — `adog`
+## CLI — `adog`
 
 Command-line static analyzer that checks pipeline files for violations and reports issues with fix suggestions.
 
@@ -15,26 +17,15 @@ Run it locally during development or integrate it into your CI/CD pipeline to en
 
 **→ See [CLI Reference](docs/cli-reference.md) for installation, commands, output formats, and examples.**
 
-### MCP Server — `adog-mcp`
+## MCP Server — `adog-mcp`
 
-[Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that gives AI assistants (GitHub Copilot, Claude, Cursor, etc.) live access to guideline analysis.
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that gives AI assistants live access to guideline analysis.
 
 Your AI can analyze pipeline YAML against current guidelines and return precise, rule-keyed diagnostics instead of relying only on training data.
 
 **→ See [MCP Server Reference](docs/mcp-reference.md) for installation, configuration, and usage.**
 
-## Why use it?
-
-Use these tools when you want to:
-
-- Check Azure Pipelines YAML locally or in CI with rule-backed diagnostics
-- Give an AI assistant live access to Azure Pipelines guidance through MCP
-- Review violations with stable rule IDs and fix suggestions
-- Enforce coding guidelines across your team
-
-Azure Pipelines is Microsoft's CI/CD platform. Writing correct, consistent pipelines is hard — especially on teams that want a shared, reviewable reference for pipeline authoring.
-
-The [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines) defines the coding guidelines as a machine-readable manifest. This repository **implements the tooling** that makes those guidelines actionable.
+---
 
 ## What does it analyze?
 
