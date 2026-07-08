@@ -51,6 +51,8 @@ Before committing, edit the sections below:
 | `73d8bcf` | docs: add MIT license and PoC disclaimer |
 | `276d7a9` | docs: update progress log with license and disclaimer commit |
 | `584aba7` | docs: add Mermaid visualizations to reduce cognitive load |
+| `42a0009` | docs: update progress log with visual improvements milestone |
+| `5ec3b92` | docs: add Mermaid boundary diagrams to Core and Analysis AGENTS files |
 
 ---
 
@@ -77,18 +79,19 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**README restructure** ✅ **COMPLETED**
+**Visual documentation improvements** ✅ **COMPLETED**
 
-Restructured README to be tool-focused with clear navigation to documentation:
-- ✅ Changed header to "Azure Pipelines Guidelines tools"
-- ✅ Created dedicated MCP Server Reference (`docs/mcp-reference.md`)
-- ✅ Moved MCP explanation and architecture details out of README
-- ✅ Presented tools first (CLI and MCP server) with links to docs
-- ✅ Simplified Getting started to three concise options
-- ✅ Improved discoverability of "What does it analyze?" section
-- ✅ Added Project documentation section with guide links
-- ✅ Registered `mcp-reference.md` in solution file
-- ✅ Removed "best-practice" wording (replaced with neutral guideline language)
+Completed a systematic visual documentation rollout to reduce cognitive load:
+- ✅ Replaced ASCII dependency graph in root `AGENTS.md` with Mermaid architecture flowchart
+- ✅ Added agent-behavior decision flowchart to root `AGENTS.md`
+- ✅ Added Mermaid Gantt roadmap to `docs/vision.md`
+- ✅ Added Mermaid mindmaps to Core/AGENTS.md (what belongs / doesn't belong)
+- ✅ Added Mermaid mindmaps to Analysis/AGENTS.md (orchestration boundaries)
+- ✅ Added command-tree diagram to `docs/cli-reference.md`
+- ✅ Added tool-capability matrix diagram to `docs/mcp-reference.md`
+
+All agent and user-facing documentation now has visual diagrams to clarify architecture,
+boundaries, and tool capabilities.
 
 Next: implement remaining rules or other enhancements.
 
