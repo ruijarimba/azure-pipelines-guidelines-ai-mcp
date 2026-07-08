@@ -45,6 +45,8 @@ Before committing, edit the sections below:
 | `857b623` | docs: replace best-practice wording with azure guidelines link |
 | `53046f6` | docs: point to user Azure Pipelines guidelines repo |
 | `38cfb82` | docs: restructure README to be tool-focused |
+| `f4a3b66` | docs: update progress log with README restructure completion |
+| `54c4aca` | docs: front-load repository purpose in README intro |
 
 ---
 
