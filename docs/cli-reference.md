@@ -2,6 +2,56 @@
 
 The `adog` command-line tool analyzes Azure Pipelines YAML files against the [coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines) and reports violations with fix suggestions.
 
+## Command Overview
+
+```mermaid
+graph LR
+    A[adog] --> B[analyze]
+    A --> C[rules]
+
+    B --> B1["📄 Single file"]
+    B --> B2["📂 Directory recursive"]
+    B --> B3["📋 Multiple paths"]
+
+    C --> C1[list]
+    C --> C2[show]
+
+    B1 -.-> O1[Format: console|compact|json|junit|sarif|markdown]
+    B2 -.-> O1
+    B3 -.-> O1
+
+    B1 -.-> O2[Filter: --severity|--category]
+    B2 -.-> O2
+    B3 -.-> O2
+
+    B1 -.-> O3[Mode: --soft-fail|--quiet|--verbose]
+    B2 -.-> O3
+    B3 -.-> O3
+
+    C1 -.-> F1[Filter: --category|--severity]
+    C2 -.-> F2[Input: rule-id]
+
+    style A fill:#e1f5ff,stroke:#01579b,stroke-width:3px
+    style B fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style C fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style B1 fill:#f1f8e9,stroke:#33691e
+    style B2 fill:#f1f8e9,stroke:#33691e
+    style B3 fill:#f1f8e9,stroke:#33691e
+    style C1 fill:#f1f8e9,stroke:#33691e
+    style C2 fill:#f1f8e9,stroke:#33691e
+    style O1 fill:#fce4ec,stroke:#880e4f
+    style O2 fill:#fce4ec,stroke:#880e4f
+    style O3 fill:#fce4ec,stroke:#880e4f
+    style F1 fill:#fce4ec,stroke:#880e4f
+    style F2 fill:#fce4ec,stroke:#880e4f
+```
+
+**Legend:**
+- 🔷 Blue — root command
+- 🟠 Orange — subcommands
+- 🟢 Green — input modes
+- 🟣 Pink — options and filters
+
 ## Table of Contents
 
 - [Installation](#installation)

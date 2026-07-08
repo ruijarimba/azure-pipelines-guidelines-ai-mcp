@@ -10,22 +10,71 @@ introduce no NuGet dependencies beyond the .NET BCL.
 
 ## What belongs here
 
-- **Domain models** (records): `GuidelineDefinition`, `DetectionHint`, `FixGuidance`,
-  `Diagnostic`, `PipelineDocument`, and all AST node types for Azure Pipelines YAML.
-- **Value objects**: `GuidelineId` — wraps the `ADOG-{CATEGORY}-{NNN}` string with
-  construction-time validation against the pattern
-  `^ADOG-(GENERAL|JOBS|PARAMETERS|PIPELINES|STAGES|STEPS|VARIABLES)-[0-9]{3}$`.
-- **Enumerations**: `GuidelineCategory`, `GuidelineSeverity`, `DetectionKind`, `PipelineScope`.
-- **Core interfaces**: `IRule`, `IGuidelineRepository`, `IAnalysisEngine`, `IPipelineParser`.
-- **Pure helpers and extension methods** — no I/O, no external dependencies.
+```mermaid
+mindmap
+  root((Core<br/>Domain Layer))
+    Domain Models
+      GuidelineDefinition
+      DetectionHint
+      FixGuidance
+      Diagnostic
+      PipelineDocument
+      AST node types
+    Value Objects
+      GuidelineId
+      validation logic
+    Enumerations
+      GuidelineCategory
+      GuidelineSeverity
+      DetectionKind
+      PipelineScope
+    Interfaces
+      IRule
+      IGuidelineRepository
+      IAnalysisEngine
+      IPipelineParser
+    Helpers
+      Pure functions
+      Extension methods
+      No I/O
+```
+
+**Visual boundary rules:**
+- ✅ Domain models (records) — immutable by default
+- ✅ Value objects with validation — e.g., `GuidelineId`
+- ✅ Enumerations — shared enums across all layers
+- ✅ Core interfaces — contracts that other layers implement
+- ✅ Pure helpers — no side effects, no external dependencies
 
 ## What does NOT belong here
 
-- YAML parsing logic → `Parsing`
-- Rule implementations → `Rules`
-- Analyser orchestration → `Analysis`
-- MCP protocol code → `Mcp`
-- Any NuGet dependency beyond the .NET BCL
+```mermaid
+mindmap
+  root((❌ NOT in Core))
+    Infrastructure
+      YAML parsing → Parsing
+      YamlDotNet usage
+    Business Logic
+      Rule implementations → Rules
+      Diagnostic generation
+    Orchestration
+      Analysis engine → Analysis
+      Rule filtering
+    Protocol
+      MCP handlers → Mcp
+      JSON-RPC
+    External Dependencies
+      Any NuGet beyond BCL
+      I/O operations
+      Network calls
+```
+
+**Keep Core pure:**
+- ❌ No YAML parsing logic → `Parsing` project
+- ❌ No rule implementations → `Rules` project
+- ❌ No analyser orchestration → `Analysis` project
+- ❌ No MCP protocol code → `Mcp` project
+- ❌ No NuGet dependencies beyond .NET BCL
 
 ## Dependencies
 

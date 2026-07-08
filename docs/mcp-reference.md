@@ -172,6 +172,59 @@ Cline follows the Claude Desktop configuration format. Edit your Cline MCP setti
 
 The MCP server exposes two tools:
 
+```mermaid
+graph LR
+    subgraph MCP Server
+        T1[analyze_pipeline]
+        T2[analyze_pipeline_paths]
+    end
+
+    subgraph Inputs
+        I1["📝 yamlContent string"]
+        I2["🔍 guidelineIds optional"]
+        I3["📂 paths array"]
+        I4["🔍 guidelineIds optional"]
+    end
+
+    subgraph Outputs
+        O1["✅ Structured diagnostics"]
+        O2["📊 Grouped by severity"]
+        O3["🔗 Fix suggestions + docs"]
+        O4["📄 Per-file results"]
+    end
+
+    I1 --> T1
+    I2 --> T1
+    I3 --> T2
+    I4 --> T2
+
+    T1 --> O1
+    T1 --> O2
+    T1 --> O3
+
+    T2 --> O4
+    T2 --> O2
+    T2 --> O3
+
+    style T1 fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style T2 fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style I1 fill:#fff3e0,stroke:#f57c00
+    style I2 fill:#fff3e0,stroke:#f57c00
+    style I3 fill:#fff3e0,stroke:#f57c00
+    style I4 fill:#fff3e0,stroke:#f57c00
+    style O1 fill:#e8f5e9,stroke:#388e3c
+    style O2 fill:#e8f5e9,stroke:#388e3c
+    style O3 fill:#e8f5e9,stroke:#388e3c
+    style O4 fill:#e8f5e9,stroke:#388e3c
+```
+
+**Capability matrix:**
+
+| Tool | Input mode | Accepts dirs | Returns | Best for |
+| --- | --- | --- | --- | --- |
+| `analyze_pipeline` | Inline YAML string | ❌ | Single result | Pasted snippets, chat context |
+| `analyze_pipeline_paths` | File/directory paths | ✅ recursive | Per-file results | Workspace files, batch analysis |
+
 ### `analyze_pipeline`
 
 Analyzes inline Azure Pipelines YAML content.

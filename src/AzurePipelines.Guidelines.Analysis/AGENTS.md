@@ -8,18 +8,64 @@ the MCP server and the CLI tool.
 
 ## What belongs here
 
-- Implementation of `IAnalysisEngine` from `Core`.
-- `AnalysisResult` record (list of `Diagnostic`, summary statistics, elapsed time).
-- `AnalysisOptions` — filtering parameters (category, minimum severity, scopes).
-- DI extension method: `AddGuidelinesAnalysis(IServiceCollection)`.
-- Rule-filtering logic (by category, severity, `appliesTo` scope).
+```mermaid
+mindmap
+  root((Analysis<br/>Orchestration))
+    Engine
+      IAnalysisEngine implementation
+      Parse → filter → run → aggregate
+    Results
+      AnalysisResult record
+      Diagnostic aggregation
+      Summary statistics
+      Elapsed time
+    Options
+      AnalysisOptions
+      Category filtering
+      Severity filtering
+      Scope filtering
+    DI Registration
+      AddGuidelinesAnalysis
+      Wire up full stack
+    Rule Filtering
+      Filter by category
+      Filter by severity
+      Filter by appliesTo scope
+```
+
+**Visual boundary rules:**
+- ✅ Orchestration logic — coordinate parse → analyze → aggregate
+- ✅ `IAnalysisEngine` implementation — single seam for all callers
+- ✅ Result aggregation — collect diagnostics from all rules
+- ✅ Filtering logic — decide which rules to run
+- ✅ DI wiring — register parser + rules + engine
 
 ## What does NOT belong here
 
-- YAML parsing details — use `IPipelineParser` injected from `Core`.
-- Rule implementations — they are injected as `IEnumerable<IRule>`.
-- MCP protocol concerns → `Mcp`.
-- Console or file I/O.
+```mermaid
+mindmap
+  root((❌ NOT in Analysis))
+    Lower Layers
+      YAML parsing details → Parsing
+      AST traversal specifics
+    Rule Logic
+      Diagnostic generation → Rules
+      Pattern matching
+      Heuristic detection
+    Protocol
+      MCP tool handlers → Mcp
+      Request/response format
+    Presentation
+      Console output → Cli
+      File I/O → Cli
+      Exit code mapping → Cli
+```
+
+**Keep Analysis focused:**
+- ❌ No YAML parsing details — use injected `IPipelineParser`
+- ❌ No rule implementations — inject `IEnumerable<IRule>`
+- ❌ No MCP protocol concerns → `Mcp` project
+- ❌ No console or file I/O — that's presentation layer (`Cli`)
 
 ## Dependencies (internal)
 
