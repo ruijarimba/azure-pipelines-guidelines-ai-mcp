@@ -12,6 +12,8 @@ internal static class OutputFormatterFactory
         new Dictionary<string, IOutputFormatter>(StringComparer.OrdinalIgnoreCase)
         {
             ["console"] = new ConsoleOutputFormatter(),
+            ["compact"] = new CompactFormatter(),
+            ["json"] = new JsonAnalysisFormatter(),
         }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
