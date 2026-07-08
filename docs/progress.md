@@ -38,6 +38,9 @@ Before committing, edit the sections below:
 | `8b7cd4a` | docs: update CLI documentation with all implemented formatters and options |
 | `339e318` | docs: add CLI documentation commit to progress.md |
 | `94a4eed` | docs: create user-facing CLI reference and refactor AGENTS.md |
+| `2ea87d0` | docs: add TOC to CLI reference for easier navigation |
+| `b8b1955` | docs: simplify command headings and fix markdown anchors in CLI reference |
+| `55d9ed6` | docs: remove CI/CD platform-specific examples from CLI reference |
 
 ---
 
@@ -64,41 +67,32 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**CLI output formatters enhancement** ✅ **COMPLETED**
+**Documentation cleanup** ✅ **COMPLETED**
 
-All six formatters (console, compact, json, junit, sarif, markdown) are now implemented with comprehensive tests:
-- ✅ `IOutputFormatter` interface and `OutputFormatterFactory`
-- ✅ `ExitCodes.Success` rename for audit-mode semantics
-- ✅ `AnalyzeCommand` CLI flags: `--output`, `--soft-fail`, `--no-color`, `--quiet`, `--verbose`
-- ✅ `ConsoleOutputFormatter` (ANSI colors, grouping, summary)
-- ✅ `CompactFormatter` (grep-parseable one-line format)
-- ✅ `JsonAnalysisFormatter` (camelCase structured output)
-- ✅ `JunitFormatter` (XML for CI test results)
-- ✅ `SarifFormatter` (SARIF 2.1.0 for code scanning)
-- ✅ `MarkdownFormatter` (tables with guideline links)
-- ✅ All 87 formatter tests passing
-- ✅ Build green with strict analyzers
-- ✅ Fixed naming conventions (private const fields now use `_` prefix)
+Finished refactoring CLI docs for better user experience and maintainability:
+- ✅ Created `docs/cli-reference.md` user-facing reference
+- ✅ Refactored `tools/AzurePipelines.Guidelines.Cli/AGENTS.md` to agent-only instructions
+- ✅ Updated `README.md` with link to CLI reference
+- ✅ Registered `cli-reference.md` in solution file
+- ✅ Added TOC for easier navigation
+- ✅ Fixed markdown anchors by simplifying command headings
+- ✅ Removed platform-specific CI/CD examples to reduce duplication
 
-Next: commit and push this milestone, then continue with remaining CLI work.
-
-See active plan in memory for detailed step breakdown.
+Next: implement remaining rules or other CLI enhancements.
 
 ---
 
 ## Next up
 
-1. **Wire formatters into `AnalyzeCommand` execution pipeline** — connect factory/file-output/soft-fail logic end-to-end
-2. **Add multi-flag CLI integration tests** — test combinations of `--format`, `--output`, `--soft-fail`, `--no-color`
-3. **Update CLI documentation** — refresh examples with new formatters and flags
-4. **Implement remaining `ADOG-*` rules** — cross-reference `guidelines.json` in the companion
+1. **Implement remaining `ADOG-*` rules** — cross-reference `guidelines.json` in the companion
    repository against the implemented rules table above. Use the
    `.github/prompts/implement-rule.prompt.md` workflow for each one.
-5. **CLI: support comma-separated `--format` values** — e.g. `--format json,markdown`.
+2. **CLI: support comma-separated `--format` values** — e.g. `--format json,markdown`.
    Each format is written to stdout in sequence (or to separate files once `--output` is added).
-6. **Publish NuGet packages** for all `src/` libraries — required for Phase 1 completion
+3. **Add multi-flag CLI integration tests** — test combinations of `--format`, `--output`, `--soft-fail`, `--no-color`
+4. **Publish NuGet packages** for all `src/` libraries — required for Phase 1 completion
    (see `docs/vision.md`).
-7. **Verify Phase 1 success criteria** — all rules implemented, `>= 90 %` test coverage,
+5. **Verify Phase 1 success criteria** — all rules implemented, `>= 90 %` test coverage,
    documentation complete, global tools and Docker image published.
 
 ---
