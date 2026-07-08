@@ -14,6 +14,8 @@ internal static class OutputFormatterFactory
             ["console"] = new ConsoleOutputFormatter(),
             ["compact"] = new CompactFormatter(),
             ["json"] = new JsonAnalysisFormatter(),
+            ["junit"] = new JunitFormatter(),
+            ["sarif"] = new SarifFormatter(),
         }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
