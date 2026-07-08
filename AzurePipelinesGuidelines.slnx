@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/.github/">
-    <Folder Name="/.github/instructions/">
+    <Folder Name="instructions">
       <File Path=".github/instructions/agent-behaviour.instructions.md" />
       <File Path=".github/instructions/architecture.instructions.md" />
       <File Path=".github/instructions/code-style.instructions.md" />
@@ -11,11 +11,11 @@
       <File Path=".github/instructions/nuget-packaging.instructions.md" />
       <File Path=".github/instructions/testing.instructions.md" />
     </Folder>
-    <Folder Name="/.github/prompts/">
+    <Folder Name="prompts">
       <File Path=".github/prompts/add-mcp-tool.prompt.md" />
       <File Path=".github/prompts/implement-rule.prompt.md" />
     </Folder>
-    <Folder Name="/.github/workflows/">
+    <Folder Name="workflows">
       <File Path=".github/workflows/ci.yml" />
       <File Path=".github/workflows/release.yml" />
     </Folder>
@@ -43,51 +43,51 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
-    <Folder Name="/src/AzurePipelines.Guidelines.Analysis/">
+    <Folder Name="AzurePipelines.Guidelines.Analysis">
       <Project Path="src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj" />
     </Folder>
-    <Folder Name="/src/AzurePipelines.Guidelines.Core/">
+    <Folder Name="AzurePipelines.Guidelines.Core">
       <Project Path="src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj" />
     </Folder>
-    <Folder Name="/src/AzurePipelines.Guidelines.Mcp/">
+    <Folder Name="AzurePipelines.Guidelines.Mcp">
       <Project Path="src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj" />
     </Folder>
-    <Folder Name="/src/AzurePipelines.Guidelines.Parsing/">
+    <Folder Name="AzurePipelines.Guidelines.Parsing">
       <Project Path="src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj" />
     </Folder>
-    <Folder Name="/src/AzurePipelines.Guidelines.Rules/">
+    <Folder Name="AzurePipelines.Guidelines.Rules">
       <Project Path="src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj" />
     </Folder>
     <File Path="src/Directory.Build.props" />
   </Folder>
   <Folder Name="/tests/">
-    <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/">
+    <Folder Name="AzurePipelines.Guidelines.Analysis.Tests">
       <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
     </Folder>
-    <Folder Name="/tests/AzurePipelines.Guidelines.Cli.Tests/">
+    <Folder Name="AzurePipelines.Guidelines.Cli.Tests">
       <Project Path="tests/AzurePipelines.Guidelines.Cli.Tests/AzurePipelines.Guidelines.Cli.Tests.csproj">
         <Build Solution="Debug|*" Project="false" />
       </Project>
     </Folder>
-    <Folder Name="/tests/AzurePipelines.Guidelines.Core.Tests/">
+    <Folder Name="AzurePipelines.Guidelines.Core.Tests">
       <Project Path="tests/AzurePipelines.Guidelines.Core.Tests/AzurePipelines.Guidelines.Core.Tests.csproj" />
     </Folder>
-    <Folder Name="/tests/AzurePipelines.Guidelines.Mcp.Tests/">
+    <Folder Name="AzurePipelines.Guidelines.Mcp.Tests">
       <Project Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AzurePipelines.Guidelines.Mcp.Tests.csproj" />
     </Folder>
-    <Folder Name="/tests/AzurePipelines.Guidelines.Parsing.Tests/">
+    <Folder Name="AzurePipelines.Guidelines.Parsing.Tests">
       <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />
     </Folder>
-    <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/">
+    <Folder Name="AzurePipelines.Guidelines.Rules.Tests">
       <Project Path="tests/AzurePipelines.Guidelines.Rules.Tests/AzurePipelines.Guidelines.Rules.Tests.csproj" />
     </Folder>
     <File Path="tests/Directory.Build.props" />
   </Folder>
   <Folder Name="/tools/">
-    <Folder Name="/tools/AzurePipelines.Guidelines.Cli/">
+    <Folder Name="AzurePipelines.Guidelines.Cli">
       <Project Path="tools/AzurePipelines.Guidelines.Cli/AzurePipelines.Guidelines.Cli.csproj" />
     </Folder>
-    <Folder Name="/tools/AzurePipelines.Guidelines.Mcp.Host/">
+    <Folder Name="AzurePipelines.Guidelines.Mcp.Host">
       <Project Path="tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj" />
     </Folder>
     <File Path="tools/Directory.Build.props" />
