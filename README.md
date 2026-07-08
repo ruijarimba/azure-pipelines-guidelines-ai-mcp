@@ -1,62 +1,40 @@
-# Azure Pipelines Guidelines MCP Server and CLI
+# Azure Pipelines Guidelines tools
 
-An [MCP](https://modelcontextprotocol.io) server and CLI tool for checking Azure Pipelines YAML
-against the [Azure Pipelines coding guidelines published at https://github.com/ruijarimba/azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
+Two tools for analyzing Azure Pipelines YAML against the [Azure Pipelines coding guidelines published at https://github.com/ruijarimba/azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines):
+
+- **CLI (`adog`)** — static analyzer for local development and CI/CD pipelines
+- **MCP server (`adog-mcp`)** — AI assistant integration for real-time guideline analysis
+
+## Tools
+
+### CLI — `adog`
+
+Command-line static analyzer that checks pipeline files for violations and reports issues with fix suggestions.
+
+Run it locally during development or integrate it into your CI/CD pipeline to enforce coding guidelines.
+
+**→ See [CLI Reference](docs/cli-reference.md) for installation, commands, output formats, and examples.**
+
+### MCP Server — `adog-mcp`
+
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that gives AI assistants (GitHub Copilot, Claude, Cursor, etc.) live access to guideline analysis.
+
+Your AI can analyze pipeline YAML against current guidelines and return precise, rule-keyed diagnostics instead of relying only on training data.
+
+**→ See [MCP Server Reference](docs/mcp-reference.md) for installation, configuration, and usage.**
 
 ## Why use it?
 
-Use this project when you want to:
+Use these tools when you want to:
 
-- check Azure Pipelines YAML locally or in CI with rule-backed diagnostics
-- give an AI assistant live access to Azure Pipelines guidance through MCP
-- review violations with stable rule IDs and fix suggestions
+- Check Azure Pipelines YAML locally or in CI with rule-backed diagnostics
+- Give an AI assistant live access to Azure Pipelines guidance through MCP
+- Review violations with stable rule IDs and fix suggestions
+- Enforce coding guidelines across your team
 
-## What is this?
+Azure Pipelines is Microsoft's CI/CD platform. Writing correct, consistent pipelines is hard — especially on teams that want a shared, reviewable reference for pipeline authoring.
 
-Azure Pipelines is Microsoft's CI/CD platform. Writing correct, consistent pipelines is hard —
-especially on teams that want a shared, reviewable reference for pipeline authoring.
-
-The [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
-defines the coding guidelines as a machine-readable manifest. This repository
-**implements the tooling** that makes those guidelines actionable:
-
-| Tool | What it does |
-| --- | --- |
-| **CLI (`adog`)** | Analyzes Azure Pipelines YAML files against the guidelines. Reports violations with fix suggestions. Run it locally or in CI. |
-| **MCP server (`adog-mcp`)** | Exposes the same analysis as an AI assistant integration. Your AI tool can call it to look up guidelines and analyze pipeline YAML in real time. |
-
-## What is MCP?
-
-[Model Context Protocol (MCP)](https://modelcontextprotocol.io) is an open standard that lets AI
-assistants connect to external tools and data sources. Think of it as a plugin system for AI:
-instead of relying only on training data, the assistant calls a running server to get live,
-structured results.
-
-Here is how the MCP server fits into your workflow:
-
-```mermaid
-graph TD
-    dev(["Developer"])
-    ai["AI assistant\nCopilot · Claude · Cursor"]
-    srv["MCP server\nadog-mcp"]
-    eng["Analysis engine"]
-    mnf["guidelines.json\ncompanion repo"]
-
-    dev -->|"ask a question\nor paste YAML"| ai
-    ai -->|"MCP tool call\nover stdio"| srv
-    srv --> eng
-    eng -->|"loads rules from"| mnf
-    eng -->|"returns diagnostics"| srv
-    srv -->|"structured result"| ai
-    ai -->|"explains violations\nand fix suggestions"| dev
-```
-
-The server runs as a local process. The AI client starts it and communicates over `stdin`/`stdout`.
-No network port is opened.
-
-Without the MCP server, the AI can only advise based on training data. With it running, the AI
-analyzes your actual pipeline file against the current guidelines and returns precise,
-rule-keyed diagnostics.
+The [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines) defines the coding guidelines as a machine-readable manifest. This repository **implements the tooling** that makes those guidelines actionable.
 
 ## What does it analyze?
 
@@ -85,52 +63,32 @@ For the full rule list and definitions, see the
 
 ## Getting started
 
-### Option 1 — CLI static analyzer
+### Option 1 — CLI
 
-Install the CLI as a [.NET global tool](https://learn.microsoft.com/dotnet/core/tools/global-tools) and
-run it against one or more pipeline files or directories:
+Install and run the static analyzer:
 
 ```bash
 dotnet tool install -g adog
 adog analyze azure-pipelines.yml
-adog analyze path/to/pipelines path/to/another-pipeline.yml
-adog analyze path/to/pipelines-directory
 ```
-
-The analyzer accepts `.yml` and `.yaml` files, and it expands directories recursively to find
-pipeline YAML files.
 
 Example output:
 
 ```
 azure-pipelines.yml(12,17): warning ADOG-STEPS-001: Steps template reads a pipeline variable with $(DEPLOY_ENV). Pass values as parameters instead.
-  Fix: Replace pipeline variable reads in steps templates with template parameters.
-  https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/avoid-pipeline-variables.md
-
-0 errors, 1 warning.
 ```
 
-Other commands:
+**→ See [CLI Reference](docs/cli-reference.md) for all commands, options, output formats, and examples.**
 
-```bash
-adog rules list                      # list all rules
-adog rules list --category steps     # filter by category
-adog rules show ADOG-STEPS-001       # show a rule with fix guidance
-```
+### Option 2 — MCP Server (global tool)
 
-**→ See [CLI Reference](docs/cli-reference.md) for all commands, options, output formats, and CI integration examples.**
-
-Exit codes: `0` = no violations, `1` = violations found, `2` = analysis error.
-
-### Option 2 — MCP server (global tool)
-
-Install the MCP server. Your AI client starts it as a child process and communicates over stdio.
+Install the MCP server and configure your AI client:
 
 ```bash
 dotnet tool install -g adog-mcp
 ```
 
-**Claude Desktop** (`claude_desktop_config.json`):
+Add to your AI client config (Claude Desktop example):
 
 ```json
 {
@@ -142,26 +100,17 @@ dotnet tool install -g adog-mcp
 }
 ```
 
-**GitHub Copilot in VS Code** (`.vscode/mcp.json` in your project):
+**→ See [MCP Server Reference](docs/mcp-reference.md) for configuration, available tools, and usage examples.**
 
-```json
-{
-  "servers": {
-    "azure-pipelines-guidelines": {
-      "type": "stdio",
-      "command": "adog-mcp"
-    }
-  }
-}
-```
+### Option 3 — MCP Server (Docker)
 
-### Option 3 — MCP server (Docker, no .NET required)
+No .NET SDK required — use the Docker image:
 
 ```bash
 docker pull ruijarimba/azure-pipelines-guidelines-mcp:latest
 ```
 
-**Claude Desktop** (`claude_desktop_config.json`):
+Configure your AI client to use Docker:
 
 ```json
 {
@@ -174,60 +123,38 @@ docker pull ruijarimba/azure-pipelines-guidelines-mcp:latest
 }
 ```
 
-The `-i` flag keeps stdin open, which is required for the stdio transport.
+**→ See [MCP Server Reference](docs/mcp-reference.md) for detailed configuration and troubleshooting.**
 
-### MCP tools
+## What does it analyze?
 
-Both the global tool and the Docker image expose the same two tools:
+The guidelines cover seven categories of Azure Pipelines YAML. Each rule has a stable ID in the
+form `ADOG-{CATEGORY}-{NNN}`.
 
-| Tool | Input | What it does |
-| --- | --- | --- |
-| `analyze_pipeline` | YAML text | Analyzes inline pipeline content against the loaded guidelines. |
-| `analyze_pipeline_paths` | File or directory paths | Analyzes one or more files or a full directory tree and returns per-file results. |
+| Category | Covers |
+| --- | --- |
+| `GENERAL` | Pipeline-wide structural rules |
+| `JOBS` | Job definition guidance |
+| `PARAMETERS` | Parameter declaration and defaults |
+| `PIPELINES` | Pipeline-level settings |
+| `STAGES` | Stage structure and ordering |
+| `STEPS` | Step and task guidelines |
+| `VARIABLES` | Variable declarations and scoping |
 
-Both tools accept an optional `guidelineIds` parameter: a comma-separated list such as
-`ADOG-STEPS-001,ADOG-JOBS-006` to restrict the run to specific rules.
+For the full rule list and definitions, see the
+[Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
 
-## Architecture
+## Prerequisites
 
-The solution is a layered .NET 10 library stack. Two entry points share the same analysis engine.
+| Option | Requirement |
+| --- | --- |
+| CLI or MCP server as a global tool | [Download the .NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) |
+| MCP server as a Docker container | [Install Docker Desktop](https://docs.docker.com/get-docker/) — no .NET required |
 
-```mermaid
-graph TD
-    subgraph src["src/  —  NuGet packages"]
-        Core["Core\ndomain models and interfaces"]
-        Parsing["Parsing\nYAML to AST"]
-        Rules["Rules\nIGuidelineRule implementations"]
-        Analysis["Analysis\norchestration engine"]
-        Mcp["Mcp\nMCP tool and resource handlers"]
-    end
+## Project documentation
 
-    subgraph tools["tools/  —  executables"]
-        McpHost["Mcp.Host\nadog-mcp"]
-        Cli["Cli\nadog"]
-    end
-
-    Parsing --> Core
-    Rules --> Core
-    Analysis --> Core
-    Analysis --> Parsing
-    Analysis --> Rules
-    Mcp --> Core
-    Mcp --> Analysis
-    McpHost --> Mcp
-    Cli --> Analysis
-```
-
-`Core` has no internal project dependencies. All `src/` libraries are independent NuGet packages
-under `AzurePipelines.Guidelines.*`.
-
-For the full dependency graph, layer responsibilities, and extension points, see
-[the architecture guide](docs/architecture.md).
-
-## How it works
-
-For a walkthrough of the MCP request cycle, the analysis pipeline, and the two-repository model,
-see [the how-it-works guide](docs/how-it-works.md).
+- **[Architecture guide](docs/architecture.md)** — dependency graph, layer responsibilities, and extension points
+- **[How it works](docs/how-it-works.md)** — analysis pipeline and two-repository model
+- **[Contributing guide](CONTRIBUTING.md)** — build instructions and how to add rules
 
 ## Repository structure
 
@@ -248,8 +175,3 @@ The rule definitions live in the
 That repository owns the `data/guidelines.json` manifest and assigns rule IDs.
 
 This repository only **implements** the tooling. It does not define or own the rules.
-
-## Contributing
-
-See [the contribution guide](CONTRIBUTING.md) for build instructions, how to run tests, and how to
-add a new rule or MCP tool.
