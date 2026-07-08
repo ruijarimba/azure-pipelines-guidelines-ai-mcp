@@ -34,6 +34,9 @@ Before committing, edit the sections below:
 | `1d0ac9a` | feat: add JSON analysis formatter and tests with camelCase output |
 | `6cebbeb` | feat: add JUnit and SARIF formatters with comprehensive tests for CI/CD integration |
 | `4d7d0d1` | feat: add Markdown formatter with table output and guideline documentation links |
+| `820d15e` | docs: update progress.md with Markdown formatter milestone |
+| `8b7cd4a` | docs: update CLI documentation with all implemented formatters and options |
+| `4d7d0d1` | feat: add Markdown formatter with table output and guideline documentation links |
 
 ---
 
