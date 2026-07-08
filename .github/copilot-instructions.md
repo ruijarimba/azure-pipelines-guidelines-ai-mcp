@@ -12,6 +12,7 @@ Read this file **and the linked instruction files** before generating or modifyi
 - `.github/instructions/documentation.instructions.md` — documentation writing rules for Markdown files; plain English for non-native readers.
 - `.github/instructions/testing.instructions.md` — unit testing conventions and coverage expectations.
 - `.github/instructions/nuget-packaging.instructions.md` — NuGet packaging rules for `src/` projects.
+- `.github/instructions/solution-files.instructions.md` — how to add new files to the Visual Studio solution.
 
 ## Durable project context (read first)
 
@@ -47,6 +48,35 @@ Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` →
 
 - `.github/prompts/implement-rule.prompt.md` — guided workflow for implementing a new `IRule`.
 - `.github/prompts/add-mcp-tool.prompt.md` — guided workflow for adding a new MCP tool handler.
+
+## Adding new files to the solution
+
+**Every file must be visible in Visual Studio Solution Explorer** in the correct folder hierarchy.
+
+### Where to register
+
+| File location | How to register |
+| --- | --- |
+| Inside a project directory (e.g. `src/Core/AGENTS.md`) | Add `<None Include="filename" />` in an `<ItemGroup>` in that project's `.csproj` file. |
+| Anywhere else (root, `docs/`, `.github/`, `tests/`, `src/`, `tools/`) | Add a `<File Path="..." />` entry in `AzurePipelinesGuidelines.slnx`. |
+
+### Folder hierarchy rules
+
+- Solution Explorer **must mirror Windows Explorer exactly**.
+- Files in `docs/` go under `/docs/` solution folder — not `/Solution Items/`.
+- Files in `.github/instructions/` go under `/.github/instructions/` — not flat under `/.github/`.
+- If you create a new subdirectory, add a matching `<Folder Name="/path/to/folder/">` entry in `.slnx` before adding `<File>` children.
+- Never flatten nested directories into parent folders.
+
+### Verification
+
+After creating or registering any file, check:
+> Does Solution Explorer show this file in the same location as Windows Explorer?
+> Is every parent folder visible as a nested solution folder?
+
+If "no" to either question, fix it before committing.
+
+**Full rules:** `.github/instructions/agent-behaviour.instructions.md` — Rule 8.
 
 ## Safety
 
