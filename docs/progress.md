@@ -33,7 +33,7 @@ Before committing, edit the sections below:
 | `c71efa0` | feat: add IOutputFormatter, OutputFormatterFactory, exit code refactor, and console/compact formatters with tests |
 | `1d0ac9a` | feat: add JSON analysis formatter and tests with camelCase output |
 | `6cebbeb` | feat: add JUnit and SARIF formatters with comprehensive tests for CI/CD integration |
-| (pending) | feat: add Markdown formatter with table output and guideline documentation links |
+| `4d7d0d1` | feat: add Markdown formatter with table output and guideline documentation links |
 
 ---
 
