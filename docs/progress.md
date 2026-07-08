@@ -30,6 +30,10 @@ Before committing, edit the sections below:
 | `9a037da` | feat: add `adog-mcp` .NET global tool and Docker Hub image distribution |
 | `bf07410` | chore: fix CLI packaging and harden CI pack workflow |
 | `438da52` | test: raise unit test coverage above 90 % for all assemblies |
+| `c71efa0` | feat: add IOutputFormatter, OutputFormatterFactory, exit code refactor, and console/compact formatters with tests |
+| `1d0ac9a` | feat: add JSON analysis formatter and tests with camelCase output |
+| `6cebbeb` | feat: add JUnit and SARIF formatters with comprehensive tests for CI/CD integration |
+| (pending) | feat: add Markdown formatter with table output and guideline documentation links |
 
 ---
 
@@ -56,18 +60,23 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**CLI output formatters enhancement** (multi-step plan active):
+**CLI output formatters enhancement** ✅ **COMPLETED**
 
-- **Completed steps (1-9)**:
-  - Created `IOutputFormatter` interface and `OutputFormatterFactory`
-  - Renamed `ExitCodes.Clean` → `ExitCodes.Success` for audit-mode semantics
-  - Added `AnalyzeCommand` CLI flags: `--output`, `--soft-fail`, `--no-color`, `--quiet`, `--verbose`
-  - Implemented `ConsoleOutputFormatter` with ANSI color support, file grouping, and summary statistics
-  - Wrote comprehensive unit tests for console formatter
-  - Fixed all build errors (naming conventions, culture-sensitive calls, accessibility modifiers)
-  - Build is green ✅
+All six formatters (console, compact, json, junit, sarif, markdown) are now implemented with comprehensive tests:
+- ✅ `IOutputFormatter` interface and `OutputFormatterFactory`
+- ✅ `ExitCodes.Success` rename for audit-mode semantics
+- ✅ `AnalyzeCommand` CLI flags: `--output`, `--soft-fail`, `--no-color`, `--quiet`, `--verbose`
+- ✅ `ConsoleOutputFormatter` (ANSI colors, grouping, summary)
+- ✅ `CompactFormatter` (grep-parseable one-line format)
+- ✅ `JsonAnalysisFormatter` (camelCase structured output)
+- ✅ `JunitFormatter` (XML for CI test results)
+- ✅ `SarifFormatter` (SARIF 2.1.0 for code scanning)
+- ✅ `MarkdownFormatter` (tables with guideline links)
+- ✅ All 87 formatter tests passing
+- ✅ Build green with strict analyzers
+- ✅ Fixed naming conventions (private const fields now use `_` prefix)
 
-- **Next**: Implement remaining formatters (`compact`, `json`, `junit`, `sarif`, `markdown`), wire up formatter factory in `AnalyzeCommand`, add multi-flag CLI tests, expand documentation.
+Next: commit and push this milestone, then continue with remaining CLI work.
 
 See active plan in memory for detailed step breakdown.
 
@@ -75,19 +84,17 @@ See active plan in memory for detailed step breakdown.
 
 ## Next up
 
-1. **Implement remaining `ADOG-*` rules** — cross-reference `guidelines.json` in the companion
-   repository against the table above to find unimplemented rule IDs. Use the
+1. **Wire formatters into `AnalyzeCommand` execution pipeline** — connect factory/file-output/soft-fail logic end-to-end
+2. **Add multi-flag CLI integration tests** — test combinations of `--format`, `--output`, `--soft-fail`, `--no-color`
+3. **Update CLI documentation** — refresh examples with new formatters and flags
+4. **Implement remaining `ADOG-*` rules** — cross-reference `guidelines.json` in the companion
+   repository against the implemented rules table above. Use the
    `.github/prompts/implement-rule.prompt.md` workflow for each one.
-2. **CLI: implement `markdown` output formatter** — for `analyze`, `rules list`, and `rules show`.
-   Rule IDs in the output must link to the guideline documentation in the companion repository.
-   See `tools/AzurePipelines.Guidelines.Cli/AGENTS.md` for the full format specification and examples.
-3. **CLI: implement `sarif` output formatter** — SARIF 2.1.0 for `analyze` only.
-   Must integrate with GitHub Code Scanning and Azure DevOps PR annotations.
-4. **CLI: support comma-separated `--format` values** — e.g. `--format json,markdown`.
+5. **CLI: support comma-separated `--format` values** — e.g. `--format json,markdown`.
    Each format is written to stdout in sequence (or to separate files once `--output` is added).
-5. **Publish NuGet packages** for all `src/` libraries — required for Phase 1 completion
+6. **Publish NuGet packages** for all `src/` libraries — required for Phase 1 completion
    (see `docs/vision.md`).
-6. **Verify Phase 1 success criteria** — all rules implemented, `>= 90 %` test coverage,
+7. **Verify Phase 1 success criteria** — all rules implemented, `>= 90 %` test coverage,
    documentation complete, global tools and Docker image published.
 
 ---

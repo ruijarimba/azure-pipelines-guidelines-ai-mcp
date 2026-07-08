@@ -10,9 +10,9 @@ namespace AzurePipelines.Guidelines.Cli.Formatters;
 /// </summary>
 internal sealed class SarifFormatter : IOutputFormatter
 {
-    private const string SarifVersion = "2.1.0";
-    private const string ToolName = "azure-pipelines-guidelines";
-    private const string ToolVersion = "1.0.0"; // TODO: derive from assembly version
+    private const string _sarifVersion = "2.1.0";
+    private const string _toolName = "azure-pipelines-guidelines";
+    private const string _toolVersion = "1.0.0"; // TODO: derive from assembly version
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -30,7 +30,7 @@ internal sealed class SarifFormatter : IOutputFormatter
         // Build SARIF structure
         SarifLog sarifLog = new()
         {
-            Version = SarifVersion,
+            Version = _sarifVersion,
             Schema = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
             Runs = [BuildRun(results)],
         };
@@ -61,9 +61,9 @@ internal sealed class SarifFormatter : IOutputFormatter
             {
                 Driver = new Driver
                 {
-                    Name = ToolName,
+                    Name = _toolName,
                     InformationUri = "https://github.com/ruijarimba/azure-pipelines-guidelines",
-                    Version = ToolVersion,
+                    Version = _toolVersion,
                     Rules = rulesDict.Values.Select(BuildRule).ToArray(),
                 },
             },
