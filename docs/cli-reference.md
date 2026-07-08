@@ -4,53 +4,11 @@ The `adog` command-line tool analyzes Azure Pipelines YAML files against the [co
 
 ## Command Overview
 
-```mermaid
-graph LR
-    A[adog] --> B[analyze]
-    A --> C[rules]
-
-    B --> B1["📄 Single file"]
-    B --> B2["📂 Directory recursive"]
-    B --> B3["📋 Multiple paths"]
-
-    C --> C1[list]
-    C --> C2[show]
-
-    B1 -.-> O1[Format: console|compact|json|junit|sarif|markdown]
-    B2 -.-> O1
-    B3 -.-> O1
-
-    B1 -.-> O2[Filter: --severity|--category]
-    B2 -.-> O2
-    B3 -.-> O2
-
-    B1 -.-> O3[Mode: --soft-fail|--quiet|--verbose]
-    B2 -.-> O3
-    B3 -.-> O3
-
-    C1 -.-> F1[Filter: --category|--severity]
-    C2 -.-> F2[Input: rule-id]
-
-    style A fill:#e1f5ff,stroke:#01579b,stroke-width:3px
-    style B fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    style C fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    style B1 fill:#f1f8e9,stroke:#33691e
-    style B2 fill:#f1f8e9,stroke:#33691e
-    style B3 fill:#f1f8e9,stroke:#33691e
-    style C1 fill:#f1f8e9,stroke:#33691e
-    style C2 fill:#f1f8e9,stroke:#33691e
-    style O1 fill:#fce4ec,stroke:#880e4f
-    style O2 fill:#fce4ec,stroke:#880e4f
-    style O3 fill:#fce4ec,stroke:#880e4f
-    style F1 fill:#fce4ec,stroke:#880e4f
-    style F2 fill:#fce4ec,stroke:#880e4f
-```
-
-**Legend:**
-- 🔷 Blue — root command
-- 🟠 Orange — subcommands
-- 🟢 Green — input modes
-- 🟣 Pink — options and filters
+| Command | Purpose |
+| --- | --- |
+| `adog analyze <path>...` | Analyze pipeline files against guidelines |
+| `adog rules list` | List all available rules |
+| `adog rules show <id>` | Show details for a specific rule |
 
 ## Table of Contents
 
@@ -99,16 +57,23 @@ Directories are scanned recursively for `*.yml` and `*.yaml` files.
 
 #### Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `--format` | string | `console` | Output format: `console`, `compact`, `json`, `junit`, `sarif`, `markdown`. Accepts comma-separated list for multiple formats. |
-| `--severity` | string | `info` | Minimum severity to report: `error`, `warning`, or `info`. |
-| `--category` | string | _(all)_ | Limit analysis to one category: `general`, `jobs`, `parameters`, `pipelines`, `stages`, `steps`, or `variables`. |
-| `--output`, `-o` | path | _(stdout)_ | Write output to file instead of stdout. |
-| `--soft-fail` | flag | `false` | Always exit with code 0, even if violations are found (audit mode for CI). |
-| `--no-color` | flag | `false` | Disable ANSI color codes in console output. |
-| `--quiet`, `-q` | flag | `false` | Suppress detailed output, show summary only. |
-| `--verbose`, `-v` | flag | `false` | Enable detailed logging. |
+| Option | Type | Default | Environment variable | Description |
+| --- | --- | --- | --- | --- |
+| `--format` | string | `console` | `ADOG_FORMAT` | Output format: `console`, `compact`, `json`, `junit`, `sarif`, `markdown`. Accepts comma-separated list for multiple formats. |
+| `--severity` | string | `info` | `ADOG_SEVERITY` | Minimum severity to report: `error`, `warning`, or `info`. |
+| `--category` | string | _(all)_ | `ADOG_CATEGORY` | Limit analysis to one category: `general`, `jobs`, `parameters`, `pipelines`, `stages`, `steps`, or `variables`. |
+| `--output`, `-o` | path | _(stdout)_ | `ADOG_OUTPUT` | Write output to file instead of stdout. |
+| `--soft-fail` | flag | `false` | `ADOG_SOFT_FAIL` | Always exit with code 0, even if violations are found (audit mode for CI). Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
+| `--no-color` | flag | `false` | `ADOG_NO_COLOR` | Disable ANSI color codes in console output. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
+| `--quiet`, `-q` | flag | `false` | `ADOG_QUIET` | Suppress detailed output, show summary only. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
+| `--verbose`, `-v` | flag | `false` | `ADOG_VERBOSE` | Enable detailed logging. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
+
+Environment variable precedence:
+1. Explicit CLI option
+2. Environment variable
+3. Built-in default
+
+If a boolean environment variable has an invalid value, `adog` exits with code `2` and prints an error.
 
 #### Examples
 
