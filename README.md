@@ -1,7 +1,7 @@
 # Azure Pipelines Guidelines MCP Server and CLI
 
 An [MCP](https://modelcontextprotocol.io) server and CLI tool for checking Azure Pipelines YAML
-against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
+against the [Azure Pipelines coding guidelines published at https://github.com/ruijarimba/azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
 
 ## Why use it?
 

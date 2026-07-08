@@ -1,6 +1,6 @@
 # CLI Reference — `adog`
 
-The `adog` command-line tool analyzes Azure Pipelines YAML files against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines) and reports violations with fix suggestions.
+The `adog` command-line tool analyzes Azure Pipelines YAML files against the [Azure Pipelines coding guidelines published at https://github.com/ruijarimba/azure-pipelines-guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines) and reports violations with fix suggestions.
 
 ## Table of Contents
 
