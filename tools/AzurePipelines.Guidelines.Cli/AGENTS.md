@@ -54,9 +54,14 @@ Directories are scanned recursively for `*.yml` / `*.yaml` files.
 
 | Option | Values | Default | Description |
 | --- | --- | --- | --- |
-| `--format` | `console`, `json`, `markdown`, `sarif` | `console` | Output format. Accepts a comma-separated list to produce multiple formats in one run. |
+| `--format` | `console`, `compact`, `json`, `junit`, `sarif`, `markdown` | `console` | Output format. Accepts a comma-separated list to produce multiple formats in one run. |
 | `--severity` | `error`, `warning`, `info` | `info` | Minimum severity to report. `error` reports only errors; `info` reports everything. |
 | `--category` | `general`, `jobs`, `parameters`, `pipelines`, `stages`, `steps`, `variables` | _(all)_ | Limit analysis to a single guideline category. |
+| `--output`, `-o` | file path | _(stdout)_ | Write output to a file instead of stdout. |
+| `--soft-fail` | (flag) | `false` | Always exit with code 0, even if violations are found (audit mode for CI). |
+| `--no-color` | (flag) | `false` | Disable ANSI color codes in console output. |
+| `--quiet`, `-q` | (flag) | `false` | Suppress detailed output, show summary only. |
+| `--verbose`, `-v` | (flag) | `false` | Enable detailed logging. |
 
 **Examples**
 
@@ -82,6 +87,12 @@ adog analyze ./pipelines/ --severity warning --category steps
 # JSON output (machine-readable; useful in CI scripts)
 adog analyze pipeline.yml --format json
 
+# Compact output (grep-parseable, one line per violation)
+adog analyze pipeline.yml --format compact
+
+# JUnit XML output (for CI test results publication)
+adog analyze pipeline.yml --format junit
+
 # Markdown report with links to guideline documentation
 adog analyze pipeline.yml --format markdown
 
@@ -92,10 +103,25 @@ adog analyze pipeline.yml --format sarif
 adog analyze ./pipelines/ --format json,markdown
 
 # Produce all formats at once
-adog analyze ./pipelines/ --format console,json,markdown,sarif
+adog analyze ./pipelines/ --format console,compact,json,junit,sarif,markdown
 
-# Full example: steps violations, errors only, JSON
-adog analyze ./pipelines/ --category steps --severity error --format json
+# Write output to a file instead of stdout
+adog analyze pipeline.yml --format json --output report.json
+
+# Audit mode: analyse and report but always exit 0 (useful in CI)
+adog analyze ./pipelines/ --soft-fail
+
+# Disable colors for plain text output (useful in CI logs)
+adog analyze pipeline.yml --no-color
+
+# Quiet mode: show summary only, suppress detailed diagnostics
+adog analyze ./pipelines/ --quiet
+
+# Verbose mode: enable detailed logging
+adog analyze ./pipelines/ --verbose
+
+# Full example: steps violations, errors only, JSON to file, audit mode
+adog analyze ./pipelines/ --category steps --severity error --format json --output report.json --soft-fail
 ```
 
 ---
@@ -168,13 +194,15 @@ adog rules show ADOG-STEPS-001 --format json,markdown
 
 | Format | Description | Primary use |
 | --- | --- | --- |
-| `console` | Human-readable text; coloured when the terminal supports it. | Developer workstation |
-| `json` | Machine-readable JSON array; one object per file. | CI scripts, downstream tooling |
-| `markdown` | Markdown report; rule IDs link to the guideline documentation in the companion repository. | Pull request comments, wiki pages |
+| `console` | Human-readable text with file grouping and summary statistics; colored when the terminal supports it. | Developer workstation |
+| `compact` | One line per violation in grep-parseable format: `file:line:col: severity: [ruleId] message` | CI logs, grep/awk pipelines |
+| `json` | Machine-readable JSON with summary and per-file diagnostics (camelCase properties). | CI scripts, downstream tooling |
+| `junit` | JUnit XML format with test cases per file; violations appear as failures/errors. | CI test results publication (Azure Pipelines, GitHub Actions) |
 | `sarif` | [SARIF 2.1.0](https://sarifweb.azurewebsites.net/) — integrates with GitHub Code Scanning, Azure DevOps, and the VS Code SARIF Viewer extension. | GitHub / Azure DevOps PR annotations |
+| `markdown` | Markdown tables with summary metrics and per-file violations; rule IDs link to guideline documentation. | Pull request comments, wiki pages, reports |
 
 Multiple formats can be requested in a single run by passing a comma-separated list:
-`--format json,markdown`.
+`--format json,markdown,sarif`.
 
 ---
 
@@ -182,8 +210,8 @@ Multiple formats can be requested in a single run by passing a comma-separated l
 
 | Code | Meaning |
 | --- | --- |
-| `0` | No violations at or above the configured `--severity` threshold. |
-| `1` | One or more violations found. |
+| `0` | Success: no violations at or above the configured `--severity` threshold, or `--soft-fail` mode enabled. |
+| `1` | Violations found (unless `--soft-fail` is used). |
 | `2` | Analysis error: invalid YAML, file not found, unknown option value, etc. |
 
 ---
@@ -195,8 +223,6 @@ These options are planned for future releases. Do not implement them until they 
 
 | Option | Description |
 | --- | --- |
-| `--output <path>` | Write output to a file instead of stdout. When combined with `--format json,markdown`, each format goes to a separate file: `<path>.json`, `<path>.md`. |
-| `--no-color` | Disable colour escape codes in `console` output. |
 | `--include <glob>` | Include only files matching a glob pattern when scanning directories. |
 | `--exclude <glob>` | Exclude files matching a glob pattern when scanning directories. |
 | `--config <path>` | Load option defaults from a `.adog.yml` configuration file (Phase 2). |
