@@ -49,6 +49,8 @@ Before committing, edit the sections below:
 | `54c4aca` | docs: front-load repository purpose in README intro |
 | `d7e2bf3` | docs: update progress log with README intro polish commit |
 | `73d8bcf` | docs: add MIT license and PoC disclaimer |
+| `276d7a9` | docs: update progress log with license and disclaimer commit |
+| `584aba7` | docs: add Mermaid visualizations to reduce cognitive load |
 
 ---
 
