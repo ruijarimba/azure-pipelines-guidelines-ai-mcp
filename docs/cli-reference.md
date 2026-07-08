@@ -2,6 +2,23 @@
 
 The `adog` command-line tool analyzes Azure Pipelines YAML files against best-practice guidelines and reports violations with fix suggestions.
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Commands](#commands)
+  - [`adog analyze`](#adog-analyze-path-path-)
+  - [`adog rules list`](#adog-rules-list)
+  - [`adog rules show`](#adog-rules-show-rule-id)
+- [Output Formats](#output-formats)
+- [Exit Codes](#exit-codes)
+- [CI/CD Integration Examples](#cicd-integration-examples)
+  - [Azure Pipelines](#azure-pipelines)
+  - [GitHub Actions](#github-actions)
+  - [GitLab CI](#gitlab-ci)
+- [Guideline Categories](#guideline-categories)
+- [Troubleshooting](#troubleshooting)
+- [See Also](#see-also)
+
 ## Installation
 
 Install as a .NET global tool:
