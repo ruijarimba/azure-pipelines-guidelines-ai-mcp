@@ -1,6 +1,6 @@
 # CLI Reference — `adog`
 
-The `adog` command-line tool analyzes Azure Pipelines YAML files against best-practice guidelines and reports violations with fix suggestions.
+The `adog` command-line tool analyzes Azure Pipelines YAML files against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines) and reports violations with fix suggestions.
 
 ## Table of Contents
 
@@ -315,11 +315,11 @@ The `--category` filter limits analysis to rules in a single category:
 | Category | Covers |
 | --- | --- |
 | `general` | Pipeline-wide structural rules (file organization, template paths) |
-| `jobs` | Job definition best practices (timeouts, checkout steps) |
+| `jobs` | Job definition guidance (timeouts, checkout steps) |
 | `parameters` | Parameter declarations and validation |
 | `pipelines` | Pipeline-level settings and triggers |
 | `stages` | Stage structure and dependencies |
-| `steps` | Step and task guidelines (variable usage, expressions, task configuration) |
+| `steps` | Step and task guidance (variable usage, expressions, task configuration) |
 | `variables` | Variable declarations, naming, and security |
 
 For the full rule list and definitions, see the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).

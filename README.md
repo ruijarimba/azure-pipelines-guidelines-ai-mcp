@@ -1,7 +1,7 @@
 # Azure Pipelines Guidelines MCP Server and CLI
 
 An [MCP](https://modelcontextprotocol.io) server and CLI tool for checking Azure Pipelines YAML
-against the [Azure Pipelines Guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
+against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
 
 ## Why use it?
 
@@ -14,11 +14,11 @@ Use this project when you want to:
 ## What is this?
 
 Azure Pipelines is Microsoft's CI/CD platform. Writing correct, consistent pipelines is hard —
-especially on teams where not everyone knows the best practices.
+especially on teams that want a shared, reviewable reference for pipeline authoring.
 
 The [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
-defines best-practice rules as a machine-readable manifest. This repository
-**implements the tooling** that makes those rules actionable:
+defines the coding guidelines as a machine-readable manifest. This repository
+**implements the tooling** that makes those guidelines actionable:
 
 | Tool | What it does |
 | --- | --- |
@@ -66,7 +66,7 @@ form `ADOG-{CATEGORY}-{NNN}`.
 | Category | Covers |
 | --- | --- |
 | `GENERAL` | Pipeline-wide structural rules |
-| `JOBS` | Job definition best practices |
+| `JOBS` | Job definition guidance |
 | `PARAMETERS` | Parameter declaration and defaults |
 | `PIPELINES` | Pipeline-level settings |
 | `STAGES` | Stage structure and ordering |
