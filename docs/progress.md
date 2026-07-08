@@ -36,7 +36,8 @@ Before committing, edit the sections below:
 | `4d7d0d1` | feat: add Markdown formatter with table output and guideline documentation links |
 | `820d15e` | docs: update progress.md with Markdown formatter milestone |
 | `8b7cd4a` | docs: update CLI documentation with all implemented formatters and options |
-| `4d7d0d1` | feat: add Markdown formatter with table output and guideline documentation links |
+| `339e318` | docs: add CLI documentation commit to progress.md |
+| `94a4eed` | docs: create user-facing CLI reference and refactor AGENTS.md |
 
 ---
 
