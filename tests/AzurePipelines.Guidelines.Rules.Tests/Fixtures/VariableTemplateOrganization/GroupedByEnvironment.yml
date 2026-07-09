@@ -1,0 +1,3 @@
+variables:
+- template: /templates/variables/dev.yml
+- template: /templates/variables/prod.yml

@@ -1,0 +1,11 @@
+variables:
+  buildConfiguration: Debug
+  enabledFeatures:
+    - build
+    - test
+
+jobs:
+- job: Build
+  steps:
+  - script: |
+      echo hello

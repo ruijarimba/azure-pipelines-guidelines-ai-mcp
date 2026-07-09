@@ -1,0 +1,49 @@
+using System.Runtime.CompilerServices;
+using AzurePipelines.Guidelines.Core;
+
+namespace AzurePipelines.Guidelines.Rules;
+
+/// <summary>
+/// ADOG-STEPS-003 (do-not): Detects steps that run commands or scripts without any obvious
+/// diagnostic logging, which makes failures hard to troubleshoot.
+/// </summary>
+internal sealed class DiagnosticLoggingRule : IGuidelineRule
+{
+    private static readonly GuidelineId _id = new("ADOG-STEPS-003");
+
+    /// <inheritdoc/>
+    public GuidelineId GuidelineId => _id;
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<Diagnostic> EvaluateAsync(
+        PipelineDocument document,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        bool hasStepContent = content.Contains("script:", StringComparison.OrdinalIgnoreCase)
+            || content.Contains("pwsh:", StringComparison.OrdinalIgnoreCase)
+            || content.Contains("bash:", StringComparison.OrdinalIgnoreCase)
+            || content.Contains("powershell:", StringComparison.OrdinalIgnoreCase);
+        bool hasLogging = content.Contains("echo ", StringComparison.OrdinalIgnoreCase)
+            || content.Contains("Write-Host", StringComparison.OrdinalIgnoreCase)
+            || content.Contains("Write-Output", StringComparison.OrdinalIgnoreCase)
+            || content.Contains("Write-Information", StringComparison.OrdinalIgnoreCase)
+            || content.Contains("printf ", StringComparison.OrdinalIgnoreCase)
+            || content.Contains("logger", StringComparison.OrdinalIgnoreCase);
+
+        if (hasStepContent && !hasLogging)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            yield return new Diagnostic(
+                _id,
+                DiagnosticSeverity.Warning,
+                "Add clear diagnostic logging to scripts and tasks so failures are easier to troubleshoot.",
+                document.FilePath,
+                Line: null,
+                Column: null);
+        }
+    }
+}

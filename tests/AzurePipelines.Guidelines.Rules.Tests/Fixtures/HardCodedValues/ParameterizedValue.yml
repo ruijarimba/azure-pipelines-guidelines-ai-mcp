@@ -1,0 +1,6 @@
+parameters:
+- name: environment
+  default: ${{ parameters.environment }}
+
+steps:
+- script: echo $(environment)

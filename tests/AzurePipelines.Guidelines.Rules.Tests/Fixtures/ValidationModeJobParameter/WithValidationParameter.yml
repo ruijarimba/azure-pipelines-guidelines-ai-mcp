@@ -1,0 +1,9 @@
+parameters:
+- name: validationMode
+  type: boolean
+  default: true
+
+jobs:
+- job: build
+  steps:
+  - script: echo build

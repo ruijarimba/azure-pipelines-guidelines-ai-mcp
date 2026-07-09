@@ -1,0 +1,7 @@
+jobs:
+- job: Build
+  variables:
+  - name: BuildConfiguration
+    value: Debug
+  steps:
+  - script: echo hello

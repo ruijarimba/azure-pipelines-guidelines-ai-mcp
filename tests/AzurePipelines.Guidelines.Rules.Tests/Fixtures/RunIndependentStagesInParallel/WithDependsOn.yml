@@ -1,0 +1,13 @@
+stages:
+- stage: Build
+  dependsOn: []
+  jobs:
+  - job: BuildJob
+    steps:
+    - script: echo build
+- stage: Test
+  dependsOn: Build
+  jobs:
+  - job: TestJob
+    steps:
+    - script: echo test
