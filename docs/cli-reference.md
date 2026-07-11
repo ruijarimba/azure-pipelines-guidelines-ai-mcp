@@ -220,7 +220,7 @@ List all available guideline rules.
 | --- | --- | --- | --- |
 | `--category` | string | _(all)_ | Filter by category: `general`, `jobs`, `parameters`, `pipelines`, `stages`, `steps`, or `variables`. |
 | `--guideline-severity`, `--severity` | string | _(all)_ | Filter by guideline severity: `do`, `do-not`, `avoid`, or `consider`. `--severity` is kept as a compatibility alias. |
-| `--format` | string | `console` | Output format: `console`, `json`, or `markdown`. Comma-separated list supported. |
+| `--format` | string | `console` | Output format: `console` or `json`. |
 
 #### Examples
 
@@ -241,11 +241,8 @@ adog rules list --category jobs --severity consider
 # JSON output
 adog rules list --format json
 
-# Markdown table with links
-adog rules list --format markdown
-
-# Multiple formats
-adog rules list --category steps --format console,json
+# JSON output with structured data
+adog rules list --category steps --format json
 ```
 
 ---
@@ -263,7 +260,7 @@ Show detailed information for a specific rule.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `--format` | string | `console` | Output format: `console`, `json`, or `markdown`. Comma-separated list supported. |
+| `--format` | string | `console` | Output format: `console` or `json`. |
 
 #### Examples
 
@@ -274,18 +271,15 @@ adog rules show ADOG-STEPS-001
 # JSON output (includes all manifest fields)
 adog rules show ADOG-STEPS-001 --format json
 
-# Markdown output with documentation link
-adog rules show ADOG-STEPS-001 --format markdown
-
-# Multiple formats
-adog rules show ADOG-STEPS-001 --format json,markdown
+# JSON output with structured data
+adog rules show ADOG-STEPS-001 --format json
 ```
 
 ---
 
 ## Output Formats
 
-The `--format` option controls how analysis results are presented. All formats contain the same diagnostic information but optimize for different use cases.
+The `--format` option controls how analysis results are presented. All formats contain the same diagnostic information but optimize for different use cases. The `markdown` format is available for `adog analyze`; the `adog rules list` and `adog rules show` subcommands currently support `console` and `json` only.
 
 | Format | Description | Best for |
 | --- | --- | --- |
@@ -304,7 +298,7 @@ You can request multiple formats in a single run:
 adog analyze pipeline.yml --format json,markdown,sarif
 ```
 
-Each format is written to stdout in sequence, or to separate files when using `--output`.
+Each selected format is rendered in order and concatenated with blank lines into a single output stream, or into a single file when `--output` is used.
 
 ---
 

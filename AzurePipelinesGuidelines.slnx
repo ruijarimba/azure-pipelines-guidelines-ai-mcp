@@ -45,6 +45,7 @@
     </Folder>
     <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Cli.Tests/AzurePipelines.Guidelines.Cli.Tests.csproj" />
+    <File Path="tests/AzurePipelines.Guidelines.Cli.Tests/AnalyzeCommandOptionResolverTests.cs" />
     <Project Path="tests/AzurePipelines.Guidelines.Core.Tests/AzurePipelines.Guidelines.Core.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AzurePipelines.Guidelines.Mcp.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />

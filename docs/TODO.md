@@ -35,7 +35,7 @@ Related files:
 
 These are optional follow-ups that are not blocked by the current implementation.
 
-- [ ] Add `--output` support for multiple formats when `--format` contains more than one value
+- [x] Add `--output` support for multiple formats when `--format` contains more than one value
 - [x] Add a dedicated "Environment Variables" section to `docs/cli-reference.md`
 - [ ] Consider config-file support for CLI defaults
 
@@ -79,6 +79,7 @@ Related files:
 - ✅ Implemented multi-value filtering for `adog analyze` and `adog rules list`
 - ✅ Added the `--guideline-severity` alias and clarified the severity distinction in docs
 - ✅ Added MCP reference documentation and registered it in the solution
+- ✅ Implemented multi-format output support for `adog analyze --format ...` with combined output to `--output`
 - ✅ Verified the solution with tests and local packaging
 
 **Status:**

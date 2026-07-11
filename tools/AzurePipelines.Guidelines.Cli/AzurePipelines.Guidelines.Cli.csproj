@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <None Include="AGENTS.md" />
+    <None Include="AnalyzeCommandOptions.cs" />
   </ItemGroup>
 
 </Project>

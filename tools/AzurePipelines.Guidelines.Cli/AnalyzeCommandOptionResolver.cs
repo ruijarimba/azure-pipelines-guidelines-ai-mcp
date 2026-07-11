@@ -5,6 +5,41 @@ namespace AzurePipelines.Guidelines.Cli;
 
 internal static class AnalyzeCommandOptionResolver
 {
+    internal static AnalyzeCommandOptions ResolveOptions(
+        InvocationContext context,
+        Argument<string[]> pathArg,
+        Option<string> formatOpt,
+        Option<string[]?> severityOpt,
+        Option<string[]?> categoryOpt,
+        Option<string?> outputOpt,
+        Option<bool> softFailOpt,
+        Option<bool> noColorOpt,
+        Option<bool> quietOpt,
+        Option<bool> verboseOpt,
+        AnalyzeCommandEnvironment environment)
+    {
+        string[] paths = context.ParseResult.GetValueForArgument(pathArg) ?? [];
+        string format = ResolveStringOption(context, formatOpt, "--format", environment.Format);
+        string[]? severity = ResolveStringArrayOption(context, severityOpt, "--severity", environment.Severity);
+        string[]? category = ResolveStringArrayOption(context, categoryOpt, "--category", environment.Category);
+        string? output = ResolveOutputOption(context, outputOpt, environment.Output);
+        bool softFail = ResolveBooleanOption(context, softFailOpt, "--soft-fail", environment.SoftFail);
+        bool noColor = ResolveBooleanOption(context, noColorOpt, "--no-color", environment.NoColor);
+        bool quiet = ResolveQuietOption(context, quietOpt, environment.Quiet);
+        bool verbose = ResolveVerboseOption(context, verboseOpt, environment.Verbose);
+
+        return new AnalyzeCommandOptions(
+            Paths: paths,
+            Format: format,
+            Severity: severity,
+            Category: category,
+            Output: output,
+            SoftFail: softFail,
+            NoColor: noColor,
+            Quiet: quiet,
+            Verbose: verbose);
+    }
+
     internal static string ResolveStringOption(
         InvocationContext context,
         Option<string> option,
@@ -27,15 +62,19 @@ internal static class AnalyzeCommandOptionResolver
     {
         if (AnalyzeCommandEnvironment.IsSetByUser(context.ParseResult, token))
         {
-            return context.ParseResult.GetValueForOption(option);
+            return NormalizeValues(context.ParseResult.GetValueForOption(option));
         }
 
         if (!string.IsNullOrWhiteSpace(environmentValue))
         {
-            return SplitValues(environmentValue);
+            return NormalizeValues(SplitValues(environmentValue));
         }
 
-        string[]? values = context.ParseResult.GetValueForOption(option);
+        return NormalizeValues(context.ParseResult.GetValueForOption(option));
+    }
+
+    private static string[]? NormalizeValues(string[]? values)
+    {
         if (values is null || values.Length == 0)
         {
             return null;

@@ -83,26 +83,20 @@ internal static class AnalyzeCommand
                     return;
                 }
 
-                string[] paths = context.ParseResult.GetValueForArgument(pathArg);
-                string format = AnalyzeCommandOptionResolver.ResolveStringOption(
-                    context, formatOpt, "--format", environment.Format);
-                string[]? severity = AnalyzeCommandOptionResolver.ResolveStringArrayOption(
-                    context, severityOpt, "--severity", environment.Severity);
-                string[]? category = AnalyzeCommandOptionResolver.ResolveStringArrayOption(
-                    context, categoryOpt, "--category", environment.Category);
-                string? output = AnalyzeCommandOptionResolver.ResolveOutputOption(
-                    context, outputOpt, environment.Output);
-                bool softFail = AnalyzeCommandOptionResolver.ResolveBooleanOption(
-                    context, softFailOpt, "--soft-fail", environment.SoftFail);
-                bool noColor = AnalyzeCommandOptionResolver.ResolveBooleanOption(
-                    context, noColorOpt, "--no-color", environment.NoColor);
-                bool quiet = AnalyzeCommandOptionResolver.ResolveQuietOption(
-                    context, quietOpt, environment.Quiet);
-                bool verbose = AnalyzeCommandOptionResolver.ResolveVerboseOption(
-                    context, verboseOpt, environment.Verbose);
+                AnalyzeCommandOptions options = AnalyzeCommandOptionResolver.ResolveOptions(
+                    context,
+                    pathArg,
+                    formatOpt,
+                    severityOpt,
+                    categoryOpt,
+                    outputOpt,
+                    softFailOpt,
+                    noColorOpt,
+                    quietOpt,
+                    verboseOpt,
+                    environment);
 
-                int exitCode = await RunAsync(parser, analyser, pathResolver, paths, format, severity, category,
-                                              output, softFail, noColor, quiet, verbose);
+                int exitCode = await RunAsync(parser, analyser, pathResolver, options);
                 context.ExitCode = exitCode;
             });
 
@@ -115,8 +109,13 @@ internal static class AnalyzeCommand
         FileInfo path,
         string format,
         string severity)
-        => RunAsync(parser, analyser, new PipelinePathResolver(), [path.FullName], format, [severity],
-                   category: null, output: null, softFail: false, noColor: false, quiet: false, verbose: false);
+        => RunAsync(
+            parser,
+            analyser,
+            new PipelinePathResolver(),
+            [path.FullName],
+            format,
+            severity);
 
     internal static Task<int> RunAsync(
         IPipelineParser parser,
@@ -131,29 +130,33 @@ internal static class AnalyzeCommand
         bool noColor = false,
         bool quiet = false,
         bool verbose = false)
-        => RunAsync(parser, analyser, pathResolver, paths, format, [severity], category, output, softFail,
-                    noColor, quiet, verbose);
+        => RunAsync(
+            parser,
+            analyser,
+            pathResolver,
+            new AnalyzeCommandOptions(
+                Paths: [.. paths],
+                Format: format,
+                Severity: [severity],
+                Category: category,
+                Output: output,
+                SoftFail: softFail,
+                NoColor: noColor,
+                Quiet: quiet,
+                Verbose: verbose));
 
     internal static async Task<int> RunAsync(
         IPipelineParser parser,
         IPipelineAnalyser analyser,
         PipelinePathResolver pathResolver,
-        IEnumerable<string> paths,
-        string format,
-        string[]? severity,
-        string[]? category = null,
-        string? output = null,
-        bool softFail = false,
-        bool noColor = false,
-        bool quiet = false,
-        bool verbose = false)
+        AnalyzeCommandOptions options)
     {
         ArgumentNullException.ThrowIfNull(parser);
         ArgumentNullException.ThrowIfNull(analyser);
         ArgumentNullException.ThrowIfNull(pathResolver);
-        ArgumentNullException.ThrowIfNull(paths);
+        ArgumentNullException.ThrowIfNull(options);
 
-        string[] inputPaths = [.. paths];
+        string[] inputPaths = options.Paths;
         if (inputPaths.Length == 0)
         {
             await Console.Error.WriteLineAsync("error: At least one path is required.").ConfigureAwait(false);
@@ -162,10 +165,10 @@ internal static class AnalyzeCommand
 
         IReadOnlyList<DiagnosticSeverity>? includedDiagnosticSeverities = null;
         DiagnosticSeverity minimumSeverity = DiagnosticSeverity.Info;
-        if (severity is { Length: > 0 })
+        if (options.Severity is { Length: > 0 })
         {
             List<DiagnosticSeverity> parsedSeverities = [];
-            foreach (string severityValue in severity)
+            foreach (string severityValue in options.Severity)
             {
                 foreach (string part in SplitValues(severityValue))
                 {
@@ -190,10 +193,10 @@ internal static class AnalyzeCommand
         }
 
         IReadOnlyList<GuidelineCategory>? includedCategories = null;
-        if (category is { Length: > 0 })
+        if (options.Category is { Length: > 0 })
         {
             List<GuidelineCategory> parsedCategories = [];
-            foreach (string categoryValue in category)
+            foreach (string categoryValue in options.Category)
             {
                 foreach (string part in SplitValues(categoryValue))
                 {
@@ -249,13 +252,13 @@ internal static class AnalyzeCommand
                 return ExitCodes.Error;
             }
 
-            AnalysisOptions options = new(
+            AnalysisOptions analysisOptions = new(
                 MinimumSeverity: minimumSeverity,
                 IncludedCategories: includedCategories,
                 IncludedDiagnosticSeverities: includedDiagnosticSeverities);
 
             AnalysisResult result = await analyser
-                .AnalyseAsync(document, options)
+                .AnalyseAsync(document, analysisOptions)
                 .ConfigureAwait(false);
 
             results.Add(result);
@@ -264,7 +267,7 @@ internal static class AnalyzeCommand
         IReadOnlyList<string> requestedFormats;
         try
         {
-            requestedFormats = ParseFormats(format);
+            requestedFormats = ParseFormats(options.Format);
         }
         catch (ArgumentException ex)
         {
@@ -272,18 +275,18 @@ internal static class AnalyzeCommand
             return ExitCodes.Error;
         }
 
-        string formattedOutput = FormatResults(results, requestedFormats, useColor: !noColor);
+        string formattedOutput = FormatResults(results, requestedFormats, useColor: !options.NoColor);
 
         // Write to file if --output specified, otherwise stdout
-        if (!string.IsNullOrWhiteSpace(output))
+        if (!string.IsNullOrWhiteSpace(options.Output))
         {
             try
             {
-                await File.WriteAllTextAsync(output, formattedOutput).ConfigureAwait(false);
+                await File.WriteAllTextAsync(options.Output, formattedOutput).ConfigureAwait(false);
             }
             catch (IOException ex)
             {
-                await Console.Error.WriteLineAsync($"error: Cannot write to file {output}: {ex.Message}").ConfigureAwait(false);
+                await Console.Error.WriteLineAsync($"error: Cannot write to file {options.Output}: {ex.Message}").ConfigureAwait(false);
                 return ExitCodes.Error;
             }
         }
@@ -293,7 +296,7 @@ internal static class AnalyzeCommand
         }
 
         // Soft-fail mode: always exit 0 (audit mode)
-        if (softFail)
+        if (options.SoftFail)
         {
             return ExitCodes.Success;
         }
