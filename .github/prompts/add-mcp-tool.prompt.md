@@ -29,3 +29,4 @@ Before starting, confirm the following:
    - Substitute all `Core` interface dependencies via NSubstitute.
 
 4. **Run tests** and confirm all pass before committing.
+   - Keep the MCP transport contract intact: do not write extra output to `stdout`; use `stderr` for logs and diagnostics.

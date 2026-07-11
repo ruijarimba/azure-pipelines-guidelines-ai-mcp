@@ -90,7 +90,7 @@ flowchart TD
     class Proceed goNode
 ```
 
-### Seven principles in brief
+### Eight principles in brief
 
 1. **Destructive action gate** — never delete files, branches, or published history, run
    destructive cloud commands, or expose secrets without explicit human approval. No
@@ -182,6 +182,9 @@ extension-point catalogue.
 ## Quality standards
 
 - **Nullable reference types** enabled everywhere; no `#nullable disable` suppressions.
+- **Local quality gate** — run `pwsh ./scripts/quality-check.ps1` from the repository root before
+  finishing a change. The script restores, builds, and tests the solution in Release mode.
+- **Warnings are errors** — do not add new warnings or suppressions without an explicit reason.
 - **`TreatWarningsAsErrors = true`** — never silence a warning without a comment explaining why.
 - **`AnalysisLevel = latest-all`** — all Roslyn analysers are active.
 - **All `public` APIs** carry XML doc comments (`/// <summary>…`).
@@ -195,15 +198,14 @@ extension-point catalogue.
   [ADR-011 in the architecture decisions record](docs/decisions.md)
   for file size limits, method size limits, comment discipline, and change scope rules.
 
-## NuGet packaging intent
+## Packaging scope
 
-All `src/` projects are destined for independent NuGet publication. They must:
+NuGet packaging and publishing are currently out of scope for this repository. Do not change
+package metadata, packaging settings, or release workflows unless a human explicitly asks for
+that work.
 
-- Have **no cyclic dependencies**.
-- Expose only what consumers need via `public`; use `internal` liberally.
-- Carry **complete XML documentation** on every public member.
-- Follow **SemVer** strictly; breaking changes require a major version bump.
-- Not take transitive dependencies on executable-only packages (use `*.Abstractions` variants).
+When you do touch package-related files, keep the changes minimal and avoid introducing new
+packaging conventions or publish steps.
 
 ## Key domain vocabulary
 

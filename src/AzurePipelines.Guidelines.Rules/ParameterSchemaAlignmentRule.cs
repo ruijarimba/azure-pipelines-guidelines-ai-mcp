@@ -23,11 +23,12 @@ internal sealed class ParameterSchemaAlignmentRule : IGuidelineRule
         ArgumentNullException.ThrowIfNull(document);
 
         string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
-        foreach (string line in content.Split('\n'))
+        string[] lines = content.Split('\n');
+        for (int index = 0; index < lines.Length; index++)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!LooksLikeParameterDeclaration(line, out string? parameterName, out string? parameterType))
+            if (!TryGetParameterDeclaration(lines, index, out string? parameterName, out string? parameterType))
             {
                 continue;
             }
@@ -53,12 +54,12 @@ internal sealed class ParameterSchemaAlignmentRule : IGuidelineRule
         }
     }
 
-    private static bool LooksLikeParameterDeclaration(string line, out string? parameterName, out string? parameterType)
+    private static bool TryGetParameterDeclaration(string[] lines, int index, out string? parameterName, out string? parameterType)
     {
         parameterName = null;
         parameterType = null;
 
-        string trimmed = line.Trim();
+        string trimmed = lines[index].Trim();
         if (trimmed.Length == 0 || trimmed.StartsWith('#'))
         {
             return false;
@@ -77,14 +78,36 @@ internal sealed class ParameterSchemaAlignmentRule : IGuidelineRule
 
         parameterName = parts[1];
         int typeIndex = trimmed.IndexOf("type:", StringComparison.OrdinalIgnoreCase);
-        if (typeIndex < 0)
+        if (typeIndex >= 0)
         {
-            return false;
+            string remainder = trimmed[(typeIndex + 5)..].Trim();
+            parameterType = remainder.Split(' ', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)[0];
+            return true;
         }
 
-        string remainder = trimmed[(typeIndex + 5)..].Trim();
-        parameterType = remainder.Split(' ', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)[0];
-        return true;
+        for (int nextIndex = index + 1; nextIndex < lines.Length && nextIndex < index + 3; nextIndex++)
+        {
+            string nextLine = lines[nextIndex].Trim();
+            if (nextLine.Length == 0 || nextLine.StartsWith('#'))
+            {
+                continue;
+            }
+
+            if (nextLine.StartsWith("- name:", StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
+
+            int nextTypeIndex = nextLine.IndexOf("type:", StringComparison.OrdinalIgnoreCase);
+            if (nextTypeIndex >= 0)
+            {
+                string remainder = nextLine[(nextTypeIndex + 5)..].Trim();
+                parameterType = remainder.Split(' ', 2, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)[0];
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static string? ExpectedTypeFor(string parameterName)

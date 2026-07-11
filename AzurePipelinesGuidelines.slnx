@@ -64,7 +64,6 @@
     <File Path=".github/instructions/documentation.instructions.md" />
     <File Path=".github/instructions/maintainability.instructions.md" />
     <File Path=".github/instructions/markdown.instructions.md" />
-    <File Path=".github/instructions/nuget-packaging.instructions.md" />
     <File Path=".github/instructions/testing.instructions.md" />
   </Folder>
   <Folder Name="/.github/prompts/">
@@ -110,8 +109,7 @@
       <File Path=".github/instructions/documentation.instructions.md" />
       <File Path=".github/instructions/maintainability.instructions.md" />
       <File Path=".github/instructions/markdown.instructions.md" />
-      <File Path=".github/instructions/nuget-packaging.instructions.md" />
-      <File Path=".github/instructions/testing.instructions.md" />
+        <File Path=".github/instructions/testing.instructions.md" />
     </Folder>
     <Folder Name="/.github/prompts/">
       <File Path=".github/prompts/add-mcp-tool.prompt.md" />
