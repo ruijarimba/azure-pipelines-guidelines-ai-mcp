@@ -94,6 +94,7 @@
     <File Path="docs/decisions.md" />
     <File Path="docs/glossary.md" />
     <File Path="docs/how-it-works.md" />
+    <File Path="docs/mcp-reference.md" />
     <File Path="docs/progress.md" />
     <File Path="docs/TODO.md" />
     <File Path="docs/vision.md" />
@@ -121,6 +122,14 @@
     </Folder>
   </Folder>
 </Solution>
+
+
+
+
+
+
+
+
 
 
 

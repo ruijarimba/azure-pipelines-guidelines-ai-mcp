@@ -170,72 +170,28 @@ Cline follows the Claude Desktop configuration format. Edit your Cline MCP setti
 
 ## Available tools
 
-The MCP server exposes two tools:
+The MCP server exposes four tools in the current implementation:
 
-```mermaid
-graph LR
-    subgraph MCP Server
-        T1[analyze_pipeline]
-        T2[analyze_pipeline_paths]
-    end
-
-    subgraph Inputs
-        I1["📝 yamlContent string"]
-        I2["🔍 guidelineIds optional"]
-        I3["📂 paths array"]
-        I4["🔍 guidelineIds optional"]
-    end
-
-    subgraph Outputs
-        O1["✅ Structured diagnostics"]
-        O2["📊 Grouped by severity"]
-        O3["🔗 Fix suggestions + docs"]
-        O4["📄 Per-file results"]
-    end
-
-    I1 --> T1
-    I2 --> T1
-    I3 --> T2
-    I4 --> T2
-
-    T1 --> O1
-    T1 --> O2
-    T1 --> O3
-
-    T2 --> O4
-    T2 --> O2
-    T2 --> O3
-
-    style T1 fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    style T2 fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    style I1 fill:#fff3e0,stroke:#f57c00
-    style I2 fill:#fff3e0,stroke:#f57c00
-    style I3 fill:#fff3e0,stroke:#f57c00
-    style I4 fill:#fff3e0,stroke:#f57c00
-    style O1 fill:#e8f5e9,stroke:#388e3c
-    style O2 fill:#e8f5e9,stroke:#388e3c
-    style O3 fill:#e8f5e9,stroke:#388e3c
-    style O4 fill:#e8f5e9,stroke:#388e3c
-```
-
-**Capability matrix:**
-
-| Tool | Input mode | Accepts dirs | Returns | Best for |
-| --- | --- | --- | --- | --- |
-| `analyze_pipeline` | Inline YAML string | ❌ | Single result | Pasted snippets, chat context |
-| `analyze_pipeline_paths` | File/directory paths | ✅ recursive | Per-file results | Workspace files, batch analysis |
+| Tool | Purpose |
+| --- | --- |
+| `analyze_pipeline` | Analyze inline YAML content |
+| `analyze_pipeline_paths` | Analyze files or directories on disk |
+| `list_guidelines` | List guidelines from the manifest |
+| `get_guideline` | Show a single guideline by ID |
+| `search_guidelines` | Search guidelines by text |
+| `list_categories` | List the supported categories |
 
 ### `analyze_pipeline`
 
 Analyzes inline Azure Pipelines YAML content.
 
 **Input:**
-- `yamlContent` (string, required) — The pipeline YAML to analyze
-- `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check (e.g., `ADOG-STEPS-001,ADOG-JOBS-006`). If omitted, all rules are checked.
+- `yaml` (string, required) — The pipeline YAML to analyze
+- `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check. If omitted, all rules are checked.
+- `category` (string, optional) — Category filter for analysis options
 
 **Returns:**
-- Structured analysis result with violations grouped by severity (error, warning, info)
-- Each violation includes: rule ID, message, line/column, fix suggestion, and documentation link
+- Structured analysis result with diagnostics and rule metadata
 
 ### `analyze_pipeline_paths`
 
@@ -244,12 +200,19 @@ Analyzes one or more pipeline files or directories on disk.
 **Input:**
 - `paths` (array of strings, required) — File paths or directory paths to analyze
 - `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check
+- `category` (string, optional) — Category filter for analysis options
 
 **Returns:**
-- Per-file analysis results
-- Each file includes its path and a list of violations (same structure as `analyze_pipeline`)
+- Per-file analysis results with any found diagnostics
 
-Both tools accept directories and recursively search for `.yml` and `.yaml` files.
+### Guideline lookup tools
+
+The server also exposes lookup helpers for the guideline catalogue:
+
+- `list_guidelines` returns the available guidelines
+- `get_guideline` returns the details for one specific guideline ID
+- `search_guidelines` searches by text
+- `list_categories` lists the supported categories
 
 ## Usage examples
 
@@ -286,13 +249,13 @@ The AI can filter by category (e.g., `ADOG-JOBS-*`, `ADOG-STEPS-*`) or specific 
 ### "MCP server not found" or "command not found"
 
 **If using the global tool:**
-- Verify installation: `dotnet tool list -g | grep adog-mcp`
+- Verify installation: `dotnet tool list -g | findstr adog-mcp`
 - Ensure the .NET tools directory is in your PATH:
   - **Windows:** `%USERPROFILE%\.dotnet\tools`
   - **macOS/Linux:** `~/.dotnet/tools`
 
 **If using Docker:**
-- Verify the image is pulled: `docker images | grep azure-pipelines-guidelines-mcp`
+- Verify the image is pulled: `docker images | findstr azure-pipelines-guidelines-mcp`
 - Ensure Docker Desktop is running
 
 ### AI assistant doesn't see the MCP server
