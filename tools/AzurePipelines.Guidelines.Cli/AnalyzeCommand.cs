@@ -1,5 +1,6 @@
 using System.CommandLine;
 using AzurePipelines.Guidelines.Analysis;
+using AzurePipelines.Guidelines.Cli.Formatters;
 using AzurePipelines.Guidelines.Core;
 
 namespace AzurePipelines.Guidelines.Cli;
@@ -207,11 +208,18 @@ internal static class AnalyzeCommand
             results.Add(result);
         }
 
-        // TODO: Replace with formatter factory once all formatters are implemented
-        // For now, keep existing behavior
-        string formattedOutput = format.Equals("json", StringComparison.OrdinalIgnoreCase)
-            ? JsonFormatter.Format(results)
-            : ConsoleFormatter.Format(results);
+        IReadOnlyList<string> requestedFormats;
+        try
+        {
+            requestedFormats = ParseFormats(format);
+        }
+        catch (ArgumentException ex)
+        {
+            await Console.Error.WriteLineAsync($"error: {ex.Message}").ConfigureAwait(false);
+            return ExitCodes.Error;
+        }
+
+        string formattedOutput = FormatResults(results, requestedFormats, useColor: !noColor);
 
         // Write to file if --output specified, otherwise stdout
         if (!string.IsNullOrWhiteSpace(output))
@@ -238,6 +246,35 @@ internal static class AnalyzeCommand
         }
 
         return results.Any(result => !result.IsClean) ? ExitCodes.Violations : ExitCodes.Success;
+    }
+
+    private static string FormatResults(
+        IReadOnlyList<AnalysisResult> results,
+        IReadOnlyList<string> formats,
+        bool useColor)
+    {
+        List<string> renderedSections = [];
+        foreach (string requestedFormat in formats)
+        {
+            IOutputFormatter formatter = OutputFormatterFactory.Get(requestedFormat);
+            renderedSections.Add(formatter.Format(results, useColor));
+        }
+
+        return string.Join(Environment.NewLine + Environment.NewLine, renderedSections);
+    }
+
+    private static string[] ParseFormats(string format)
+    {
+        if (string.IsNullOrWhiteSpace(format))
+        {
+            return ["console"];
+        }
+
+        string[] parsedFormats = format.Split(
+            ',',
+            StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+        return parsedFormats.Length == 0 ? ["console"] : parsedFormats;
     }
 
     private static DiagnosticSeverity ParseSeverity(string value) =>

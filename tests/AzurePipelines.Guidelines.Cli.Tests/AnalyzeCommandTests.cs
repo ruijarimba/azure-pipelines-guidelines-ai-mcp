@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.IO;
 using AzurePipelines.Guidelines.Analysis;
 using AzurePipelines.Guidelines.Cli;
 using AzurePipelines.Guidelines.Core;
@@ -107,6 +108,72 @@ public sealed class AnalyzeCommandTests
 
         // Assert
         exitCode.Should().Be(ExitCodes.Success);
+    }
+
+    [Fact]
+    public async Task RunAsync_GivenSingleFormat_ShouldRenderThatFormatter()
+    {
+        // Arrange
+        IPipelineParser parser = CreateParser();
+        IPipelineAnalyser analyser = CreateAnalyserWithSingleDiagnostic();
+        using StringWriter output = new();
+        TextWriter originalOut = Console.Out;
+        Console.SetOut(output);
+
+        try
+        {
+            // Act
+            int exitCode = await AnalyzeCommand.RunAsync(
+                parser,
+                analyser,
+                new PipelinePathResolver(),
+                [GetFixturePath("clean-pipeline.yml")],
+                "json",
+                "info");
+
+            // Assert
+            exitCode.Should().Be(ExitCodes.Violations);
+            output.ToString().Should().Contain("\"summary\"");
+            output.ToString().Should().Contain("\"ruleId\"");
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
+    public async Task RunAsync_GivenCommaSeparatedFormats_ShouldRenderEachFormatterInOrder()
+    {
+        // Arrange
+        IPipelineParser parser = CreateParser();
+        IPipelineAnalyser analyser = CreateAnalyserWithSingleDiagnostic();
+        using StringWriter output = new();
+        TextWriter originalOut = Console.Out;
+        Console.SetOut(output);
+
+        try
+        {
+            // Act
+            int exitCode = await AnalyzeCommand.RunAsync(
+                parser,
+                analyser,
+                new PipelinePathResolver(),
+                [GetFixturePath("clean-pipeline.yml")],
+                "json,console",
+                "info");
+
+            // Assert
+            exitCode.Should().Be(ExitCodes.Violations);
+            string renderedOutput = output.ToString();
+            renderedOutput.Should().Contain("\"summary\"");
+            renderedOutput.Should().Contain("ADOG-STEPS-006");
+            renderedOutput.Should().Contain("Summary:");
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
     }
 
     private static (IPipelineParser parser, IPipelineAnalyser analyser, AnalysisOptionsCapture capture)
