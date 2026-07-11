@@ -17,10 +17,16 @@ namespace AzurePipelines.Guidelines.Core;
 /// An empty list means all guidelines are evaluated (subject to
 /// <see cref="IncludedCategories"/> filtering).
 /// </param>
+/// <param name="IncludedDiagnosticSeverities">
+/// When non-empty, only diagnostics whose severity is in this list are retained.
+/// An empty list means all severities are included (subject to
+/// <see cref="MinimumSeverity"/> filtering).
+/// </param>
 public sealed record AnalysisOptions(
     DiagnosticSeverity MinimumSeverity = DiagnosticSeverity.Info,
     IReadOnlyList<GuidelineCategory>? IncludedCategories = null,
-    IReadOnlyList<GuidelineId>? IncludedGuidelineIds = null)
+    IReadOnlyList<GuidelineId>? IncludedGuidelineIds = null,
+    IReadOnlyList<DiagnosticSeverity>? IncludedDiagnosticSeverities = null)
 {
     /// <summary>Gets the default options: include all findings.</summary>
     public static AnalysisOptions Default { get; } = new();

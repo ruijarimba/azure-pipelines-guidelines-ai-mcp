@@ -78,7 +78,7 @@ public sealed class RulesCommandTests
         ]);
 
         // Act
-        int exitCode = await RulesCommand.RunListAsync(repo, category: "steps", format: "console");
+        int exitCode = await RulesCommand.RunListAsync(repo, category: ["steps"], format: "console");
 
         // Assert
         exitCode.Should().Be(ExitCodes.Success);
@@ -92,7 +92,7 @@ public sealed class RulesCommandTests
         IGuidelineRepository repo = MakeRepo();
 
         // Act
-        int exitCode = await RulesCommand.RunListAsync(repo, category: "not-a-category", format: "console");
+        int exitCode = await RulesCommand.RunListAsync(repo, category: ["not-a-category"], format: "console");
 
         // Assert
         exitCode.Should().Be(ExitCodes.Error);
@@ -203,7 +203,7 @@ public sealed class RulesCommandTests
 
         // Act
         int exitCode = await RulesCommand.RunListAsync(
-            repo, category: null, severity: "avoid", format: "console");
+            repo, category: null, severity: ["avoid"], format: "console");
 
         // Assert
         exitCode.Should().Be(ExitCodes.Success);
@@ -217,10 +217,45 @@ public sealed class RulesCommandTests
 
         // Act
         int exitCode = await RulesCommand.RunListAsync(
-            repo, category: null, severity: "not-a-severity", format: "console");
+            repo, category: null, severity: ["not-a-severity"], format: "console");
 
         // Assert
         exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
+    public async Task RunListAsync_GivenGuidelineSeverityAlias_ShouldReturnExitCodeClean()
+    {
+        // Arrange
+        IGuidelineRepository repo = MakeRepo([MakeGuideline("ADOG-STEPS-001")]);
+
+        // Act
+        int exitCode = await RulesCommand.RunListAsync(
+            repo, category: null, severity: ["do"], format: "console");
+
+        // Assert
+        exitCode.Should().Be(ExitCodes.Success);
+    }
+
+    [Fact]
+    public async Task RunListAsync_GivenMultipleCategoriesAndSeverities_ShouldFilterAcrossBothSets()
+    {
+        // Arrange
+        IGuidelineRepository repo = MakeRepo([
+            MakeGuideline("ADOG-STEPS-001", category: GuidelineCategory.Steps, severity: GuidelineSeverity.Do),
+            MakeGuideline("ADOG-JOBS-006", category: GuidelineCategory.Jobs, severity: GuidelineSeverity.Avoid),
+            MakeGuideline("ADOG-VARIABLES-003", category: GuidelineCategory.Variables, severity: GuidelineSeverity.Consider),
+        ]);
+
+        // Act
+        int exitCode = await RulesCommand.RunListAsync(
+            repo,
+            category: ["steps", "jobs"],
+            severity: ["do", "avoid"],
+            format: "console");
+
+        // Assert
+        exitCode.Should().Be(ExitCodes.Success);
     }
 
     [Fact]

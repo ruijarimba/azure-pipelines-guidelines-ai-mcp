@@ -19,9 +19,9 @@ internal static class AnalyzeCommandOptionResolver
         return environmentValue ?? context.ParseResult.GetValueForOption(option)!;
     }
 
-    internal static string? ResolveNullableStringOption(
+    internal static string[]? ResolveStringArrayOption(
         InvocationContext context,
-        Option<string?> option,
+        Option<string[]?> option,
         string token,
         string? environmentValue)
     {
@@ -30,7 +30,28 @@ internal static class AnalyzeCommandOptionResolver
             return context.ParseResult.GetValueForOption(option);
         }
 
-        return environmentValue ?? context.ParseResult.GetValueForOption(option);
+        if (!string.IsNullOrWhiteSpace(environmentValue))
+        {
+            return SplitValues(environmentValue);
+        }
+
+        string[]? values = context.ParseResult.GetValueForOption(option);
+        if (values is null || values.Length == 0)
+        {
+            return null;
+        }
+
+        return values.SelectMany(SplitValues).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+    }
+
+    private static string[] SplitValues(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return [];
+        }
+
+        return value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
     }
 
     internal static string? ResolveOutputOption(

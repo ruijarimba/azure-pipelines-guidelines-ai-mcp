@@ -175,15 +175,21 @@ internal sealed class PipelineAnalysisTools(
         IReadOnlyList<GuidelineCategory>? includedCategories = null;
         if (!string.IsNullOrWhiteSpace(category))
         {
-            if (!TryParseCategory(category, out GuidelineCategory parsedCategory))
+            List<GuidelineCategory> parsedCategories = [];
+            foreach (string part in category.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
             {
-                options = AnalysisOptions.Default;
-                error = $"Unknown category '{category}'. " +
-                    "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.";
-                return false;
+                if (!TryParseCategory(part, out GuidelineCategory parsedCategory))
+                {
+                    options = AnalysisOptions.Default;
+                    error = $"Unknown category '{part}'. " +
+                        "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.";
+                    return false;
+                }
+
+                parsedCategories.Add(parsedCategory);
             }
 
-            includedCategories = [parsedCategory];
+            includedCategories = parsedCategories.Distinct().ToArray();
         }
 
         IReadOnlyList<GuidelineId>? includedIds = null;

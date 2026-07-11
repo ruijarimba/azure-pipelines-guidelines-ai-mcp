@@ -25,14 +25,14 @@ internal static class AnalyzeCommand
             description: "Output format (comma-separated for multiple): console, compact, json, junit, sarif, markdown. Default: console.",
             getDefaultValue: () => "console");
 
-        Option<string> severityOpt = new(
+        Option<string[]?> severityOpt = new(
             name: "--severity",
-            description: "Minimum severity to report: error, warning, or info (default).",
-            getDefaultValue: () => "info");
+            description: "Minimum severity to report (comma-separated or repeated): error, warning, or info (default).",
+            getDefaultValue: () => null);
 
-        Option<string?> categoryOpt = new(
+        Option<string[]?> categoryOpt = new(
             name: "--category",
-            description: "Limit analysis to a single category: general, jobs, parameters, pipelines, stages, steps, or variables.",
+            description: "Limit analysis to one or more categories: general, jobs, parameters, pipelines, stages, steps, or variables.",
             getDefaultValue: () => null);
 
         Option<string?> outputOpt = new(
@@ -86,9 +86,9 @@ internal static class AnalyzeCommand
                 string[] paths = context.ParseResult.GetValueForArgument(pathArg);
                 string format = AnalyzeCommandOptionResolver.ResolveStringOption(
                     context, formatOpt, "--format", environment.Format);
-                string severity = AnalyzeCommandOptionResolver.ResolveStringOption(
+                string[]? severity = AnalyzeCommandOptionResolver.ResolveStringArrayOption(
                     context, severityOpt, "--severity", environment.Severity);
-                string? category = AnalyzeCommandOptionResolver.ResolveNullableStringOption(
+                string[]? category = AnalyzeCommandOptionResolver.ResolveStringArrayOption(
                     context, categoryOpt, "--category", environment.Category);
                 string? output = AnalyzeCommandOptionResolver.ResolveOutputOption(
                     context, outputOpt, environment.Output);
@@ -115,8 +115,24 @@ internal static class AnalyzeCommand
         FileInfo path,
         string format,
         string severity)
-        => RunAsync(parser, analyser, new PipelinePathResolver(), [path.FullName], format, severity,
+        => RunAsync(parser, analyser, new PipelinePathResolver(), [path.FullName], format, [severity],
                    category: null, output: null, softFail: false, noColor: false, quiet: false, verbose: false);
+
+    internal static Task<int> RunAsync(
+        IPipelineParser parser,
+        IPipelineAnalyser analyser,
+        PipelinePathResolver pathResolver,
+        IEnumerable<string> paths,
+        string format,
+        string severity,
+        string[]? category = null,
+        string? output = null,
+        bool softFail = false,
+        bool noColor = false,
+        bool quiet = false,
+        bool verbose = false)
+        => RunAsync(parser, analyser, pathResolver, paths, format, [severity], category, output, softFail,
+                    noColor, quiet, verbose);
 
     internal static async Task<int> RunAsync(
         IPipelineParser parser,
@@ -124,8 +140,8 @@ internal static class AnalyzeCommand
         PipelinePathResolver pathResolver,
         IEnumerable<string> paths,
         string format,
-        string severity,
-        string? category = null,
+        string[]? severity,
+        string[]? category = null,
         string? output = null,
         bool softFail = false,
         bool noColor = false,
@@ -144,21 +160,57 @@ internal static class AnalyzeCommand
             return ExitCodes.Error;
         }
 
-        DiagnosticSeverity minimumSeverity = ParseSeverity(severity);
-
-        IReadOnlyList<GuidelineCategory>? includedCategories = null;
-        if (category is not null)
+        IReadOnlyList<DiagnosticSeverity>? includedDiagnosticSeverities = null;
+        DiagnosticSeverity minimumSeverity = DiagnosticSeverity.Info;
+        if (severity is { Length: > 0 })
         {
-            if (!TryParseCategory(category, out GuidelineCategory parsedCategory))
+            List<DiagnosticSeverity> parsedSeverities = [];
+            foreach (string severityValue in severity)
             {
-                await Console.Error.WriteLineAsync(
-                    $"error: Unknown category '{category}'. " +
-                    "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.")
-                    .ConfigureAwait(false);
-                return ExitCodes.Error;
+                foreach (string part in SplitValues(severityValue))
+                {
+                    if (!TryParseSeverity(part, out DiagnosticSeverity parsedSeverity))
+                    {
+                        await Console.Error.WriteLineAsync(
+                            $"error: Unknown severity '{part}'. " +
+                            "Allowed values: error, warning, info.")
+                            .ConfigureAwait(false);
+                        return ExitCodes.Error;
+                    }
+
+                    parsedSeverities.Add(parsedSeverity);
+                }
             }
 
-            includedCategories = [parsedCategory];
+            if (parsedSeverities.Count > 0)
+            {
+                includedDiagnosticSeverities = parsedSeverities.Distinct().ToArray();
+                minimumSeverity = includedDiagnosticSeverities.Min();
+            }
+        }
+
+        IReadOnlyList<GuidelineCategory>? includedCategories = null;
+        if (category is { Length: > 0 })
+        {
+            List<GuidelineCategory> parsedCategories = [];
+            foreach (string categoryValue in category)
+            {
+                foreach (string part in SplitValues(categoryValue))
+                {
+                    if (!TryParseCategory(part, out GuidelineCategory parsedCategory))
+                    {
+                        await Console.Error.WriteLineAsync(
+                            $"error: Unknown category '{part}'. " +
+                            "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.")
+                            .ConfigureAwait(false);
+                        return ExitCodes.Error;
+                    }
+
+                    parsedCategories.Add(parsedCategory);
+                }
+            }
+
+            includedCategories = parsedCategories.Distinct().ToArray();
         }
 
         IReadOnlyList<string> discoveredPaths;
@@ -199,7 +251,8 @@ internal static class AnalyzeCommand
 
             AnalysisOptions options = new(
                 MinimumSeverity: minimumSeverity,
-                IncludedCategories: includedCategories);
+                IncludedCategories: includedCategories,
+                IncludedDiagnosticSeverities: includedDiagnosticSeverities);
 
             AnalysisResult result = await analyser
                 .AnalyseAsync(document, options)
@@ -277,13 +330,28 @@ internal static class AnalyzeCommand
         return parsedFormats.Length == 0 ? ["console"] : parsedFormats;
     }
 
-    private static DiagnosticSeverity ParseSeverity(string value) =>
-        value.ToUpperInvariant() switch
+    private static bool TryParseSeverity(string value, out DiagnosticSeverity result)
+    {
+        result = value.ToUpperInvariant() switch
         {
             "ERROR"   => DiagnosticSeverity.Error,
             "WARNING" => DiagnosticSeverity.Warning,
-            _         => DiagnosticSeverity.Info,
+            "INFO"    => DiagnosticSeverity.Info,
+            _         => (DiagnosticSeverity)(-1),
         };
+
+        return (int)result >= 0;
+    }
+
+    private static string[] SplitValues(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return [];
+        }
+
+        return value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+    }
 
     private static bool TryParseCategory(string value, out GuidelineCategory result)
     {

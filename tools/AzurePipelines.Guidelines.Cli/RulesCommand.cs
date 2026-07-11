@@ -29,14 +29,14 @@ internal static class RulesCommand
 
     private static Command CreateListCommand(IGuidelineRepository repository)
     {
-        Option<string?> categoryOpt = new(
+        Option<string[]?> categoryOpt = new(
             name: "--category",
-            description: "Filter by category: general, jobs, parameters, pipelines, stages, steps, variables.",
+            description: "Filter by one or more categories: general, jobs, parameters, pipelines, stages, steps, variables.",
             getDefaultValue: () => null);
 
-        Option<string?> severityOpt = new(
-            name: "--severity",
-            description: "Filter by severity: do, do-not, avoid, consider.",
+        Option<string[]?> severityOpt = new(
+            aliases: ["--severity", "--guideline-severity"],
+            description: "Filter by one or more guideline severities: do, do-not, avoid, consider. --severity remains supported as a compatibility alias.",
             getDefaultValue: () => null);
 
         Option<string> formatOpt = new(
@@ -52,7 +52,7 @@ internal static class RulesCommand
         };
 
         listCommand.SetHandler(
-            async (string? category, string? severity, string format) =>
+            async (string[]? category, string[]? severity, string format) =>
                 Environment.Exit(await RunListAsync(repository, category, severity, format)),
             categoryOpt, severityOpt, formatOpt);
 
@@ -61,41 +61,64 @@ internal static class RulesCommand
 
     internal static async Task<int> RunListAsync(
         IGuidelineRepository repository,
-        string? category,
-        string? severity = null,
+        string[]? category = null,
+        string[]? severity = null,
         string format = "console")
     {
         IReadOnlyList<GuidelineDefinition> guidelines;
 
-        if (category is null)
+        if (category is null || category.Length == 0)
         {
             guidelines = repository.GetAll();
         }
-        else if (TryParseCategory(category, out GuidelineCategory parsed))
+        else if (category.Length == 1 && TryParseCategory(category[0], out GuidelineCategory parsedCategory))
         {
-            guidelines = repository.GetByCategory(parsed);
+            guidelines = repository.GetByCategory(parsedCategory);
         }
         else
         {
-            await Console.Error.WriteLineAsync(
-                $"error: Unknown category '{category}'. " +
-                "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.")
-                .ConfigureAwait(false);
-            return ExitCodes.Error;
-        }
-
-        if (severity is not null)
-        {
-            if (!TryParseSeverity(severity, out GuidelineSeverity parsedSeverity))
+            List<GuidelineCategory> parsedCategories = [];
+            foreach (string categoryValue in category)
             {
-                await Console.Error.WriteLineAsync(
-                    $"error: Unknown severity '{severity}'. " +
-                    "Allowed values: do, do-not, avoid, consider.")
-                    .ConfigureAwait(false);
-                return ExitCodes.Error;
+                foreach (string part in SplitValues(categoryValue))
+                {
+                    if (!TryParseCategory(part, out GuidelineCategory parsed))
+                    {
+                        await Console.Error.WriteLineAsync(
+                            $"error: Unknown category '{part}'. " +
+                            "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.")
+                            .ConfigureAwait(false);
+                        return ExitCodes.Error;
+                    }
+
+                    parsedCategories.Add(parsed);
+                }
             }
 
-            guidelines = [.. guidelines.Where(g => g.Severity == parsedSeverity)];
+            guidelines = [.. repository.GetAll().Where(g => parsedCategories.Contains(g.Category))];
+        }
+
+        if (severity is { Length: > 0 })
+        {
+            List<GuidelineSeverity> parsedSeverities = [];
+            foreach (string severityValue in severity)
+            {
+                foreach (string part in SplitValues(severityValue))
+                {
+                    if (!TryParseSeverity(part, out GuidelineSeverity parsedSeverity))
+                    {
+                        await Console.Error.WriteLineAsync(
+                            $"error: Unknown severity '{part}'. " +
+                            "Allowed values: do, do-not, avoid, consider.")
+                            .ConfigureAwait(false);
+                        return ExitCodes.Error;
+                    }
+
+                    parsedSeverities.Add(parsedSeverity);
+                }
+            }
+
+            guidelines = [.. guidelines.Where(g => parsedSeverities.Contains(g.Severity))];
         }
 
         string output = format.Equals("json", StringComparison.OrdinalIgnoreCase)
@@ -175,6 +198,16 @@ internal static class RulesCommand
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private static string[] SplitValues(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return [];
+        }
+
+        return value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+    }
 
     private static bool TryParseCategory(string value, out GuidelineCategory result)
     {

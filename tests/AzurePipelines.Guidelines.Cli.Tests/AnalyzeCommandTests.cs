@@ -62,6 +62,32 @@ public sealed class AnalyzeCommandTests
     }
 
     [Fact]
+    public async Task Create_GivenMultipleCategoriesAndSeverities_ShouldApplyAllFilters()
+    {
+        // Arrange
+        string fixturePath = GetFixturePath("clean-pipeline.yml");
+        (IPipelineParser parser, IPipelineAnalyser analyser, AnalysisOptionsCapture capture) =
+            CreateAnalyserWithCapturedOptions();
+
+        Command command = AnalyzeCommand.Create(parser, analyser, new PipelinePathResolver());
+
+        // Act
+        int exitCode = await command.InvokeAsync([
+            fixturePath,
+            "--category",
+            "steps,jobs",
+            "--severity",
+            "error,warning"
+        ]);
+
+        // Assert
+        exitCode.Should().Be(ExitCodes.Success);
+        capture.Value.Should().NotBeNull();
+        capture.Value!.MinimumSeverity.Should().Be(DiagnosticSeverity.Warning);
+        capture.Value.IncludedCategories.Should().BeEquivalentTo([GuidelineCategory.Steps, GuidelineCategory.Jobs]);
+    }
+
+    [Fact]
     public async Task Create_GivenInvalidBooleanEnvironmentValue_ShouldReturnErrorExitCode()
     {
         // Arrange
@@ -173,6 +199,199 @@ public sealed class AnalyzeCommandTests
         finally
         {
             Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
+    public async Task Create_GivenSoftFailSeverityAndCategory_ShouldApplyFiltersAndReturnSuccess()
+    {
+        // Arrange
+        string fixturePath = GetFixturePath("missing-timeout-pipeline.yml");
+        (IPipelineParser parser, IPipelineAnalyser analyser, AnalysisOptionsCapture capture) =
+            CreateAnalyserWithCapturedOptions();
+
+        Command command = AnalyzeCommand.Create(parser, analyser, new PipelinePathResolver());
+
+        // Act
+        int exitCode = await command.InvokeAsync([
+            fixturePath,
+            "--soft-fail",
+            "--severity",
+            "error",
+            "--category",
+            "steps"
+        ]);
+
+        // Assert
+        exitCode.Should().Be(ExitCodes.Success);
+        capture.Value.Should().NotBeNull();
+        capture.Value!.MinimumSeverity.Should().Be(DiagnosticSeverity.Error);
+        capture.Value.IncludedCategories.Should().ContainSingle().Which.Should().Be(GuidelineCategory.Steps);
+    }
+
+    [Fact]
+    public async Task Create_GivenMultipleFormatsAndOutputPath_ShouldWriteCombinedOutputToFile()
+    {
+        // Arrange
+        string fixturePath = GetFixturePath("missing-timeout-pipeline.yml");
+        IPipelineParser parser = CreateParser();
+        IPipelineAnalyser analyser = CreateAnalyserWithSingleDiagnostic();
+        string outputPath = Path.Combine(Path.GetTempPath(), $"adog-{Guid.NewGuid():N}.txt");
+
+        try
+        {
+            Command command = AnalyzeCommand.Create(parser, analyser, new PipelinePathResolver());
+
+            // Act
+            int exitCode = await command.InvokeAsync([fixturePath, "--format", "json,console", "--output", outputPath]);
+
+            // Assert
+            exitCode.Should().Be(ExitCodes.Violations);
+            File.Exists(outputPath).Should().BeTrue();
+            string writtenOutput = await File.ReadAllTextAsync(outputPath);
+            writtenOutput.Should().Contain("\"summary\"");
+            writtenOutput.Should().Contain("ADOG-STEPS-006");
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task Create_GivenNoColorAndCompactFormat_ShouldSuppressAnsiCodes()
+    {
+        // Arrange
+        string fixturePath = GetFixturePath("missing-timeout-pipeline.yml");
+        IPipelineParser parser = CreateParser();
+        IPipelineAnalyser analyser = CreateAnalyserWithSingleDiagnostic();
+        using StringWriter output = new();
+        TextWriter originalOut = Console.Out;
+        Console.SetOut(output);
+
+        try
+        {
+            Command command = AnalyzeCommand.Create(parser, analyser, new PipelinePathResolver());
+
+            // Act
+            int exitCode = await command.InvokeAsync([fixturePath, "--no-color", "--quiet", "--format", "compact"]);
+
+            // Assert
+            exitCode.Should().Be(ExitCodes.Violations);
+            string renderedOutput = output.ToString();
+            renderedOutput.Should().Contain("[ADOG-STEPS-006]");
+            renderedOutput.Should().NotContain("\u001b[");
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Fact]
+    public async Task Create_GivenVerboseSarifAndOutput_ShouldWriteSarifFile()
+    {
+        // Arrange
+        string fixturePath = GetFixturePath("missing-timeout-pipeline.yml");
+        IPipelineParser parser = CreateParser();
+        IPipelineAnalyser analyser = CreateAnalyserWithSingleDiagnostic();
+        string outputPath = Path.Combine(Path.GetTempPath(), $"adog-sarif-{Guid.NewGuid():N}.json");
+
+        try
+        {
+            Command command = AnalyzeCommand.Create(parser, analyser, new PipelinePathResolver());
+
+            // Act
+            int exitCode = await command.InvokeAsync([fixturePath, "--verbose", "--format", "sarif", "--output", outputPath]);
+
+            // Assert
+            exitCode.Should().Be(ExitCodes.Violations);
+            File.Exists(outputPath).Should().BeTrue();
+            string writtenOutput = await File.ReadAllTextAsync(outputPath);
+            writtenOutput.Should().Contain("\"version\"");
+            writtenOutput.Should().Contain("ADOG-STEPS-006");
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task Create_GivenEnvironmentAndCliOutputPrecedence_ShouldPreferCliOutputPath()
+    {
+        // Arrange
+        using EnvironmentVariableScope scope = new(new Dictionary<string, string?>
+        {
+            ["ADOG_OUTPUT"] = Path.Combine(Path.GetTempPath(), $"env-output-{Guid.NewGuid():N}.txt"),
+            ["ADOG_FORMAT"] = "console",
+        });
+
+        string fixturePath = GetFixturePath("missing-timeout-pipeline.yml");
+        IPipelineParser parser = CreateParser();
+        IPipelineAnalyser analyser = CreateAnalyserWithSingleDiagnostic();
+        string cliOutputPath = Path.Combine(Path.GetTempPath(), $"cli-output-{Guid.NewGuid():N}.txt");
+
+        try
+        {
+            Command command = AnalyzeCommand.Create(parser, analyser, new PipelinePathResolver());
+
+            // Act
+            int exitCode = await command.InvokeAsync([fixturePath, "--output", cliOutputPath, "--format", "json"]);
+
+            // Assert
+            exitCode.Should().Be(ExitCodes.Violations);
+            File.Exists(cliOutputPath).Should().BeTrue();
+            File.Exists(Environment.GetEnvironmentVariable("ADOG_OUTPUT")!).Should().BeFalse();
+            string writtenOutput = await File.ReadAllTextAsync(cliOutputPath);
+            writtenOutput.Should().Contain("\"summary\"");
+        }
+        finally
+        {
+            if (File.Exists(cliOutputPath))
+            {
+                File.Delete(cliOutputPath);
+            }
+
+            string? envOutputPath = Environment.GetEnvironmentVariable("ADOG_OUTPUT");
+            if (!string.IsNullOrWhiteSpace(envOutputPath) && File.Exists(envOutputPath))
+            {
+                File.Delete(envOutputPath);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task Create_GivenUnknownFormat_ShouldReturnErrorExitCodeAndMessage()
+    {
+        // Arrange
+        string fixturePath = GetFixturePath("clean-pipeline.yml");
+        IPipelineParser parser = CreateParser();
+        IPipelineAnalyser analyser = CreateAnalyserWithoutDiagnostics();
+        using StringWriter errorOutput = new();
+        TextWriter originalError = Console.Error;
+        Console.SetError(errorOutput);
+
+        try
+        {
+            Command command = AnalyzeCommand.Create(parser, analyser, new PipelinePathResolver());
+
+            // Act
+            int exitCode = await command.InvokeAsync([fixturePath, "--format", "xml"]);
+
+            // Assert
+            exitCode.Should().Be(ExitCodes.Violations);
+            errorOutput.ToString().Should().Contain("Unknown format 'xml'");
+        }
+        finally
+        {
+            Console.SetError(originalError);
         }
     }
 

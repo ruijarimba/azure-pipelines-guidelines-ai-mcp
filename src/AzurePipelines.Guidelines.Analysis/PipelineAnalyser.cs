@@ -68,7 +68,11 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
 
             await foreach (Diagnostic diagnostic in rule.EvaluateAsync(document, cancellationToken))
             {
-                if (diagnostic.Severity >= options.MinimumSeverity)
+                bool includeBySeverity = options.IncludedDiagnosticSeverities is { Count: > 0 }
+                    ? options.IncludedDiagnosticSeverities.Contains(diagnostic.Severity)
+                    : diagnostic.Severity >= options.MinimumSeverity;
+
+                if (includeBySeverity)
                 {
                     diagnostics.Add(diagnostic);
                 }

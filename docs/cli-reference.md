@@ -60,8 +60,8 @@ Directories are scanned recursively for `*.yml` and `*.yaml` files.
 | Option | Type | Default | Environment variable | Description |
 | --- | --- | --- | --- | --- |
 | `--format` | string | `console` | `ADOG_FORMAT` | Output format: `console`, `compact`, `json`, `junit`, `sarif`, `markdown`. Accepts comma-separated list for multiple formats. |
-| `--severity` | string | `info` | `ADOG_SEVERITY` | Minimum severity to report: `error`, `warning`, or `info`. |
-| `--category` | string | _(all)_ | `ADOG_CATEGORY` | Limit analysis to one category: `general`, `jobs`, `parameters`, `pipelines`, `stages`, `steps`, or `variables`. |
+| `--severity` | string | `info` | `ADOG_SEVERITY` | Minimum severity to report: `error`, `warning`, or `info`. Accepts a comma-separated list or repeated flags. |
+| `--category` | string | _(all)_ | `ADOG_CATEGORY` | Limit analysis to one or more categories: `general`, `jobs`, `parameters`, `pipelines`, `stages`, `steps`, or `variables`. Accepts a comma-separated list or repeated flags. |
 | `--output`, `-o` | path | _(stdout)_ | `ADOG_OUTPUT` | Write output to file instead of stdout. |
 | `--soft-fail` | flag | `false` | `ADOG_SOFT_FAIL` | Always exit with code 0, even if violations are found (audit mode for CI). Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
 | `--no-color` | flag | `false` | `ADOG_NO_COLOR` | Disable ANSI color codes in console output. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
@@ -104,6 +104,9 @@ adog analyze ./pipelines/ --severity warning --category steps
 
 # Analyze only jobs-related rules
 adog analyze pipeline.yml --category jobs
+
+# List rules by guideline severity (this is different from analyze --severity)
+adog rules list --guideline-severity do
 ```
 
 **Output formats:**
@@ -194,7 +197,7 @@ List all available guideline rules.
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `--category` | string | _(all)_ | Filter by category: `general`, `jobs`, `parameters`, `pipelines`, `stages`, `steps`, or `variables`. |
-| `--severity` | string | _(all)_ | Filter by severity: `do`, `do-not`, `avoid`, or `consider`. |
+| `--guideline-severity`, `--severity` | string | _(all)_ | Filter by guideline severity: `do`, `do-not`, `avoid`, or `consider`. `--severity` is kept as a compatibility alias. |
 | `--format` | string | `console` | Output format: `console`, `json`, or `markdown`. Comma-separated list supported. |
 
 #### Examples
