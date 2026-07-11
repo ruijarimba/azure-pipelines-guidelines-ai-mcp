@@ -53,25 +53,54 @@ Before committing, edit the sections below:
 | `584aba7` | docs: add Mermaid visualizations to reduce cognitive load |
 | `42a0009` | docs: update progress log with visual improvements milestone |
 | `5ec3b92` | docs: add Mermaid boundary diagrams to Core and Analysis AGENTS files |
+| `e13dabb` | feat: add multi-value filter support and clarify severity options |
 
 ---
 
 ## Implemented rules
 
-9 of the rules from `guidelines.json` are implemented.
-Check the companion repository for the full manifest to identify gaps.
+All current `ADOG-*` guideline IDs from the companion manifest are already implemented in this
+repository.
 
 | Rule ID | Class |
 | --- | --- |
 | `ADOG-GENERAL-001` | `RelativeTemplatePathRule` |
+| `ADOG-GENERAL-002` | `StringEncodedConstructsRule` |
+| `ADOG-GENERAL-003` | `ParameterSchemaAlignmentRule` |
+| `ADOG-GENERAL-004` | `PipelineDocumentationRule` |
+| `ADOG-GENERAL-005` | `FolderStructureRule` |
+| `ADOG-GENERAL-006` | `InlineTemplateLogicRule` |
+| `ADOG-GENERAL-007` | `HardCodedValuesRule` |
 | `ADOG-JOBS-001` | `JobMissingCheckoutRule` |
+| `ADOG-JOBS-002` | `MultipleStepsTemplatesInJobRule` |
+| `ADOG-JOBS-003` | `JobLevelVariableRule` |
+| `ADOG-JOBS-004` | `ValidationModeJobParameterRule` |
+| `ADOG-JOBS-005` | `ReusableJobTemplateParametersRule` |
 | `ADOG-JOBS-006` | `JobMissingTimeoutRule` |
+| `ADOG-JOBS-007` | `EnvironmentParameterMinimizationRule` |
+| `ADOG-JOBS-008` | `SingleResponsibilityJobRule` |
+| `ADOG-PARAMETERS-001` | `ParameterGroupingRule` |
 | `ADOG-PARAMETERS-002` | `ParameterMissingValuesRule` |
+| `ADOG-PIPELINES-001` | `PipelineValidationModeRule` |
+| `ADOG-STAGES-001` | `UseStagesForRelatedJobsRule` |
+| `ADOG-STAGES-002` | `RunIndependentStagesInParallelRule` |
 | `ADOG-STEPS-001` | `MacroSyntaxInStepsRule` |
+| `ADOG-STEPS-002` | `TaskEnvironmentVariablesRule` |
+| `ADOG-STEPS-003` | `DiagnosticLoggingRule` |
+| `ADOG-STEPS-004` | `DiagnosticLoggingConsiderationRule` |
+| `ADOG-STEPS-005` | `StepRetryRule` |
 | `ADOG-STEPS-006` | `StepMissingTimeoutRule` |
+| `ADOG-STEPS-007` | `StepTemplateParametersRule` |
+| `ADOG-STEPS-008` | `ServiceConnectionAuthRule` |
+| `ADOG-STEPS-009` | `StepParameterValidationRule` |
 | `ADOG-STEPS-010` | `LargeExpressionInStepsRule` |
 | `ADOG-STEPS-011` | `AzureKeyVaultTaskRule` |
+| `ADOG-VARIABLES-001` | `ReadonlyVariableRule` |
+| `ADOG-VARIABLES-002` | `VariableTemplateOrganizationRule` |
 | `ADOG-VARIABLES-003` | `SecretLikeVariableRule` |
+| `ADOG-VARIABLES-004` | `SeparateConfigurationRule` |
+| `ADOG-VARIABLES-005` | `VariableScopeRule` |
+| `ADOG-VARIABLES-006` | `MultiEnvironmentVariableTemplateRule` |
 
 New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
@@ -79,46 +108,29 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**Content fidelity policy added and AzureKeyVaultTaskRule corrected**
+**Manifest review completed**
 
-Added an explicit content fidelity requirement to prevent rule diagnostics from drifting away
-from the authoritative guideline text in the companion repository. This policy is now enforced
-through `.github/instructions/csharp-patterns.instructions.md` § 4.1.
+The current companion manifest has been checked against the repository and all published
+`ADOG-*` rule IDs are already represented by implemented rules. No additional rule class was
+added in this session.
 
-Changes:
-- ✅ Added § 4.1 "Content fidelity to companion guidelines repository" to `csharp-patterns.instructions.md`
-- ✅ Fixed `AzureKeyVaultTaskRule` XML doc and diagnostic message to match the authoritative guideline
-- ✅ Removed incorrect managed-identity guidance that was not present in the source guideline
-- ✅ Verified all 109 tests still pass (0 failures)
-
-The rule now correctly states:
-- **What detected:** AzureKeyVault task
-- **Why matters:** Converts Key Vault secrets into pipeline variables and tightly couples job steps
-- **What to do:** Use a variable group linked to Key Vault, referenced from a variables template, with explicit step parameters
-
-Rationale: The companion guidelines repository represents significant domain expertise. Rule
-diagnostics must faithfully reflect that content to preserve accuracy and avoid introducing
-unsupported advice.
+Validation completed:
+- ✅ Full solution tests passed (`454` passed, `0` failed)
+- ✅ CLI tests passed (`122` passed, `0` failed)
 
 ---
 
 ## Next up
 
-1. **Implement remaining `ADOG-*` rules** — cross-reference `guidelines.json` in the companion
-   repository against the implemented rules table above. Use the
-   `.github/prompts/implement-rule.prompt.md` workflow for each one.
-2. **CLI: support comma-separated `--format` values** — e.g. `--format json,markdown`.
-   Each format is written to stdout in sequence (or to separate files once `--output` is added).
-3. **Add multi-flag CLI integration tests** — test combinations of `--format`, `--output`, `--soft-fail`, `--no-color`
-4. **Publish NuGet packages** for all `src/` libraries — required for Phase 1 completion
+1. **Publish NuGet packages** for all `src/` libraries — required for Phase 1 completion
    (see `docs/vision.md`).
-5. **Verify Phase 1 success criteria** — all rules implemented, `>= 90 %` test coverage,
+2. **Verify Phase 1 success criteria** — rules implemented, `>= 90 %` test coverage,
    documentation complete, global tools and Docker image published.
+3. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
+   rule template workflow when they appear.
 
 ---
 
 ## Open questions / blockers
 
-- How many total rules exist in `guidelines.json`? Fetch the manifest from the companion
-  repository at the start of the next session to get an accurate count of remaining work.
-- No other blockers known.
+- No blockers known at this time.
