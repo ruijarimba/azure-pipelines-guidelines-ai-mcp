@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// <c>timeoutInMinutes</c> value. Task-level timeouts provide finer control than
 /// job-level timeouts and make failure faster and more predictable.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-006", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/consider-timeouts.md")]
 internal sealed class StepMissingTimeoutRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STEPS-006");

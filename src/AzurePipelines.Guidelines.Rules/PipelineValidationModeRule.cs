@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// switch via a parameter or condition. Making validation mode explicit helps teams run
 /// the same pipeline without applying deployment changes.
 /// </summary>
+[RuleMetadata("ADOG-PIPELINES-001", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/pipelines/consider-validation.md")]
 internal sealed class PipelineValidationModeRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-PIPELINES-001");

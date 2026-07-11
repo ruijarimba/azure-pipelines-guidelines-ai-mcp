@@ -10,6 +10,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// an explicit <c>values:</c> list makes the constraint visible and enables
 /// Azure Pipelines to validate it at queue time.
 /// </summary>
+[RuleMetadata("ADOG-PARAMETERS-002", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/parameters/do-restrict-values.md")]
 internal sealed class ParameterMissingValuesRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-PARAMETERS-002");

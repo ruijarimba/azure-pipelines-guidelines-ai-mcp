@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-GENERAL-004 (do): Detects pipeline or template files that do not start with
 /// a header comment describing the purpose and usage of the file.
 /// </summary>
+[RuleMetadata("ADOG-GENERAL-004", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/general/do-documentation.md")]
 internal sealed class PipelineDocumentationRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-GENERAL-004");

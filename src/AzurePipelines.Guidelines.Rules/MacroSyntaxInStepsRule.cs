@@ -10,6 +10,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// variable is undefined. Consider using runtime expressions (<c>$[variables.VAR]</c>)
 /// instead.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-001", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/avoid-pipeline-variables.md")]
 internal sealed partial class MacroSyntaxInStepsRule : IGuidelineRule
 {
     [GeneratedRegex(

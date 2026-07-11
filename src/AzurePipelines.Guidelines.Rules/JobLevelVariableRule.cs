@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// pipeline also defines jobs. Moving those values to job scope makes each job's inputs
 /// more explicit and can reduce accidental reuse across unrelated jobs.
 /// </summary>
+[RuleMetadata("ADOG-JOBS-003", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/jobs/consider-job-variables.md")]
 internal sealed class JobLevelVariableRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-JOBS-003");

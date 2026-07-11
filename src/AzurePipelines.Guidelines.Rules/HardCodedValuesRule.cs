@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-GENERAL-007 (do-not): Detects hard-coded literal values in YAML templates.
 /// Prefer parameters or variables so the template can be reused across environments.
 /// </summary>
+[RuleMetadata("ADOG-GENERAL-007", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/general/donot-hard-code-values.md")]
 internal sealed class HardCodedValuesRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-GENERAL-007");

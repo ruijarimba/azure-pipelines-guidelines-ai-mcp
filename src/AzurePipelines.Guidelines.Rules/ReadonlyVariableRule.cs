@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// not declared as <c>readonly</c>. When a value should not change after initialization,
 /// marking it readonly makes the intent explicit and reduces accidental mutation.
 /// </summary>
+[RuleMetadata("ADOG-VARIABLES-001", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/variables/consider-read-only-variables.md")]
 internal sealed class ReadonlyVariableRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-VARIABLES-001");

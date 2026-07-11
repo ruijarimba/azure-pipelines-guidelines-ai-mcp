@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-JOBS-005 (do): Detects reusable job templates that hard-code control settings such as
 /// pool, dependsOn, or condition without exposing them through parameters.
 /// </summary>
+[RuleMetadata("ADOG-JOBS-005", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/jobs/do-extensible-jobs.md")]
 internal sealed class ReusableJobTemplateParametersRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-JOBS-005");

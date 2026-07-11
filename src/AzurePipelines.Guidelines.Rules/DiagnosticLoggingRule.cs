@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-STEPS-003 (do-not): Detects steps that run commands or scripts without any obvious
 /// diagnostic logging, which makes failures hard to troubleshoot.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-003", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/consider-logging-diagnostics.md")]
 internal sealed class DiagnosticLoggingRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STEPS-003");

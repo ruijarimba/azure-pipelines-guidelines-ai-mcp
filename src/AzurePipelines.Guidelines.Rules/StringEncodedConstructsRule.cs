@@ -9,6 +9,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// list or map syntax instead of native YAML constructs. Prefer native lists, maps,
 /// or multiline blocks so the file stays readable and schema-friendly.
 /// </summary>
+[RuleMetadata("ADOG-GENERAL-002", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/general/consider-native-yaml-constructs.md")]
 internal sealed partial class StringEncodedConstructsRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-GENERAL-002");

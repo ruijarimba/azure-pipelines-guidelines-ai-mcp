@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <None Include="AGENTS.md" />
+    <None Include="RuleMetadataAttribute.cs" />
   </ItemGroup>
 
 </Project>

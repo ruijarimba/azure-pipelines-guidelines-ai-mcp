@@ -17,6 +17,7 @@ The `adog` command-line tool analyzes Azure Pipelines YAML files against the [co
   - [`adog analyze`](#adog-analyze)
   - [`adog rules list`](#adog-rules-list)
   - [`adog rules show`](#adog-rules-show)
+- [Environment Variables](#environment-variables)
 - [Output Formats](#output-formats)
 - [Exit Codes](#exit-codes)
 - [Guideline Categories](#guideline-categories)
@@ -68,12 +69,33 @@ Directories are scanned recursively for `*.yml` and `*.yaml` files.
 | `--quiet`, `-q` | flag | `false` | `ADOG_QUIET` | Suppress detailed output, show summary only. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
 | `--verbose`, `-v` | flag | `false` | `ADOG_VERBOSE` | Enable detailed logging. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
 
-Environment variable precedence:
+#### Environment variables
+
+The CLI resolves settings in this order:
 1. Explicit CLI option
 2. Environment variable
 3. Built-in default
 
-If a boolean environment variable has an invalid value, `adog` exits with code `2` and prints an error.
+Supported environment variables:
+
+| Variable | Applies to | Example |
+| --- | --- | --- |
+| `ADOG_FORMAT` | `adog analyze --format` | `ADOG_FORMAT=json,markdown` |
+| `ADOG_SEVERITY` | `adog analyze --severity` | `ADOG_SEVERITY=warning` |
+| `ADOG_CATEGORY` | `adog analyze --category` | `ADOG_CATEGORY=steps,jobs` |
+| `ADOG_OUTPUT` | `adog analyze --output` | `ADOG_OUTPUT=report.json` |
+| `ADOG_SOFT_FAIL` | `adog analyze --soft-fail` | `ADOG_SOFT_FAIL=true` |
+| `ADOG_NO_COLOR` | `adog analyze --no-color` | `ADOG_NO_COLOR=1` |
+| `ADOG_QUIET` | `adog analyze --quiet` | `ADOG_QUIET=yes` |
+| `ADOG_VERBOSE` | `adog analyze --verbose` | `ADOG_VERBOSE=false` |
+
+Boolean environment variables accept `true/false`, `1/0`, or `yes/no`. If a boolean value is invalid, `adog` exits with code `2` and prints an error.
+
+Example:
+
+```bash
+ADOG_CATEGORY=steps,jobs ADOG_SEVERITY=warning adog analyze ./pipelines/
+```
 
 #### Examples
 

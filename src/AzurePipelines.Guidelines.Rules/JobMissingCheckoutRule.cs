@@ -9,6 +9,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// behaviour that can change. Add <c>- checkout: self</c> (or <c>checkout: none</c>
 /// when source is intentionally not needed) to make intent clear.
 /// </summary>
+[RuleMetadata("ADOG-JOBS-001", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/jobs/consider-explicit-checkout.md")]
 internal sealed class JobMissingCheckoutRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-JOBS-001");

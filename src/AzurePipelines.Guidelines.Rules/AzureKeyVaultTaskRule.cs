@@ -10,6 +10,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// job steps. Use a variable group linked to Key Vault, referenced from a variables
 /// template, with explicit step parameters instead.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-011", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/donot-use-azurekeyvault-task.md")]
 internal sealed partial class AzureKeyVaultTaskRule : IGuidelineRule
 {
     [GeneratedRegex(

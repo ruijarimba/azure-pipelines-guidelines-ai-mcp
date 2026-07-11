@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-JOBS-007 (consider): Detects reusable job templates that expose many environment-related
 /// parameters instead of sourcing environment values from variable templates.
 /// </summary>
+[RuleMetadata("ADOG-JOBS-007", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/jobs/do-parameters-short.md")]
 internal sealed class EnvironmentParameterMinimizationRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-JOBS-007");

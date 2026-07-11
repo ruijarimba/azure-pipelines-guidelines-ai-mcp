@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-STEPS-004 (consider): Detects scripts and tasks that do not appear to log enough
 /// diagnostic context to make failures easy to troubleshoot.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-004", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/consider-logging-diagnostics.md")]
 internal sealed class DiagnosticLoggingConsiderationRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STEPS-004");

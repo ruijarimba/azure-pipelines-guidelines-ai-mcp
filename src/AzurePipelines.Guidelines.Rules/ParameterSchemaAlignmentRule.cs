@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-GENERAL-003 (do): Detects parameters that map to common Azure Pipelines YAML fields
 /// but use an incompatible type, which makes template reuse harder.
 /// </summary>
+[RuleMetadata("ADOG-GENERAL-003", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/general/consider-schema-compatible-types.md")]
 internal sealed class ParameterSchemaAlignmentRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-GENERAL-003");

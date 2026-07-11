@@ -9,6 +9,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// use a service connection or equivalent authentication input. Using explicit service
 /// connections makes the dependency and credentials scope clear.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-008", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/do-use-service-connections.md")]
 internal sealed partial class ServiceConnectionAuthRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STEPS-008");

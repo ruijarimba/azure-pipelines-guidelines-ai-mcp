@@ -9,6 +9,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// (e.g. <c>template: steps/build.yml</c>) instead of an absolute path starting with
 /// <c>/</c> (e.g. <c>template: /templates/steps/build.yml</c>).
 /// </summary>
+[RuleMetadata("ADOG-GENERAL-001", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/general/consider-absolute-paths.md")]
 internal sealed partial class RelativeTemplatePathRule : IGuidelineRule
 {
     // Matches:  template: <value> where value ends with .yml or .yaml

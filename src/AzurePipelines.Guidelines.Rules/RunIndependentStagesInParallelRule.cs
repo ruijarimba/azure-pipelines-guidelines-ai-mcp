@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// explicit dependency information. Independent stages should be declared as parallel
 /// stages so the pipeline can execute them concurrently.
 /// </summary>
+[RuleMetadata("ADOG-STAGES-002", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/stages/do-parallel-stages.md")]
 internal sealed class RunIndependentStagesInParallelRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STAGES-002");

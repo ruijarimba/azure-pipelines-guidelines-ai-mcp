@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-JOBS-008 (do): Detects jobs that appear to combine multiple responsibilities.
 /// Each job should focus on a single, well-defined responsibility.
 /// </summary>
+[RuleMetadata("ADOG-JOBS-008", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/jobs/do-single-responsibility.md")]
 internal sealed class SingleResponsibilityJobRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-JOBS-008");

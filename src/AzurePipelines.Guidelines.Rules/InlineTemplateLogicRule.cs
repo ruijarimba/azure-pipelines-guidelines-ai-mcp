@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-GENERAL-006 (do-not): Detects pipelines or templates that define inline logic or
 /// configuration directly instead of moving that content into reusable templates.
 /// </summary>
+[RuleMetadata("ADOG-GENERAL-006", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/general/do-templates-everywhere.md")]
 internal sealed class InlineTemplateLogicRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-GENERAL-006");

@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-VARIABLES-004 (do): Detects templates that hard-code configuration values instead of
 /// sourcing them from variable templates or parameters.
 /// </summary>
+[RuleMetadata("ADOG-VARIABLES-004", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/variables/do-separate-configuration.md")]
 internal sealed class SeparateConfigurationRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-VARIABLES-004");

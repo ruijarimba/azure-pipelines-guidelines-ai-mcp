@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// consistent folder structure under shared roots such as <c>/templates/</c> or
 /// <c>/pipelines/</c>.
 /// </summary>
+[RuleMetadata("ADOG-GENERAL-005", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/general/do-folder-structure.md")]
 internal sealed class FolderStructureRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-GENERAL-005");

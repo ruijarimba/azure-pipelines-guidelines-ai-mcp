@@ -11,6 +11,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// Secrets should never be stored as plain-text pipeline variables; use a secret
 /// variable group or Azure Key Vault instead.
 /// </summary>
+[RuleMetadata("ADOG-VARIABLES-003", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/variables/do-sensitive-information.md")]
 internal sealed partial class SecretLikeVariableRule : IGuidelineRule
 {
     // Matches the YAML sequence block style where the variable name looks like a secret

@@ -9,6 +9,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// not declare environment variables at the step level. Declaring env values at the step
 /// level makes the dependency explicit and easier to tune per task.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-002", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/consider-environment-variables.md")]
 internal sealed partial class TaskEnvironmentVariablesRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STEPS-002");

@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// Grouping related steps into a single steps template makes job logic easier to reuse
 /// and reduces duplication across similar jobs.
 /// </summary>
+[RuleMetadata("ADOG-JOBS-002", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/jobs/consider-grouping-tasks.md")]
 internal sealed class MultipleStepsTemplatesInJobRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-JOBS-002");

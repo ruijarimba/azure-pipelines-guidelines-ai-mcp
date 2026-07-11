@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-VARIABLES-002 (consider): Detects variable templates that organize values by environment
 /// without grouping them into dedicated folders or files.
 /// </summary>
+[RuleMetadata("ADOG-VARIABLES-002", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/variables/do-organize-variables.md")]
 internal sealed class VariableTemplateOrganizationRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-VARIABLES-002");

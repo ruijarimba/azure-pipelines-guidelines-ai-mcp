@@ -9,6 +9,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// inside step definitions. Complex inline expressions make pipelines hard to read
 /// and debug. Move logic into parameters or variables instead.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-010", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/donot-mix-syntax.md")]
 internal sealed partial class LargeExpressionInStepsRule : IGuidelineRule
 {
     // Matches: ${{ ... }} template expressions or $( ... ) macro expressions.

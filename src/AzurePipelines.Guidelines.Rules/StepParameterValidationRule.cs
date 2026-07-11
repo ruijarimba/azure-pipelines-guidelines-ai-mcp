@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-STEPS-009 (do): Detects step templates that accept parameters without any sign of
 /// validation or fail-fast behavior.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-009", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/do-validate-parameters.md")]
 internal sealed class StepParameterValidationRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STEPS-009");

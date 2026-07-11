@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// explicit stages. Grouping related jobs into stages makes dependencies and execution order
 /// clearer for both humans and automation.
 /// </summary>
+[RuleMetadata("ADOG-STAGES-001", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/stages/consider-grouping-jobs.md")]
 internal sealed class UseStagesForRelatedJobsRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STAGES-001");

@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// mixes unrelated concerns (for example a username/password pair) without grouping them
 /// into a structured object or grouped parameter block.
 /// </summary>
+[RuleMetadata("ADOG-PARAMETERS-001", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/parameters/consider-grouping.md")]
 internal sealed class ParameterGroupingRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-PARAMETERS-001");

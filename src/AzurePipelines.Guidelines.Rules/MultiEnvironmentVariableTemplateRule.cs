@@ -9,6 +9,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// environments in a single file, which makes the template harder to reuse and reason about.
 /// Split per-environment values into separate variable templates instead.
 /// </summary>
+[RuleMetadata("ADOG-VARIABLES-006", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/variables/donot-mix-environments.md")]
 internal sealed partial class MultiEnvironmentVariableTemplateRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-VARIABLES-006");

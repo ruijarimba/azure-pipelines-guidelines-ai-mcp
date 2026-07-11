@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-JOBS-004 (do-not): Detects jobs that do not expose a validation-mode parameter.
 /// A boolean parameter should allow the job to run without applying changes.
 /// </summary>
+[RuleMetadata("ADOG-JOBS-004", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/jobs/consider-validation-flag.md")]
 internal sealed class ValidationModeJobParameterRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-JOBS-004");

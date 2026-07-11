@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// necessary. Restricting variables to the narrowest applicable scope reduces accidental
 /// coupling and makes pipelines easier to reason about.
 /// </summary>
+[RuleMetadata("ADOG-VARIABLES-005", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/variables/do-variable-scope.md")]
 internal sealed class VariableScopeRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-VARIABLES-005");

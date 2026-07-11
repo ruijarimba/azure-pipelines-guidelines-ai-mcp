@@ -8,6 +8,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// the step is intended to tolerate transient failures. Adding a retry count makes the
 /// behavior explicit and reduces brittle pipelines.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-005", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/consider-retries.md")]
 internal sealed class StepRetryRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STEPS-005");

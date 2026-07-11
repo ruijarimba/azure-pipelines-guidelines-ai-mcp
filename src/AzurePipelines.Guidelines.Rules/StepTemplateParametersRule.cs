@@ -7,6 +7,7 @@ namespace AzurePipelines.Guidelines.Rules;
 /// ADOG-STEPS-007 (consider): Detects reusable step templates that rely on control settings
 /// such as pool, condition, or dependsOn without exposing them as parameters.
 /// </summary>
+[RuleMetadata("ADOG-STEPS-007", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/do-extensible-steps.md")]
 internal sealed class StepTemplateParametersRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STEPS-007");
