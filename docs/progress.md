@@ -108,22 +108,24 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**Manifest review completed**
+**Packaging verification completed**
 
-The current companion manifest has been checked against the repository and all published
-`ADOG-*` rule IDs are already represented by implemented rules. No additional rule class was
-added in this session.
+The solution was packed successfully in Release mode into the local `nupkgs/` folder for the
+source libraries and the CLI tool. No packages were published to NuGet.org because that would be
+an irreversible release step and requires explicit human approval.
 
 Validation completed:
 - ✅ Full solution tests passed (`454` passed, `0` failed)
 - ✅ CLI tests passed (`122` passed, `0` failed)
+- ✅ Local NuGet packing succeeded for all `src/` libraries and the CLI tool
+- ⚠️ Docker image build could not be verified in this environment because the Docker daemon was unavailable (`failed to connect to the docker API`)
 
 ---
 
 ## Next up
 
-1. **Publish NuGet packages** for all `src/` libraries — required for Phase 1 completion
-   (see `docs/vision.md`).
+1. **Await human approval before publishing NuGet packages** for the `src/` libraries and CLI
+   tool (see `docs/vision.md`).
 2. **Verify Phase 1 success criteria** — rules implemented, `>= 90 %` test coverage,
    documentation complete, global tools and Docker image published.
 3. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
@@ -133,4 +135,4 @@ Validation completed:
 
 ## Open questions / blockers
 
-- No blockers known at this time.
+- Awaiting approval before any NuGet publish or release action.
