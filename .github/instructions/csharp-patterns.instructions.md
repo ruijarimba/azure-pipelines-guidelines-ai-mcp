@@ -112,6 +112,37 @@ Event IDs must be unique per class and stable (do not renumber existing IDs).
 
 ## 4. Diagnostic messages
 
+### 4.1. Content fidelity to companion guidelines repository
+
+**Every rule diagnostic message must be grounded in the authoritative guideline text from the companion repository:**  
+[`https://github.com/ruijarimba/azure-pipelines-guidelines`](https://github.com/ruijarimba/azure-pipelines-guidelines)
+
+- The "why does it matter?" sentence must paraphrase or quote the guideline's **Reason** section.
+- The "what should the developer do?" sentence must paraphrase or quote the guideline's **Recommended approach** section.
+- Do **not** add security advice, implementation details, or recommendations that are not present in the guideline.
+- When in doubt, copy the exact wording from the guideline and edit for brevity.
+
+**Example mismatch (wrong):**
+
+Guideline [`donot-use-azurekeyvault-task.md`](https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/donot-use-azurekeyvault-task.md) says:
+- **Reason:** Converts Key Vault secrets into pipeline variables, tightly couples job steps
+- **Recommended approach:** Use variable groups linked to Key Vault + variables template + explicit step parameters
+
+Diagnostic message says:  
+> "Use a managed identity and access Key Vault from application code instead."
+
+This introduces managed-identity guidance that the guideline does not contain — it is **wrong**.
+
+**Example (correct):**
+
+> "AzureKeyVault task detected. This task converts Key Vault secrets into pipeline variables and tightly couples job steps. Use a variable group linked to Key Vault, referenced from a variables template, with explicit step parameters instead."
+
+---
+
+**Rationale:** The companion guidelines repository represents significant domain expertise and editorial effort. Rule diagnostics must remain faithful to that content to preserve accuracy and avoid introducing unsupported advice.
+
+### 4.2. Message structure
+
 Each diagnostic message must answer three questions in order:
 
 1. **What was detected?** (one short phrase)

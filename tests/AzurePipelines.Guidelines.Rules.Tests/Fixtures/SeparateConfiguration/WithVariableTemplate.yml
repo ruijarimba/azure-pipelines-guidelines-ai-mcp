@@ -1,0 +1,10 @@
+trigger:
+  - main
+
+variables:
+  - template: templates/variables.yml
+
+jobs:
+  - template: templates/build.yml
+    parameters:
+      environment: prod

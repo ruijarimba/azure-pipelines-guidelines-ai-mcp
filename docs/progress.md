@@ -79,21 +79,26 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**Visual documentation improvements** ✅ **COMPLETED**
+**Content fidelity policy added and AzureKeyVaultTaskRule corrected**
 
-Completed a systematic visual documentation rollout to reduce cognitive load:
-- ✅ Replaced ASCII dependency graph in root `AGENTS.md` with Mermaid architecture flowchart
-- ✅ Added agent-behavior decision flowchart to root `AGENTS.md`
-- ✅ Added Mermaid Gantt roadmap to `docs/vision.md`
-- ✅ Added Mermaid mindmaps to Core/AGENTS.md (what belongs / doesn't belong)
-- ✅ Added Mermaid mindmaps to Analysis/AGENTS.md (orchestration boundaries)
-- ✅ Added command-tree diagram to `docs/cli-reference.md`
-- ✅ Added tool-capability matrix diagram to `docs/mcp-reference.md`
+Added an explicit content fidelity requirement to prevent rule diagnostics from drifting away
+from the authoritative guideline text in the companion repository. This policy is now enforced
+through `.github/instructions/csharp-patterns.instructions.md` § 4.1.
 
-All agent and user-facing documentation now has visual diagrams to clarify architecture,
-boundaries, and tool capabilities.
+Changes:
+- ✅ Added § 4.1 "Content fidelity to companion guidelines repository" to `csharp-patterns.instructions.md`
+- ✅ Fixed `AzureKeyVaultTaskRule` XML doc and diagnostic message to match the authoritative guideline
+- ✅ Removed incorrect managed-identity guidance that was not present in the source guideline
+- ✅ Verified all 109 tests still pass (0 failures)
 
-Next: implement remaining rules or other enhancements.
+The rule now correctly states:
+- **What detected:** AzureKeyVault task
+- **Why matters:** Converts Key Vault secrets into pipeline variables and tightly couples job steps
+- **What to do:** Use a variable group linked to Key Vault, referenced from a variables template, with explicit step parameters
+
+Rationale: The companion guidelines repository represents significant domain expertise. Rule
+diagnostics must faithfully reflect that content to preserve accuracy and avoid introducing
+unsupported advice.
 
 ---
 

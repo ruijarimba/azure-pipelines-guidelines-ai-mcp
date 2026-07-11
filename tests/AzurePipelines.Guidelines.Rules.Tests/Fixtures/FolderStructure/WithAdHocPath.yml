@@ -1,0 +1,5 @@
+trigger:
+  - main
+
+steps:
+  - template: steps/build.yml

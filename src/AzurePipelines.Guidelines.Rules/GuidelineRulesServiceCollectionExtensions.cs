@@ -24,6 +24,7 @@ public static class GuidelineRulesServiceCollectionExtensions
         // Rules are registered here in ADOG-ID order.
         // Add a new line here for each new rule class.
         services.AddSingleton<IGuidelineRule, RelativeTemplatePathRule>();
+        services.AddSingleton<IGuidelineRule, FolderStructureRule>();
         services.AddSingleton<IGuidelineRule, JobMissingCheckoutRule>();
         services.AddSingleton<IGuidelineRule, MultipleStepsTemplatesInJobRule>();
         services.AddSingleton<IGuidelineRule, JobMissingTimeoutRule>();
@@ -41,6 +42,10 @@ public static class GuidelineRulesServiceCollectionExtensions
         services.AddSingleton<IGuidelineRule, ValidationModeJobParameterRule>();
         services.AddSingleton<IGuidelineRule, ReusableJobTemplateParametersRule>();
         services.AddSingleton<IGuidelineRule, DiagnosticLoggingRule>();
+        services.AddSingleton<IGuidelineRule, DiagnosticLoggingConsiderationRule>();
+        services.AddSingleton<IGuidelineRule, SingleResponsibilityJobRule>();
+        services.AddSingleton<IGuidelineRule, StepParameterValidationRule>();
+        services.AddSingleton<IGuidelineRule, SeparateConfigurationRule>();
         services.AddSingleton<IGuidelineRule, StepTemplateParametersRule>();
         services.AddSingleton<IGuidelineRule, ParameterSchemaAlignmentRule>();
         services.AddSingleton<IGuidelineRule, VariableTemplateOrganizationRule>();
@@ -52,6 +57,9 @@ public static class GuidelineRulesServiceCollectionExtensions
         services.AddSingleton<IGuidelineRule, LargeExpressionInStepsRule>();
         services.AddSingleton<IGuidelineRule, AzureKeyVaultTaskRule>();
         services.AddSingleton<IGuidelineRule, SecretLikeVariableRule>();
+        services.AddSingleton<IGuidelineRule, EnvironmentParameterMinimizationRule>();
+        services.AddSingleton<IGuidelineRule, UseStagesForRelatedJobsRule>();
+        services.AddSingleton<IGuidelineRule, RunIndependentStagesInParallelRule>();
 
         return services;
     }

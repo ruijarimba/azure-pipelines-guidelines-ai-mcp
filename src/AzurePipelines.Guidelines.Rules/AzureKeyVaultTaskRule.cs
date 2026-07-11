@@ -6,9 +6,9 @@ namespace AzurePipelines.Guidelines.Rules;
 
 /// <summary>
 /// ADOG-STEPS-011 (do-not): Detects use of the <c>AzureKeyVault@N</c> task.
-/// Fetching secrets via a dedicated task exposes them as pipeline variables, which
-/// can be leaked through logs. Use a managed identity and access Key Vault directly
-/// from application code instead.
+/// This task converts Key Vault secrets into pipeline variables and tightly couples
+/// job steps. Use a variable group linked to Key Vault, referenced from a variables
+/// template, with explicit step parameters instead.
 /// </summary>
 internal sealed partial class AzureKeyVaultTaskRule : IGuidelineRule
 {
@@ -38,9 +38,10 @@ internal sealed partial class AzureKeyVaultTaskRule : IGuidelineRule
             yield return new Diagnostic(
                 _id,
                 DiagnosticSeverity.Error,
-                "AzureKeyVault task detected. Do not use the AzureKeyVault@N task to fetch " +
-                "secrets into pipeline variables. Use a managed identity and access Key Vault " +
-                "from application code instead.",
+                "AzureKeyVault task detected. This task converts Key Vault secrets into " +
+                "pipeline variables and tightly couples job steps. Use a variable group " +
+                "linked to Key Vault, referenced from a variables template, with explicit " +
+                "step parameters instead.",
                 document.FilePath,
                 line,
                 Column: null);

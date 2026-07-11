@@ -1,0 +1,7 @@
+trigger:
+  - main
+
+jobs:
+  - job: build
+    steps:
+      - script: dotnet build

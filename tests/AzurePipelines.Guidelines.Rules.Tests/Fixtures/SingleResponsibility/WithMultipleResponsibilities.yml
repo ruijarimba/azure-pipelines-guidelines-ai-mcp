@@ -1,0 +1,8 @@
+trigger:
+  - main
+
+jobs:
+  - job: build_and_deploy
+    steps:
+      - script: dotnet build
+      - script: dotnet publish

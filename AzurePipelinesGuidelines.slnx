@@ -7,7 +7,8 @@
     <File Path="CONTRIBUTING.md" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
-    <File Path="global.json" />`n    <File Path="LICENSE" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
     <File Path="README.md" />
     <Project Path="src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj" />
     <Project Path="src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj" />
@@ -17,6 +18,31 @@
   </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
+    <Folder Name="/tests/FolderStructure/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithAbsolutePath.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithAdHocPath.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithSharedRootPath.yml" />
+    </Folder>
+    <Folder Name="/tests/DiagnosticLogging/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/WithLogging.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/WithoutLogging.yml" />
+    </Folder>
+    <Folder Name="/tests/SeparateConfiguration/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/WithEmbeddedConfiguration.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/WithVariableTemplate.yml" />
+    </Folder>
+    <Folder Name="/tests/SingleResponsibility/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/WithMultipleResponsibilities.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/WithSingleResponsibility.yml" />
+    </Folder>
+    <Folder Name="/tests/StepParameterValidation/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/WithoutValidation.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/WithValidation.yml" />
+    </Folder>
+    <Folder Name="/tests/EnvironmentParameterMinimization/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithEnvironmentParameters.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithVariableTemplates.yml" />
+    </Folder>
     <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Cli.Tests/AzurePipelines.Guidelines.Cli.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Core.Tests/AzurePipelines.Guidelines.Core.Tests.csproj" />
@@ -58,7 +84,8 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="Dockerfile" />
-    <File Path="global.json" />`n    <File Path="LICENSE" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
   <Folder Name="/docs/">
@@ -94,3 +121,9 @@
     </Folder>
   </Folder>
 </Solution>
+
+
+
+
+
+
