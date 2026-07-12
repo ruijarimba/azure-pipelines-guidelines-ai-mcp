@@ -205,6 +205,16 @@ Analyzes one or more pipeline files or directories on disk.
 **Returns:**
 - Per-file analysis results with any found diagnostics
 
+#### File-access boundary
+
+The server reads files with the permissions of the process started by your AI client. Use only
+workspace paths that you intend the server to analyze. Do not configure the client to run the
+server with access to directories that contain secrets, credentials, or unrelated sensitive files.
+
+When using Docker, the container cannot read host files unless you explicitly mount a directory.
+Mount only the workspace or pipeline directory you want to analyze, then pass paths inside that
+container mount to `analyze_pipeline_paths`.
+
 ### Guideline lookup tools
 
 The server also exposes lookup helpers for the guideline catalogue:
