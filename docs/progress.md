@@ -20,6 +20,7 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `3a8eb87` | test: add folder-based integration tests for the real analysis stack and validate the full solution quality gate |
 | `8c3b576` | chore: mirror filesystem structure in Solution Explorer — rule 8 in agent-behaviour, slnx hierarchy fixes |
 | `572af54` | chore: add non-code files to Solution Explorer (AGENTS.md per project, docs, .github) |
 | `eec4316` | docs: expand CLI AGENTS.md with full option/example/format documentation |
@@ -115,7 +116,7 @@ source libraries and the CLI tool. No packages were published to NuGet.org becau
 an irreversible release step and requires explicit human approval.
 
 Validation completed:
-- ✅ Full solution tests passed (`454` passed, `0` failed)
+- ✅ Full solution tests passed (`485` passed, `0` failed)
 - ✅ CLI tests passed (`122` passed, `0` failed)
 - ✅ Local NuGet packing succeeded for all `src/` libraries and the CLI tool
 - ⚠️ Docker image build could not be verified in this environment because the Docker daemon was unavailable (`failed to connect to the docker API`)

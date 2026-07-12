@@ -5,6 +5,7 @@ This file tracks upcoming work and enhancements for the next development session
 The backlog below reflects the current state of the repository after the latest validation pass:
 - CLI severity terminology and multi-value filter support are implemented.
 - MCP documentation and solution registration are complete.
+- Folder-based integration tests for the real analysis stack are implemented and validated.
 - Local tests, packaging, and documentation validation passed.
 
 ---
@@ -38,6 +39,7 @@ These are optional follow-ups that are not blocked by the current implementation
 - [x] Add `--output` support for multiple formats when `--format` contains more than one value
 - [x] Add a dedicated "Environment Variables" section to `docs/cli-reference.md`
 - [ ] Consider config-file support for CLI defaults
+- [ ] Review and commit the current handoff notes in `docs/TODO.md` and `docs/progress.md` before the next session
 
 Related files:
 - `tools/AzurePipelines.Guidelines.Cli/AnalyzeCommand.cs`
