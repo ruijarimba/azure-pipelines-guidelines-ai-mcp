@@ -67,7 +67,9 @@ reference, read [the architecture guide](docs/architecture.md).
 
 This project is set up for AI coding agents.
 
-- Agents read `.github/copilot-instructions.md` and the linked instruction files automatically.
+- Agents and contributors must read `.github/copilot-instructions.md` and its linked instruction
+  files before making changes. Whether an AI client loads them automatically depends on that
+  client's configuration.
 - The behaviour rules in
   [`.github/instructions/agent-behaviour.instructions.md`](.github/instructions/agent-behaviour.instructions.md)
   apply to AI agents and human contributors equally.
