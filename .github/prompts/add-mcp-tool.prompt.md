@@ -1,3 +1,7 @@
+---
+mode: agent
+---
+
 # Add a new MCP tool handler
 
 Use this prompt when exposing a new capability via the Model Context Protocol server.
@@ -15,9 +19,15 @@ Before starting, confirm the following:
 ## Steps
 
 1. **Create the tool handler class** in `src/AzurePipelines.Guidelines.Mcp/Tools/`.
-   - Annotate with the MCP SDK tool attribute.
+   - Annotate the method with `[McpServerTool]` and `[Description("...")]` from the MCP SDK:
+     ```csharp
+     [McpServerTool, Description("One-sentence description shown to the AI client.")]
+     public async Task<string> ToolNameAsync(
+         [Description("Parameter description.")] string paramName,
+         CancellationToken cancellationToken = default)
+     ```
    - Inject dependencies via constructor (all dependencies are `Core` interfaces).
-   - Keep the class `internal`; register it via the DI extension method.
+   - Keep the class `internal sealed`; register it via the DI extension method.
 
 2. **Register the handler** in the `AddGuidelinesMcp(…)` extension method.
 

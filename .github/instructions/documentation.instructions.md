@@ -1,6 +1,6 @@
 ---
-description: 'Markdown documentation writing guidance'
-applyTo: '**/*.md'
+description: "Markdown documentation writing guidance"
+applyTo: "**/*.md"
 ---
 
 # Writing documentation files

@@ -68,6 +68,26 @@ public void GetById_GivenKnownId_ShouldReturnGuideline()
 - Error paths: exceptions thrown for invalid inputs, missing data, and boundary violations.
 - No test may pass trivially — assert on a specific expected value, not just that a value exists.
 
+### Measuring coverage
+
+Run the following command from the repository root to collect coverage and generate a report:
+
+```powershell
+dotnet test AzurePipelinesGuidelines.slnx `
+  --collect:"XPlat Code Coverage" `
+  --results-directory ./coverage
+
+# Generate an HTML report (requires reportgenerator global tool).
+# Install once: dotnet tool install -g dotnet-reportgenerator-globaltool
+reportgenerator `
+  -reports:"./coverage/**/coverage.cobertura.xml" `
+  -targetdir:"./coverage/report" `
+  -reporttypes:Html
+```
+
+The generated `./coverage/report/index.html` shows line, branch, and method coverage per file.
+Before committing, confirm the repository-wide line coverage is at or above 90%.
+
 ## What to avoid
 
 - Shared mutable state between tests; each test must be fully independent and order-agnostic.

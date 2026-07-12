@@ -1,4 +1,8 @@
-# Implement a new `IRule`
+---
+mode: agent
+---
+
+# Implement a new `IGuidelineRule`
 
 Use this prompt when adding a rule that maps to a specific `ADOG-{CATEGORY}-{NNN}` guideline.
 
@@ -16,9 +20,10 @@ Before starting, confirm the following:
 
 1. **Create the rule class** in `src/AzurePipelines.Guidelines.Rules/`.
    - Name: `{DescriptiveName}Rule` (derive the name from the guideline title).
-   - Implement `IRule` from `AzurePipelines.Guidelines.Core`.
-   - `RuleId` property returns the exact `ADOG-…` string.
-   - `Analyze` method must never throw; return an empty list when no violations are found.
+   - Implement `IGuidelineRule` from `AzurePipelines.Guidelines.Core`.
+   - Follow the exact class structure in `.github/instructions/csharp-patterns.instructions.md` §1.
+   - `GuidelineId` property returns the exact `ADOG-…` identifier declared as `private static readonly`.
+   - `EvaluateAsync` must never throw; yield no results when no violations are found.
    - Map severity from the manifest (`do`/`do-not` → `DiagnosticSeverity.Error`, etc.).
 
 2. **Register the rule** via the DI extension method in `Rules` (or add a new one).

@@ -108,6 +108,25 @@ LogEvaluating(_logger, rule.GuidelineId.Value, document.FilePath);
 
 Event IDs must be unique per class and stable (do not renumber existing IDs).
 
+### 3.1. Do not log sensitive or user-controlled values
+
+Never pass the following to any log call:
+
+- Secrets, tokens, passwords, API keys, or connection strings.
+- Raw YAML content or any value read directly from a user-supplied pipeline file.
+- File paths or environment variable values that may contain secrets.
+
+```csharp
+// Bad — logs raw YAML that may contain secrets or inject noise into structured logs.
+LogEvaluating(_logger, rule.GuidelineId.Value, document.RawContent);
+
+// Good — log only stable identifiers under your control.
+LogEvaluating(_logger, rule.GuidelineId.Value, document.FilePath);
+```
+
+Treat any value sourced from external input (YAML, environment variables, config files)
+as untrusted. Log identifiers and counts; never log raw values.
+
 ---
 
 ## 4. Diagnostic messages

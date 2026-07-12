@@ -50,30 +50,14 @@ Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` →
 
 **Every file must be visible in Visual Studio Solution Explorer** in the correct folder hierarchy.
 
-### Where to register
+Full rules and registration examples are in
+[`.github/instructions/solution-files.instructions.md`](instructions/solution-files.instructions.md) — Rule 10.
 
-| File location | How to register |
-| --- | --- |
-| Inside a project directory (e.g. `src/Core/AGENTS.md`) | Add `<None Include="filename" />` in an `<ItemGroup>` in that project's `.csproj` file. |
-| Anywhere else (root, `docs/`, `.github/`, `tests/`, `src/`, `tools/`) | Add a `<File Path="..." />` entry in `AzurePipelinesGuidelines.slnx`. |
+## Durable project context — validation note
 
-### Folder hierarchy rules
-
-- Solution Explorer **must mirror Windows Explorer exactly**.
-- Files in `docs/` go under `/docs/` solution folder — not `/Solution Items/`.
-- Files in `.github/instructions/` go under `/.github/instructions/` — not flat under `/.github/`.
-- If you create a new subdirectory, add a matching `<Folder Name="/path/to/folder/">` entry in `.slnx` before adding `<File>` children.
-- Never flatten nested directories into parent folders.
-
-### Verification
-
-After creating or registering any file, check:
-> Does Solution Explorer show this file in the same location as Windows Explorer?  
-> Is every parent folder visible as a nested solution folder?
-
-If "no" to either question, fix it before committing.
-
-**Full rules:** `.github/instructions/agent-behaviour.instructions.md` — Rule 9.
+`docs/progress.md` records the session state. Before treating it as authoritative, cross-check
+its "recently completed" entries against `git log --oneline -10` to confirm they were actually
+committed. If the file is stale, update it before continuing.
 
 ## Safety
 

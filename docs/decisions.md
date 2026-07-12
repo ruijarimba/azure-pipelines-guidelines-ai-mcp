@@ -183,9 +183,11 @@ the guardrails must re-consult these sources and update this ADR.
   this repo reads and analyses untrusted YAML pipeline files and exposes MCP tools to AI clients.
 
 **Consequences:**  
-- The eight behaviour principles are documented in
+- The current behaviour principles are documented in
   `.github/instructions/agent-behaviour.instructions.md` with `applyTo: "**"`.
 - Before changing any guardrail, re-read the relevant source(s) above and update this ADR.
+- Before pushing changes, agents must verify that the solution builds successfully and the
+  relevant unit test suite passes.
 - The instruction file links back here so the rationale chain is always traceable.
 - When a session becomes long or context-heavy, agents should create concise handoff summaries
   or use the available conversation-summary feature so later turns preserve the current state,
