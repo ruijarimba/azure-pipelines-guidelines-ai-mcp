@@ -1,0 +1,51 @@
+# This pipeline is used to deploy the infrastructure in Azure using Terraform and Terragrunt
+#
+# Name: terraform-azure-example-01
+# https://ruijarimba.visualstudio.com/ruijarimba/_build?definitionId=12
+
+name: terraform-azure-example-01-$(date:yyyyMMdd-HHmmss)
+
+parameters:
+  - name: stackName
+    type: string
+    displayName: 'Stack name (e.g. azure/storage-account)'
+    default: 'azure/storage-account'
+  
+  - name: environmentName
+    type: string
+    displayName: 'Environment name (e.g. westeurope/prod)'
+    default: 'westeurope/prod'
+  
+  - name: applyChanges
+    type: boolean
+    displayName: 'Apply changes?'
+    default: false
+
+  - name: runStaticAnalysis
+    type: boolean
+    displayName: 'Run static analysis'
+    default: true
+
+trigger: none
+
+variables:
+  - template: /pipelines/variables/common-variables.yaml
+
+resources:
+  repositories:
+    - repository: shared
+      type: git
+      name: ruijarimba/terraform-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # use current branch
+
+stages:
+  - template: /pipelines/stages/terragrunt/plan-apply-stages.yaml
+    parameters:
+      agentPool: ${{ variables.agentPool }}
+      azureDevOpsEnvironment: ${{ variables.azureDevOpsEnvironment }}
+      stackName: ${{ parameters.stackName }}
+      instanceName: ${{ parameters.environmentName }}
+      applyChanges: ${{ parameters.applyChanges }}
+      runStaticAnalysis: ${{ parameters.runStaticAnalysis }}
+      preSteps:
+        - template: /pipelines/steps/checkout-repositories-steps.yaml@self

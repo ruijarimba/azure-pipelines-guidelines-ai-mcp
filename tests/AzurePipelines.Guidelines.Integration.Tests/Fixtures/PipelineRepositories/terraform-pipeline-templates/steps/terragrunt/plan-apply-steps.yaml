@@ -1,0 +1,169 @@
+# Runs Terragrunt plan and (optionaly) apply changes
+
+parameters:
+  # This object will contain the authentication details for the terraform registry 
+  # and the providers such as aws, azure, azure devops, etc
+  #
+  # terraform registry authentication details:
+  # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret
+  # terraformRegistryToken: The token to use for authentication.
+  #
+  # azuredevops provider authentication details:
+  # https://registry.terraform.io/providers/microsoft/azuredevops/latest/docs/guides/authenticating_using_the_personal_access_token
+  # azureDevOpsToken: The Azure DevOps token to use for authentication.
+  # azureDevOpsServiceUrl: The Azure DevOps service URL to use for authentication.
+  #
+  # azurerm provider authentication details:
+  # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/service_principal_client_secret
+  # azureClientId: The client ID of the Service Principal.
+  # azureClientSecret: The client secret of the Service Principal.
+  # azureSubscriptionId: The subscription ID that should be used.
+  # azureTenantId: The tenant ID of the Service Principal.
+  #
+  # aws provider authentication details:
+  # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/guides/getting_started
+  # awsAccessKeyId: The access key for the AWS account.
+  # awsSecretAccessKey: The secret key for the AWS account.
+  # awsRegion: The AWS region to use.
+  # awsDefaultRegion: The default AWS region to use.
+  # awsSessionToken: The session token for the AWS account.
+  - name: authentication
+    type: object
+    displayName: 'An object containing the authentication details (providers, registry, etc.)'
+
+  # This object will contain the remote state details
+  #
+  # azureStateAccessKey: The access key for the Azure Blob Storage account.
+  - name: remoteState
+    type: object
+    displayName: 'An object containing the remote state details (optional)'
+
+    # Example: To set the environment variable "MY_VAR" to "my_value", add the following:
+    # - key: MY_VAR
+    #   value: my_value
+    # - key: MY_OTHER_VAR
+    #   value: my_other_value
+  - name: environmentVariables
+    type: object
+    displayName: 'Environment variables (key-value pairs, optional)'
+    default: []
+
+  - name: applyChanges
+    type: boolean
+    displayName: 'Apply changes? Default is false'
+    default: false
+
+  # An object containing the settings for the static analysis:
+  # - enabled: Set to true to run the static analysis
+  - name: staticAnalysis
+    type: object
+    displayName: 'Static analysis settings'
+    # default:
+    #   enabled: true
+
+  - name: workingFolder
+    type: string
+    displayName: 'Terragrunt/Terraform working folder'
+
+  - name: terraformPlanFile
+    type: string
+    displayName: 'Terraform plan file'
+    default: '$(System.DefaultWorkingDirectory)/tfplan'
+
+steps:
+  - template: run-terra-script-steps.yaml
+    parameters:
+      scriptToExecute: |-
+        terragrunt init -input=false
+      displayName: 'Terragrunt init'
+      timeoutInMinutes: 2
+      authentication: ${{ parameters.authentication }}
+      remoteState: ${{ parameters.remoteState }}
+      environmentVariables: ${{ parameters.environmentVariables }}
+      workingFolder: ${{ parameters.workingFolder }}
+
+  - template: run-terra-script-steps.yaml
+    parameters:
+      scriptToExecute: |-
+        TERRAGRUNT_INFO=$(terragrunt terragrunt-info)
+
+        WORKING_DIR=$(echo "$TERRAGRUNT_INFO" | jq -r '.WorkingDir')
+        echo "##vso[task.setvariable variable=TG_WORKING_DIR]$WORKING_DIR"
+
+        printf "%s\n" "$TERRAGRUNT_INFO"
+      displayName: 'Terragrunt info'
+      timeoutInMinutes: 1
+      authentication: ${{ parameters.authentication }}
+      remoteState: ${{ parameters.remoteState }}
+      environmentVariables: ${{ parameters.environmentVariables }}
+      workingFolder: ${{ parameters.workingFolder }}
+
+  - template: run-terra-script-steps.yaml
+    parameters:
+      scriptToExecute: |-
+        terragrunt validate
+      displayName: 'Terragrunt validate'
+      timeoutInMinutes: 2
+      authentication: ${{ parameters.authentication }}
+      remoteState: ${{ parameters.remoteState }}
+      environmentVariables: ${{ parameters.environmentVariables }}
+      workingFolder: ${{ parameters.workingFolder }}
+
+  - template: run-terra-script-steps.yaml
+    parameters:
+      scriptToExecute: |-
+        set -x # Enable command tracing
+
+        JUNIT_RESULTS_FILE=${{ parameters.workingFolder }}/tflint-results.xml
+
+        cd $(TG_WORKING_DIR)
+        tflint --recursive --init
+        tflint --recursive --force --format compact
+        tflint --recursive --force --format junit > $JUNIT_RESULTS_FILE
+      displayName: 'TFLint analysis'
+      authentication: ${{ parameters.authentication }}
+      remoteState: ${{ parameters.remoteState }}
+      environmentVariables: ${{ parameters.environmentVariables }}
+      workingFolder: ${{ parameters.workingFolder }}
+
+  - task: PublishTestResults@2
+    displayName: 'Publish TFLint test results'
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '${{ parameters.workingFolder }}/tflint-results.xml'
+      failTaskOnFailedTests: false
+      testRunTitle: 'tflint:${{ parameters.workingFolder }}'
+
+  - template: run-terra-script-steps.yaml
+    parameters:
+      scriptToExecute: |-
+        set -x # Enable command tracing
+
+        terragrunt plan -input=false -out=${{ parameters.terraformPlanFile }}
+      displayName: 'Terragrunt plan'
+      timeoutInMinutes: 3
+      authentication: ${{ parameters.authentication }}
+      remoteState: ${{ parameters.remoteState }}
+      environmentVariables: ${{ parameters.environmentVariables }}
+      workingFolder: ${{ parameters.workingFolder }}
+
+  - ${{ if eq(parameters.staticAnalysis.enabled, true) }}:
+    - template: /pipelines/steps/checkov/scan-terraform-steps.yaml
+      parameters:
+        workingFolder: $(TG_WORKING_DIR)
+        terraformPlanFile: ${{ parameters.terraformPlanFile }}
+        exclusions: ${{ parameters.staticAnalysis.checkovExclusions }}
+        testRunTitle: checkov-terraform:${{ parameters.workingFolder }}
+
+  - ${{ if parameters.applyChanges }}:
+    - template: run-terra-script-steps.yaml
+      parameters:
+        scriptToExecute: |-
+          set -x # Enable command tracing
+
+          terragrunt apply -auto-approve -input=false ${{ parameters.terraformPlanFile }}
+        displayName: 'Terragrunt apply'
+        authentication: ${{ parameters.authentication }}
+        remoteState: ${{ parameters.remoteState }}
+        environmentVariables: ${{ parameters.environmentVariables }}
+        workingFolder: ${{ parameters.workingFolder }}

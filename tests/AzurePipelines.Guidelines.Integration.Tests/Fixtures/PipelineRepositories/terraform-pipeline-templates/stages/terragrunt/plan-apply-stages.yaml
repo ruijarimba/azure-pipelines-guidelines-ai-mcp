@@ -1,0 +1,100 @@
+# A wrapper template to create two stages for Terragrunt plan and apply
+
+parameters:
+  - name: agentPool
+    type: object
+    displayName: 'Agent pool where to run the job (optional)'
+    default: ''
+  
+  - name: azureDevOpsEnvironment
+    type: string
+    displayName: 'Azure DevOps environment'
+
+  - name: jobTimeoutInMinutes
+    type: number
+    displayName: 'Job timeout in minutes'
+    default: 60
+
+  - name: baseVariablesTemplateDir
+    type: string
+    displayName: 'Base folder where to find the variables YAML template'
+    default: '/pipelines/variables/terraform'
+
+  - name: stackName
+    type: string
+    displayName: 'Stack name (e.g. azure/storage-account)'
+  
+  - name: instanceName
+    type: string
+    displayName: 'Instance or environment name (e.g. westeurope/prod, my-azure-devops-variable-group)'
+
+  - name: environmentVariables
+    type: object
+    displayName: 'Environment variables (key-value pairs, optional)'
+    default: []
+
+  - name: applyChanges
+    type: boolean
+    displayName: 'Apply changes? Default is false'
+    default: false
+
+  - name: runStaticAnalysis
+    type: boolean
+    displayName: 'Run static analysis'
+    default: false
+
+  - name: terraformPlanFile
+    type: string
+    displayName: 'Terraform plan file'
+    default: '$(System.DefaultWorkingDirectory)/tfplan'
+
+  - name: preSteps
+    type: stepList
+    displayName: 'Pre-steps'
+    default:
+      - checkout: self
+
+  - name: postSteps
+    type: stepList
+    displayName: 'Post-steps'
+    default: []
+
+stages:
+  - stage: tfplan_${{ replace(replace(parameters.stackName, '/', '_'), '-', '_') }}_${{ replace(replace(parameters.instanceName, '/', '_'), '-', '_') }}
+    displayName: 'Run Plan: ${{ parameters.stackName }}/${{ parameters.instanceName }}'
+    jobs:
+      - template: /pipelines/jobs/terragrunt/plan-apply-job.yaml
+        parameters:
+          agentPool: ${{ parameters.agentPool }}
+          azureDevOpsEnvironment: ${{ parameters.azureDevOpsEnvironment }}
+          jobTimeoutInMinutes: ${{ parameters.jobTimeoutInMinutes }}
+          baseVariablesTemplateDir: ${{ parameters.baseVariablesTemplateDir }}
+          stackName: ${{ parameters.stackName }}
+          instanceName: ${{ parameters.instanceName }}
+          environmentVariables: ${{ parameters.environmentVariables }}
+          applyChanges: false
+          runStaticAnalysis: ${{ parameters.runStaticAnalysis }}
+          terraformPlanFile: ${{ parameters.terraformPlanFile }}
+          preSteps: ${{ parameters.preSteps }}
+          postSteps: ${{ parameters.postSteps }}
+
+  - ${{ if parameters.applyChanges }}:
+    - stage: tfapply_${{ replace(replace(parameters.stackName, '/', '_'), '-', '_') }}_${{ replace(replace(parameters.instanceName, '/', '_'), '-', '_') }}
+      displayName: 'Apply changes: ${{ parameters.stackName }}/${{ parameters.instanceName }}'
+      dependsOn: tfplan_${{ replace(replace(parameters.stackName, '/', '_'), '-', '_') }}_${{ replace(replace(parameters.instanceName, '/', '_'), '-', '_') }}
+      condition: succeeded()
+      jobs:
+        - template: /pipelines/jobs/terragrunt/plan-apply-job.yaml
+          parameters:
+            agentPool: ${{ parameters.agentPool }}
+            azureDevOpsEnvironment: ${{ parameters.azureDevOpsEnvironment }}
+            jobTimeoutInMinutes: ${{ parameters.jobTimeoutInMinutes }}
+            baseVariablesTemplateDir: ${{ parameters.baseVariablesTemplateDir }}
+            stackName: ${{ parameters.stackName }}
+            instanceName: ${{ parameters.instanceName }}
+            environmentVariables: ${{ parameters.environmentVariables }}
+            applyChanges: true
+            runStaticAnalysis: ${{ parameters.runStaticAnalysis }}
+            terraformPlanFile: ${{ parameters.terraformPlanFile }}
+            preSteps: ${{ parameters.preSteps }}
+            postSteps: ${{ parameters.postSteps }}

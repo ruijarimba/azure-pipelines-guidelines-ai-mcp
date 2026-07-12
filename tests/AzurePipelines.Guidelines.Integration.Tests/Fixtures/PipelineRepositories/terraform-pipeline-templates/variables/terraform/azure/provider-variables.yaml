@@ -1,0 +1,14 @@
+variables:
+  - group: tf-azure-production
+
+  - name: tf_azureClientId
+    value: $(terraform-sp-client-id)
+  
+  - name: tf_azureClientSecret
+    value: $(terraform-sp-client-secret)
+  
+  - name: tf_azureSubscriptionId
+    value: $(terraform-sp-subscription-id)
+  
+  - name: tf_azureTenantId
+    value: $(terraform-sp-tenant-id)

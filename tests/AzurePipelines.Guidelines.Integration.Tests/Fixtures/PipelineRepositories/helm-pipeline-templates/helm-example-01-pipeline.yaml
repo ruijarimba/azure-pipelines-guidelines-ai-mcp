@@ -1,0 +1,87 @@
+# This pipeline is used to deploy a Helm chart
+#
+# Name: helm-templates-example-01
+# https://ruijarimba.visualstudio.com/ruijarimba/_build?definitionId=24
+
+name: helm-templates-example-01-$(date:yyyyMMdd-HHmmss)
+
+parameters:
+  - name: chartName
+    type: string
+    displayName: 'Chart name'
+    default: 'hello-world'
+
+  - name: region
+    type: string
+    displayName: 'Region'
+    default: 'westeurope'
+
+  - name: environment
+    type: string
+    displayName: 'Environment'
+    default: 'prod'
+
+  - name: validationOnly
+    type: boolean
+    displayName: 'Validation only (dry run)'
+    default: true
+
+  - name: runStaticAnalysis
+    type: boolean
+    displayName: 'Run static analysis'
+    default: true
+
+trigger: none
+
+resources:
+  repositories:
+    - repository: shared
+      type: git
+      name: ruijarimba/helm-pipeline-templates
+      ref: feature/229-deploy-chart-from-repository # ${{ variables['Build.SourceBranch'] }}
+
+variables:
+  - template: /pipelines/variables/common-variables.yaml
+
+pool: Default
+
+stages:
+  - stage: helloWorld
+    displayName: 'Hello World (local chart)'
+    dependsOn: []
+    jobs:
+      - template: /pipelines/jobs/helm/deploy-chart-from-folder-job.yaml@shared
+        parameters:
+          # agentPool: ${{ variables.agentPool }} # Optional. Can be set at the pipeline level instead.
+          azureDevOpsEnvironment: ${{ variables.azureDevOpsEnvironment }}
+          chartName: ${{ parameters.chartName }}
+          instanceName: ${{ parameters.region }}/${{ parameters.environment }}
+          helmParameters: # optional
+            # Valid parameter names and values
+            - "buildInfo.buildId=$(Build.BuildId)"
+            - "buildInfo.repository=$(Build.Repository.Name)"
+            - "resource=foobar"
+            # Invalid parameter names and values to test the validation 
+            # - "buildInfo.buildXXXX=$(Build.BuildId)"
+            # - "buildInfo.repository=$(Build.Repository.Name)"
+            # - "resource="
+          helmValuesFiles: # optional
+            - $(Pipeline.Workspace)/myself/helm/config/${{ parameters.chartName }}/${{ parameters.region }}-values.yaml
+            - $(Pipeline.Workspace)/myself/helm/config/${{ parameters.chartName }}/${{ parameters.environment }}-values.yaml
+          validationOnly: ${{ parameters.validationOnly }}
+          runStaticAnalysis: ${{ parameters.runStaticAnalysis }}
+          preSteps:
+            - template: /pipelines/steps/checkout-repositories-steps.yaml@self
+    
+  - stage: prometheus
+    displayName: 'Prometheus (remote chart)'
+    dependsOn: []
+    jobs:
+      - template: /pipelines/jobs/helm/deploy-chart-from-repository-job.yaml@shared
+        parameters:
+          azureDevOpsEnvironment: ${{ variables.azureDevOpsEnvironment }}
+          chartName: prometheus
+          instanceName: default
+          validationOnly: ${{ parameters.validationOnly }}
+          preSteps:
+            - template: /pipelines/steps/checkout-repositories-steps.yaml@self  

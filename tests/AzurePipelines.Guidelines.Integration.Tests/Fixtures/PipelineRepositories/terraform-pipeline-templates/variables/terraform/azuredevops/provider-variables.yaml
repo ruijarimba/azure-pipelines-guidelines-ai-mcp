@@ -1,0 +1,8 @@
+variables:
+  - group: tf-azure-devops-authentication-v2
+
+  - name: tf_azureDevOpsToken
+    value: $(terraform-azure-devops-pat)
+  
+  - name: tf_azureDevOpsServiceUrl
+    value: $(terraform-azure-devops-url)

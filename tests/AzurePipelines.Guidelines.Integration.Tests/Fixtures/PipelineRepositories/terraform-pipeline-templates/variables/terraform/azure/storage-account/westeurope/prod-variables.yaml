@@ -1,0 +1,6 @@
+variables:
+  - template: /pipelines/variables/terraform/remote-state-variables.yaml
+  - template: /pipelines/variables/terraform/azure/provider-variables.yaml
+
+  - name: tf_WorkingFolder
+    value: $(Pipeline.Workspace)/myself/iac/stacks/azure/storage-account/westeurope/prod

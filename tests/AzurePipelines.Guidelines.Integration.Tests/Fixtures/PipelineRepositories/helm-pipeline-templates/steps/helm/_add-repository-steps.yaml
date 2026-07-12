@@ -1,0 +1,56 @@
+# Adds a Helm chart repository
+#
+# See https://signoz.io/guides/kubernetes-monitoring-prometheus/
+
+parameters:
+  # An object containing the settings for the Helm chart installation or upgrade:
+  # - repositoryName: Helm chart repository
+  # - repositoryUrl: Helm chart repository URL
+  - name: helmChart
+    type: object
+    displayName: 'Helm chart settings'
+    # default:
+    #   repositoryName: ''
+    #   repositoryUrl: ''
+
+steps:
+  - script: |
+      EXIT_CODE=0
+
+      if [ -z "$REPO_NAME" ]; then
+        echo "##vso[task.logissue type=error;code=REPO_NAME;]REPO_NAME must be provided."
+        EXIT_CODE=$((EXIT_CODE+1))
+      else
+        printf "\nREPO_NAME: %s\n" "$REPO_NAME"
+      fi
+
+      if [ -z "$REPO_URL" ]; then
+        echo "##vso[task.logissue type=error;code=REPO_URL;]REPO_URL must be provided."
+        EXIT_CODE=$((EXIT_CODE+1))
+      else
+        printf "\nREPO_URL: %s\n" "$REPO_URL"
+      fi
+
+      exit $EXIT_CODE
+    displayName: 'Validate Helm repository settings'
+    env:
+      REPO_NAME: ${{ parameters.helmChart.repositoryName }}
+      REPO_URL: ${{ parameters.helmChart.repositoryUrl }}
+    
+  - script: |
+      ARGS=""
+
+      if [ "$ISDEBUG" = "true" ]; then
+        ARGS="--debug"
+      fi
+
+      echo "Adding Helm repository $REPO_NAME from $REPO_URL"
+      helm repo add $REPO_NAME $REPO_URL --force-update $ARGS
+
+      echo "Searching for Helm charts: $REPO_NAME"
+      helm search repo $REPO_NAME
+    displayName: 'Add Helm repository: ${{ parameters.helmChart.repositoryName }}'
+    env:
+      REPO_NAME: ${{ parameters.helmChart.repositoryName }}
+      REPO_URL: ${{ parameters.helmChart.repositoryUrl }}
+      ISDEBUG: $(System.Debug)

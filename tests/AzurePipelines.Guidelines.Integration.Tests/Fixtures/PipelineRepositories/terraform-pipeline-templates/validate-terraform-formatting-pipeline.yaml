@@ -1,0 +1,30 @@
+# This pipeline is used to validate the formatting of Terraform files
+#
+# Name: terraform-example-validate-formatting
+# https://ruijarimba.visualstudio.com/ruijarimba/_build?definitionId=13
+
+name: terraform-example-validate-formatting-$(date:yyyyMMdd-HHmmss)
+
+trigger: none
+
+variables:
+  - template: /pipelines/variables/common-variables.yaml
+
+resources:
+  repositories:
+    - repository: shared
+      type: git
+      name: ruijarimba/terraform-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # use current branch
+
+pool: $(agentPool)
+
+jobs:
+  - template: /pipelines/jobs/terraform/validate-terraform-formatting-job.yaml@shared
+    parameters:
+      # agentPool: ${{ variables.agentPool }} # Optional. Can be set at the pipeline level instead.
+      terraformFolders:
+        - $(Pipeline.Workspace)/myself/iac/modules
+        - $(Pipeline.Workspace)/myself/iac/stacks
+      preSteps:
+        - template: /pipelines/steps/checkout-repositories-steps.yaml@self

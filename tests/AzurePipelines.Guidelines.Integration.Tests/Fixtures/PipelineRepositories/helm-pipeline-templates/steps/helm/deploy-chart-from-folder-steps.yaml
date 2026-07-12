@@ -1,0 +1,102 @@
+# Install or upgrade a Helm chart from a folder
+
+parameters:
+  # An object containing the settings for the Helm chart installation or upgrade:
+  # - chartPath: Path to the Helm chart
+  # - releaseName: Release name
+  # - valuesFiles: Path to the values files
+  # - parameters: Helm parameters
+  # - timeout: Time to wait for any individual Kubernetes operation (like Jobs for hooks) (default 5m0s)
+  # - dryRun: Set when you want to simulate a helm upgrade
+  #     - client: Client side dry-run
+  #     - server: Server side dry-run
+  - name: helmChart
+    type: object
+    displayName: 'Helm chart settings'
+    # default:
+    #   chartPath: ''
+    #   releaseName: ''
+    #   timeout: '5m0s'
+    #   valuesFiles: []
+    #   parameters: []
+    #   dryRun: ''
+
+  # An object containing the kubernetes context settings:
+  # - namespace: Kubernetes namespace
+  # - kubeconfig: Path to the kubeconfig file
+  - name: kubernetesContext
+    type: object
+    displayName: 'Kubernetes context settings'
+    # default:
+    #   namespace: ''
+    #   kubeconfig: ''
+
+  # An object containing the settings for the static analysis:
+  # - enabled: Set to true to run the static analysis
+  # - checkovExclusions: Comma-separated list of Checkov checks to exclude
+  - name: staticAnalysis
+    type: object
+    displayName: 'Static analysis settings'
+    default:
+      enabled: true
+      checkovExclusions: ''
+
+  - name: renderedHelmChartFolder
+    type: string
+    displayName: 'Folder where the Helm chart will be rendered'
+    default: '$(Agent.TempDirectory)/$(System.JobId)'
+
+steps:
+  - template: /pipelines/steps/helm/_set-pipeline-variables-steps.yaml
+    parameters:
+      helmChart: ${{ parameters.helmChart }}
+
+  - template: /pipelines/steps/helm/_validate-chart-steps.yaml
+    parameters:
+      helmChart: ${{ parameters.helmChart }}
+      kubernetesContext: ${{ parameters.kubernetesContext }}
+
+  - template: /pipelines/steps/kubernetes/set-context-steps.yaml
+    parameters:
+      kubernetesContext: ${{ parameters.kubernetesContext }}
+
+  - template: /pipelines/steps/helm/_run-helm-command-steps.yaml
+    parameters:
+      command: template
+      args: >-
+        --validate
+        --output-dir ${{ parameters.renderedHelmChartFolder }}
+      namespace: ${{ parameters.kubernetesContext.namespace }}
+      helmChart: ${{ parameters.helmChart }}
+
+  - ${{ if parameters.staticAnalysis.enabled }}:
+    - template: /pipelines/steps/checkov/scan-helm-chart-steps.yaml
+      parameters:
+        renderedHelmChartFolder: ${{ parameters.renderedHelmChartFolder }}
+        exclusions: ${{ parameters.staticAnalysis.checkovExclusions }}
+        testRunTitle: checkov-helm:${{ parameters.helmChart.chartPath }}:${{ parameters.helmChart.releaseName }}
+
+  - template: /pipelines/steps/helm/_run-helm-command-steps.yaml
+    parameters:
+      command: diff upgrade
+      args: >-
+        --install
+        --allow-unreleased
+        --color
+        --normalize-manifests
+        --disable-openapi-validation
+        --disable-validation
+      namespace: ${{ parameters.kubernetesContext.namespace }}
+      helmChart: ${{ parameters.helmChart }}
+
+  - template: /pipelines/steps/helm/_run-helm-command-steps.yaml
+    parameters:
+      command: upgrade
+      args: >-
+        --install
+        --create-namespace
+        --wait
+        --reset-values
+        --atomic
+      namespace: ${{ parameters.kubernetesContext.namespace }}
+      helmChart: ${{ parameters.helmChart }}

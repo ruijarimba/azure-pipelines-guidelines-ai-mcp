@@ -1,0 +1,34 @@
+# Builds and pushes a Docker image to a registry
+#
+# Name: docker-example-01
+# https://ruijarimba.visualstudio.com/ruijarimba/_build?definitionId=37
+
+name: docker-example-01-$(Date:yyyyMMdd)$(Rev:.r)
+
+parameters:
+  - name: validationOnly
+    type: boolean
+    displayName: 'Validation only'
+    default: true
+
+  - name: runStaticAnalysis
+    type: boolean
+    displayName: 'Run static analysis'
+    default: true
+
+trigger: none
+
+variables:
+  - template: /pipelines/variables/common-variables.yaml
+
+jobs:
+  - template: /pipelines/jobs/docker/build-push-image-job.yaml
+    parameters:
+      agentPool: $(agentPool) # optional, can be set at the pipeline level
+      azureDevOpsEnvironment: $(azureDevOpsEnvironment)
+      imageName: 'dockerhub/ruijarimba/azure-devops-cli'
+      arguments: # optional
+        - '--build-arg AZURE_DEVOPS_ORG=https://dev.azure.com/fabrikamfiber/'
+        - '--build-arg AZURE_DEVOPS_PROJECT=my-project'
+      validationOnly: ${{ parameters.validationOnly }}
+      runStaticAnalysis: ${{ parameters.runStaticAnalysis }}

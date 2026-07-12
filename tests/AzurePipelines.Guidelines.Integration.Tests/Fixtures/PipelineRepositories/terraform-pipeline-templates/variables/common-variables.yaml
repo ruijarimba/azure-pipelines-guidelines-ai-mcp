@@ -1,0 +1,6 @@
+variables:
+  - name: agentPool
+    value: Default
+  
+  - name: azureDevOpsEnvironment
+    value: prod

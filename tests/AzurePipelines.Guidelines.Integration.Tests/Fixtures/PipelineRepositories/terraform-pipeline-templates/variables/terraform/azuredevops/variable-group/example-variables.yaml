@@ -1,0 +1,6 @@
+variables:
+  - template: /pipelines/variables/terraform/remote-state-variables.yaml
+  - template: /pipelines/variables/terraform/azuredevops/provider-variables.yaml
+
+  - name: tf_WorkingFolder
+    value: $(Pipeline.Workspace)/myself/iac/stacks/azuredevops/variable-group/example

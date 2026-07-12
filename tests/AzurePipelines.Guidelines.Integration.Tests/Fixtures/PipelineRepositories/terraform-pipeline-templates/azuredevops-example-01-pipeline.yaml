@@ -1,0 +1,41 @@
+# This pipeline is used to deploy an Azure DevOps variable group
+#
+# Name: terraform-azuredevops-example-01
+# https://ruijarimba.visualstudio.com/ruijarimba/_build?definitionId=11
+
+name: terraform-azuredevops-example-01-$(date:yyyyMMdd-HHmmss)
+
+parameters: 
+  - name: applyChanges
+    type: boolean
+    displayName: 'Apply changes?'
+    default: false
+
+  - name: runStaticAnalysis
+    type: boolean
+    displayName: 'Run static analysis'
+    default: true
+
+trigger: none
+
+variables:
+  - template: /pipelines/variables/common-variables.yaml
+
+resources:
+  repositories:
+    - repository: shared
+      type: git
+      name: ruijarimba/terraform-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # use current branch
+
+stages:
+  - template: /pipelines/stages/terragrunt/plan-apply-stages.yaml
+    parameters:
+      agentPool: ${{ variables.agentPool }}
+      azureDevOpsEnvironment: ${{ variables.azureDevOpsEnvironment }}
+      stackName: azuredevops/variable-group
+      instanceName: example
+      applyChanges: ${{ parameters.applyChanges }}
+      runStaticAnalysis: ${{ parameters.runStaticAnalysis }}
+      preSteps:
+        - template: /pipelines/steps/checkout-repositories-steps.yaml@self

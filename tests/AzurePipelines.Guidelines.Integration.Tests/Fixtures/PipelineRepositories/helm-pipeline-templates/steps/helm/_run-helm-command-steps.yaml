@@ -1,0 +1,74 @@
+# Helper template to run a Helm command with the specified arguments, values files, and parameters.
+
+parameters:
+  - name: command
+    type: string
+    displayName: 'Helm command to execute (validate, install, upgrade, etc).'
+  
+  - name: args
+    type: string
+    displayName: 'Extra arguments for the Helm command'
+    default: ''
+
+  - name: namespace
+    type: string
+    displayName: 'Kubernetes namespace'
+
+  # An object containing the settings for the Helm chart installation or upgrade:
+  # - chartPath: Path to the Helm chart
+  # - chartRepository: Helm chart repository
+  # - releaseName: Release name
+  # - valuesFiles: Path to the values files
+  # - parameters: Helm parameters
+  # - timeout: Time to wait for any individual Kubernetes operation (like Jobs for hooks) (default 5m0s)
+  # - dryRun: Set when you want to simulate a helm upgrade
+  #     - client: Client side dry-run
+  #     - server: Server side dry-run
+  - name: helmChart
+    type: object
+    displayName: 'Helm chart settings'
+    # default:
+    #   chartPath: ''
+    #   releaseName: ''
+    #   timeout: '5m0s'
+    #   valuesFiles: []
+    #   parameters: []
+    #   dryRun: ''
+
+steps:
+  - script: |
+      set -x # Print all commands
+
+      COMMAND="${{ parameters.command }}"
+      ARGS="${{ parameters.args }}"
+
+      RELEASE_NAME="${{ parameters.helmChart.releaseName }}"
+      CHART_PATH="${{ parameters.helmChart.chartPath }}"
+      NAMESPACE="${{ parameters.namespace }}"
+      DRY_RUN="${{ lower(parameters.helmChart.dryRun) }}"
+      TIMEOUT="${{ coalesce(parameters.helmChart.timeout, '5m0s') }}"
+      
+      # As per _set-pipeline-variables-steps.yaml
+      VALUE_FILES_ARGS="$(HELM_VALUE_FILES_ARGS)"
+      PARAMETERS_ARGS="$(HELM_PARAMETERS_ARGS)"
+
+      set +x # Stop printing commands
+
+      if [[ "$(echo "$ISDEBUG" | tr '[:upper:]' '[:lower:]')" == "true" ]]; then
+        ARGS="$ARGS --debug"
+      fi
+
+      if [[ "$COMMAND" == "upgrade" && "$DRY_RUN" =~ ^(client|server)$ ]]; then
+        ARGS="$ARGS --dry-run=$DRY_RUN"
+
+        echo "##vso[task.logissue type=warning]Running helm $COMMAND with --dry-run=$DRY_RUN"
+        echo "##vso[task.complete result=SucceededWithIssues;]helm $COMMAND"
+      fi
+
+      helm $COMMAND $RELEASE_NAME $CHART_PATH $ARGS \
+        --namespace $NAMESPACE \
+        $VALUE_FILES_ARGS \
+        $PARAMETERS_ARGS 
+    displayName: 'helm ${{ parameters.command }}'
+    env:
+      ISDEBUG: $(System.Debug)

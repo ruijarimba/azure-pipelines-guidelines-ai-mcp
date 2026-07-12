@@ -1,0 +1,127 @@
+# Runs Terragrunt plan and (optionaly) apply changes
+#
+# Consumers of this job are expected to provide a variables template such as:
+# /pipelines/variables/terraform/azure/storage-account/westeurope/prod-variables.yaml
+# /variables/terraform/azuredevops/my-variable-group-variables.yaml
+#
+# The variables template should contain all the variables required e.g. to 
+# authenticate with the Terraform registry and/or aws provider, as per YAML-001
+
+parameters:
+  # Set the agent pool to use for this job.
+  # If not set, the agent pool must be set at the pipeline level.
+  - name: agentPool
+    type: object
+    displayName: 'Agent pool where to run the job (optional)'
+    default: ''
+  
+  - name: azureDevOpsEnvironment
+    type: string
+    displayName: 'Azure DevOps environment'
+
+  - name: jobTimeoutInMinutes
+    type: number
+    displayName: 'Job timeout in minutes'
+    default: 60
+
+  - name: baseVariablesTemplateDir
+    type: string
+    displayName: 'Base folder where to find the variables YAML template'
+    default: '/pipelines/variables/terraform'
+
+  - name: stackName
+    type: string
+    displayName: 'Stack name (e.g. azure/storage-account)'
+  
+  - name: instanceName
+    type: string
+    displayName: 'Instance or environment name (e.g. westeurope/prod, my-azure-devops-variable-group)'
+
+    # Example: To set the environment variable "MY_VAR" to "my_value", add the following:
+    # - key: MY_VAR
+    #   value: my_value
+    # - key: MY_OTHER_VAR
+    #   value: my_other_value
+  - name: environmentVariables
+    type: object
+    displayName: 'Environment variables (key-value pairs, optional)'
+    default: []
+
+  - name: applyChanges
+    type: boolean
+    displayName: 'Apply changes? Default is false'
+    default: false
+
+  - name: runStaticAnalysis
+    type: boolean
+    displayName: 'Run static analysis'
+    default: false
+
+  - name: terraformPlanFile
+    type: string
+    displayName: 'Terraform plan file'
+    default: '$(System.DefaultWorkingDirectory)/tfplan'
+
+  - name: preSteps
+    type: stepList
+    displayName: 'Pre-steps'
+    default:
+      - checkout: self
+
+  - name: postSteps
+    type: stepList
+    displayName: 'Post-steps'
+    default: []
+
+jobs:
+  - deployment: terragrunt_${{ replace(replace(parameters.stackName, '/', '_'), '-', '_') }}_${{ replace(replace(parameters.instanceName, '/', '_'), '-', '_') }}
+    displayName: 'terragrunt:${{ parameters.stackName }}/${{ parameters.instanceName }}'
+    environment: ${{ parameters.azureDevOpsEnvironment }}
+    ${{ if parameters.agentPool }}:
+      pool: ${{ parameters.agentPool }}
+    timeoutInMinutes: ${{ parameters.jobTimeoutInMinutes }}
+    cancelTimeoutInMinutes: 1
+    variables:
+      # Template reference to the repo where this template was included from. 
+      # Setting variables at the job level allows to run this job in parallel for different stacks/instances,
+      # without having to worry about overriding the variables for the other instances.
+      - template: ${{ parameters.baseVariablesTemplateDir }}/${{ parameters.stackName }}/${{ parameters.instanceName }}-variables.yaml@self
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - ${{ parameters.preSteps }}
+            - template: /pipelines/steps/terragrunt/plan-apply-steps.yaml
+              parameters:
+                authentication:
+                  ###############################################################
+                  # Terraform registry authentication variables
+                  terraformRegistryToken: ${{ variables.tf_terraformRegistryToken }}
+                  ###############################################################
+                  # Azure DevOps provider authentication variables
+                  azureDevOpsToken: ${{ variables.tf_azureDevOpsToken }}
+                  azureDevOpsServiceUrl: ${{ variables.tf_azureDevOpsServiceUrl }}
+                  ###############################################################
+                  # azurerm provider authentication variables
+                  azureClientId: ${{ variables.tf_azureClientId }}
+                  azureClientSecret: ${{ variables.tf_azureClientSecret }}
+                  azureSubscriptionId: ${{ variables.tf_azureSubscriptionId }}
+                  azureTenantId: ${{ variables.tf_azureTenantId }}
+                  ###############################################################
+                  # aws provider authentication variables
+                  awsAccessKeyId: ${{ variables.tf_awsAccessKeyId }}
+                  awsSecretAccessKey: ${{ variables.tf_awsSecretAccessKey }}
+                  awsRegion: ${{ variables.tf_awsRegion }}
+                  awsDefaultRegion: ${{ variables.tf_awsDefaultRegion }}
+                  awsSessionToken: ${{ variables.tf_awsSessionToken }}
+                remoteState:
+                  ###############################################################
+                  # Azure storage account variables
+                  azureStateAccessKey: ${{ variables.tf_azureStateAccessKey }}
+                staticAnalysis: 
+                  enabled: ${{ parameters.runStaticAnalysis }}
+                  checkovExclusions: ${{ coalesce(variables.tf_checkovExclusions, '') }}
+                workingFolder: ${{ variables.tf_WorkingFolder }}
+                environmentVariables: ${{ parameters.environmentVariables }}
+                applyChanges: ${{ parameters.applyChanges }}
+            - ${{ parameters.postSteps }}

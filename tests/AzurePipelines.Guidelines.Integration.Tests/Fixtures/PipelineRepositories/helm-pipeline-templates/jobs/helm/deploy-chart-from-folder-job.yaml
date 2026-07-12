@@ -1,0 +1,105 @@
+# Install or upgrade a Helm chart from a folder
+#
+# Consumers of this job are expected to provide a variables template such as:
+# /pipelines/variables/helm/{char-name}/{instance-name}-variables.yaml
+#
+# The variables template should contain all the variables required, as per YAML-001
+
+parameters:
+  # Set the agent pool to use for this job.
+  # If not set, the agent pool must be set at the pipeline level.
+  - name: agentPool
+    type: object
+    displayName: 'Agent pool (optional)'
+    default: ''
+
+  - name: azureDevOpsEnvironment
+    type: string
+    displayName: 'Azure DevOps environment'
+
+  - name: jobTimeoutInMinutes
+    type: number
+    displayName: 'Job timeout in minutes'
+    default: 10
+
+  - name: baseVariablesTemplateDir
+    type: string
+    displayName: 'Base folder where to find the variables YAML template'
+    default: '/pipelines/variables/helm'
+
+  - name: chartName
+    type: string
+    displayName: 'Stack name (e.g. build-agents)'
+  
+  - name: instanceName
+    type: string
+    displayName: 'Instance or environment name (e.g. westeurope/prod)'
+
+  - name: helmParameters
+    type: object
+    displayName: 'Helm parameters'
+    default: []
+
+  - name: helmValuesFiles
+    type: object
+    displayName: 'Helm values files'
+    default: []
+
+  - name: validationOnly
+    type: boolean
+    displayName: 'Validation only'
+    default: true
+
+  - name: runStaticAnalysis
+    type: boolean
+    displayName: 'Run static analysis'
+    default: false
+
+  - name: preSteps
+    type: stepList
+    displayName: 'Pre-steps'
+    default:
+      - checkout: self
+
+  - name: postSteps
+    type: stepList
+    displayName: 'Post-steps'
+    default: []
+
+jobs:
+  - deployment: helm_${{ replace(replace(parameters.chartName, '/', '_'), '-', '_') }}_${{ replace(replace(parameters.instanceName, '/', '_'), '-', '_') }}
+    displayName: 'helm:${{ parameters.chartName }}/${{ parameters.instanceName }}'
+    environment: ${{ parameters.azureDevOpsEnvironment }}
+    ${{ if parameters.agentPool }}:
+      pool: ${{ parameters.agentPool }}
+    timeoutInMinutes: ${{ parameters.jobTimeoutInMinutes }}
+    cancelTimeoutInMinutes: 1
+    variables:
+      # Template reference to the repo where this template was included from. 
+      # Setting variables at the job level allows to run this job in parallel for different stacks/instances,
+      # without having to worry about overriding the variables for the other instances.
+      - template: ${{ parameters.baseVariablesTemplateDir }}/${{ parameters.chartName }}/${{ parameters.instanceName }}-variables.yaml@self
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - ${{ parameters.preSteps }}
+            - template: /pipelines/steps/helm/deploy-chart-from-folder-steps.yaml
+              parameters:
+                helmChart:
+                  chartPath: ${{ variables.helm_chartPath }}
+                  releaseName: ${{ variables.helm_releaseName }}
+                  valuesFiles: ${{ parameters.helmValuesFiles }}
+                  parameters: ${{ parameters.helmParameters }}
+                  ${{ if eq(parameters.validationOnly, true) }}:
+                    dryRun: server
+                  ${{ else }}:
+                    dryRun: ''
+                  timeout: ${{ coalesce(variables.helm_timeout, '5m0s') }}
+                kubernetesContext:
+                  namespace: ${{ variables.helm_namespace }}
+                  kubeconfig: ${{ variables.helm_kubeconfig }}
+                staticAnalysis: 
+                  enabled: ${{ parameters.runStaticAnalysis }}
+                  checkovExclusions: ${{ coalesce(variables.helm_checkovExclusions, '') }}
+            - ${{ parameters.postSteps }}

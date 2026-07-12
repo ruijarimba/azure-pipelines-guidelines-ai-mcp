@@ -1,0 +1,9 @@
+variables:
+  - name: helm_chartPath
+    value: '$(Pipeline.Workspace)/myself/helm/charts/hello-world'
+  
+  - name: helm_releaseName
+    value: 'hello-world'
+  
+  - name: helm_timeout
+    value: '1m0s'

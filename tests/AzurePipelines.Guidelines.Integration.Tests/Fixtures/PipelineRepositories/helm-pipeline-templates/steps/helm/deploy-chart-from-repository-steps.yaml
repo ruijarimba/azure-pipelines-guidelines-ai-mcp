@@ -1,0 +1,66 @@
+# Install or upgrade a Helm chart from a folder
+
+parameters:
+  # An object containing the settings for the Helm chart installation or upgrade:
+  # - chartPath: Path to the Helm chart
+  # - repositoryName: Helm chart repository (optional, used when deploying from a remote repository)
+  # - repositoryUrl: Helm chart repository URL (optional, used when deploying from a remote repository)
+  # - releaseName: Release name
+  # - valuesFiles: Path to the values files
+  # - parameters: Helm parameters
+  # - timeout: Time to wait for any individual Kubernetes operation (like Jobs for hooks) (default 5m0s)
+  # - dryRun: Set when you want to simulate a helm upgrade
+  #     - client: Client side dry-run
+  #     - server: Server side dry-run
+  - name: helmChart
+    type: object
+    displayName: 'Helm chart settings'
+    # default:
+    #   chartPath: ''
+    #   repositoryName: ''
+    #   repositoryUrl: ''
+    #   releaseName: ''
+    #   timeout: '5m0s'
+    #   valuesFiles: []
+    #   parameters: []
+    #   dryRun: ''
+
+  # An object containing the kubernetes context settings:
+  # - namespace: Kubernetes namespace
+  # - kubeconfig: Path to the kubeconfig file
+  - name: kubernetesContext
+    type: object
+    displayName: 'Kubernetes context settings'
+    # default:
+    #   namespace: ''
+    #   kubeconfig: ''
+
+steps:
+  - template: /pipelines/steps/helm/_add-repository-steps.yaml
+    parameters:
+      helmChart: ${{ parameters.helmChart }}
+
+  - template: /pipelines/steps/helm/_set-pipeline-variables-steps.yaml
+    parameters:
+      helmChart: ${{ parameters.helmChart }}
+
+  - template: /pipelines/steps/helm/_validate-chart-steps.yaml
+    parameters:
+      helmChart: ${{ parameters.helmChart }}
+      kubernetesContext: ${{ parameters.kubernetesContext }}
+
+  - template: /pipelines/steps/kubernetes/set-context-steps.yaml
+    parameters:
+      kubernetesContext: ${{ parameters.kubernetesContext }}
+
+  - template: /pipelines/steps/helm/_run-helm-command-steps.yaml
+    parameters:
+      command: upgrade
+      args: >-
+        --install
+        --create-namespace
+        --wait
+        --reset-values
+        --atomic
+      namespace: ${{ parameters.kubernetesContext.namespace }}
+      helmChart: ${{ parameters.helmChart }}

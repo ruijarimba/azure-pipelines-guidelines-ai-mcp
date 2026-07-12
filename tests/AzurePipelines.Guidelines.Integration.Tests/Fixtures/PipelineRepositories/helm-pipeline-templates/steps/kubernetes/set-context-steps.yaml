@@ -1,0 +1,46 @@
+# Validates and sets the KUBECONFIG variable for the Kubernetes context.
+#
+# Pipeline variables:
+# - KUBECONFIG is set to the path of the kubeconfig file.
+
+parameters:
+  # An object containing the settings for the Helm chart installation or upgrade:
+  # - namespace: Kubernetes namespace
+  # - kubeconfig: Path to the kubeconfig file
+  - name: kubernetesContext
+    type: object
+    displayName: 'Kubernetes context'
+    # default:
+    #   namespace: ''
+    #   kubeconfig: ''
+
+steps:
+  - script: |
+      KUBECONFIG="${{ parameters.kubernetesContext.kubeconfig }}"
+      NAMESPACE="${{ parameters.kubernetesContext.namespace }}"
+
+      EXIT_CODE=0
+
+      if [ -z "$KUBECONFIG" ]; then
+        echo "##vso[task.logissue type=error;code=KUBECONFIG;]kubeconfig must be provided."
+        EXIT_CODE=$((EXIT_CODE+1))
+      fi
+
+      if [ -z "$NAMESPACE" ]; then
+        echo "##vso[task.logissue type=error;code=NAMESPACE;]NAMESPACE must be provided."
+        EXIT_CODE=$((EXIT_CODE+1))
+      fi
+
+      if [ $EXIT_CODE -eq 0 ]; then
+        echo "KUBECONFIG: $KUBECONFIG"
+        echo "##vso[task.setvariable variable=KUBECONFIG]$KUBECONFIG"
+      else
+        echo "##vso[task.logissue type=warning]Validation failed, KUBECONFIG was not set."
+      fi
+
+      exit $EXIT_CODE
+    displayName: 'Validate context and set KUBECONFIG variable'
+  
+  - script: |
+      echo "Current kubectl context: $(kubectl config current-context)"
+    displayName: 'Validate kubeconfig'

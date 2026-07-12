@@ -43,6 +43,7 @@
       <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithEnvironmentParameters.yml" />
       <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithVariableTemplates.yml" />
     </Folder>
+    <Project Path="tests/AzurePipelines.Guidelines.Integration.Tests/AzurePipelines.Guidelines.Integration.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Cli.Tests/AzurePipelines.Guidelines.Cli.Tests.csproj" />
     <File Path="tests/AzurePipelines.Guidelines.Cli.Tests/AnalyzeCommandOptionResolverTests.cs" />

@@ -1,0 +1,46 @@
+# Validate Terraform source code formatting using `terraform fmt` command in the specified folders.
+
+parameters:
+  - name: terraformFolders
+    displayName: 'Terraform folders to validate formatting'
+    type: object
+    default:
+      - $(Build.SourcesDirectory)/iac
+
+steps:
+  - ${{ each folder in parameters.terraformFolders }}:
+    - script: |
+        TF_FOLDER="${{ folder }}"
+        
+        printf "Searching for .tf or .tfvars files in folder: %s\n" "$TF_FOLDER"
+        TF_FILES=$(find "$TF_FOLDER" -type f \( -name "*.tf" -o -name "*.tfvars" \) -print)
+
+        if [ -z "$TF_FILES" ]; then
+            echo "##vso[task.logissue type=error]No .tf or .tfvars files found in $TF_FOLDER."
+            exit 1
+        else
+            printf "\n%s\n" "$TF_FILES"
+        fi
+      displayName: 'List Terraform files in ${{ folder }}'
+      failOnStderr: true
+      continueOnError: true
+
+    - script: |
+        TF_FOLDER="${{ folder }}"
+
+        printf "Validating Terraform formatting in folder: %s\n" "$TF_FOLDER"
+        terraform fmt -recursive -check=true "$TF_FOLDER"
+        FMT_EXIT_CODE=$?
+
+        if [ $FMT_EXIT_CODE -eq 0 ]; then
+            printf "\nNo formatting issues found.\n"
+        else
+            printf "\nThe above files have formatting issues that must be fixed.\n"
+        fi
+
+        exit $FMT_EXIT_CODE
+      displayName: 'Validate Terraform formatting in ${{ folder }}'
+      failOnStderr: true
+      continueOnError: true
+      env:
+        TF_IN_AUTOMATION: true
