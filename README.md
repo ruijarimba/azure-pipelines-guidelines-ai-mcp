@@ -116,31 +116,6 @@ Configure your AI client to use Docker:
 
 **→ See [MCP Server Reference](docs/mcp-reference.md) for detailed configuration and troubleshooting.**
 
-## What does it analyze?
-
-The guidelines cover seven categories of Azure Pipelines YAML. Each rule has a stable ID in the
-form `ADOG-{CATEGORY}-{NNN}`.
-
-| Category | Covers |
-| --- | --- |
-| `GENERAL` | Pipeline-wide structural rules |
-| `JOBS` | Job definition guidance |
-| `PARAMETERS` | Parameter declaration and defaults |
-| `PIPELINES` | Pipeline-level settings |
-| `STAGES` | Stage structure and ordering |
-| `STEPS` | Step and task guidelines |
-| `VARIABLES` | Variable declarations and scoping |
-
-For the full rule list and definitions, see the
-[Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
-
-## Prerequisites
-
-| Option | Requirement |
-| --- | --- |
-| CLI or MCP server as a global tool | [Download the .NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) |
-| MCP server as a Docker container | [Install Docker Desktop](https://docs.docker.com/get-docker/) — no .NET required |
-
 ## Project documentation
 
 - **[Architecture guide](docs/architecture.md)** — dependency graph, layer responsibilities, and extension points
