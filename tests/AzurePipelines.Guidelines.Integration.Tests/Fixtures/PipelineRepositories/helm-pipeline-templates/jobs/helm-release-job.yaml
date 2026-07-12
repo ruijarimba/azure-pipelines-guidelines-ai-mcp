@@ -1,0 +1,19 @@
+# Reusable helm release job template.
+parameters:
+  - name: environment
+    type: string
+    values:
+      - dev
+      - prod
+  - name: region
+    type: string
+
+jobs:
+  - job: helmRelease
+    pool:
+      vmImage: ubuntu-latest
+    condition: succeeded()
+    dependsOn: build
+    steps:
+      - script: helm upgrade release ./chart
+        displayName: Release chart

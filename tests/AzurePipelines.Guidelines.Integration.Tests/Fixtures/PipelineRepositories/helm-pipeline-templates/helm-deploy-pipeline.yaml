@@ -1,0 +1,17 @@
+parameters:
+  - name: chartName
+    type: string
+  - name: namespace
+    type: string
+    values:
+      - default
+      - kube-system
+
+jobs:
+  - job: deployChart
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: helm upgrade $(chartName) ./chart
+        displayName: Deploy chart
+      - template: charts/deploy-steps.yaml

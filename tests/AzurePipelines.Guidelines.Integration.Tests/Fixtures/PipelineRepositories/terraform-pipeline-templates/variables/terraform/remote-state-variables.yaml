@@ -1,5 +1,0 @@
-variables:
-  - group: tf-azure-remote-state-prod
-
-  - name: tf_azureStateAccessKey
-    value: $(terraform-state-storage-access-key-1)

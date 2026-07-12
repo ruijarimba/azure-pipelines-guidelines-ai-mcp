@@ -1,8 +1,0 @@
-variables:
-  - name: docker_containerRegistry
-    value: rj-docker-hub
-    readonly: true
-  
-  - name: dockerEnvironment
-    value: docker
-    readonly: true

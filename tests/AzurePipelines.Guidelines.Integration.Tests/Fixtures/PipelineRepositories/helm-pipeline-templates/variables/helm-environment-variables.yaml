@@ -1,0 +1,12 @@
+# Environment variables for helm deployments.
+variables:
+  - name: chartVersion
+    value: 1.2.3
+  - name: devReplicas
+    value: 2
+  - name: prodReplicas
+    value: 5
+
+template: /variables/helm/shared-variables.yaml
+environment: production
+region: westeurope

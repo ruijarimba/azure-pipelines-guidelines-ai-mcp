@@ -1,0 +1,23 @@
+parameters:
+  - name: enabled
+    type: string
+    values:
+      - "yes"
+      - "no"
+
+variables:
+  - name: imageName
+    value: myapp
+
+jobs:
+  - job: buildImage
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: docker build -t $(imageName) .
+        displayName: Build and validate image
+      - task: Docker@2
+        displayName: Push image
+        inputs:
+          command: push
+          repository: $(imageName)
