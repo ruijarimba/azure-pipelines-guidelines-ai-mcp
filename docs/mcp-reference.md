@@ -170,7 +170,7 @@ Cline follows the Claude Desktop configuration format. Edit your Cline MCP setti
 
 ## Available tools
 
-The MCP server exposes four tools in the current implementation:
+The MCP server exposes six tools in the current implementation:
 
 | Tool | Purpose |
 | --- | --- |
