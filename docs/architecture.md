@@ -69,7 +69,7 @@ graph TD
 | --- | --- | --- |
 | `Core` | Domain models, interfaces, enums, value objects | Parsing, rule logic, I/O, NuGet beyond BCL |
 | `Parsing` | YAML → AST transformation via YamlDotNet | Rule logic, diagnostic generation |
-| `Rules` | `IRule` implementations keyed by `ADOG-…` ID | YAML parsing, cross-rule state, I/O |
+| `Rules` | `IGuidelineRule` implementations keyed by `ADOG-…` ID | YAML parsing, cross-rule state, I/O |
 | `Analysis` | Orchestration: parse → filter → run → aggregate | YAML details, protocol code, console I/O |
 | `Mcp` | MCP tool/resource handlers, DI extension methods | Rule logic, direct YAML parsing, host lifecycle |
 | `Mcp.Host` | Host wiring, DI registration, config | All business logic |

@@ -195,13 +195,13 @@ reviewers can see and oversee all agent-generated content.*
 
 **Do not push changes until the repository is in a known-good state.**
 
-- Before committing or pushing, verify that the solution builds successfully from the repository
-  root.
-- Run the relevant unit test suite(s) and confirm that they pass.
-- If a build or test failure appears, fix it or stop and report the issue rather than pushing a
-  failing state.
-- For changes that touch shared contracts, multiple projects, or broad behaviour, run the broader
-  relevant build/test scope rather than only a narrow smoke test.
+- Before committing or pushing, run the canonical quality gate from the repository root:
+  `pwsh ./scripts/quality-check.ps1`. It restores, builds, and tests the solution in Release
+  mode.
+- If the script reports a build or test failure, fix it or stop and report the issue rather
+  than pushing a failing state.
+- For changes that touch shared contracts, multiple projects, or broad behaviour, always run
+  the full gate rather than a narrow smoke test.
 
 *Rationale: a push should not leave reviewers or CI to discover avoidable regressions. This
 supports the Human authority and minimal footprint principles by making the repository's actual

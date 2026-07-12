@@ -29,7 +29,7 @@ mindmap
       DetectionKind
       PipelineScope
     Interfaces
-      IRule
+      IGuidelineRule
       IGuidelineRepository
       IAnalysisEngine
       IPipelineParser

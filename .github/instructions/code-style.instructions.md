@@ -22,7 +22,7 @@ applyTo: "**/*.cs"
 | Private fields | `_camelCase` | `_analysisEngine` |
 | Parameters, local variables | camelCase | `guidelineId`, `pipelineDocument` |
 | Async methods | `…Async` suffix | `AnalyzeAsync`, `GetByIdAsync` |
-| Interfaces | `I` prefix + noun/verb noun | `IRule`, `IGuidelineRepository` |
+| Interfaces | `I` prefix + noun/verb noun | `IGuidelineRule`, `IGuidelineRepository` |
 | Rule classes | `{DescriptiveName}Rule` | `AbsoluteTemplatePathRule` |
 | Test methods | `Method_GivenContext_ShouldOutcome` | `Analyze_GivenEmptyDocument_ShouldReturnNoDiagnostics` |
 

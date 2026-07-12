@@ -63,7 +63,7 @@ mindmap
 
 **Keep Analysis focused:**
 - ❌ No YAML parsing details — use injected `IPipelineParser`
-- ❌ No rule implementations — inject `IEnumerable<IRule>`
+- ❌ No rule implementations — inject `IEnumerable<IGuidelineRule>`
 - ❌ No MCP protocol concerns → `Mcp` project
 - ❌ No console or file I/O — that's presentation layer (`Cli`)
 
@@ -81,7 +81,7 @@ mindmap
 ## Key patterns
 
 - `IAnalysisEngine` is the **single public seam** for all callers (`Mcp`, `Cli`).
-- Rules are resolved at runtime via `IEnumerable<IRule>` — adding a new rule to the DI
+- Rules are resolved at runtime via `IEnumerable<IGuidelineRule>` — adding a new rule to the DI
   container automatically makes it available to the engine.
 - The engine never modifies pipeline files; it produces read-only results only.
 - All public methods returning collections return `IReadOnlyList<T>`.

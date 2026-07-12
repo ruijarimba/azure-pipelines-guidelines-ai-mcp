@@ -52,7 +52,7 @@ they are the same value. Parsing code maps between the two forms.
 
 | Term | Definition |
 | --- | --- |
-| **IRule** | Interface for a single guideline rule. Takes a `PipelineDocument`, returns a list of `Diagnostic` instances. |
+| **IGuidelineRule** | Interface for a single guideline rule. Takes a `PipelineDocument`, returns an async stream of `Diagnostic` instances. |
 | **IGuidelineRepository** | Loads `GuidelineDefinition` records from the manifest (`data/guidelines.json`). |
 | **IPipelineParser** | Parses YAML text into a `PipelineDocument`. Implemented in `Parsing` via YamlDotNet. |
 | **IAnalysisEngine** | Orchestrates the full pipeline: parse → filter rules → run rules → aggregate `AnalysisResult`. |
@@ -98,6 +98,6 @@ they are the same value. Parsing code maps between the two forms.
 | Private fields | `_camelCase` | `_analysisEngine` |
 | Parameters, locals | `camelCase` | `guidelineId`, `pipelineDocument` |
 | Async methods | Suffix `Async` | `AnalyzeAsync`, `GetByIdAsync` |
-| Interfaces | Prefix `I` + noun/verb phrase | `IRule`, `IGuidelineRepository` |
+| Interfaces | Prefix `I` + noun/verb phrase | `IGuidelineRule`, `IGuidelineRepository` |
 | Rule classes | `{Behaviour}Rule` | `AbsoluteTemplatePathRule` |
 | Test methods | `Method_GivenContext_ShouldOutcome` | `Analyze_GivenEmptyDocument_ShouldReturnNoDiagnostics` |

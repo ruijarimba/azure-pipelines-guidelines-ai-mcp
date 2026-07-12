@@ -43,7 +43,7 @@ Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` →
 
 ## Prompt files
 
-- `.github/prompts/implement-rule.prompt.md` — guided workflow for implementing a new `IRule`.
+- `.github/prompts/implement-rule.prompt.md` — guided workflow for implementing a new `IGuidelineRule`.
 - `.github/prompts/add-mcp-tool.prompt.md` — guided workflow for adding a new MCP tool handler.
 
 ## Adding new files to the solution

@@ -25,7 +25,7 @@ Unit tests for `AzurePipelines.Guidelines.Analysis` — the orchestration layer.
 
 ## Test doubles
 
-- Substitute `IPipelineParser` and `IEnumerable<IRule>` via NSubstitute.
+- Substitute `IPipelineParser` and `IEnumerable<IGuidelineRule>` via NSubstitute.
 - Use minimal stubs — only mock the behaviour under test, not the entire call chain.
 
 ## No end-to-end tests here

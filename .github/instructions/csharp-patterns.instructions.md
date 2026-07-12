@@ -294,9 +294,12 @@ inspected during debugging or appear in test output or log messages.
 // Bad — auto-generated record dump: every field including large nested collections.
 // StageNode { Name = Build, DisplayName = null, Jobs = [...], Variables = [...], ... }
 
-// Good — concise developer summary.
-public override string ToString() =>
-    $"Stage '{Name ?? "(unnamed)"}' (line {Line?.ToString(CultureInfo.InvariantCulture) ?? "?"}, {Jobs.Count} jobs)";
+// Good — concise developer summary (kept under the 120-char line limit).
+public override string ToString()
+{
+    var line = Line?.ToString(CultureInfo.InvariantCulture) ?? "?";
+    return $"Stage '{Name ?? "(unnamed)"}' (line {line}, {Jobs.Count} jobs)";
+}
 ```
 
 Rules for the body:

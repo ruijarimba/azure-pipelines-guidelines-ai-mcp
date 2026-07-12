@@ -35,7 +35,7 @@ Before starting, confirm the following:
    - Name: `{ToolName}ToolTests`.
    - Test: valid inputs → correct response shape.
    - Test: invalid inputs → appropriate error response.
-   - Test: edge cases (empty YAML, unknown rule IDs, null parameters).
+   - Test: edge cases (empty YAML, unknown guideline IDs, null parameters).
    - Substitute all `Core` interface dependencies via NSubstitute.
 
 4. **Run tests** and confirm all pass before committing.

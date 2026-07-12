@@ -26,7 +26,7 @@ Cli      → Analysis               [executable — not a NuGet package]
 | --- | --- | --- |
 | `Core` | Domain models, interfaces, enums, value objects | YAML parsing, rule logic, I/O, MCP protocol |
 | `Parsing` | YAML → AST transformation | Rule logic, diagnostic generation, guideline IDs |
-| `Rules` | `IRule` implementations | YAML parsing, cross-rule state, I/O |
+| `Rules` | `IGuidelineRule` implementations | YAML parsing, cross-rule state, I/O |
 | `Analysis` | Orchestration, DI extension methods | YAML details, protocol code, console I/O |
 | `Mcp` | MCP tool/resource handlers, DI extension methods | Rule logic, direct YAML parsing, host lifecycle |
 | `Mcp.Host` | Host wiring only | All business logic |
@@ -34,7 +34,7 @@ Cli      → Analysis               [executable — not a NuGet package]
 
 ## Dependency inversion
 
-- `Analysis` and `Mcp` depend on `Core` interfaces (`IRule`, `IPipelineParser`, etc.),
+- `Analysis` and `Mcp` depend on `Core` interfaces (`IGuidelineRule`, `IPipelineParser`, etc.),
   not on concrete types from `Parsing` or `Rules` directly.
 - Concrete implementations are registered via DI in `Mcp.Host` and `Cli`.
 

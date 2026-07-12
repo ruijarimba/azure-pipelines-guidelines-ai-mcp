@@ -113,8 +113,9 @@ flowchart TD
    project directory) → `<None Include="..." />` in the `.csproj`. Solution-level files →
    `<File Path="..." />` in `AzurePipelinesGuidelines.slnx` under the matching nested
    solution folder. Never flatten a subdirectory into a parent folder.
-10. **Pre-push validation** — before pushing, verify the solution builds and the relevant
-    unit tests pass. Fix failures before pushing; do not leave a broken state for CI to find.
+10. **Pre-push validation** — before pushing, run the canonical quality gate
+    (`pwsh ./scripts/quality-check.ps1`) and confirm the solution builds and tests pass. Fix
+    failures before pushing; do not leave a broken state for CI to find.
 
 ## Architecture — dependency graph
 
@@ -125,7 +126,7 @@ graph TB
     subgraph "src/ libraries"
         Core["Core<br/><i>domain models & interfaces</i>"]
         Parsing["Parsing<br/><i>YAML → AST</i>"]
-        Rules["Rules<br/><i>IRule implementations</i>"]
+        Rules["Rules<br/><i>IGuidelineRule implementations</i>"]
         Analysis["Analysis<br/><i>orchestration engine</i>"]
         Mcp["Mcp<br/><i>MCP protocol handlers</i>"]
     end
@@ -187,9 +188,8 @@ extension-point catalogue.
 
 - **Nullable reference types** enabled everywhere; no `#nullable disable` suppressions.
 - **Local quality gate** — run `pwsh ./scripts/quality-check.ps1` from the repository root before
-  finishing a change. The script restores, builds, and tests the solution in Release mode.
-- **Pre-push validation** — before pushing changes, ensure the solution builds successfully and
-  the relevant unit test suites pass.
+  finishing a change and before pushing. The script restores, builds, and tests the solution in
+  Release mode; the push must not proceed until it passes.
 - **Warnings are errors** — do not add new warnings or suppressions without an explicit reason.
 - **`TreatWarningsAsErrors = true`** — never silence a warning without a comment explaining why.
 - **`AnalysisLevel = latest-all`** — all Roslyn analysers are active.
@@ -223,7 +223,9 @@ See [the glossary reference](docs/glossary.md) for the single source of truth.
 Quick reference:
 
 - **GuidelineId**: `ADOG-{CATEGORY}-{NNN}` (e.g., `ADOG-STEPS-001`)
-- **GuidelineSeverity**: `Do`/`DoNot` → Error; `Avoid` → Warning; `Consider` → Info
+- **GuidelineSeverity**: strength of a guideline — `Do`, `DoNot`, `Avoid`, `Consider`
+- **DiagnosticSeverity**: severity of a finding — `Error`, `Warning`, `Info`
+- **Severity mapping** (`GuidelineSeverity` → `DiagnosticSeverity`): `Do`/`DoNot` → `Error`; `Avoid` → `Warning`; `Consider` → `Info`
 - **DetectionKind**: `Regex`, `YamlPath`, or `Heuristic`
 - **Diagnostic**: A violation found in a pipeline file
 - **PipelineDocument**: Parsed AST root
