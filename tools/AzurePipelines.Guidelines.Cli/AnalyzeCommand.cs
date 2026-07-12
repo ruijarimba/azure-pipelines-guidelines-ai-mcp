@@ -13,7 +13,8 @@ internal static class AnalyzeCommand
     internal static Command Create(
         IPipelineParser parser,
         IPipelineAnalyser analyser,
-        PipelinePathResolver pathResolver)
+        PipelinePathResolver pathResolver,
+        CliConfiguration? configuration = null)
     {
         Argument<string[]> pathArg = new(
             name: "path",
@@ -94,7 +95,8 @@ internal static class AnalyzeCommand
                     noColorOpt,
                     quietOpt,
                     verboseOpt,
-                    environment);
+                    environment,
+                    configuration);
 
                 int exitCode = await RunAsync(parser, analyser, pathResolver, options);
                 context.ExitCode = exitCode;

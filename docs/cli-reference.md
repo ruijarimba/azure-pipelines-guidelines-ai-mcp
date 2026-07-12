@@ -17,6 +17,7 @@ The `adog` command-line tool analyzes Azure Pipelines YAML files against the [co
   - [`adog analyze`](#adog-analyze)
   - [`adog rules list`](#adog-rules-list)
   - [`adog rules show`](#adog-rules-show)
+- [Configuration Files](#configuration-files)
 - [Environment Variables](#environment-variables)
 - [Output Formats](#output-formats)
 - [Exit Codes](#exit-codes)
@@ -69,12 +70,36 @@ Directories are scanned recursively for `*.yml` and `*.yaml` files.
 | `--quiet`, `-q` | flag | `false` | `ADOG_QUIET` | Suppress detailed output, show summary only. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
 | `--verbose`, `-v` | flag | `false` | `ADOG_VERBOSE` | Enable detailed logging. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
 
-#### Environment variables
+#### Configuration files
+
+You can keep reusable defaults in a JSON config file. The CLI looks for these files in this order:
+1. `./adog.json`
+2. `./.adogrc.json`
+3. `~/adog.json`
+4. `~/.adogrc.json`
+
+Example config file:
+
+```json
+{
+  "format": "json,markdown",
+  "severity": "warning",
+  "category": "steps,jobs",
+  "output": "report.json",
+  "soft-fail": true,
+  "no-color": true,
+  "quiet": false,
+  "verbose": false
+}
+```
 
 The CLI resolves settings in this order:
 1. Explicit CLI option
 2. Environment variable
-3. Built-in default
+3. Configuration file
+4. Built-in default
+
+#### Environment variables
 
 Supported environment variables:
 
@@ -90,6 +115,8 @@ Supported environment variables:
 | `ADOG_VERBOSE` | `adog analyze --verbose` | `ADOG_VERBOSE=false` |
 
 Boolean environment variables accept `true/false`, `1/0`, or `yes/no`. If a boolean value is invalid, `adog` exits with code `2` and prints an error.
+
+Configuration values use the same option names as the CLI flags and support the same accepted values. If a config value is invalid, the CLI prints an error and exits with code `2`.
 
 Example:
 

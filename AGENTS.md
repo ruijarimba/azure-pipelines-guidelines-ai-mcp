@@ -188,8 +188,11 @@ extension-point catalogue.
 - **`TreatWarningsAsErrors = true`** — never silence a warning without a comment explaining why.
 - **`AnalysisLevel = latest-all`** — all Roslyn analysers are active.
 - **All `public` APIs** carry XML doc comments (`/// <summary>…`).
-- **Unit test coverage** must cover all logical branches including edge cases (null inputs,
-  empty collections, boundary values, error paths).
+- **Unit test coverage** must stay above 90% repository-wide and must cover all logical
+  branches including edge cases (null inputs, empty collections, boundary values, error
+  paths).
+- **Every behavior change** must be tested beyond the happy path. Include normal success
+  cases, failure/invalid-input cases, and edge/boundary cases for the affected behaviour.
 - Test method naming: `MethodName_GivenContext_ShouldExpectedOutcome`.
 - Tests use **xUnit**, **FluentAssertions**, and **NSubstitute** — no other test libraries.
 - No logic that belongs in production code may live in a test file.

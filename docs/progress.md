@@ -20,6 +20,7 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `local` | feat: add config-file support for CLI defaults for `analyze` and `rules list` with CLI > environment > config > built-in default precedence |
 | `3a8eb87` | test: add folder-based integration tests for the real analysis stack and validate the full solution quality gate |
 | `8c3b576` | chore: mirror filesystem structure in Solution Explorer — rule 8 in agent-behaviour, slnx hierarchy fixes |
 | `572af54` | chore: add non-code files to Solution Explorer (AGENTS.md per project, docs, .github) |
@@ -109,15 +110,15 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**Packaging verification completed**
+**Release-readiness and handoff review**
 
-The solution was packed successfully in Release mode into the local `nupkgs/` folder for the
-source libraries and the CLI tool. No packages were published to NuGet.org because that would be
-an irreversible release step and requires explicit human approval.
+The CLI config-file defaults feature is now implemented and validated. The full solution test run
+passed successfully after the final test-isolation fix, and the repository is ready for the next
+review step.
 
 Validation completed:
-- ✅ Full solution tests passed (`485` passed, `0` failed)
-- ✅ CLI tests passed (`122` passed, `0` failed)
+- ✅ Full solution tests passed (`487` passed, `0` failed)
+- ✅ CLI tests passed (`129` passed, `0` failed)
 - ✅ Local NuGet packing succeeded for all `src/` libraries and the CLI tool
 - ⚠️ Docker image build could not be verified in this environment because the Docker daemon was unavailable (`failed to connect to the docker API`)
 

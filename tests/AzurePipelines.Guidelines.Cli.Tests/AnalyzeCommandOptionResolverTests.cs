@@ -87,6 +87,10 @@ public sealed class AnalyzeCommandOptionResolverTests
             ["ADOG_VERBOSE"] = null,
         });
 
+        using CurrentDirectoryScope tempScope = new(Path.GetTempPath());
+        Environment.SetEnvironmentVariable("HOME", null);
+        Environment.SetEnvironmentVariable("USERPROFILE", null);
+
         AnalyzeCommandOptions options = ResolveOptions(["fixture.yml"]);
 
         // Assert
@@ -115,6 +119,47 @@ public sealed class AnalyzeCommandOptionResolverTests
         // Assert
         options.Severity.Should().BeEquivalentTo(["warning", "error"]);
         options.Category.Should().BeEquivalentTo(["steps", "jobs"]);
+    }
+
+    [Fact]
+    public void ResolveOptions_GivenConfigFileValues_ShouldUseConfigValuesWhenNoCliOrEnvironmentValues()
+    {
+        // Arrange
+        string configDirectory = Path.Combine(Path.GetTempPath(), $"adog-config-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(configDirectory);
+
+        try
+        {
+            File.WriteAllText(
+                Path.Combine(configDirectory, "adog.json"),
+                "{\"format\":\"json\",\"severity\":\"warning\",\"category\":\"steps\",\"output\":\"config-output.txt\",\"soft-fail\":\"true\",\"no-color\":\"true\",\"quiet\":\"true\",\"verbose\":\"true\"}");
+
+            using CurrentDirectoryScope scope = new(configDirectory);
+            Environment.SetEnvironmentVariable("HOME", configDirectory);
+            Environment.SetEnvironmentVariable("USERPROFILE", configDirectory);
+
+            // Act
+            AnalyzeCommandOptions options = ResolveOptions(["fixture.yml"]);
+
+            // Assert
+            options.Format.Should().Be("json");
+            options.Severity.Should().BeEquivalentTo(["warning"]);
+            options.Category.Should().BeEquivalentTo(["steps"]);
+            options.Output.Should().Be("config-output.txt");
+            options.SoftFail.Should().BeTrue();
+            options.NoColor.Should().BeTrue();
+            options.Quiet.Should().BeTrue();
+            options.Verbose.Should().BeTrue();
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("HOME", null);
+            Environment.SetEnvironmentVariable("USERPROFILE", null);
+            if (Directory.Exists(configDirectory))
+            {
+                Directory.Delete(configDirectory, recursive: true);
+            }
+        }
     }
 
     [Fact]
@@ -226,7 +271,8 @@ public sealed class AnalyzeCommandOptionResolverTests
             noColorOpt,
             quietOpt,
             verboseOpt,
-            environment);
+            environment,
+            CliConfigurationLoader.Load());
     }
 
     private static IPipelineParser CreateParser()
@@ -248,6 +294,32 @@ public sealed class AnalyzeCommandOptionResolverTests
     {
         string fullPath = Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureName);
         return Path.GetFullPath(fullPath);
+    }
+
+    private sealed class CurrentDirectoryScope : IDisposable
+    {
+        private readonly string? _originalDirectory = Environment.CurrentDirectory;
+
+        internal CurrentDirectoryScope(string directory)
+        {
+            Directory.SetCurrentDirectory(directory);
+        }
+
+        public void Dispose()
+        {
+            if (_originalDirectory is not null)
+            {
+                try
+                {
+                    Directory.SetCurrentDirectory(_originalDirectory);
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    // The original current directory may have been removed by an earlier test.
+                    Directory.SetCurrentDirectory(Path.GetTempPath());
+                }
+            }
+        }
     }
 
     private sealed class EnvironmentVariableScope : IDisposable

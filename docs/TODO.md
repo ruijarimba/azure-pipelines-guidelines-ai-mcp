@@ -38,8 +38,8 @@ These are optional follow-ups that are not blocked by the current implementation
 
 - [x] Add `--output` support for multiple formats when `--format` contains more than one value
 - [x] Add a dedicated "Environment Variables" section to `docs/cli-reference.md`
-- [ ] Consider config-file support for CLI defaults
-- [ ] Review and commit the current handoff notes in `docs/TODO.md` and `docs/progress.md` before the next session
+- [x] Consider config-file support for CLI defaults
+- [x] Review and commit the current handoff notes in `docs/TODO.md` and `docs/progress.md` before the next session
 
 Related files:
 - `tools/AzurePipelines.Guidelines.Cli/AnalyzeCommand.cs`
@@ -82,6 +82,7 @@ Related files:
 - ✅ Added the `--guideline-severity` alias and clarified the severity distinction in docs
 - ✅ Added MCP reference documentation and registered it in the solution
 - ✅ Implemented multi-format output support for `adog analyze --format ...` with combined output to `--output`
+- ✅ Added config-file support for CLI defaults from `adog.json` / `.adogrc.json`
 - ✅ Verified the solution with tests and local packaging
 
 **Status:**

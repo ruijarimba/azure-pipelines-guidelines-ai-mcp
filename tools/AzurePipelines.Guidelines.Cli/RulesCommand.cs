@@ -17,17 +17,17 @@ internal static class RulesCommand
         new[] { "do", "do-not", "avoid", "consider" }
             .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
-    internal static Command Create(IGuidelineRepository repository)
+    internal static Command Create(IGuidelineRepository repository, CliConfiguration? configuration = null)
     {
         Command rulesCommand = new("rules", "Browse and query the loaded Azure Pipelines guidelines.");
-        rulesCommand.AddCommand(CreateListCommand(repository));
+        rulesCommand.AddCommand(CreateListCommand(repository, configuration));
         rulesCommand.AddCommand(CreateShowCommand(repository));
         return rulesCommand;
     }
 
     // ── rules list ────────────────────────────────────────────────────────────
 
-    private static Command CreateListCommand(IGuidelineRepository repository)
+    private static Command CreateListCommand(IGuidelineRepository repository, CliConfiguration? configuration)
     {
         Option<string[]?> categoryOpt = new(
             name: "--category",
@@ -39,10 +39,10 @@ internal static class RulesCommand
             description: "Filter by one or more guideline severities: do, do-not, avoid, consider. --severity remains supported as a compatibility alias.",
             getDefaultValue: () => null);
 
-        Option<string> formatOpt = new(
+        Option<string?> formatOpt = new(
             name: "--format",
             description: "Output format: console (default) or json.",
-            getDefaultValue: () => "console");
+            getDefaultValue: () => null);
 
         Command listCommand = new("list", "List all available guidelines.")
         {
@@ -51,10 +51,18 @@ internal static class RulesCommand
             formatOpt,
         };
 
-        listCommand.SetHandler(
-            async (string[]? category, string[]? severity, string format) =>
-                Environment.Exit(await RunListAsync(repository, category, severity, format)),
-            categoryOpt, severityOpt, formatOpt);
+        listCommand.SetHandler(async (context) =>
+        {
+            string[]? category = ResolveCategoryValues(
+                context.ParseResult.GetValueForOption(categoryOpt),
+                configuration?.GetCategoryValue());
+            string[]? severity = ResolveSeverityValues(
+                context.ParseResult.GetValueForOption(severityOpt),
+                configuration?.GetSeverityValue());
+            string? format = context.ParseResult.GetValueForOption(formatOpt);
+            string resolvedFormat = ResolveFormatValue(format, configuration);
+            context.ExitCode = await RunListAsync(repository, category, severity, resolvedFormat);
+        });
 
         return listCommand;
     }
@@ -198,6 +206,37 @@ internal static class RulesCommand
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private static string ResolveFormatValue(string? format, CliConfiguration? configuration)
+    {
+        if (!string.IsNullOrWhiteSpace(format))
+        {
+            return format;
+        }
+
+        string? configuredFormat = configuration?.GetFormatValue();
+        return !string.IsNullOrWhiteSpace(configuredFormat) ? configuredFormat : "console";
+    }
+
+    private static string[]? ResolveCategoryValues(string[]? category, string? configValue)
+    {
+        if (category is { Length: > 0 })
+        {
+            return category;
+        }
+
+        return string.IsNullOrWhiteSpace(configValue) ? null : SplitValues(configValue);
+    }
+
+    private static string[]? ResolveSeverityValues(string[]? severity, string? configValue)
+    {
+        if (severity is { Length: > 0 })
+        {
+            return severity;
+        }
+
+        return string.IsNullOrWhiteSpace(configValue) ? null : SplitValues(configValue);
+    }
 
     private static string[] SplitValues(string? value)
     {

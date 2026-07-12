@@ -142,6 +142,6 @@ Never defer registration to a later commit or "cleanup" step.
 
 ## Reference
 
-This is a summary of Rule 8 from
+This is a summary of Rule 9 from
 [`.github/instructions/agent-behaviour.instructions.md`](agent-behaviour.instructions.md).
 If there is a conflict, the agent-behaviour file takes precedence.

@@ -16,17 +16,55 @@ internal static class AnalyzeCommandOptionResolver
         Option<bool> noColorOpt,
         Option<bool> quietOpt,
         Option<bool> verboseOpt,
-        AnalyzeCommandEnvironment environment)
+        AnalyzeCommandEnvironment environment,
+        CliConfiguration? configuration = null)
     {
         string[] paths = context.ParseResult.GetValueForArgument(pathArg) ?? [];
-        string format = ResolveStringOption(context, formatOpt, "--format", environment.Format);
-        string[]? severity = ResolveStringArrayOption(context, severityOpt, "--severity", environment.Severity);
-        string[]? category = ResolveStringArrayOption(context, categoryOpt, "--category", environment.Category);
-        string? output = ResolveOutputOption(context, outputOpt, environment.Output);
-        bool softFail = ResolveBooleanOption(context, softFailOpt, "--soft-fail", environment.SoftFail);
-        bool noColor = ResolveBooleanOption(context, noColorOpt, "--no-color", environment.NoColor);
-        bool quiet = ResolveQuietOption(context, quietOpt, environment.Quiet);
-        bool verbose = ResolveVerboseOption(context, verboseOpt, environment.Verbose);
+        string format = ResolveStringOption(
+            context,
+            formatOpt,
+            "--format",
+            environment.Format,
+            configuration?.GetFormatValue());
+        string[]? severity = ResolveStringArrayOption(
+            context,
+            severityOpt,
+            "--severity",
+            environment.Severity,
+            configuration?.GetSeverityValue());
+        string[]? category = ResolveStringArrayOption(
+            context,
+            categoryOpt,
+            "--category",
+            environment.Category,
+            configuration?.GetCategoryValue());
+        string? output = ResolveOutputOption(
+            context,
+            outputOpt,
+            environment.Output,
+            configuration?.GetOutputValue());
+        bool softFail = ResolveBooleanOption(
+            context,
+            softFailOpt,
+            "--soft-fail",
+            environment.SoftFail,
+            configuration?.GetSoftFailValue());
+        bool noColor = ResolveBooleanOption(
+            context,
+            noColorOpt,
+            "--no-color",
+            environment.NoColor,
+            configuration?.GetNoColorValue());
+        bool quiet = ResolveQuietOption(
+            context,
+            quietOpt,
+            environment.Quiet,
+            configuration?.GetQuietValue());
+        bool verbose = ResolveVerboseOption(
+            context,
+            verboseOpt,
+            environment.Verbose,
+            configuration?.GetVerboseValue());
 
         return new AnalyzeCommandOptions(
             Paths: paths,
@@ -44,21 +82,33 @@ internal static class AnalyzeCommandOptionResolver
         InvocationContext context,
         Option<string> option,
         string token,
-        string? environmentValue)
+        string? environmentValue,
+        string? configValue)
     {
         if (AnalyzeCommandEnvironment.IsSetByUser(context.ParseResult, token))
         {
             return context.ParseResult.GetValueForOption(option)!;
         }
 
-        return environmentValue ?? context.ParseResult.GetValueForOption(option)!;
+        if (!string.IsNullOrWhiteSpace(environmentValue))
+        {
+            return environmentValue;
+        }
+
+        if (!string.IsNullOrWhiteSpace(configValue))
+        {
+            return configValue;
+        }
+
+        return context.ParseResult.GetValueForOption(option)!;
     }
 
     internal static string[]? ResolveStringArrayOption(
         InvocationContext context,
         Option<string[]?> option,
         string token,
-        string? environmentValue)
+        string? environmentValue,
+        string? configValue)
     {
         if (AnalyzeCommandEnvironment.IsSetByUser(context.ParseResult, token))
         {
@@ -68,6 +118,11 @@ internal static class AnalyzeCommandOptionResolver
         if (!string.IsNullOrWhiteSpace(environmentValue))
         {
             return NormalizeValues(SplitValues(environmentValue));
+        }
+
+        if (!string.IsNullOrWhiteSpace(configValue))
+        {
+            return NormalizeValues(SplitValues(configValue));
         }
 
         return NormalizeValues(context.ParseResult.GetValueForOption(option));
@@ -96,7 +151,8 @@ internal static class AnalyzeCommandOptionResolver
     internal static string? ResolveOutputOption(
         InvocationContext context,
         Option<string?> option,
-        string? environmentValue)
+        string? environmentValue,
+        string? configValue)
     {
         if (AnalyzeCommandEnvironment.IsSetByUser(context.ParseResult, "--output") ||
             AnalyzeCommandEnvironment.IsSetByUser(context.ParseResult, "-o"))
@@ -104,27 +160,49 @@ internal static class AnalyzeCommandOptionResolver
             return context.ParseResult.GetValueForOption(option);
         }
 
-        return environmentValue ?? context.ParseResult.GetValueForOption(option);
+        if (!string.IsNullOrWhiteSpace(environmentValue))
+        {
+            return environmentValue;
+        }
+
+        if (!string.IsNullOrWhiteSpace(configValue))
+        {
+            return configValue;
+        }
+
+        return context.ParseResult.GetValueForOption(option);
     }
 
     internal static bool ResolveBooleanOption(
         InvocationContext context,
         Option<bool> option,
         string token,
-        bool? environmentValue)
+        bool? environmentValue,
+        bool? configValue)
     {
         if (AnalyzeCommandEnvironment.IsSetByUser(context.ParseResult, token))
         {
             return context.ParseResult.GetValueForOption(option);
         }
 
-        return environmentValue ?? context.ParseResult.GetValueForOption(option);
+        if (environmentValue.HasValue)
+        {
+            return environmentValue.Value;
+        }
+
+        if (configValue.HasValue)
+        {
+            return configValue.Value;
+        }
+
+        return context.ParseResult.GetValueForOption(option);
     }
 
     internal static bool ResolveQuietOption(
         InvocationContext context,
         Option<bool> option,
-        bool? environmentValue)
+        bool? environmentValue,
+        bool? configValue)
     {
         if (AnalyzeCommandEnvironment.IsSetByUser(context.ParseResult, "--quiet") ||
             AnalyzeCommandEnvironment.IsSetByUser(context.ParseResult, "-q"))
@@ -132,13 +210,24 @@ internal static class AnalyzeCommandOptionResolver
             return context.ParseResult.GetValueForOption(option);
         }
 
-        return environmentValue ?? context.ParseResult.GetValueForOption(option);
+        if (environmentValue.HasValue)
+        {
+            return environmentValue.Value;
+        }
+
+        if (configValue.HasValue)
+        {
+            return configValue.Value;
+        }
+
+        return context.ParseResult.GetValueForOption(option);
     }
 
     internal static bool ResolveVerboseOption(
         InvocationContext context,
         Option<bool> option,
-        bool? environmentValue)
+        bool? environmentValue,
+        bool? configValue)
     {
         if (AnalyzeCommandEnvironment.IsSetByUser(context.ParseResult, "--verbose") ||
             AnalyzeCommandEnvironment.IsSetByUser(context.ParseResult, "-v"))
@@ -146,6 +235,16 @@ internal static class AnalyzeCommandOptionResolver
             return context.ParseResult.GetValueForOption(option);
         }
 
-        return environmentValue ?? context.ParseResult.GetValueForOption(option);
+        if (environmentValue.HasValue)
+        {
+            return environmentValue.Value;
+        }
+
+        if (configValue.HasValue)
+        {
+            return configValue.Value;
+        }
+
+        return context.ParseResult.GetValueForOption(option);
     }
 }

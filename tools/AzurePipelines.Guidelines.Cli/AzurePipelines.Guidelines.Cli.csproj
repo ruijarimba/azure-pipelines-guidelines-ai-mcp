@@ -36,6 +36,7 @@
   <ItemGroup>
     <None Include="AGENTS.md" />
     <None Include="AnalyzeCommandOptions.cs" />
+    <None Include="CliConfigurationLoader.cs" />
   </ItemGroup>
 
 </Project>

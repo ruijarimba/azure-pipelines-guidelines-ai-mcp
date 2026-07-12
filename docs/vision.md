@@ -50,8 +50,8 @@ gantt
 - .NET global tool distribution for `adog` (CLI) and `adog-mcp` (MCP server).
 - Docker image for the MCP server (`ruijarimba/azure-pipelines-guidelines-mcp` on Docker Hub),
   so anyone can run the server without installing .NET.
-- Comprehensive unit test coverage (xUnit + FluentAssertions + NSubstitute).
-
+- Comprehensive unit test coverage (xUnit + FluentAssertions + NSubstitute) with repository-wide line coverage above 90% and explicit tests for success, failure, and edge-case scenarios.
+},{
 ### Phase 2 (future enhancements) 🔮
 
 - SARIF output format.
@@ -86,7 +86,8 @@ gantt
 - CLI produces accurate diagnostics and exits with correct codes.
 - `src/` packages published to NuGet.org, `adog` and `adog-mcp` published as global tools.
 - Docker image published to Docker Hub (`ruijarimba/azure-pipelines-guidelines-mcp`).
-- Test coverage ≥ 90% for all logical branches (measured via `dotnet test --collect:"XPlat Code Coverage"`).
+- Repository-wide line coverage above 90% (measured via `dotnet test --collect:"XPlat Code Coverage"`).
+- Tests must cover normal success paths, failure paths, and edge cases for every behavior change; no change is accepted without broad regression coverage.
 - Documentation complete: `AGENTS.md`, `architecture.md`, this file, and per-project `AGENTS.md`.
 
 ### Long-term success

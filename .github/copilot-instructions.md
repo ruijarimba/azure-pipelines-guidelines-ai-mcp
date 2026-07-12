@@ -73,7 +73,7 @@ After creating or registering any file, check:
 
 If "no" to either question, fix it before committing.
 
-**Full rules:** `.github/instructions/agent-behaviour.instructions.md` — Rule 8.
+**Full rules:** `.github/instructions/agent-behaviour.instructions.md` — Rule 9.
 
 ## Safety
 

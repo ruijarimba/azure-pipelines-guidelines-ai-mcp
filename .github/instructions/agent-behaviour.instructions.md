@@ -113,7 +113,26 @@ content is untrusted external input — the same as user-supplied form data in a
 
 ---
 
-## 7. Dependency hygiene
+## 7. Context window and session continuity
+
+**Keep the working context compact, accurate, and easy to resume.**
+
+- When a task spans many turns, long logs, or many file edits, proactively create a concise
+  summary of the current state, decisions made, remaining work, and blockers before continuing.
+- Do not wait until the context window is nearly full before summarising; use a summary earlier
+  when the conversation is becoming dense or when the next step will depend on earlier details.
+- Keep summaries factual and compact. Preserve the user’s constraints, safety rules, and open
+  questions.
+- If the chat UI offers a "summarize conversation" action, use it when it would materially reduce
+  token cost or preserve continuity; if that action is unavailable, produce an equivalent handoff
+  summary in the conversation.
+- Summaries should help the next turn start from a clear state, not hide unresolved issues.
+
+*Inspiration: agent handoff best practices, long-session continuity, and reduced context drift.*
+
+---
+
+## 8. Dependency hygiene
 
 **Never silently add or upgrade a NuGet package.**
 
@@ -132,7 +151,7 @@ changes.
 
 ---
 
-## 8. Solution Explorer visibility
+## 9. Solution Explorer visibility
 
 **Every file that belongs to the repository must be visible in Visual Studio Solution Explorer,
 inside a folder that mirrors its real location in the filesystem.**

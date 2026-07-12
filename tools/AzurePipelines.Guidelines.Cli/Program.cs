@@ -8,6 +8,12 @@ using Microsoft.Extensions.Logging;
 // Load the guideline catalogue once at startup (before building the DI container
 // so the repository can be shared by both the analyser and the rules commands).
 IGuidelineRepository repository = await LoadGuidelinesAsync();
+CliConfiguration configuration = CliConfigurationLoader.Load();
+if (!string.IsNullOrWhiteSpace(configuration.ErrorMessage))
+{
+    await Console.Error.WriteLineAsync(configuration.ErrorMessage).ConfigureAwait(false);
+    return ExitCodes.Error;
+}
 
 // Wire services without a full IHost — keeps startup fast for a CLI tool.
 ServiceCollection services = new();
@@ -22,8 +28,8 @@ IPipelineAnalyser analyser = sp.GetRequiredService<IPipelineAnalyser>();
 PipelinePathResolver pathResolver = sp.GetRequiredService<PipelinePathResolver>();
 
 RootCommand rootCommand = new("Azure Pipelines Guidelines static analyser (adog)");
-rootCommand.AddCommand(AnalyzeCommand.Create(parser, analyser, pathResolver));
-rootCommand.AddCommand(RulesCommand.Create(repository));
+rootCommand.AddCommand(AnalyzeCommand.Create(parser, analyser, pathResolver, configuration));
+rootCommand.AddCommand(RulesCommand.Create(repository, configuration));
 
 return await rootCommand.InvokeAsync(args);
 
