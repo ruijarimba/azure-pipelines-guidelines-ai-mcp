@@ -8,11 +8,12 @@ The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines cod
 - [How it works](#how-it-works)
 - [Installation](#installation)
   - [Option 1 — Local clone](#option-1--local-clone)
-  - [Option 2 — Docker container](#option-2--docker-container)
+  - [Option 2 — Local Docker image](#option-2--local-docker-image)
 - [Configuration](#configuration)
   - [Claude Desktop](#claude-desktop)
   - [GitHub Copilot (VS Code)](#github-copilot-vs-code)
   - [Cline](#cline)
+- [Debug mode with Visual Studio](#debug-mode-with-visual-studio)
 - [Available tools](#available-tools)
 - [Usage examples](#usage-examples)
 - [Troubleshooting](#troubleshooting)
@@ -58,23 +59,28 @@ The server runs as a child process of your AI client. Communication happens over
 Run the MCP server from the repository root:
 
 ```bash
-dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host
+pwsh ./scripts/run-mcp-local.ps1
 ```
 
-The `adog-mcp` global-tool package configuration remains in the project for a future NuGet
-release.
+The script starts the server over standard input/output. It waits for an MCP client request;
+that is expected. You can also run `dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host`.
 
-### Option 2 — Docker container
+### Option 2 — Local Docker image
 
 **Prerequisites:** [Docker Desktop](https://docs.docker.com/get-docker/)
 
-Pull the latest image:
+Build the local image from the repository root:
 
 ```bash
-docker pull ruijarimba/azure-pipelines-guidelines-mcp:latest
+pwsh ./scripts/build-mcp-image.ps1
 ```
 
-No .NET SDK required — the container includes the runtime.
+The script creates `adog-mcp:local` without using Docker Hub. To use a different tag, pass
+`-ImageTag <tag>`. A manually started container waits for MCP input:
+
+```bash
+docker run -i --rm adog-mcp:local
+```
 
 ## Configuration
 
@@ -115,14 +121,14 @@ Edit your Claude Desktop configuration file:
 }
 ```
 
-#### Using Docker:
+#### Using a local Docker image:
 
 ```json
 {
   "mcpServers": {
     "azure-pipelines-guidelines": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "ruijarimba/azure-pipelines-guidelines-mcp:latest"]
+      "args": ["run", "-i", "--rm", "adog-mcp:local"]
     }
   }
 }
@@ -153,7 +159,7 @@ Create or edit `.vscode/mcp.json` in your project:
 }
 ```
 
-#### Using Docker:
+#### Using a local Docker image:
 
 ```json
 {
@@ -161,7 +167,7 @@ Create or edit `.vscode/mcp.json` in your project:
     "azure-pipelines-guidelines": {
       "type": "stdio",
       "command": "docker",
-      "args": ["run", "-i", "--rm", "ruijarimba/azure-pipelines-guidelines-mcp:latest"]
+      "args": ["run", "-i", "--rm", "adog-mcp:local"]
     }
   }
 }
@@ -215,8 +221,19 @@ workspace paths that you intend the server to analyze. Do not configure the clie
 server with access to directories that contain secrets, credentials, or unrelated sensitive files.
 
 When using Docker, the container cannot read host files unless you explicitly mount a directory.
-Mount only the workspace or pipeline directory you want to analyze, then pass paths inside that
-container mount to `analyze_pipeline_paths`.
+Mount only the workspace or pipeline directory you want to analyze as read-only, then pass paths
+inside that container mount to `analyze_pipeline_paths`. For example, add these arguments before
+the `adog-mcp:local` image tag in the MCP client configuration:
+
+```json
+[
+  "--mount",
+  "type=bind,source=H:\\src\\pipeline-repository,target=/workspace,readonly"
+]
+```
+
+Use `/workspace/azure-pipelines.yml` when calling the file-path analysis tool. Replace the
+example source path with the absolute host path that Docker Desktop can access.
 
 ### Guideline lookup tools
 
@@ -257,6 +274,69 @@ The AI will call `analyze_pipeline_paths` with the directory path and summarize 
 
 The AI can filter by category (e.g., `ADOG-JOBS-*`, `ADOG-STEPS-*`) or specific rule IDs.
 
+## Debug mode with Visual Studio
+
+The default stdio transport keeps the protocol stream tied to the client process. That makes
+it hard to debug the server inside Visual Studio while a second tool such as VS Code uses it.
+
+For that workflow, use the optional **SSE transport**. The server listens on a local HTTP port,
+so you can start it in Visual Studio and connect VS Code to the running instance.
+
+### 1. Start the server in Visual Studio in SSE mode
+
+In Visual Studio, set the run/debug profile to **SSE** before you start debugging:
+
+1. Open the `tools/AzurePipelines.Guidelines.Mcp.Host` project.
+2. In the toolbar, click the run/debug profile dropdown (normally shows the project name).
+3. Select **SSE**.
+4. Press **F5** (or choose **Debug &gt; Start Debugging**).
+
+The server starts on `http://localhost:5050/mcp` by default. The process stays alive as long as
+the debugger is attached, and breakpoints in the host and library projects will be hit.
+
+To start from the command line instead of Visual Studio:
+
+```bash
+dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host -- --transport sse --urls "http://localhost:5050"
+```
+
+### 2. Configure VS Code to connect over SSE
+
+Edit `.vscode/mcp.json` in the workspace you want the AI to analyze:
+
+```json
+{
+  "servers": {
+    "azure-pipelines-guidelines": {
+      "type": "sse",
+      "url": "http://localhost:5050/mcp"
+    }
+  }
+}
+```
+
+Save the file. VS Code will connect to the running server. You do not need to restart the
+server when you change the client configuration.
+
+### 3. Stop the debug session
+
+The server runs only while the Visual Studio debugger is attached. To stop it, detach or stop
+debugging in Visual Studio. The VS Code client will lose its connection until you start the
+server again.
+
+### Debug notes and limitations
+
+- SSE mode is for **local debugging only**. The default stdio transport remains the supported
+  execution mode for day-to-day clients, Docker images, and CI.
+- The server binds to `localhost` by default. It is not intended to be exposed to other
+  machines.
+- If port `5050` is in use, change the **SSE** profile in
+  `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`, or pass
+  `--urls "http://localhost:<port>"` when starting from the command line. If you change the
+  port, update the `url` value in VS Code's `mcp.json` to match.
+- You can also switch transports with the environment variable `MCP_TRANSPORT=sse`, but the
+  `--transport` command-line argument takes priority.
+
 ## Troubleshooting
 
 ### "MCP server not found" or "command not found"
@@ -267,7 +347,8 @@ The AI can filter by category (e.g., `ADOG-JOBS-*`, `ADOG-STEPS-*`) or specific 
 - Verify the configured project path is absolute and points to the MCP host project
 
 **If using Docker:**
-- Verify the image is pulled: `docker images | findstr azure-pipelines-guidelines-mcp`
+- Build the image: `pwsh ./scripts/build-mcp-image.ps1`
+- Verify the local image: `docker image inspect adog-mcp:local`
 - Ensure Docker Desktop is running
 
 ### AI assistant doesn't see the MCP server

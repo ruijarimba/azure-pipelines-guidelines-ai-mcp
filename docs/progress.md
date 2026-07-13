@@ -20,6 +20,8 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `local` | feat: add optional SSE debug transport to MCP host so it can run under Visual Studio while VS Code connects over HTTP |
+| `local` | feat: add source-mode and local Docker MCP launch scripts with local-client configuration guidance |
 | `local` | feat: add config-file support for CLI defaults for `analyze` and `rules list` with CLI > environment > config > built-in default precedence |
 | `3a8eb87` | test: add folder-based integration tests for the real analysis stack and validate the full solution quality gate |
 | `8c3b576` | chore: mirror filesystem structure in Solution Explorer — rule 8 in agent-behaviour, slnx hierarchy fixes |
@@ -110,23 +112,40 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**Docker release readiness and handoff review**
+**MCP debug transport handoff**
 
-The CLI config-file defaults feature is now implemented and validated. The full solution test run
-passed successfully after the final test-isolation fix. NuGet publication is deferred, while MCP
-Docker Hub publication remains available for a future release.
+The MCP host now supports an optional SSE transport for local debugging. You can start the
+server under Visual Studio using the **SSE** launch profile and connect VS Code (or another
+client) to `http://localhost:5050/mcp` via `.vscode/mcp.json`. The default stdio transport is
+unchanged and remains the supported mode for Docker, source-mode scripts, and CI usage.
+
+Files changed:
+- `Directory.Packages.props` — aligned MCP SDK and Microsoft.Extensions.* packages to 1.4.1/10.0.7.
+- `src/AzurePipelines.Guidelines.Mcp/GuidelinesMcpServiceCollectionExtensions.cs` — made the
+  DI registration transport-agnostic and returned `IMcpServerBuilder`.
+- `tools/AzurePipelines.Guidelines.Mcp.Host/Program.cs` — added `--transport`/`MCP_TRANSPORT`
+  switching between stdio and SSE.
+- `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json` — added `stdio` and
+  `SSE` launch profiles.
+- `tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj` — added
+  `ModelContextProtocol.AspNetCore` package reference and registered `launchSettings.json`.
+- `docs/mcp-reference.md` — documented the Visual Studio + VS Code debug workflow.
 
 Validation completed:
-- ✅ Full solution tests passed (`487` passed, `0` failed)
-- ✅ CLI tests passed (`129` passed, `0` failed)
-- ✅ Local NuGet packing succeeded for all `src/` libraries and the CLI tool
-- ⚠️ Docker image build could not be verified in this environment because the Docker daemon was unavailable (`failed to connect to the docker API`)
+- Release build passes for all projects including the MCP host.
+- Full solution quality gate passed (`491` passed, `0` failed).
+- `dotnet pack` for the MCP host tool passes.
+- Stdio path still works as before (default configuration).
+- SSE runtime smoke test: the server started on `http://localhost:5054/mcp` and the endpoint
+  returned `406 Not Acceptable` to a plain HTTP GET, confirming the MCP transport is active.
+  Full MCP negotiation from VS Code was not executed.
 
 ---
 
 ## Next up
 
-1. **Verify MCP Docker image readiness** when a Docker daemon is available.
+1. **Optional runtime validation**: start the server with the **SSE** launch profile in Visual
+   Studio and confirm VS Code can list tools through `http://localhost:5050/mcp`.
 2. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
    rule template workflow when they appear.
 

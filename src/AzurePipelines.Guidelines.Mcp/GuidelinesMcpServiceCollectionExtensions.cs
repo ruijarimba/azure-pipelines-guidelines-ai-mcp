@@ -3,6 +3,7 @@ using AzurePipelines.Guidelines.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Protocol;
+using ModelContextProtocol.Server;
 
 namespace AzurePipelines.Guidelines.Mcp;
 
@@ -14,15 +15,17 @@ public static class GuidelinesMcpServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the MCP server, guideline loader, and repository as singletons,
-    /// and configures stdio transport so that the process can be used as an MCP server.
+    /// and discovers tools and resources from the Mcp assembly.
+    /// The caller must add a transport such as <c>WithStdioServerTransport()</c>
+    /// or <c>MapMcp()</c> for SSE mode.
     /// </summary>
     /// <param name="services">The service collection to register into.</param>
     /// <param name="manifestUrl">
     /// Optional override for the guideline manifest URL. When <see langword="null"/>,
     /// <see cref="HttpGuidelineLoader.DefaultManifestUrl"/> is used.
     /// </param>
-    /// <returns>The original <paramref name="services"/> for chaining.</returns>
-    public static IServiceCollection AddGuidelinesMcp(
+    /// <returns>An <see cref="IMcpServerBuilder"/> for configuring the server transport.</returns>
+    public static IMcpServerBuilder AddGuidelinesMcp(
         this IServiceCollection services,
         Uri? manifestUrl = null)
     {
@@ -70,8 +73,9 @@ public static class GuidelinesMcpServiceCollectionExtensions
             return new GuidelineRepository(guidelines);
         });
 
-        // MCP server: stdio transport + tool and resource discovery from the Mcp assembly.
-        services
+        // MCP server + tool and resource discovery from the Mcp assembly.
+        // Transport is intentionally left for the host to choose.
+        IMcpServerBuilder builder = services
             .AddMcpServer(options =>
             {
                 options.ServerInfo = new Implementation
@@ -80,11 +84,10 @@ public static class GuidelinesMcpServiceCollectionExtensions
                     Version = "1.0.0",
                 };
             })
-            .WithStdioServerTransport()
             .WithToolsFromAssembly(typeof(GuidelinesMcpServiceCollectionExtensions).Assembly)
             .WithResourcesFromAssembly(typeof(GuidelinesMcpServiceCollectionExtensions).Assembly);
 
-        return services;
+        return builder;
     }
 }
 

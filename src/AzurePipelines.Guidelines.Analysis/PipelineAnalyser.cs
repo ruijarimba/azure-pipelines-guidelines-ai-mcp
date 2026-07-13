@@ -66,7 +66,8 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
 
             LogEvaluatingRule(_logger, rule.GuidelineId.Value, document.FilePath);
 
-            await foreach (Diagnostic diagnostic in rule.EvaluateAsync(document, cancellationToken))
+            await foreach (Diagnostic diagnostic in rule.EvaluateAsync(document, cancellationToken)
+                .ConfigureAwait(false))
             {
                 bool includeBySeverity = options.IncludedDiagnosticSeverities is { Count: > 0 }
                     ? options.IncludedDiagnosticSeverities.Contains(diagnostic.Severity)

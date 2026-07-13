@@ -60,6 +60,10 @@
     <Project Path="tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj" />
     <File Path="tools/AzurePipelines.Guidelines.Cli/CliConfigurationLoader.cs" />
   </Folder>
+  <Folder Name="/scripts/">
+    <File Path="scripts/run-mcp-local.ps1" />
+    <File Path="scripts/build-mcp-image.ps1" />
+  </Folder>
   <Folder Name="/.github/instructions/">
     <File Path=".github/instructions/agent-behaviour.instructions.md" />
     <File Path=".github/instructions/architecture.instructions.md" />
