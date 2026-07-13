@@ -147,16 +147,18 @@ formats in a single run; the `adog rules` subcommands currently support `console
 
 Exit codes: `0` = no violations at threshold, `1` = violations found, `2` = analysis error.
 
-## NuGet packages and distribution
+## Packaging and distribution
 
-All `src/` projects are published as independent packages (`AzurePipelines.Guidelines.*`).
+All `src/` projects are configured as independent NuGet packages
+(`AzurePipelines.Guidelines.*`). NuGet publication is deferred, but package metadata and local
+packing remain in place for a future release.
 
 | Artefact | Package ID | Distribution |
 | --- | --- | --- |
-| CLI analyser | `adog` | NuGet.org global tool (`dotnet tool install -g adog`) |
-| MCP server | `adog-mcp` | NuGet.org global tool (`dotnet tool install -g adog-mcp`) |
+| CLI analyser | `adog` | Local build; future NuGet global tool |
+| MCP server | `adog-mcp` | Local build; future NuGet global tool |
 | MCP server | — | Docker Hub (`ruijarimba/azure-pipelines-guidelines-mcp`) |
 
-`Mcp.Host` is the executable entry point for both the global tool and the Docker image.
-No application code changes are needed between the two distribution forms — the same
-binary runs in both contexts.
+`Mcp.Host` is the executable entry point for the future global tool and the Docker image. No
+application code changes are needed between the two distribution forms — the same binary runs
+in both contexts.

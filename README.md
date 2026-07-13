@@ -49,18 +49,17 @@ For the full rule list and definitions, see the
 
 | Option | Requirement |
 | --- | --- |
-| CLI or MCP server as a global tool | [Download the .NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) |
+| CLI or MCP server from a local clone | [Download the .NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) |
 | MCP server as a Docker container | [Install Docker Desktop](https://docs.docker.com/get-docker/) — no .NET required |
 
 ## Getting started
 
-### Option 1 — CLI
+### Option 1 — CLI from a local clone
 
-Install and run the static analyzer:
+Clone the repository, then run the static analyzer from its root directory:
 
 ```bash
-dotnet tool install -g adog
-adog analyze azure-pipelines.yml
+dotnet run --project tools/AzurePipelines.Guidelines.Cli -- analyze azure-pipelines.yml
 ```
 
 Example output:
@@ -71,21 +70,22 @@ azure-pipelines.yml(12,17): warning ADOG-STEPS-001: Steps template reads a pipel
 
 **→ See [CLI Reference](docs/cli-reference.md) for all commands, options, output formats, and examples.**
 
-### Option 2 — MCP Server (global tool)
+### Option 2 — MCP Server from a local clone
 
-Install the MCP server and configure your AI client:
-
-```bash
-dotnet tool install -g adog-mcp
-```
-
-Add to your AI client config (Claude Desktop example):
+Configure your AI client to run the MCP host from an absolute repository path (Claude Desktop
+example):
 
 ```json
 {
   "mcpServers": {
     "azure-pipelines-guidelines": {
-      "command": "adog-mcp"
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "/absolute/path/to/azure-pipelines-guidelines-ai-mcp/tools/AzurePipelines.Guidelines.Mcp.Host",
+        "--"
+      ]
     }
   }
 }
@@ -125,7 +125,7 @@ Configure your AI client to use Docker:
 ## Repository structure
 
 ```
-src/       Class libraries published as NuGet packages
+src/       Class libraries configured for future NuGet packages
            Core · Parsing · Rules · Analysis · Mcp
 tools/     Executable entry points
            Cli (adog) · Mcp.Host (adog-mcp)

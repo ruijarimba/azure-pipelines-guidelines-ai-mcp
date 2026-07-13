@@ -39,6 +39,5 @@ logic is in the `src/` class libraries.
 
 ## Distribution
 
-Published as a **standalone executable** (self-contained or framework-dependent).
-Also packaged as a container image for deployment to cloud workloads.
-Not published to NuGet — this is a runtime artifact, not a library.
+Configured as the future `adog-mcp` .NET global tool; NuGet publication is deferred. The MCP
+server is also packaged as a Docker image for Docker Hub publication.

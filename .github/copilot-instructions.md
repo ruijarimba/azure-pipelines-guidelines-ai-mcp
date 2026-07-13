@@ -43,6 +43,11 @@ Rule ID pattern: `ADOG-(GENERAL|JOBS|PARAMETERS|PIPELINES|STAGES|STEPS|VARIABLES
 
 Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` → Info.
 
+## Integration Testing
+
+- Integration tests are a high-priority repository quality area.
+- Ensure tests are deterministic, reliable, and easy to debug manually.
+
 ## Prompt files
 
 - `.github/prompts/implement-rule.prompt.md` — guided workflow for implementing a new `IGuidelineRule`.

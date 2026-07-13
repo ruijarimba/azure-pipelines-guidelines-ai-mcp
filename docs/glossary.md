@@ -75,7 +75,7 @@ they are the same value. Parsing code maps between the two forms.
 
 | Term | Definition |
 | --- | --- |
-| **adog** | The command-line tool name (short for "Azure DevOps Guidelines"). Published as a .NET global tool (`dotnet tool install -g adog`). |
+| **adog** | The command-line tool name (short for "Azure DevOps Guidelines"). Configured for a future .NET global-tool release. |
 | **Exit code** | `0` = no violations at threshold; `1` = violations found; `2` = analysis error (invalid YAML or file not found). |
 
 ---
@@ -84,8 +84,8 @@ they are the same value. Parsing code maps between the two forms.
 
 | Term | Definition |
 | --- | --- |
-| **NuGet package** | All `src/` projects are published as independent packages to NuGet.org under the `AzurePipelines.Guidelines.*` namespace. |
-| **.NET global tool** | The CLI (`adog`) is published as a tool package; installed via `dotnet tool install -g adog`. |
+| **NuGet package** | Each `src/` project is configured as an independent `AzurePipelines.Guidelines.*` package for a future release. |
+| **.NET global tool** | A package that provides a command-line tool. This project configures `adog` and `adog-mcp` for future global-tool releases. |
 | **SemVer** | Semantic Versioning 2.0. Breaking changes require a major version bump. |
 
 ---

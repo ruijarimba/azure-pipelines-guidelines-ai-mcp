@@ -12,7 +12,7 @@ The `adog` command-line tool analyzes Azure Pipelines YAML files against the [co
 
 ## Table of Contents
 
-- [Installation](#installation)
+- [Local use](#local-use)
 - [Commands](#commands)
   - [`adog analyze`](#adog-analyze)
   - [`adog rules list`](#adog-rules-list)
@@ -25,25 +25,15 @@ The `adog` command-line tool analyzes Azure Pipelines YAML files against the [co
 - [Troubleshooting](#troubleshooting)
 - [See Also](#see-also)
 
-## Installation
+## Local use
 
-Install as a .NET global tool:
-
-```bash
-dotnet tool install -g adog
-```
-
-Update to the latest version:
+NuGet publication is deferred. Clone the repository and run the CLI from the repository root:
 
 ```bash
-dotnet tool update -g adog
+dotnet run --project tools/AzurePipelines.Guidelines.Cli -- analyze azure-pipelines.yml
 ```
 
-Uninstall:
-
-```bash
-dotnet tool uninstall -g adog
-```
+The `adog` global-tool package configuration remains in the project for a future NuGet release.
 
 ## Commands
 

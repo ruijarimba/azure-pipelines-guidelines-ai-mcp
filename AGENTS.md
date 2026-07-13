@@ -13,8 +13,8 @@ machine-readable manifest:
    [Model Context Protocol](https://modelcontextprotocol.io) tools and resources that
    AI assistants can call.
 2. **CLI static analyser** (`adog`) — analyses Azure YAML pipeline files against the
-   guidelines and reports violations with fix suggestions. Intended to be published as
-   a .NET global tool (`dotnet tool install`).
+   guidelines and reports violations with fix suggestions. Configured for a future .NET
+   global-tool release.
 
 The guidelines themselves live in the companion repository. Their machine-readable
 manifest is at `data/guidelines.json` and uses stable rule IDs of the form

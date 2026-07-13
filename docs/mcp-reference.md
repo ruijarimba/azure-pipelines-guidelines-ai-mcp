@@ -7,7 +7,7 @@ The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines cod
 - [What is MCP?](#what-is-mcp)
 - [How it works](#how-it-works)
 - [Installation](#installation)
-  - [Option 1 — .NET global tool](#option-1--net-global-tool)
+  - [Option 1 — Local clone](#option-1--local-clone)
   - [Option 2 — Docker container](#option-2--docker-container)
 - [Configuration](#configuration)
   - [Claude Desktop](#claude-desktop)
@@ -51,27 +51,18 @@ The server runs as a child process of your AI client. Communication happens over
 
 ## Installation
 
-### Option 1 — .NET global tool
+### Option 1 — Local clone
 
-**Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+**Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) and a local clone of this repository.
 
-Install the MCP server globally:
-
-```bash
-dotnet tool install -g adog-mcp
-```
-
-Update to the latest version:
+Run the MCP server from the repository root:
 
 ```bash
-dotnet tool update -g adog-mcp
+dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host
 ```
 
-Uninstall:
-
-```bash
-dotnet tool uninstall -g adog-mcp
-```
+The `adog-mcp` global-tool package configuration remains in the project for a future NuGet
+release.
 
 ### Option 2 — Docker container
 
@@ -106,13 +97,19 @@ Edit your Claude Desktop configuration file:
 ~/.config/Claude/claude_desktop_config.json
 ```
 
-#### Using the global tool:
+#### Using a local clone:
 
 ```json
 {
   "mcpServers": {
     "azure-pipelines-guidelines": {
-      "command": "adog-mcp"
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "/absolute/path/to/azure-pipelines-guidelines-ai-mcp/tools/AzurePipelines.Guidelines.Mcp.Host",
+        "--"
+      ]
     }
   }
 }
@@ -137,14 +134,20 @@ The `-i` flag keeps stdin open, which is required for the stdio transport.
 
 Create or edit `.vscode/mcp.json` in your project:
 
-#### Using the global tool:
+#### Using a local clone:
 
 ```json
 {
   "servers": {
     "azure-pipelines-guidelines": {
       "type": "stdio",
-      "command": "adog-mcp"
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "/absolute/path/to/azure-pipelines-guidelines-ai-mcp/tools/AzurePipelines.Guidelines.Mcp.Host",
+        "--"
+      ]
     }
   }
 }
@@ -258,11 +261,10 @@ The AI can filter by category (e.g., `ADOG-JOBS-*`, `ADOG-STEPS-*`) or specific 
 
 ### "MCP server not found" or "command not found"
 
-**If using the global tool:**
-- Verify installation: `dotnet tool list -g | findstr adog-mcp`
-- Ensure the .NET tools directory is in your PATH:
-  - **Windows:** `%USERPROFILE%\.dotnet\tools`
-  - **macOS/Linux:** `~/.dotnet/tools`
+**If using a local clone:**
+- Verify the .NET SDK is available: `dotnet --version`
+- Run `dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host` from the repository root
+- Verify the configured project path is absolute and points to the MCP host project
 
 **If using Docker:**
 - Verify the image is pulled: `docker images | findstr azure-pipelines-guidelines-mcp`

@@ -6,7 +6,7 @@ The **CLI static analyzer** (`adog`) for Azure Pipelines YAML files. Analyzes pi
 against the guideline ruleset and outputs violations with fix suggestions. Designed to run
 in CI pipelines or developer workstations.
 
-Published as a **.NET global tool** via `dotnet tool install -g adog`.
+Configured as the future `adog` .NET global tool. NuGet publication is deferred.
 
 ## What belongs here
 
@@ -109,21 +109,11 @@ The factory throws `ArgumentException` for unknown formats. Supported formats ar
 
 ## Distribution
 
-Published to NuGet as a .NET global tool. Installed via:
+The CLI is configured as the future `adog` .NET global tool. NuGet publication is deferred.
+Run it locally from the repository root:
 
 ```bash
-dotnet tool install -g adog
-```
-
-Package ID: `adog` (lowercase, no prefix)
-Tool command name: `adog`
-
-## Distribution
-
-Published to NuGet as a .NET global tool. Installed via:
-
-```bash
-dotnet tool install -g adog
+dotnet run --project tools/AzurePipelines.Guidelines.Cli -- analyze <path>
 ```
 
 Package ID: `adog` (lowercase, no prefix)

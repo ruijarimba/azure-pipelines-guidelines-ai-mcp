@@ -110,11 +110,11 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**Release-readiness and handoff review**
+**Docker release readiness and handoff review**
 
 The CLI config-file defaults feature is now implemented and validated. The full solution test run
-passed successfully after the final test-isolation fix, and the repository is ready for the next
-review step.
+passed successfully after the final test-isolation fix. NuGet publication is deferred, while MCP
+Docker Hub publication remains available for a future release.
 
 Validation completed:
 - ✅ Full solution tests passed (`487` passed, `0` failed)
@@ -126,15 +126,12 @@ Validation completed:
 
 ## Next up
 
-1. **Await human approval before publishing NuGet packages** for the `src/` libraries and CLI
-   tool (see `docs/vision.md`).
-2. **Verify Phase 1 success criteria** — rules implemented, `>= 90 %` test coverage,
-   documentation complete, global tools and Docker image published.
-3. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
+1. **Verify MCP Docker image readiness** when a Docker daemon is available.
+2. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
    rule template workflow when they appear.
 
 ---
 
 ## Open questions / blockers
 
-- Awaiting approval before any NuGet publish or release action.
+- NuGet publication is deferred. Package metadata and local packing remain for a future release.

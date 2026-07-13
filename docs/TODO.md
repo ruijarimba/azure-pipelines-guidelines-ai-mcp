@@ -12,21 +12,8 @@ The backlog below reflects the current state of the repository after the latest 
 
 ## High Priority
 
-### 1. Publish packages and complete release readiness
-
-Prepare the Phase 1 release once the team is ready to publish artifacts.
-
-- [ ] Publish the NuGet packages for the core libraries and tools
-- [ ] Verify package versions and release metadata in `Directory.Build.props`
-- [ ] Review README, license, and package content before publishing
-- [ ] Confirm the release checklist in `docs/vision.md` and `docs/progress.md`
-
-Related files:
-- `Directory.Build.props`
-- `docs/vision.md`
-- `docs/progress.md`
-- `src/**/*.csproj`
-- `tools/**/*.csproj`
+No active high-priority work is planned. NuGet package metadata and local packing remain in
+place for a future release. NuGet publication is out of scope for the near term.
 
 ---
 
@@ -86,7 +73,8 @@ Related files:
 - ✅ Verified the solution with tests and local packaging
 
 **Status:**
-- Ready for release planning and package publication when approved
+- NuGet publication is deferred; package configuration remains for a future release
+- Docker Hub publication for the MCP server remains in scope
 - Docker-based container validation remains environment-dependent and is not required for the current backlog
 
 **Files changed:**

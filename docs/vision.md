@@ -45,8 +45,9 @@ gantt
 - Console, compact, JSON, JUnit, SARIF, and Markdown output formats.
 - JSON configuration-file defaults for CLI options.
 - NuGet package metadata and local packing for all `src/` libraries.
-- Global-tool and Docker-image distribution assets for `adog` and `adog-mcp`.
-- Publication to NuGet.org and Docker Hub only after explicit human approval.
+- Global-tool packaging configuration for `adog` and `adog-mcp`.
+- Docker-image distribution assets and Docker Hub publication for `adog-mcp`.
+- NuGet publication is deferred. The package configuration remains for a future release.
 - Comprehensive unit test coverage (xUnit + FluentAssertions + NSubstitute) with repository-wide line coverage above 90% and explicit tests for success, failure, and edge-case scenarios.
 
 ### Phase 2 (future enhancements) 🔮
@@ -79,7 +80,8 @@ gantt
 - All `ADOG-…` rules from `guidelines.json` are implemented.
 - MCP server responds correctly to all defined tools and resources.
 - CLI produces accurate diagnostics and exits with correct codes.
-- Package and distribution assets validated locally; publication occurs only with explicit human approval.
+- Package metadata and local packing remain valid for a future NuGet release.
+- Docker image distribution remains available for the MCP server.
 - Repository-wide line coverage above 90% (measured via `dotnet test --collect:"XPlat Code Coverage"`).
 - Tests must cover normal success paths, failure paths, and edge cases for every behavior change; no change is accepted without broad regression coverage.
 - Documentation complete: `AGENTS.md`, `architecture.md`, this file, and per-project `AGENTS.md`.
