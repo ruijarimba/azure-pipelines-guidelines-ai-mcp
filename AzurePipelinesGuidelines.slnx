@@ -1,15 +1,5 @@
 <Solution>
   <Folder Name="/src/">
-    <File Path=".dockerignore" />
-    <File Path=".editorconfig" />
-    <File Path=".gitignore" />
-    <File Path="AGENTS.md" />
-    <File Path="CONTRIBUTING.md" />
-    <File Path="Directory.Build.props" />
-    <File Path="Directory.Packages.props" />
-    <File Path="global.json" />
-    <File Path="LICENSE" />
-    <File Path="README.md" />
     <Project Path="src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj" />
     <Project Path="src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj" />
     <Project Path="src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj" />
@@ -58,7 +48,6 @@
     <File Path="tools/Directory.Build.props" />
     <Project Path="tools/AzurePipelines.Guidelines.Cli/AzurePipelines.Guidelines.Cli.csproj" />
     <Project Path="tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj" />
-    <File Path="tools/AzurePipelines.Guidelines.Cli/CliConfigurationLoader.cs" />
   </Folder>
   <Folder Name="/scripts/">
     <File Path="scripts/run-mcp-local.ps1" />

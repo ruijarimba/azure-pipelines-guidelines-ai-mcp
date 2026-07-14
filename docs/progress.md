@@ -20,6 +20,7 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `local` | docs/comments: add inline comments, host README, and AGENTS updates to the MCP project so contributors without deep .NET knowledge can follow transport modes, launch profiles, and startup choices |
 | `local` | feat: add optional SSE debug transport to MCP host so it can run under Visual Studio while VS Code connects over HTTP |
 | `local` | feat: add source-mode and local Docker MCP launch scripts with local-client configuration guidance |
 | `local` | feat: add config-file support for CLI defaults for `analyze` and `rules list` with CLI > environment > config > built-in default precedence |
@@ -112,41 +113,40 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**MCP debug transport handoff**
+**MCP SSE port stabilization**
 
-The MCP host now supports an optional SSE transport for local debugging. You can start the
-server under Visual Studio using the **SSE** launch profile and connect VS Code (or another
-client) to `http://localhost:5050/mcp` via `.vscode/mcp.json`. The default stdio transport is
-unchanged and remains the supported mode for Docker, source-mode scripts, and CI usage.
+The MCP host was refactored into a thin transport dispatcher (`Program.cs`) and a dedicated
+startup helper (`McpHostStartup.cs`). Minimal startup logging was added for both SSE and stdio
+using `LoggerMessage.Define`, so stdio protocol traffic stays on stdout and human-readable logs
+stay on stderr.
 
-Files changed:
-- `Directory.Packages.props` — aligned MCP SDK and Microsoft.Extensions.* packages to 1.4.1/10.0.7.
-- `src/AzurePipelines.Guidelines.Mcp/GuidelinesMcpServiceCollectionExtensions.cs` — made the
-  DI registration transport-agnostic and returned `IMcpServerBuilder`.
-- `tools/AzurePipelines.Guidelines.Mcp.Host/Program.cs` — added `--transport`/`MCP_TRANSPORT`
-  switching between stdio and SSE.
-- `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json` — added `stdio` and
-  `SSE` launch profiles.
-- `tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj` — added
-  `ModelContextProtocol.AspNetCore` package reference and registered `launchSettings.json`.
-- `docs/mcp-reference.md` — documented the Visual Studio + VS Code debug workflow.
+A live run without the **SSE** launch profile selected bound to `http://localhost:5000` instead
+of the documented `http://localhost:5050`. The `SSE` launch profile in `launchSettings.json`
+still declares `applicationUrl: http://localhost:5050`; the port mismatch was only observed when
+`applicationUrl` was not injected. The current code builds and the profiles are intact.
+
+Current focus:
+1. Make the SSE URL/port behavior explicit and deterministic.
+2. Verify the server starts on `http://localhost:5050/mcp` when the SSE profile is selected.
+
+Files in scope:
+- `tools/AzurePipelines.Guidelines.Mcp.Host/Program.cs`
+- `tools/AzurePipelines.Guidelines.Mcp.Host/McpHostStartup.cs`
+- `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`
 
 Validation completed:
-- Release build passes for all projects including the MCP host.
-- Full solution quality gate passed (`491` passed, `0` failed).
-- `dotnet pack` for the MCP host tool passes.
-- Stdio path still works as before (default configuration).
-- SSE runtime smoke test: the server started on `http://localhost:5054/mcp` and the endpoint
-  returned `406 Not Acceptable` to a plain HTTP GET, confirming the MCP transport is active.
-  Full MCP negotiation from VS Code was not executed.
+- Full solution quality gate passed (`491` passed, `0` failed) after the documentation changes.
 
 ---
 
 ## Next up
 
-1. **Optional runtime validation**: start the server with the **SSE** launch profile in Visual
-   Studio and confirm VS Code can list tools through `http://localhost:5050/mcp`.
-2. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
+1. **Stabilize SSE port/URL resolution** so the debugging endpoint is deterministic without
+   relying solely on launch profile injection.
+2. **Address documentation and inline-comment debt** in the CLI project
+   (`tools/AzurePipelines.Guidelines.Cli`), so command options, formatters, and exit codes are
+   clear to contributors without deep .NET knowledge.
+3. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
    rule template workflow when they appear.
 
 ---

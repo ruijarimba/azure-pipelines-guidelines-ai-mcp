@@ -12,8 +12,33 @@ The backlog below reflects the current state of the repository after the latest 
 
 ## High Priority
 
-No active high-priority work is planned. NuGet package metadata and local packing remain in
-place for a future release. NuGet publication is out of scope for the near term.
+### 1. Improve comments and documentation for executable/runnable projects
+
+Many classes, methods, and options lack comments. This is especially problematic for
+executable/runnable projects like the MCP host and CLI, where options, profiles, launch
+settings, and transport choices control how the program runs.
+
+- [x] Add inline comments explaining non-obvious code in the MCP host (`Program.cs`,
+      `McpHostStartup.cs`, launch profiles, transport selection).
+- [ ] Add inline comments explaining non-obvious code in the CLI (`AnalyzeCommand`,
+      `RulesCommand`, option resolvers, formatters, exit codes).
+- [x] Add or update README/AGENTS files that explain:
+  - The available launch profiles and when to use each one.
+  - The difference between stdio and SSE transports.
+  - How to start the MCP host from Visual Studio for live SSE debugging.
+  - How to connect VS Code (or another client) to the SSE endpoint.
+- [ ] Assume .NET familiarity may be limited; focus on *why* something exists and *how* to use it
+      rather than restating syntax.
+
+Related files:
+- `tools/AzurePipelines.Guidelines.Mcp.Host/Program.cs`
+- `tools/AzurePipelines.Guidelines.Mcp.Host/McpHostStartup.cs`
+- `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`
+- `tools/AzurePipelines.Guidelines.Mcp.Host/README.md`
+- `tools/AzurePipelines.Guidelines.Cli/AnalyzeCommand.cs`
+- `tools/AzurePipelines.Guidelines.Cli/RulesCommand.cs`
+- `docs/mcp-reference.md`
+- `docs/cli-reference.md`
 
 ---
 
@@ -62,15 +87,14 @@ Related files:
 
 ## Recent Session Summary
 
-**Date:** 2026-07-11
+**Date:** 2026-07-13
 
 **Completed:**
-- ✅ Implemented multi-value filtering for `adog analyze` and `adog rules list`
-- ✅ Added the `--guideline-severity` alias and clarified the severity distinction in docs
-- ✅ Added MCP reference documentation and registered it in the solution
-- ✅ Implemented multi-format output support for `adog analyze --format ...` with combined output to `--output`
-- ✅ Added config-file support for CLI defaults from `adog.json` / `.adogrc.json`
-- ✅ Verified the solution with tests and local packaging
+- ✅ Added inline comments to the MCP host (`Program.cs`, `McpHostStartup.cs`, `launchSettings.json`) explaining transport selection, stderr-only logging, and launch profile URL injection.
+- ✅ Created `tools/AzurePipelines.Guidelines.Mcp.Host/README.md` with build/run/debug instructions for stdio and SSE modes, registered in the host `.csproj`.
+- ✅ Updated host and MCP library `AGENTS.md` files with transport and handler guidance.
+- ✅ Added inline comments to MCP library source (`GuidelinesMcpServiceCollectionExtensions.cs`, `GuidelineResources.cs`, `GuidelineTools.cs`, `PipelineAnalysisTools.cs`) for non-obvious choices.
+- ✅ Verified the solution with the full quality gate (`491` tests passed).
 
 **Status:**
 - NuGet publication is deferred; package configuration remains for a future release

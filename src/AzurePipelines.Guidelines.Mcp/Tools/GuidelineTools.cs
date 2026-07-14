@@ -15,6 +15,8 @@ namespace AzurePipelines.Guidelines.Mcp.Tools;
     Justification = "Instantiated by the MCP SDK via dependency injection.")]
 internal sealed class GuidelineTools(IGuidelineRepository repository)
 {
+    // Compact JSON with camel-case property names. Null values are omitted so AI clients
+    // receive smaller responses and the shared contract stays predictable.
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = false,
@@ -246,7 +248,8 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
     }
 
     // Converts an enum value to a lowercase ASCII string for JSON output.
-    // Avoids CA1308 (ToLowerInvariant) by using char arithmetic on ASCII enum names.
+    // We avoid string.ToLowerInvariant because the codebase treats enum names as stable
+    // ASCII identifiers, and CA1308 warns against ToLowerInvariant in invariant contexts.
     private static string EnumToJsonString<T>(T value) where T : struct, Enum
     {
         string name = value.ToString();

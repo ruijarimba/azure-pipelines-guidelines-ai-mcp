@@ -12,6 +12,7 @@ Azure Pipelines YAML analysis as MCP **tools** and **resources** that AI assista
 - DI extension method: `AddGuidelinesMcp(IServiceCollection)`.
 - Request/response DTOs specific to the MCP surface — these are `internal` and must not
   bleed into the domain model in `Core`.
+- Internal enums, lookups, and exceptions used by the MCP layer.
 
 ## What does NOT belong here
 
@@ -42,8 +43,14 @@ Azure Pipelines YAML analysis as MCP **tools** and **resources** that AI assista
   `IPipelineAnalyser`) via constructor injection.
 - Only the DI extension method (`AddGuidelinesMcp`) is `public`; all handler classes
   are `internal`.
+- Handler classes are suppressed for CA1812 ("Avoid uninstantiated internal classes") because
+  the MCP SDK creates them through dependency injection at runtime.
 - Tool and resource descriptions shown to AI clients must be concise, accurate, and
   derived from the guideline manifest vocabulary.
+- Handler return values are JSON strings. The shared `_jsonOptions` use camel-case property
+  names and skip null values to keep responses small and predictable for clients.
+- Enum values returned to clients are lower-case ASCII strings (`general`, `error`, etc.)
+  produced by `EnumToJsonString<T>` to avoid globalization analyser warnings.
 
 ## Adding a new tool
 

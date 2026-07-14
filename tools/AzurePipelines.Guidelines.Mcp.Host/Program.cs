@@ -1,47 +1,24 @@
-using AzurePipelines.Guidelines.Mcp;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using AzurePipelines.Guidelines.Mcp.Host;
 
-// Default transport is stdio. SSE is available for debugging so the server can stay
-// running inside Visual Studio while VS Code (or another MCP client) connects over HTTP.
+// The MCP host is intentionally a thin dispatcher.
+// Real startup logic lives in McpHostStartup so that transport-specific behaviour
+// (web host for SSE, generic host for stdio) can be kept separate and tested.
 string transport = GetTransport(args);
 
 if (string.Equals(transport, "sse", StringComparison.OrdinalIgnoreCase))
 {
-    WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-    ConfigureLogging(builder.Logging);
-
-    builder.Services.AddGuidelinesMcp().WithHttpTransport();
-
-    WebApplication app = builder.Build();
-    app.MapMcp("/mcp");
-
-    await app.RunAsync().ConfigureAwait(false);
+    await McpHostStartup.RunSseAsync(args).ConfigureAwait(false);
 }
 else
 {
-    // MCP servers communicate over stdio: stdout is the protocol channel.
-    // Redirect all logging to stderr so it does not interfere with MCP messages.
-    HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
-    ConfigureLogging(builder.Logging);
-
-    builder.Services.AddGuidelinesMcp().WithStdioServerTransport();
-
-    IHost host = builder.Build();
-
-    await host.RunAsync().ConfigureAwait(false);
-}
-
-static void ConfigureLogging(ILoggingBuilder logging)
-{
-    logging.ClearProviders();
-    logging.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace);
+    // stdio is the default and the only supported mode for Docker / CI usage.
+    // SSE is provided only for local debugging from an IDE.
+    await McpHostStartup.RunStdioAsync(args).ConfigureAwait(false);
 }
 
 static string GetTransport(string[] args)
 {
+    // First check the explicit command line flag used by launch profiles and scripts.
     for (int index = 0; index < args.Length; index++)
     {
         string argument = args[index];
@@ -58,6 +35,8 @@ static string GetTransport(string[] args)
         break;
     }
 
+    // Then fall back to an environment variable so container images or CI wrappers
+    // can change the transport without editing launch profiles.
     string? environmentTransport = Environment.GetEnvironmentVariable("MCP_TRANSPORT");
     return string.IsNullOrWhiteSpace(environmentTransport) ? "stdio" : environmentTransport;
 }

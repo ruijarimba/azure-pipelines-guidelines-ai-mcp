@@ -39,6 +39,7 @@
 
   <ItemGroup>
     <None Include="AGENTS.md" />
+    <None Include="README.md" />
     <None Include="Properties\launchSettings.json" />
   </ItemGroup>
 

@@ -34,8 +34,8 @@ public static class GuidelinesMcpServiceCollectionExtensions
         // Register the parser, all guideline rules, and the analysis engine.
         services.AddGuidelinesAnalysis();
 
-        // Register the loader as a singleton.
-        // and shared for the lifetime of the process (manifest is loaded at startup only).
+        // The loader is registered as a singleton because the manifest does not change
+        // during the lifetime of one process; only one HTTP fetch is needed.
         services.AddSingleton<IGuidelineLoader>(sp =>
         {
             HttpClient httpClient = new();
@@ -46,7 +46,8 @@ public static class GuidelinesMcpServiceCollectionExtensions
 
         // IGuidelineRepository is a singleton populated synchronously at first resolve.
         // This is safe because resolution happens before the host starts processing
-        // MCP requests; there is no concurrent access at that point.
+        // MCP requests; there is no concurrent access at that point. If the network fetch
+        // fails the server starts with an empty guideline list rather than crashing.
         services.AddSingleton<IGuidelineRepository>(sp =>
         {
             IGuidelineLoader loader = sp.GetRequiredService<IGuidelineLoader>();
@@ -56,6 +57,8 @@ public static class GuidelinesMcpServiceCollectionExtensions
             IReadOnlyList<GuidelineDefinition> guidelines;
             try
             {
+                // Synchronous wait is acceptable here: this factory runs once during
+                // service provider build, before any MCP requests are processed.
                 guidelines = loader.LoadAsync().GetAwaiter().GetResult();
                 LoaderLog.GuidelinesLoaded(logger, guidelines.Count);
             }
@@ -73,8 +76,9 @@ public static class GuidelinesMcpServiceCollectionExtensions
             return new GuidelineRepository(guidelines);
         });
 
-        // MCP server + tool and resource discovery from the Mcp assembly.
-        // Transport is intentionally left for the host to choose.
+        // MCP server + tool/resource discovery from this assembly.
+        // Transport is intentionally left for the host to choose; the library stays
+        // usable for both stdio and SSE hosts without a compile-time dependency on either.
         IMcpServerBuilder builder = services
             .AddMcpServer(options =>
             {

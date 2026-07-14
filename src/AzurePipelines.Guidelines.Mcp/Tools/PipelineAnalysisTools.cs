@@ -19,6 +19,8 @@ internal sealed class PipelineAnalysisTools(
     IPipelineAnalyser analyser,
     PipelinePathResolver pathResolver)
 {
+    // Compact JSON with camel-case property names. Null values are omitted so AI clients
+    // receive smaller responses and the shared contract stays predictable.
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = false,
@@ -204,7 +206,9 @@ internal sealed class PipelineAnalysisTools(
                 }
                 catch (ArgumentException)
                 {
-                    // Skip malformed IDs silently; the caller will see no results for them.
+                    // Skip malformed IDs rather than failing the whole request.
+                    // The alternative would force callers to send a perfect list; partial
+                    // matches are more useful for interactive AI clients.
                 }
             }
 
@@ -259,7 +263,8 @@ internal sealed class PipelineAnalysisTools(
     // ── Internal DTOs ─────────────────────────────────────────────────────────
 
     // Converts an enum value to a lowercase ASCII string for JSON output.
-    // Avoids CA1308 (ToLowerInvariant) by using char arithmetic on ASCII enum names.
+    // We avoid string.ToLowerInvariant because the codebase treats enum names as stable
+    // ASCII identifiers, and CA1308 warns against ToLowerInvariant in invariant contexts.
     private static string EnumToJsonString<T>(T value) where T : struct, Enum
     {
         string name = value.ToString();

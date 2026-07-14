@@ -1,7 +1,13 @@
 {
+  // Visual Studio launch profiles for the MCP host executable.
+  // Select a profile with the green arrow / Debug menu before starting.
+  // "stdio" is the normal MCP transport used by editors (stdout protocol).
+  // "SSE" starts an ASP.NET Core server for local debugging over HTTP.
   "profiles": {
     "stdio": {
       "commandName": "Project",
+      // Pass the transport flag so the host knows this is stdio mode.
+      // stdout is reserved for MCP protocol traffic; logs go to stderr.
       "commandLineArgs": "--transport stdio",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
@@ -9,8 +15,11 @@
     },
     "SSE": {
       "commandName": "Project",
+      // Start in SSE mode. The endpoint is exposed at /mcp by default.
       "commandLineArgs": "--transport sse",
       "launchBrowser": false,
+      // applicationUrl only applies when this profile is actually selected.
+      // Select the SSE profile in Visual Studio to bind to port 5050.
       "applicationUrl": "http://localhost:5050",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
