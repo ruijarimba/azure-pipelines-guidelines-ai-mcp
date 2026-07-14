@@ -41,6 +41,8 @@
     <None Include="AGENTS.md" />
     <None Include="README.md" />
     <None Include="Properties\launchSettings.json" />
+    <None Include="SseMcpHost.cs" />
+    <None Include="StdioMcpHost.cs" />
   </ItemGroup>
 
 </Project>
