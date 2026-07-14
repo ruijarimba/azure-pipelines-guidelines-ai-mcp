@@ -40,6 +40,7 @@
   <ItemGroup>
     <None Include="AGENTS.md" />
     <None Include="README.md" />
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Include="Properties\launchSettings.json" />
     <None Include="SseMcpHost.cs" />
     <None Include="StdioMcpHost.cs" />

@@ -1,5 +1,6 @@
 using AzurePipelines.Guidelines.Mcp;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,10 +17,20 @@ internal static class SseMcpHost
 
     internal static async Task RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
-        // ASP.NET Core reads the launch profile's applicationUrl automatically when the profile
-        // is selected in Visual Studio or via --launch-profile SSE. When run without that profile
-        // the server falls back to the default URL; use --urls or the launch profile to pin 5050.
-        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+        WebApplicationOptions options = new()
+        {
+            Args = args,
+            ContentRootPath = AppContext.BaseDirectory,
+        };
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(options);
+
+        string? configuredUrl = builder.Configuration[WebHostDefaults.ServerUrlsKey];
+        if (string.IsNullOrWhiteSpace(configuredUrl))
+        {
+            throw new InvalidOperationException($"The '{WebHostDefaults.ServerUrlsKey}' configuration value is required for SSE mode.");
+        }
+
+        builder.WebHost.UseUrls(configuredUrl);
         ConfigureLogging(builder.Logging);
 
         builder.Services.AddGuidelinesMcp().WithHttpTransport();

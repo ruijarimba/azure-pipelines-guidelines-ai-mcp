@@ -111,42 +111,26 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ---
 
-## In progress
+## Recently completed
 
 **MCP SSE port stabilization**
 
-The MCP host was refactored into a thin transport dispatcher (`Program.cs`) and a dedicated
-startup helper (`McpHostStartup.cs`). Minimal startup logging was added for both SSE and stdio
-using `LoggerMessage.Define`, so stdio protocol traffic stays on stdout and human-readable logs
-stay on stderr.
+Visual Studio passed the SSE transport argument and development environment but did not inject
+`ASPNETCORE_URLS` from the selected launch profile. With no effective URL configured, Kestrel
+bound to its default `http://localhost:5000` URL.
 
-A live run without the **SSE** launch profile selected bound to `http://localhost:5000` instead
-of the documented `http://localhost:5050`. The `SSE` launch profile in `launchSettings.json`
-still declares `applicationUrl: http://localhost:5050`; the port mismatch was only observed when
-`applicationUrl` was not injected. The current code builds and the profiles are intact.
-
-Current focus:
-1. Make the SSE URL/port behavior explicit and deterministic.
-2. Verify the server starts on `http://localhost:5050/mcp` when the SSE profile is selected.
-
-Files in scope:
-- `tools/AzurePipelines.Guidelines.Mcp.Host/Program.cs`
-- `tools/AzurePipelines.Guidelines.Mcp.Host/McpHostStartup.cs`
-- `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`
-
-Validation completed:
-- Full solution quality gate passed (`491` passed, `0` failed) after the documentation changes.
+`appsettings.json` configures SSE mode as `http://localhost:5050`. `SseMcpHost.cs` resolves the
+standard `urls` setting, so explicit `--urls` and `ASPNETCORE_URLS` settings remain authoritative.
+The host README and MCP reference document the deterministic default and override mechanisms.
 
 ---
 
 ## Next up
 
-1. **Stabilize SSE port/URL resolution** so the debugging endpoint is deterministic without
-   relying solely on launch profile injection.
-2. **Address documentation and inline-comment debt** in the CLI project
+1. **Address documentation and inline-comment debt** in the CLI project
    (`tools/AzurePipelines.Guidelines.Cli`), so command options, formatters, and exit codes are
    clear to contributors without deep .NET knowledge.
-3. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
+2. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
    rule template workflow when they appear.
 
 ---

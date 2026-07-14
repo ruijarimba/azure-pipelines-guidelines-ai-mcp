@@ -69,11 +69,11 @@ The launch profile binds the server to `http://localhost:5050`. The MCP endpoint
 http://localhost:5050/mcp
 ```
 
-### Why selecting the launch profile matters
+### Default URL behavior
 
-The `applicationUrl` value in `launchSettings.json` is only injected when you choose the
-**SSE** launch profile. If you start the project without that profile, ASP.NET Core falls back
-to its default URL (typically port `5000`). Always select the profile when debugging SSE.
+The `urls` setting in `appsettings.json` configures SSE as `http://localhost:5050` whether it
+is started through the **SSE** launch profile or directly with `--transport sse`. Pass `--urls`
+or set `ASPNETCORE_URLS` to use a different URL.
 
 ### From the command line for quick testing
 

@@ -291,8 +291,8 @@ In Visual Studio, set the run/debug profile to **SSE** before you start debuggin
 3. Select **SSE**.
 4. Press **F5** (or choose **Debug &gt; Start Debugging**).
 
-The server starts on `http://localhost:5050/mcp` by default. The process stays alive as long as
-the debugger is attached, and breakpoints in the host and library projects will be hit.
+The server defaults to `http://localhost:5050/mcp`. The process stays alive as long as the
+debugger is attached, and breakpoints in the host and library projects will be hit.
 
 To start from the command line instead of Visual Studio:
 
@@ -330,10 +330,9 @@ server again.
   execution mode for day-to-day clients, Docker images, and CI.
 - The server binds to `localhost` by default. It is not intended to be exposed to other
   machines.
-- If port `5050` is in use, change the **SSE** profile in
-  `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`, or pass
-  `--urls "http://localhost:<port>"` when starting from the command line. If you change the
-  port, update the `url` value in VS Code's `mcp.json` to match.
+- If port `5050` is in use, pass `--urls "http://localhost:<port>"` when starting from the
+  command line or set `ASPNETCORE_URLS` to the replacement URL. Update the `url` value in VS
+  Code's `mcp.json` to match.
 - You can also switch transports with the environment variable `MCP_TRANSPORT=sse`, but the
   `--transport` command-line argument takes priority.
 
