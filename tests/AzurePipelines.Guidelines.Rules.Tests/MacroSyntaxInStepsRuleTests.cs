@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of macro syntax used in step expressions.</summary>
 public sealed class MacroSyntaxInStepsRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of pipeline validation mode configuration issues.</summary>
 public sealed class PipelineValidationModeRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

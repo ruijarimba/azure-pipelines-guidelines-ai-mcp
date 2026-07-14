@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of jobs without a timeout.</summary>
 public sealed class JobMissingTimeoutRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

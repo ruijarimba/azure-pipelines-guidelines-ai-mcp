@@ -395,6 +395,8 @@ public sealed class AnalyzeCommandTests
         }
     }
 
+    /// <summary>Creates substitutes that capture the options passed to analysis.</summary>
+    /// <returns>A parser, analyser, and capture object for the test.</returns>
     private static (IPipelineParser parser, IPipelineAnalyser analyser, AnalysisOptionsCapture capture)
         CreateAnalyserWithCapturedOptions()
     {
@@ -416,6 +418,8 @@ public sealed class AnalyzeCommandTests
         return (parser, analyser, capture);
     }
 
+    /// <summary>Creates a parser substitute that returns an empty pipeline document.</summary>
+    /// <returns>The configured parser substitute.</returns>
     private static IPipelineParser CreateParser()
     {
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -431,6 +435,8 @@ public sealed class AnalyzeCommandTests
         return parser;
     }
 
+    /// <summary>Creates an analyser substitute that returns no diagnostics.</summary>
+    /// <returns>The configured analyser substitute.</returns>
     private static IPipelineAnalyser CreateAnalyserWithoutDiagnostics()
     {
         IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
@@ -448,6 +454,8 @@ public sealed class AnalyzeCommandTests
         return analyser;
     }
 
+    /// <summary>Creates an analyser substitute that returns one timeout diagnostic.</summary>
+    /// <returns>The configured analyser substitute.</returns>
     private static IPipelineAnalyser CreateAnalyserWithSingleDiagnostic()
     {
         IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
@@ -473,17 +481,22 @@ public sealed class AnalyzeCommandTests
         return analyser;
     }
 
+    /// <summary>Returns the absolute path to an analyze-command fixture.</summary>
+    /// <param name="fixtureName">The fixture file name.</param>
+    /// <returns>The absolute fixture path.</returns>
     private static string GetFixturePath(string fixtureName)
     {
         string fullPath = Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureName);
         return Path.GetFullPath(fullPath);
     }
 
+    /// <summary>Stores the most recent analysis options passed to a substitute.</summary>
     private sealed class AnalysisOptionsCapture
     {
         internal AnalysisOptions? Value { get; set; }
     }
 
+    /// <summary>Restores environment variables changed by a test.</summary>
     private sealed class EnvironmentVariableScope : IDisposable
     {
         private readonly Dictionary<string, string?> _originalValues = [];

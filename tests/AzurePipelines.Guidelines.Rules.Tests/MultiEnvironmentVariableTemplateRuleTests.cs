@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of environment variables spread across multiple templates.</summary>
 public sealed class MultiEnvironmentVariableTemplateRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

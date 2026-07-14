@@ -92,7 +92,9 @@ internal static class JsonFormatter
         return dtos;
     }
 
-    // Converts an enum value to lowercase ASCII — avoids CA1308 (ToLowerInvariant).
+    /// <summary>Converts an enum value to lowercase ASCII without culture-sensitive processing.</summary>
+    /// <param name="value">The enum value to convert.</param>
+    /// <returns>The lowercase enum name.</returns>
     private static string EnumToLower<T>(T value) where T : struct, Enum
     {
         string name = value.ToString();
@@ -106,14 +108,16 @@ internal static class JsonFormatter
         });
     }
 
-    // ── DTOs ──────────────────────────────────────────────────────────────────
+    // These records remain nested because they are private, formatter-specific JSON contracts.
 
+    /// <summary>Represents a compact guideline summary in JSON output.</summary>
     private sealed record GuidelineSummaryDto(
         [property: JsonPropertyName("id")]       string Id,
         [property: JsonPropertyName("category")] string Category,
         [property: JsonPropertyName("severity")] string Severity,
         [property: JsonPropertyName("title")]    string Title);
 
+    /// <summary>Represents full guideline details in JSON output.</summary>
     private sealed record GuidelineDetailDto(
         [property: JsonPropertyName("id")]          string Id,
         [property: JsonPropertyName("category")]    string Category,
@@ -125,11 +129,13 @@ internal static class JsonFormatter
         [property: JsonPropertyName("fix")]         FixDto? Fix,
         [property: JsonPropertyName("references")]  string[]? References);
 
+    /// <summary>Represents fix guidance in JSON output.</summary>
     private sealed record FixDto(
         [property: JsonPropertyName("summary")] string Summary,
         [property: JsonPropertyName("before")]  string? Before,
         [property: JsonPropertyName("after")]   string? After);
 
+    /// <summary>Represents one diagnostic in JSON output.</summary>
     private sealed record DiagnosticDto(
         [property: JsonPropertyName("ruleId")]   string RuleId,
         [property: JsonPropertyName("severity")] string Severity,
@@ -137,6 +143,7 @@ internal static class JsonFormatter
         [property: JsonPropertyName("filePath")] string FilePath,
         [property: JsonPropertyName("line")]     int? Line);
 
+    /// <summary>Represents diagnostics grouped by source file in JSON output.</summary>
     private sealed record FileAnalysisResultDto(
         [property: JsonPropertyName("filePath")] string FilePath,
         [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics);

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AzurePipelines.Guidelines.Analysis;
@@ -17,7 +18,8 @@ namespace AzurePipelines.Guidelines.Mcp.Tools;
 internal sealed class PipelineAnalysisTools(
     IPipelineParser parser,
     IPipelineAnalyser analyser,
-    PipelinePathResolver pathResolver)
+    PipelinePathResolver pathResolver,
+    IGuidelineRepository repository)
 {
     // Compact JSON with camel-case property names. Null values are omitted so AI clients
     // receive smaller responses and the shared contract stays predictable.
@@ -36,8 +38,9 @@ internal sealed class PipelineAnalysisTools(
     [McpServerTool(Name = "analyze_pipeline")]
     [Description(
         "Analyses Azure Pipelines YAML content against the loaded guidelines and returns " +
-        "a JSON array of violations. Each item includes the guideline ID, severity, message, " +
-        "and the line number where the violation was detected. " +
+        "compact JSON containing line-level diagnostics and deduplicated rule summaries. Each rule " +
+        "summary includes guidance and reference links. When presenting results, render every " +
+        "reference URL as a Markdown link. Use get_guideline only when full remediation details are needed. " +
         "Pass an optional category to restrict analysis to one guideline category, or an " +
         "optional comma-separated list of guideline IDs to restrict to specific rules.")]
     internal async Task<string> AnalyzePipelineAsync(
@@ -80,7 +83,7 @@ internal sealed class PipelineAnalysisTools(
             .AnalyseAsync(document, options)
             .ConfigureAwait(false);
 
-        return JsonSerializer.Serialize(BuildDiagnosticDtos(result.Diagnostics), _jsonOptions);
+        return JsonSerializer.Serialize(BuildAnalysisResponse(result.Diagnostics), _jsonOptions);
     }
 
     // ── analyze_pipeline_paths ───────────────────────────────────────────────
@@ -91,7 +94,9 @@ internal sealed class PipelineAnalysisTools(
     [McpServerTool(Name = "analyze_pipeline_paths")]
     [Description(
         "Analyses one or more Azure Pipelines YAML files or directories against the loaded guidelines " +
-        "and returns aggregated violations. Directories are scanned recursively. " +
+        "and returns per-file diagnostics plus compact deduplicated rule summaries with reference links. " +
+        "Use format=markdown for a compact user-facing report with linked rule IDs; use the default " +
+        "JSON format for structured processing. Directories are scanned recursively. " +
         "Pass an optional category to restrict analysis to one guideline category, or an " +
         "optional comma-separated list of guideline IDs to restrict to specific rules.")]
     internal async Task<string> AnalyzePipelinePathsAsync(
@@ -105,12 +110,22 @@ internal sealed class PipelineAnalysisTools(
             "Optional category filter. " +
             "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables. " +
             "Omit or pass null to include all categories.")]
-        string? category = null)
+        string? category = null,
+        [Description(
+            "Output format: json (default) for structured diagnostics or markdown for a compact " +
+            "user-facing report with linked rule IDs.")]
+        string? format = "json")
     {
         if (paths is null || paths.Length == 0 || paths.All(string.IsNullOrWhiteSpace))
         {
             return JsonSerializer.Serialize(
                 new ErrorResponse("Parameter 'paths' is required."), _jsonOptions);
+        }
+
+        if (!TryParseOutputFormat(format, out bool useMarkdown))
+        {
+            return JsonSerializer.Serialize(
+                new ErrorResponse("Unknown format. Allowed values: json, markdown."), _jsonOptions);
         }
 
         IReadOnlyList<string> discoveredPaths;
@@ -129,6 +144,7 @@ internal sealed class PipelineAnalysisTools(
         }
 
         List<FileAnalysisResultDto> fileResults = [];
+        List<Diagnostic> allDiagnostics = [];
 
         foreach (string discoveredPath in discoveredPaths)
         {
@@ -159,9 +175,16 @@ internal sealed class PipelineAnalysisTools(
                 .ConfigureAwait(false);
 
             fileResults.Add(new FileAnalysisResultDto(discoveredPath, BuildDiagnosticDtos(result.Diagnostics)));
+            allDiagnostics.AddRange(result.Diagnostics);
         }
 
-        return JsonSerializer.Serialize(fileResults, _jsonOptions);
+        RuleDetailDto[] rules = BuildRuleDetails(allDiagnostics);
+        if (useMarkdown)
+        {
+            return BuildMarkdownReport(fileResults, allDiagnostics, rules);
+        }
+
+        return JsonSerializer.Serialize(new AnalysisPathsResponseDto([.. fileResults], rules), _jsonOptions);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -206,9 +229,7 @@ internal sealed class PipelineAnalysisTools(
                 }
                 catch (ArgumentException)
                 {
-                    // Skip malformed IDs rather than failing the whole request.
-                    // The alternative would force callers to send a perfect list; partial
-                    // matches are more useful for interactive AI clients.
+                    // Keep valid filters when one interactive-client input is malformed.
                 }
             }
 
@@ -227,6 +248,32 @@ internal sealed class PipelineAnalysisTools(
         return true;
     }
 
+    /// <summary>Parses the requested analysis response format.</summary>
+    /// <param name="format">The requested format name.</param>
+    /// <param name="useMarkdown">Whether the response should be rendered as Markdown.</param>
+    /// <returns><see langword="true"/> when the format is supported.</returns>
+    private static bool TryParseOutputFormat(string? format, out bool useMarkdown)
+    {
+        if (string.IsNullOrWhiteSpace(format) || string.Equals(format, "json", StringComparison.OrdinalIgnoreCase))
+        {
+            useMarkdown = false;
+            return true;
+        }
+
+        if (string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
+        {
+            useMarkdown = true;
+            return true;
+        }
+
+        useMarkdown = false;
+        return false;
+    }
+
+    /// <summary>Parses a category filter value.</summary>
+    /// <param name="value">The category text.</param>
+    /// <param name="result">The parsed category when successful.</param>
+    /// <returns><see langword="true"/> when the category is supported.</returns>
     private static bool TryParseCategory(string value, out GuidelineCategory result)
     {
         result = value.ToUpperInvariant() switch
@@ -244,6 +291,9 @@ internal sealed class PipelineAnalysisTools(
         return (int)result >= 0;
     }
 
+    /// <summary>Maps diagnostics to the compact MCP response contract.</summary>
+    /// <param name="diagnostics">The diagnostics to map.</param>
+    /// <returns>The mapped diagnostics.</returns>
     private static DiagnosticDto[] BuildDiagnosticDtos(IReadOnlyList<Diagnostic> diagnostics)
     {
         DiagnosticDto[] dtos = new DiagnosticDto[diagnostics.Count];
@@ -260,11 +310,157 @@ internal sealed class PipelineAnalysisTools(
         return dtos;
     }
 
-    // ── Internal DTOs ─────────────────────────────────────────────────────────
+    /// <summary>Builds the single-document analysis response.</summary>
+    /// <param name="diagnostics">The diagnostics produced by analysis.</param>
+    /// <returns>The structured analysis response.</returns>
+    private AnalysisResponseDto BuildAnalysisResponse(IReadOnlyList<Diagnostic> diagnostics) =>
+        new(BuildDiagnosticDtos(diagnostics), BuildRuleDetails(diagnostics));
 
-    // Converts an enum value to a lowercase ASCII string for JSON output.
-    // We avoid string.ToLowerInvariant because the codebase treats enum names as stable
-    // ASCII identifiers, and CA1308 warns against ToLowerInvariant in invariant contexts.
+    /// <summary>Builds one linked rule summary for each distinct violated guideline.</summary>
+    /// <param name="diagnostics">The diagnostics whose guideline summaries are needed.</param>
+    /// <returns>Distinct rule details in first-seen order.</returns>
+    private RuleDetailDto[] BuildRuleDetails(IEnumerable<Diagnostic> diagnostics)
+    {
+        List<RuleDetailDto> details = [];
+        HashSet<string> ruleIds = new(StringComparer.Ordinal);
+
+        foreach (Diagnostic diagnostic in diagnostics)
+        {
+            if (!ruleIds.Add(diagnostic.GuidelineId.Value))
+            {
+                continue;
+            }
+
+            GuidelineDefinition? guideline = repository.FindById(diagnostic.GuidelineId);
+            if (guideline is null)
+            {
+                continue;
+            }
+
+            details.Add(new RuleDetailDto(
+                guideline.Id.Value,
+                guideline.Title,
+                guideline.Fix?.Summary ?? guideline.Description,
+                guideline.References.Count > 0 ? [.. guideline.References] : null));
+        }
+
+        return [.. details];
+    }
+
+    /// <summary>Renders multi-file analysis results as a compact Markdown report.</summary>
+    /// <param name="files">The per-file analysis results.</param>
+    /// <param name="diagnostics">All diagnostics across the analyzed files.</param>
+    /// <param name="rules">Distinct rule details used for linked summaries.</param>
+    /// <returns>The Markdown report.</returns>
+    private static string BuildMarkdownReport(
+        IReadOnlyList<FileAnalysisResultDto> files,
+        List<Diagnostic> diagnostics,
+        IReadOnlyList<RuleDetailDto> rules)
+    {
+        Dictionary<string, RuleDetailDto> rulesById = rules.ToDictionary(static rule => rule.Id, StringComparer.Ordinal);
+        StringBuilder report = new();
+
+        report.AppendLine("## Azure Pipelines Guideline Analysis");
+        report.AppendLine();
+        report.Append("Analyzed ").Append(files.Count).AppendLine(" YAML files.");
+        report.AppendLine();
+        report.AppendLine("### Severity counts");
+        report.AppendLine();
+        report.AppendLine("| Severity | Count |");
+        report.AppendLine("| --- | ---: |");
+        AppendSeverityCount(report, diagnostics, DiagnosticSeverity.Error, "Error");
+        AppendSeverityCount(report, diagnostics, DiagnosticSeverity.Warning, "Warning");
+        AppendSeverityCount(report, diagnostics, DiagnosticSeverity.Info, "Info");
+        report.Append("| Total | ").Append(diagnostics.Count).AppendLine(" |");
+        report.AppendLine();
+        report.AppendLine("### Violated guidelines");
+        report.AppendLine();
+        report.AppendLine("| Rule | Title | Count | Guidance |");
+        report.AppendLine("| --- | --- | ---: | --- |");
+
+        foreach (IGrouping<string, Diagnostic> group in diagnostics
+            .GroupBy(static diagnostic => diagnostic.GuidelineId.Value)
+            .OrderByDescending(static group => group.Count())
+            .ThenBy(static group => group.Key, StringComparer.Ordinal))
+        {
+            rulesById.TryGetValue(group.Key, out RuleDetailDto? rule);
+            report.Append("| ")
+                .Append(FormatRuleLink(group.Key, rule?.References))
+                .Append(" | ")
+                .Append(EscapeTableCell(rule?.Title ?? group.Key))
+                .Append(" | ")
+                .Append(group.Count())
+                .Append(" | ")
+                .Append(EscapeTableCell(rule?.Guidance ?? "No additional guidance is available."))
+                .AppendLine(" |");
+        }
+
+        report.AppendLine();
+        report.AppendLine("### Files");
+        report.AppendLine();
+        report.AppendLine("| File | Errors | Warnings | Info |");
+        report.AppendLine("| --- | ---: | ---: | ---: |");
+
+        foreach (FileAnalysisResultDto file in files)
+        {
+            report.Append("| ")
+                .Append(EscapeTableCell(file.FilePath))
+                .Append(" | ")
+                .Append(file.Diagnostics.Count(static diagnostic => diagnostic.Severity == "error"))
+                .Append(" | ")
+                .Append(file.Diagnostics.Count(static diagnostic => diagnostic.Severity == "warning"))
+                .Append(" | ")
+                .Append(file.Diagnostics.Count(static diagnostic => diagnostic.Severity == "info"))
+                .AppendLine(" |");
+        }
+
+        return report.ToString();
+    }
+
+    /// <summary>Appends one severity row to the Markdown report.</summary>
+    /// <param name="report">The report builder.</param>
+    /// <param name="diagnostics">The diagnostics to count.</param>
+    /// <param name="severity">The severity to count.</param>
+    /// <param name="label">The display label.</param>
+    private static void AppendSeverityCount(
+        StringBuilder report,
+        IReadOnlyList<Diagnostic> diagnostics,
+        DiagnosticSeverity severity,
+        string label) =>
+        report.Append("| ")
+            .Append(label)
+            .Append(" | ")
+            .Append(diagnostics.Count(diagnostic => diagnostic.Severity == severity))
+            .AppendLine(" |");
+
+    /// <summary>Formats a rule identifier as a Markdown link when an HTTP reference exists.</summary>
+    /// <param name="ruleId">The guideline identifier.</param>
+    /// <param name="references">Candidate guideline references.</param>
+    /// <returns>The linked or plain rule identifier.</returns>
+    private static string FormatRuleLink(string ruleId, string[]? references)
+    {
+        string? reference = references?.FirstOrDefault(IsHttpUrl);
+        return reference is null ? ruleId : $"[{ruleId}]({reference})";
+    }
+
+    /// <summary>Determines whether a value is an absolute HTTP or HTTPS URL.</summary>
+    /// <param name="value">The candidate URL.</param>
+    /// <returns><see langword="true"/> when the value is an HTTP URL.</returns>
+    private static bool IsHttpUrl(string value) =>
+        Uri.TryCreate(value, UriKind.Absolute, out Uri? uri) &&
+        (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+
+    /// <summary>Escapes content that would otherwise alter a Markdown table.</summary>
+    /// <param name="value">The table cell value.</param>
+    /// <returns>The escaped single-line cell value.</returns>
+    private static string EscapeTableCell(string value) =>
+        value.Replace("|", "\\|", StringComparison.Ordinal)
+            .Replace("\r", " ", StringComparison.Ordinal)
+            .Replace("\n", " ", StringComparison.Ordinal);
+
+    /// <summary>Converts an enum value to lowercase ASCII for JSON output.</summary>
+    /// <param name="value">The enum value to convert.</param>
+    /// <returns>The lowercase enum name.</returns>
     private static string EnumToJsonString<T>(T value) where T : struct, Enum
     {
         string name = value.ToString();
@@ -278,16 +474,38 @@ internal sealed class PipelineAnalysisTools(
         });
     }
 
+    // These records remain nested because they are private, tool-specific response contracts.
+
+    /// <summary>Represents one diagnostic in an MCP response.</summary>
     private sealed record DiagnosticDto(
         [property: JsonPropertyName("ruleId")] string RuleId,
         [property: JsonPropertyName("severity")] string Severity,
         [property: JsonPropertyName("message")] string Message,
         [property: JsonPropertyName("line")] int? Line);
 
+    /// <summary>Represents a single-document analysis response.</summary>
+    private sealed record AnalysisResponseDto(
+        [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics,
+        [property: JsonPropertyName("rules")] RuleDetailDto[] Rules);
+
+    /// <summary>Represents diagnostics for one analyzed file.</summary>
     private sealed record FileAnalysisResultDto(
         [property: JsonPropertyName("filePath")] string FilePath,
         [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics);
 
+    /// <summary>Represents a multi-file analysis response.</summary>
+    private sealed record AnalysisPathsResponseDto(
+        [property: JsonPropertyName("files")] FileAnalysisResultDto[] Files,
+        [property: JsonPropertyName("rules")] RuleDetailDto[] Rules);
+
+    /// <summary>Represents a linked summary for one violated guideline.</summary>
+    private sealed record RuleDetailDto(
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("title")] string Title,
+        [property: JsonPropertyName("guidance")] string Guidance,
+        [property: JsonPropertyName("references")] string[]? References);
+
+    /// <summary>Represents an MCP tool error response.</summary>
     private sealed record ErrorResponse(
         [property: JsonPropertyName("error")] string Error);
 }

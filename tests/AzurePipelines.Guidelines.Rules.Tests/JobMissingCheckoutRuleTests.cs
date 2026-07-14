@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of jobs that do not check out repository contents.</summary>
 public sealed class JobMissingCheckoutRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

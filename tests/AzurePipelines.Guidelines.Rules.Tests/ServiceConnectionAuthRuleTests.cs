@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests authentication configuration for service connections.</summary>
 public sealed class ServiceConnectionAuthRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

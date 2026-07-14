@@ -204,6 +204,9 @@ public sealed class AnalyzeCommandOptionResolverTests
         capturedAnalysisOptions.IncludedDiagnosticSeverities.Should().ContainSingle().Which.Should().Be(DiagnosticSeverity.Warning);
     }
 
+    /// <summary>Builds a minimal command and resolves options from the supplied arguments.</summary>
+    /// <param name="args">The command-line arguments to parse.</param>
+    /// <returns>The resolved analyze-command options.</returns>
     private static AnalyzeCommandOptions ResolveOptions(params string[] args)
     {
         Argument<string[]> pathArg = new(
@@ -275,6 +278,8 @@ public sealed class AnalyzeCommandOptionResolverTests
             CliConfigurationLoader.Load());
     }
 
+    /// <summary>Creates a parser substitute that returns an empty pipeline document.</summary>
+    /// <returns>The configured parser substitute.</returns>
     private static IPipelineParser CreateParser()
     {
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -290,12 +295,16 @@ public sealed class AnalyzeCommandOptionResolverTests
         return parser;
     }
 
+    /// <summary>Returns the absolute path to a CLI test fixture.</summary>
+    /// <param name="fixtureName">The fixture file name.</param>
+    /// <returns>The absolute fixture path.</returns>
     private static string GetFixturePath(string fixtureName)
     {
         string fullPath = Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureName);
         return Path.GetFullPath(fullPath);
     }
 
+    /// <summary>Restores the process current directory when the test scope ends.</summary>
     private sealed class CurrentDirectoryScope : IDisposable
     {
         private readonly string? _originalDirectory = Environment.CurrentDirectory;
@@ -322,6 +331,7 @@ public sealed class AnalyzeCommandOptionResolverTests
         }
     }
 
+    /// <summary>Restores environment variables changed by a test.</summary>
     private sealed class EnvironmentVariableScope : IDisposable
     {
         private readonly Dictionary<string, string?> _originalValues = [];

@@ -28,7 +28,12 @@ applyTo: "**/*.cs"
 
 ## XML documentation
 
-Every `public` or `protected` member must have a complete XML doc comment:
+Every named type and member must have concise documentation. Use XML documentation to describe
+contracts, inputs, outputs, exceptions, and important constraints. For private implementation
+details, use XML documentation when it communicates a contract or constraint; otherwise use a
+concise regular comment when the purpose is not obvious.
+
+Public and protected members should always have complete XML documentation:
 
 ```csharp
 /// <summary>Analyses the given pipeline document and returns all diagnostics.</summary>

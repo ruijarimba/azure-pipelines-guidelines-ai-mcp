@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of variables with overly broad scope.</summary>
 public sealed class VariableScopeRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

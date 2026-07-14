@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests validation-mode job parameter configuration.</summary>
 public sealed class ValidationModeJobParameterRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of independent stages that should run in parallel.</summary>
 public sealed class RunIndependentStagesInParallelRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

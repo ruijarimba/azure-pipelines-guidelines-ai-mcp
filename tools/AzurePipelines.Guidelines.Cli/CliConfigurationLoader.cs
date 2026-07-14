@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace AzurePipelines.Guidelines.Cli;
 
+/// <summary>
+/// Loads optional CLI configuration from the current directory or user profile.
+/// </summary>
 internal static class CliConfigurationLoader
 {
     internal static CliConfiguration Load()
@@ -128,6 +131,9 @@ internal static class CliConfigurationLoader
     }
 }
 
+/// <summary>
+/// Stores values read from an <c>adog.json</c> configuration file.
+/// </summary>
 internal sealed class CliConfiguration
 {
     internal static CliConfiguration Empty { get; } = new();

@@ -10,6 +10,7 @@ namespace AzurePipelines.Guidelines.Cli.Tests;
 
 public sealed class RulesCommandTests
 {
+    /// <summary>Creates a minimal guideline definition for command tests.</summary>
     private static GuidelineDefinition MakeGuideline(
         string id,
         GuidelineCategory category = GuidelineCategory.Steps,
@@ -28,6 +29,7 @@ public sealed class RulesCommandTests
             Fix: null,
             References: []);
 
+    /// <summary>Creates a repository substitute containing the supplied guidelines.</summary>
     private static IGuidelineRepository MakeRepo(
         IReadOnlyList<GuidelineDefinition>? all = null)
     {
@@ -36,6 +38,7 @@ public sealed class RulesCommandTests
         return repo;
     }
 
+    /// <summary>Restores the process current directory when the test scope ends.</summary>
     private sealed class CurrentDirectoryScope : IDisposable
     {
         private readonly string? _originalDirectory = Environment.CurrentDirectory;

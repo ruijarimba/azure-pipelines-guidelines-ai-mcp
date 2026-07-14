@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests environment variable handling for task steps.</summary>
 public sealed class TaskEnvironmentVariablesRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

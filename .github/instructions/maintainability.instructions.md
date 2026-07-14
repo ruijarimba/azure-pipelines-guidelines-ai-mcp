@@ -67,12 +67,33 @@ public IReadOnlyList<Diagnostic> Analyze(PipelineDocument document, AnalysisOpti
 
 ---
 
-## 4. One responsibility per unit
+## 4. Documentation
+
+Every named type and member must be documented concisely so that a reader opening an unfamiliar
+file can understand its purpose without reconstructing the entire call graph.
+
+- Add XML documentation to classes, records, interfaces, enums, delegates, constructors, methods,
+  properties, fields, events, and other named members.
+- Use XML documentation to describe contracts, inputs, outputs, exceptions, and important
+  constraints. Keep it short and use plain language.
+- Document private implementation details when their purpose, invariant, or non-obvious decision
+  is not clear from the code. Do not write comments that merely restate the implementation.
+- XML documentation warnings may enforce public API coverage, but they do not replace the rule for
+  private members. Private documentation remains subject to review unless a dedicated analyser is
+  added.
+
+*See ADR-011 — Human readability as a first-class requirement.*
+
+---
+
+## 5. One responsibility per unit
 
 Each file, class, and method must have exactly one reason to change.
 
-- **One public type per file.** Private nested helper records are allowed; anything else goes
-  in its own file.
+- **One top-level type per file.** This applies to every class, record, interface, enum,
+  delegate, and struct, regardless of accessibility or whether it is sealed. A tightly coupled
+  private nested DTO or options type may remain nested when it is only used by its containing
+  type and keeping it local improves readability.
 - **One concern per class.** If you need the word "and" to describe what a class does,
   split it.
 - **One concern per method.** A method either queries state or changes state — not both
@@ -84,7 +105,7 @@ Each file, class, and method must have exactly one reason to change.
 
 ---
 
-## 5. Comment discipline
+## 6. Comment discipline
 
 Comments must explain **why**, never **what**. The code itself says what it does.
 A comment that restates the code in plain English is noise — remove it.
@@ -99,8 +120,9 @@ _count++;
 var lineNumber = startLine + 1;
 ```
 
-**XML doc comments** on `public` and `protected` members are the exception: they document
-the *contract* for consumers who cannot see the implementation.
+**XML doc comments** document the contract of named types and members. For private implementation
+details, use XML documentation when it communicates a contract or constraint; otherwise use a
+concise regular comment when the purpose is not obvious.
 
 Additional rules:
 
@@ -112,7 +134,7 @@ Additional rules:
 
 ---
 
-## 6. No dead code or speculative scaffolding
+## 7. No dead code or speculative scaffolding
 
 Only commit code that is reachable, tested, and used.
 
@@ -127,7 +149,7 @@ Only commit code that is reachable, tested, and used.
 
 ---
 
-## 7. No "clever" code
+## 8. No "clever" code
 
 Prefer the obvious implementation over a terse or sophisticated one.
 The next reader may not have your current context.
@@ -162,7 +184,7 @@ Microsoft C# coding conventions.*
 
 ---
 
-## 8. Change scope
+## 9. Change scope
 
 Each pull request or agent task should be reviewable in a single sitting.
 

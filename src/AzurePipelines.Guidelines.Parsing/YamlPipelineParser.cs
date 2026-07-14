@@ -27,8 +27,11 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return new PipelineDocument(filePath, yaml, parameters, variables, stages, jobs, steps);
     }
 
-    // ── Root loading ───────────────────────────────────────────────────────────
-
+    /// <summary>Loads and validates the YAML document root mapping.</summary>
+    /// <param name="yaml">The YAML text to parse.</param>
+    /// <param name="filePath">The source path used in parsing errors.</param>
+    /// <returns>The root YAML mapping.</returns>
+    /// <exception cref="PipelineParsingException">The YAML is invalid or has no mapping root.</exception>
     private static YamlMappingNode LoadRootMapping(string yaml, string filePath)
     {
         using StringReader reader = new(yaml);
@@ -59,8 +62,9 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return mapping;
     }
 
-    // ── Parameters ────────────────────────────────────────────────────────────
-
+    /// <summary>Parses top-level parameter declarations.</summary>
+    /// <param name="root">The YAML document root.</param>
+    /// <returns>Valid parameter nodes in source order.</returns>
     private static List<ParameterNode> ParseParameters(YamlMappingNode root)
     {
         if (!TryGetSequence(root, "parameters", out YamlSequenceNode? seq))
@@ -93,8 +97,9 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return result;
     }
 
-    // ── Variables ─────────────────────────────────────────────────────────────
-
+    /// <summary>Parses variables from either sequence or mapping syntax.</summary>
+    /// <param name="root">The YAML mapping containing the variables entry.</param>
+    /// <returns>Variable nodes in source order.</returns>
     private static List<VariableNode> ParseVariables(YamlMappingNode root)
     {
         if (!TryGetNode(root, "variables", out YamlNode? node))
@@ -110,6 +115,9 @@ internal sealed class YamlPipelineParser : IPipelineParser
         };
     }
 
+    /// <summary>Parses variables declared as a YAML sequence.</summary>
+    /// <param name="seq">The variable sequence.</param>
+    /// <returns>Variable nodes in source order.</returns>
     private static List<VariableNode> ParseVariableSequence(YamlSequenceNode seq)
     {
         List<VariableNode> result = [];
@@ -137,6 +145,9 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return result;
     }
 
+    /// <summary>Parses variables declared as a YAML mapping.</summary>
+    /// <param name="map">The variable mapping.</param>
+    /// <returns>Variable nodes in mapping order.</returns>
     private static List<VariableNode> ParseVariableMapping(YamlMappingNode map)
     {
         List<VariableNode> result = [];
@@ -154,8 +165,9 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return result;
     }
 
-    // ── Stages ────────────────────────────────────────────────────────────────
-
+    /// <summary>Parses top-level stage declarations.</summary>
+    /// <param name="root">The YAML document root.</param>
+    /// <returns>Stage nodes in source order.</returns>
     private static List<StageNode> ParseStages(YamlMappingNode root)
     {
         if (!TryGetSequence(root, "stages", out YamlSequenceNode? seq))
@@ -185,8 +197,9 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return result;
     }
 
-    // ── Jobs ──────────────────────────────────────────────────────────────────
-
+    /// <summary>Parses jobs from a pipeline or stage mapping.</summary>
+    /// <param name="root">The YAML mapping containing the jobs entry.</param>
+    /// <returns>Job nodes in source order.</returns>
     private static List<JobNode> ParseJobs(YamlMappingNode root)
     {
         if (!TryGetSequence(root, "jobs", out YamlSequenceNode? seq))
@@ -217,8 +230,9 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return result;
     }
 
-    // ── Steps ─────────────────────────────────────────────────────────────────
-
+    /// <summary>Parses steps from a pipeline or job mapping.</summary>
+    /// <param name="root">The YAML mapping containing the steps entry.</param>
+    /// <returns>Step nodes in source order.</returns>
     private static List<StepNode> ParseSteps(YamlMappingNode root)
     {
         if (!TryGetSequence(root, "steps", out YamlSequenceNode? seq))
@@ -252,8 +266,11 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return result;
     }
 
-    // ── YAML helpers ──────────────────────────────────────────────────────────
-
+    /// <summary>Looks up a YAML child node by scalar key.</summary>
+    /// <param name="map">The mapping to search.</param>
+    /// <param name="key">The key to find.</param>
+    /// <param name="node">The matching node, or <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> when the key exists.</returns>
     private static bool TryGetNode(YamlMappingNode map, string key, out YamlNode? node)
     {
         foreach (KeyValuePair<YamlNode, YamlNode> entry in map.Children)
@@ -269,6 +286,11 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return false;
     }
 
+    /// <summary>Looks up a child node and verifies that it is a sequence.</summary>
+    /// <param name="map">The mapping to search.</param>
+    /// <param name="key">The sequence key to find.</param>
+    /// <param name="seq">The matching sequence, or <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> when the key contains a sequence.</returns>
     private static bool TryGetSequence(
         YamlMappingNode map, string key, out YamlSequenceNode? seq)
     {
@@ -282,6 +304,10 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return false;
     }
 
+    /// <summary>Returns a scalar child value, or <see langword="null"/> for non-scalars.</summary>
+    /// <param name="map">The mapping to search.</param>
+    /// <param name="key">The scalar key to find.</param>
+    /// <returns>The scalar value, or <see langword="null"/>.</returns>
     private static string? ScalarOrNull(YamlMappingNode map, string key)
     {
         if (TryGetNode(map, key, out YamlNode? node) && node is YamlScalarNode scalar)
@@ -292,18 +318,30 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return null;
     }
 
+    /// <summary>Parses an integer scalar child value.</summary>
+    /// <param name="map">The mapping to search.</param>
+    /// <param name="key">The integer key to find.</param>
+    /// <returns>The parsed integer, or <see langword="null"/>.</returns>
     private static int? IntOrNull(YamlMappingNode map, string key)
     {
         string? raw = ScalarOrNull(map, key);
         return int.TryParse(raw, out int value) ? value : null;
     }
 
+    /// <summary>Reads a case-insensitive YAML boolean and defaults missing values to false.</summary>
+    /// <param name="map">The mapping to search.</param>
+    /// <param name="key">The boolean key to find.</param>
+    /// <returns>The parsed boolean value.</returns>
     private static bool BoolOrFalse(YamlMappingNode map, string key)
     {
         string? raw = ScalarOrNull(map, key);
         return raw is not null && (raw == "true" || raw == "True" || raw == "TRUE");
     }
 
+    /// <summary>Parses a sequence containing scalar string values.</summary>
+    /// <param name="map">The mapping to search.</param>
+    /// <param name="key">The sequence key to find.</param>
+    /// <returns>Scalar values in source order.</returns>
     private static List<string> ParseScalarList(YamlMappingNode map, string key)
     {
         if (!TryGetSequence(map, key, out YamlSequenceNode? seq))
@@ -323,6 +361,9 @@ internal sealed class YamlPipelineParser : IPipelineParser
         return result;
     }
 
+    /// <summary>Gets the one-based source line for a YAML node.</summary>
+    /// <param name="node">The YAML node.</param>
+    /// <returns>The source line, or <see langword="null"/> when unavailable.</returns>
     private static int? LineOf(YamlNode node) =>
         node.Start.Line > 0 ? (int)node.Start.Line : null;
 }

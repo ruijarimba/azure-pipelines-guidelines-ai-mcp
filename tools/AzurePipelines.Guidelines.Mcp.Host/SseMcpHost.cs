@@ -7,6 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AzurePipelines.Guidelines.Mcp.Host;
 
+/// <summary>
+/// Starts the MCP server over HTTP for SSE-compatible clients.
+/// </summary>
 internal static class SseMcpHost
 {
     private static readonly Action<ILogger, string, string, string, Exception?> _logServerListening =
@@ -15,6 +18,11 @@ internal static class SseMcpHost
             new EventId(1, "SseServerListening"),
             "MCP SSE server is listening. Endpoint: {Endpoint}; Ports: {Ports}; URLs: {Urls}");
 
+    /// <summary>
+    /// Builds and runs the HTTP MCP host until shutdown is requested.
+    /// </summary>
+    /// <param name="args">Command-line arguments forwarded to the web host.</param>
+    /// <param name="cancellationToken">Token used to stop host startup or shutdown.</param>
     internal static async Task RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
         WebApplicationOptions options = new()
@@ -46,12 +54,18 @@ internal static class SseMcpHost
         await app.WaitForShutdownAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>Configures console logging so diagnostics are written to standard error.</summary>
+    /// <param name="logging">The web host logging builder.</param>
     private static void ConfigureLogging(ILoggingBuilder logging)
     {
         logging.ClearProviders();
         logging.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace);
     }
 
+    /// <summary>Logs the endpoint, ports, and URLs bound by the HTTP host.</summary>
+    /// <param name="logger">The logger receiving the operational message.</param>
+    /// <param name="endpointPath">The MCP endpoint path.</param>
+    /// <param name="urls">The URLs reported by the running application.</param>
     private static void LogServerListening(ILogger logger, string endpointPath, ICollection<string> urls)
     {
         if (!logger.IsEnabled(LogLevel.Information))
@@ -64,6 +78,9 @@ internal static class SseMcpHost
         _logServerListening(logger, endpointPath, ports, boundUrls, null);
     }
 
+    /// <summary>Extracts a port number from a bound URL.</summary>
+    /// <param name="url">The URL to inspect.</param>
+    /// <returns>The port number, or <c>unknown</c> for an invalid URL.</returns>
     private static string GetPort(string url)
     {
         return Uri.TryCreate(url, UriKind.Absolute, out Uri? address)

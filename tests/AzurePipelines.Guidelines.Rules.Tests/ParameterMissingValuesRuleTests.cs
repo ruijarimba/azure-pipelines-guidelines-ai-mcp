@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of parameters that omit allowed values.</summary>
 public sealed class ParameterMissingValuesRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

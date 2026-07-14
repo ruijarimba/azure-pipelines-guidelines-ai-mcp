@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace AzurePipelines.Guidelines.Mcp.Host;
 
+/// <summary>
+/// Starts the MCP server over standard input and standard output.
+/// </summary>
 internal static class StdioMcpHost
 {
     private static readonly Action<ILogger, Exception?> _logServerRunning =
@@ -13,6 +16,9 @@ internal static class StdioMcpHost
             new EventId(2, "StdioServerRunning"),
             "MCP stdio server is running. Protocol traffic uses stdout; logs are written to stderr.");
 
+    /// <summary>Builds and runs the stdio MCP host until shutdown is requested.</summary>
+    /// <param name="args">Command-line arguments forwarded to the generic host.</param>
+    /// <param name="cancellationToken">Token used to stop the host.</param>
     internal static async Task RunAsync(string[] args, CancellationToken cancellationToken = default)
     {
         HostApplicationBuilder builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder(args);
@@ -28,6 +34,8 @@ internal static class StdioMcpHost
         await host.RunAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>Configures console logging without contaminating the MCP stdout stream.</summary>
+    /// <param name="logging">The generic host logging builder.</param>
     private static void ConfigureLogging(ILoggingBuilder logging)
     {
         logging.ClearProviders();

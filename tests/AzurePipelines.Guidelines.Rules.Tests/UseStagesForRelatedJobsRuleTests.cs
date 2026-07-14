@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests grouping related jobs into explicit stages.</summary>
 public sealed class UseStagesForRelatedJobsRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

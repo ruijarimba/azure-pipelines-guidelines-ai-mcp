@@ -2,6 +2,9 @@ using System.CommandLine.Parsing;
 
 namespace AzurePipelines.Guidelines.Cli;
 
+/// <summary>
+/// Represents analyze-command settings loaded from environment variables.
+/// </summary>
 internal sealed class AnalyzeCommandEnvironment
 {
     private const string _formatVariableName = "ADOG_FORMAT";

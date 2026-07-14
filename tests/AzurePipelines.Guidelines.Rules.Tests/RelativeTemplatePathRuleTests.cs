@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of non-relative template paths.</summary>
 public sealed class RelativeTemplatePathRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

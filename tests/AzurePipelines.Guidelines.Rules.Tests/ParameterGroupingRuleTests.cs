@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of parameters that are not grouped clearly.</summary>
 public sealed class ParameterGroupingRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of jobs with multiple unrelated responsibilities.</summary>
 public sealed class SingleResponsibilityJobRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

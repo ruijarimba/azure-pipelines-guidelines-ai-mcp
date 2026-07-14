@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of variables that should be read-only.</summary>
 public sealed class ReadonlyVariableRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

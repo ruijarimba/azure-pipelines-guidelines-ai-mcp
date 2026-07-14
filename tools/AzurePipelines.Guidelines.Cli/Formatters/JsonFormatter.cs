@@ -21,7 +21,7 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
     {
         ArgumentNullException.ThrowIfNull(results);
 
-        // Build output structure
+    // Build the complete output structure before serialization so the JSON contract is explicit.
         JsonOutput output = new()
         {
             Summary = BuildSummary(results),
@@ -91,13 +91,16 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
         };
     }
 
-    // JSON output structure classes
+    // These classes remain nested because they are private and only model this formatter's output.
+
+    /// <summary>Root JSON output containing summary and per-file results.</summary>
     private sealed class JsonOutput
     {
         public Summary Summary { get; set; } = null!;
         public FileResult[] Results { get; set; } = null!;
     }
 
+    /// <summary>Aggregate counts for the analyzed files.</summary>
     private sealed class Summary
     {
         public int FilesScanned { get; set; }
@@ -109,12 +112,14 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
         public int Info { get; set; }
     }
 
+    /// <summary>Diagnostics associated with one analyzed file.</summary>
     private sealed class FileResult
     {
         public string File { get; set; } = null!;
         public DiagnosticOutput[] Diagnostics { get; set; } = null!;
     }
 
+    /// <summary>Serialized representation of one diagnostic.</summary>
     private sealed class DiagnosticOutput
     {
         public string RuleId { get; set; } = null!;

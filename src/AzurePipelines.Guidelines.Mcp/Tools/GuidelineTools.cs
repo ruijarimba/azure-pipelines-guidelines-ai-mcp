@@ -247,9 +247,9 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         return result;
     }
 
-    // Converts an enum value to a lowercase ASCII string for JSON output.
-    // We avoid string.ToLowerInvariant because the codebase treats enum names as stable
-    // ASCII identifiers, and CA1308 warns against ToLowerInvariant in invariant contexts.
+    /// <summary>Converts an enum value to lowercase ASCII for JSON output.</summary>
+    /// <param name="value">The enum value to convert.</param>
+    /// <returns>The lowercase enum name.</returns>
     private static string EnumToJsonString<T>(T value) where T : struct, Enum
     {
         string name = value.ToString();
@@ -263,21 +263,25 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         });
     }
 
-    // ── Internal DTOs ─────────────────────────────────────────────────────────
+    // These records remain nested because they are private, tool-specific JSON contracts.
 
+    /// <summary>Represents a guideline summary in an MCP response.</summary>
     private sealed record GuidelineSummary(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("title")] string Title,
         [property: JsonPropertyName("category")] string Category,
         [property: JsonPropertyName("severity")] string Severity);
 
+    /// <summary>Represents the number of guidelines in one category.</summary>
     private sealed record CategoryCount(
         [property: JsonPropertyName("category")] string Category,
         [property: JsonPropertyName("count")] int Count);
 
+    /// <summary>Represents an MCP tool error response.</summary>
     private sealed record ErrorResponse(
         [property: JsonPropertyName("error")] string Error);
 
+    /// <summary>Represents full guideline details in an MCP response.</summary>
     private sealed record GuidelineDetailDto(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("title")] string Title,
@@ -290,12 +294,14 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         [property: JsonPropertyName("fix")] FixDto? Fix,
         [property: JsonPropertyName("references")] string[]? References);
 
+    /// <summary>Represents one detection hint in an MCP response.</summary>
     private sealed record DetectionHintDto(
         [property: JsonPropertyName("kind")] string Kind,
         [property: JsonPropertyName("scope")] string Scope,
         [property: JsonPropertyName("expression")] string? Expression,
         [property: JsonPropertyName("description")] string Description);
 
+    /// <summary>Represents fix guidance in an MCP response.</summary>
     private sealed record FixDto(
         [property: JsonPropertyName("summary")] string Summary,
         [property: JsonPropertyName("before")] string? Before,

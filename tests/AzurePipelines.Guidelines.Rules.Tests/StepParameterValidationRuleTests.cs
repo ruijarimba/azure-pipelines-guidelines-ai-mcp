@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests validation of parameters supplied to steps.</summary>
 public sealed class StepParameterValidationRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

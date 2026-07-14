@@ -4,6 +4,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests parameter usage in reusable job templates.</summary>
 public sealed class ReusableJobTemplateParametersRuleTests
 {
     private static readonly ReusableJobTemplateParametersRule _rule = new();

@@ -4,6 +4,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests parameter usage in reusable step templates.</summary>
 public sealed class StepTemplateParametersRuleTests
 {
     private static readonly StepTemplateParametersRule _rule = new();

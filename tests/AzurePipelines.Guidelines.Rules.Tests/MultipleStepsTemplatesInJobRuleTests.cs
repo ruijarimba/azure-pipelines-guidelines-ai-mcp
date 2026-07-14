@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of jobs that compose multiple step templates.</summary>
 public sealed class MultipleStepsTemplatesInJobRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

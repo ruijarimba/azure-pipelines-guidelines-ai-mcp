@@ -117,6 +117,12 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
             References: references);
     }
 
+    /// <summary>
+    /// Converts manifest detection entries into the domain hint model, ignoring entries that
+    /// cannot be interpreted safely.
+    /// </summary>
+    /// <param name="detectionDtos">The manifest detection entries, when present.</param>
+    /// <returns>The valid detection hints in manifest order.</returns>
     private static List<DetectionHint> MapDetectionHints(
         IReadOnlyList<DetectionItemDto>? detectionDtos)
     {
@@ -156,6 +162,11 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
         return hints;
     }
 
+    /// <summary>
+    /// Converts manifest fix guidance into the domain model when a summary is available.
+    /// </summary>
+    /// <param name="dto">The manifest fix entry, or <see langword="null"/>.</param>
+    /// <returns>The mapped fix guidance, or <see langword="null"/> when no summary exists.</returns>
     private static FixGuidance? MapFix(FixDto? dto)
     {
         if (dto is null || string.IsNullOrWhiteSpace(dto.Summary))
@@ -166,6 +177,10 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
         return new FixGuidance(dto.Summary, Before: null, After: null);
     }
 
+    /// <summary>Parses a manifest category into its domain enum value.</summary>
+    /// <param name="value">The manifest category text.</param>
+    /// <param name="result">The parsed category when successful.</param>
+    /// <returns><see langword="true"/> when the value is supported.</returns>
     private static bool TryParseCategory(string value, out GuidelineCategory result)
     {
         result = value.ToUpperInvariant() switch
@@ -183,6 +198,10 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
         return (int)result >= 0;
     }
 
+    /// <summary>Parses a manifest severity into its domain enum value.</summary>
+    /// <param name="value">The manifest severity text.</param>
+    /// <param name="result">The parsed severity when successful.</param>
+    /// <returns><see langword="true"/> when the value is supported.</returns>
     private static bool TryParseSeverity(string value, out GuidelineSeverity result)
     {
         result = value.ToUpperInvariant() switch
@@ -197,6 +216,10 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
         return (int)result >= 0;
     }
 
+    /// <summary>Parses a manifest detection kind into its domain enum value.</summary>
+    /// <param name="value">The manifest detection kind text.</param>
+    /// <param name="result">The parsed detection kind when successful.</param>
+    /// <returns><see langword="true"/> when the value is supported.</returns>
     private static bool TryParseDetectionKind(string value, out DetectionKind result)
     {
         result = value.ToUpperInvariant() switch
@@ -210,6 +233,10 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
         return (int)result >= 0;
     }
 
+    /// <summary>Parses a manifest scope, defaulting unknown scopes to the general scope.</summary>
+    /// <param name="value">The manifest scope text.</param>
+    /// <param name="result">The parsed scope.</param>
+    /// <returns>Always <see langword="true"/> because unknown scopes use a safe default.</returns>
     private static bool TryParseScope(string value, out PipelineScope result)
     {
         result = value.ToUpperInvariant() switch
@@ -229,14 +256,15 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
         return true;
     }
 
-    // ── Internal DTOs ─────────────────────────────────────────────────────────
-    // These classes are instantiated by System.Text.Json via reflection.
+    // These DTOs stay nested because they are private implementation details of this loader and
+    // are instantiated by System.Text.Json via reflection.
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
         "Performance", "CA1812:Avoid uninstantiated internal classes",
         Justification = "Instantiated by System.Text.Json deserialiser.")]
     private sealed class ManifestDto
     {
+        /// <summary>Gets the guideline entries in the manifest.</summary>
         [JsonPropertyName("guidelines")]
         public List<GuidelineItemDto> Guidelines { get; init; } = [];
     }
@@ -246,36 +274,47 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
         Justification = "Instantiated by System.Text.Json deserialiser.")]
     private sealed class GuidelineItemDto
     {
+        /// <summary>Gets the stable guideline identifier.</summary>
         [JsonPropertyName("id")]
         public string? Id { get; init; }
 
+        /// <summary>Gets the manifest category.</summary>
         [JsonPropertyName("category")]
         public string? Category { get; init; }
 
+        /// <summary>Gets the manifest severity.</summary>
         [JsonPropertyName("severity")]
         public string? Severity { get; init; }
 
+        /// <summary>Gets the guideline title.</summary>
         [JsonPropertyName("title")]
         public string? Title { get; init; }
 
+        /// <summary>Gets the guideline summary.</summary>
         [JsonPropertyName("summary")]
         public string? Summary { get; init; }
 
+        /// <summary>Gets the primary manifest URL, when supplied.</summary>
         [JsonPropertyName("url")]
         public string? Url { get; init; }
 
+        /// <summary>Gets the scopes to which the guideline applies.</summary>
         [JsonPropertyName("appliesTo")]
         public List<string>? AppliesTo { get; init; }
 
+        /// <summary>Gets the manifest tags.</summary>
         [JsonPropertyName("tags")]
         public List<string>? Tags { get; init; }
 
+        /// <summary>Gets supplemental related URLs.</summary>
         [JsonPropertyName("related")]
         public List<string>? Related { get; init; }
 
+        /// <summary>Gets machine-readable detection entries.</summary>
         [JsonPropertyName("detection")]
         public List<DetectionItemDto>? Detection { get; init; }
 
+        /// <summary>Gets the optional fix guidance.</summary>
         [JsonPropertyName("fix")]
         public FixDto? Fix { get; init; }
     }
@@ -285,15 +324,19 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
         Justification = "Instantiated by System.Text.Json deserialiser.")]
     private sealed class DetectionItemDto
     {
+        /// <summary>Gets the detection kind.</summary>
         [JsonPropertyName("kind")]
         public string? Kind { get; init; }
 
+        /// <summary>Gets the detection expression.</summary>
         [JsonPropertyName("pattern")]
         public string? Pattern { get; init; }
 
+        /// <summary>Gets the scopes targeted by the detection entry.</summary>
         [JsonPropertyName("appliesTo")]
         public List<string>? AppliesTo { get; init; }
 
+        /// <summary>Gets the human-readable detection message.</summary>
         [JsonPropertyName("message")]
         public string? Message { get; init; }
     }
@@ -303,6 +346,7 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
         Justification = "Instantiated by System.Text.Json deserialiser.")]
     private sealed class FixDto
     {
+        /// <summary>Gets the fix summary.</summary>
         [JsonPropertyName("summary")]
         public string? Summary { get; init; }
     }

@@ -33,6 +33,9 @@ public sealed class FolderBasedPipelineAnalysisTests
         diagnostics.Should().Contain(d => Path.GetFileName(d.FilePath).Equals("step-with-controls.yml", StringComparison.OrdinalIgnoreCase));
     }
 
+    /// <summary>Analyses every YAML file below a fixture directory.</summary>
+    /// <param name="fixtureRoot">The fixture directory to scan.</param>
+    /// <returns>All diagnostics produced for the fixture files.</returns>
     private static async Task<IReadOnlyList<Diagnostic>> AnalyseFixtureAsync(string fixtureRoot)
     {
         IReadOnlyList<string> yamlFiles = Directory
@@ -71,6 +74,7 @@ public sealed class FolderBasedPipelineAnalysisTests
         return diagnostics;
     }
 
+    /// <summary>Provides the single rule needed by the folder-analysis fixtures.</summary>
     private sealed class TestGuidelineRepository : IGuidelineRepository
     {
         public IReadOnlyList<GuidelineDefinition> GetAll() =>

@@ -3,6 +3,9 @@ using System.CommandLine.Invocation;
 
 namespace AzurePipelines.Guidelines.Cli;
 
+/// <summary>
+/// Resolves effective analyze-command options from command-line, environment, and file settings.
+/// </summary>
 internal static class AnalyzeCommandOptionResolver
 {
     internal static AnalyzeCommandOptions ResolveOptions(

@@ -4,6 +4,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests alignment between parameter declarations and their schemas.</summary>
 public sealed class ParameterSchemaAlignmentRuleTests
 {
     private static readonly ParameterSchemaAlignmentRule _rule = new();

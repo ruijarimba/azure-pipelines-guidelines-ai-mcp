@@ -200,7 +200,10 @@ Analyzes inline Azure Pipelines YAML content.
 - `category` (string, optional) — Category filter for analysis options
 
 **Returns:**
-- Structured analysis result with diagnostics and rule metadata
+- `diagnostics`: line-level violations with rule ID, severity, message, and line number
+- `rules`: one compact summary per violated rule, with its title, guidance, and reference URLs
+- Render returned reference URLs as Markdown links; call `get_guideline` for full descriptions,
+  rationale, and before/after fix examples
 
 ### `analyze_pipeline_paths`
 
@@ -210,9 +213,16 @@ Analyzes one or more pipeline files or directories on disk.
 - `paths` (array of strings, required) — File paths or directory paths to analyze
 - `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check
 - `category` (string, optional) — Category filter for analysis options
+- `format` (string, optional) — `json` (default) for structured output or `markdown` for a
+  compact user-facing report
 
 **Returns:**
-- Per-file analysis results with any found diagnostics
+- With `format: json`, `files` contains per-file diagnostics and `rules` contains compact,
+  deduplicated rule summaries with guidance and reference URLs.
+- With `format: markdown`, a compact report contains severity counts, linked rule IDs, guidance,
+  and per-file counts. A rule ID links to its first valid HTTP(S) manifest reference; IDs remain
+  unlinked when the manifest has no valid reference URL.
+- Call `get_guideline` for full remediation details when needed.
 
 #### File-access boundary
 

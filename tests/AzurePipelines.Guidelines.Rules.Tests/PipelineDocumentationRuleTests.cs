@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of pipelines that lack useful documentation.</summary>
 public sealed class PipelineDocumentationRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

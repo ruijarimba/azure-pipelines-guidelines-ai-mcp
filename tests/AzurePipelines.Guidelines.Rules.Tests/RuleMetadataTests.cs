@@ -5,6 +5,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests metadata declared on guideline rule types.</summary>
 public sealed class RuleMetadataTests
 {
     [Fact]

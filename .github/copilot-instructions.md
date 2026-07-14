@@ -82,3 +82,10 @@ Full rules are in [`.github/instructions/agent-behaviour.instructions.md`](instr
 For multi-item remediation work in this repository, commit and push each independently reviewable item one at a time after validation.
 
 > Before changing any rule here or in the instruction file, re-read [ADR-010](../docs/decisions.md) and the reference sources listed there.
+
+## Documentation Standards
+
+- Every named C# type and member must have concise documentation.
+- Use XML documentation for API contracts and comments for non-obvious private implementation details.
+- Every top-level type, regardless of accessibility or sealed status, should be in its own file.
+- Tightly coupled private nested DTOs/options may remain nested when appropriate.

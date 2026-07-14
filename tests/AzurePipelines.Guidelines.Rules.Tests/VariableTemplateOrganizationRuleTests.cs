@@ -4,6 +4,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests organization of variables in templates.</summary>
 public sealed class VariableTemplateOrganizationRuleTests
 {
     private static readonly VariableTemplateOrganizationRule _rule = new();

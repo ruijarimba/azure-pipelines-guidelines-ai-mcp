@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests separation of configuration from pipeline execution logic.</summary>
 public sealed class SeparateConfigurationRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

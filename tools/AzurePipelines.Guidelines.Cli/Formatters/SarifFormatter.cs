@@ -27,7 +27,7 @@ internal sealed class SarifFormatter : IOutputFormatter
     {
         ArgumentNullException.ThrowIfNull(results);
 
-        // Build SARIF structure
+        // Build the complete SARIF structure before serialization.
         SarifLog sarifLog = new()
         {
             Version = _sarifVersion,
@@ -40,7 +40,7 @@ internal sealed class SarifFormatter : IOutputFormatter
 
     private static Run BuildRun(IReadOnlyList<AnalysisResult> results)
     {
-        // Collect unique rules from all diagnostics
+        // Keep one SARIF rule descriptor per guideline while preserving every diagnostic result.
         Dictionary<string, GuidelineId> rulesDict = [];
         List<Result> sarifResults = [];
 
@@ -71,6 +71,9 @@ internal sealed class SarifFormatter : IOutputFormatter
         };
     }
 
+    /// <summary>Builds the SARIF descriptor for one guideline.</summary>
+    /// <param name="guidelineId">The guideline identifier.</param>
+    /// <returns>A SARIF rule descriptor.</returns>
     private static ReportingDescriptor BuildRule(GuidelineId guidelineId)
     {
         return new ReportingDescriptor
@@ -84,6 +87,9 @@ internal sealed class SarifFormatter : IOutputFormatter
         };
     }
 
+    /// <summary>Builds one SARIF result from a diagnostic.</summary>
+    /// <param name="diagnostic">The diagnostic to convert.</param>
+    /// <returns>A SARIF result payload.</returns>
     private static Result BuildResult(Diagnostic diagnostic)
     {
         Result result = new()
@@ -119,6 +125,9 @@ internal sealed class SarifFormatter : IOutputFormatter
         return result;
     }
 
+    /// <summary>Maps the domain diagnostic severity to a SARIF level.</summary>
+    /// <param name="severity">The diagnostic severity.</param>
+    /// <returns>The SARIF level name.</returns>
     private static string MapSeverityToLevel(DiagnosticSeverity severity)
     {
         return severity switch
@@ -130,7 +139,9 @@ internal sealed class SarifFormatter : IOutputFormatter
         };
     }
 
-    // SARIF 2.1.0 schema classes
+    // These nested classes model the private SARIF 2.1.0 serialization contract.
+
+    /// <summary>Represents the root SARIF document.</summary>
     private sealed class SarifLog
     {
         public string Version { get; set; } = null!;
@@ -139,17 +150,20 @@ internal sealed class SarifFormatter : IOutputFormatter
         public Run[] Runs { get; set; } = null!;
     }
 
+    /// <summary>Represents one SARIF analysis run.</summary>
     private sealed class Run
     {
         public Tool Tool { get; set; } = null!;
         public Result[] Results { get; set; } = null!;
     }
 
+    /// <summary>Represents the SARIF tool wrapper.</summary>
     private sealed class Tool
     {
         public Driver Driver { get; set; } = null!;
     }
 
+    /// <summary>Represents the SARIF tool driver.</summary>
     private sealed class Driver
     {
         public string Name { get; set; } = null!;
@@ -158,6 +172,7 @@ internal sealed class SarifFormatter : IOutputFormatter
         public ReportingDescriptor[]? Rules { get; set; }
     }
 
+    /// <summary>Represents a SARIF rule descriptor.</summary>
     private sealed class ReportingDescriptor
     {
         public string Id { get; set; } = null!;
@@ -165,6 +180,7 @@ internal sealed class SarifFormatter : IOutputFormatter
         public string? HelpUri { get; set; }
     }
 
+    /// <summary>Represents one SARIF diagnostic result.</summary>
     private sealed class Result
     {
         public string RuleId { get; set; } = null!;
@@ -173,28 +189,33 @@ internal sealed class SarifFormatter : IOutputFormatter
         public Location[] Locations { get; set; } = null!;
     }
 
+    /// <summary>Represents a SARIF result location.</summary>
     private sealed class Location
     {
         public PhysicalLocation PhysicalLocation { get; set; } = null!;
     }
 
+    /// <summary>Represents the physical location of a SARIF result.</summary>
     private sealed class PhysicalLocation
     {
         public ArtifactLocation ArtifactLocation { get; set; } = null!;
         public Region? Region { get; set; }
     }
 
+    /// <summary>Represents the file location of a SARIF result.</summary>
     private sealed class ArtifactLocation
     {
         public string Uri { get; set; } = null!;
     }
 
+    /// <summary>Represents the source region of a SARIF result.</summary>
     private sealed class Region
     {
         public int StartLine { get; set; }
         public int? StartColumn { get; set; }
     }
 
+    /// <summary>Represents a SARIF message.</summary>
     private sealed class Message
     {
         public string Text { get; set; } = null!;

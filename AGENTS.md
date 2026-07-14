@@ -194,6 +194,11 @@ extension-point catalogue.
 - **`TreatWarningsAsErrors = true`** — never silence a warning without a comment explaining why.
 - **`AnalysisLevel = latest-all`** — all Roslyn analysers are active.
 - **All `public` APIs** carry XML doc comments (`/// <summary>…`).
+- **All named C# types and members** carry concise documentation. Use XML documentation for
+  contracts and document private implementation details when their purpose is not obvious.
+- **One top-level C# type per file** applies regardless of accessibility or `sealed` status.
+  Tightly coupled private nested DTOs and options may remain nested when locality improves
+  readability.
 - **Unit test coverage** must stay above 90% repository-wide and must cover all logical
   branches including edge cases (null inputs, empty collections, boundary values, error
   paths).

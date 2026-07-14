@@ -1,5 +1,8 @@
 namespace AzurePipelines.Guidelines.Cli;
 
+/// <summary>
+/// Effective options used to execute an analyze command.
+/// </summary>
 internal sealed record AnalyzeCommandOptions(
     string[] Paths,
     string Format,

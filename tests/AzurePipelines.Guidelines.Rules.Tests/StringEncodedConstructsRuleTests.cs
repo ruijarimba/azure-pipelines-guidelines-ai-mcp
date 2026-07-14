@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of pipeline constructs encoded as strings.</summary>
 public sealed class StringEncodedConstructsRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

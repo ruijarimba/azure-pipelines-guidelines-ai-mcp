@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of oversized expressions in pipeline steps.</summary>
 public sealed class LargeExpressionInStepsRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

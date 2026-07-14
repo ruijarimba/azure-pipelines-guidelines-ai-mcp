@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests retry configuration for pipeline steps.</summary>
 public sealed class StepRetryRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();

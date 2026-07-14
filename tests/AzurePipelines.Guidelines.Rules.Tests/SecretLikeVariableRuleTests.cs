@@ -6,6 +6,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests;
 
+/// <summary>Tests detection of variables that resemble secrets.</summary>
 public sealed class SecretLikeVariableRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();
