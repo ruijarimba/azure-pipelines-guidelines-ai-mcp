@@ -1,4 +1,4 @@
-<Solution>
+﻿<Solution>
   <Folder Name="/src/">
     <Project Path="src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj" />
     <Project Path="src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj" />
@@ -67,10 +67,6 @@
     <File Path=".github/prompts/add-mcp-tool.prompt.md" />
     <File Path=".github/prompts/implement-rule.prompt.md" />
   </Folder>
-  <Folder Name="/.github/workflows/">
-    <File Path=".github/workflows/ci.yml" />
-    <File Path=".github/workflows/release.yml" />
-  </Folder>
   <Folder Name="/.solution/">
     <File Path=".dockerignore" />
     <File Path=".editorconfig" />
@@ -97,27 +93,6 @@
     <File Path="docs/progress.md" />
     <File Path="docs/TODO.md" />
     <File Path="docs/vision.md" />
-  </Folder>
-  <Folder Name="/.github/">
-    <File Path=".github/copilot-instructions.md" />
-    <Folder Name="/.github/instructions/">
-      <File Path=".github/instructions/agent-behaviour.instructions.md" />
-      <File Path=".github/instructions/architecture.instructions.md" />
-      <File Path=".github/instructions/code-style.instructions.md" />
-      <File Path=".github/instructions/csharp-patterns.instructions.md" />
-      <File Path=".github/instructions/documentation.instructions.md" />
-      <File Path=".github/instructions/maintainability.instructions.md" />
-      <File Path=".github/instructions/markdown.instructions.md" />
-        <File Path=".github/instructions/testing.instructions.md" />
-    </Folder>
-    <Folder Name="/.github/prompts/">
-      <File Path=".github/prompts/add-mcp-tool.prompt.md" />
-      <File Path=".github/prompts/implement-rule.prompt.md" />
-    </Folder>
-    <Folder Name="/.github/workflows/">
-      <File Path=".github/workflows/ci.yml" />
-      <File Path=".github/workflows/release.yml" />
-    </Folder>
   </Folder>
 </Solution>
 

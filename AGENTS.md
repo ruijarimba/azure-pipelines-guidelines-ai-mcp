@@ -28,7 +28,7 @@ manifest is at `data/guidelines.json` and uses stable rule IDs of the form
 | `tools/` | Executable entry points (not NuGet packages) |
 | `tests/` | Unit test projects, one per `src/` library |
 | `docs/` | Architecture and developer documentation |
-| `.github/` | Copilot instructions, prompt files, CI workflows |
+| `.github/` | Copilot instructions and prompt files |
 
 ## Start here — key documents
 
