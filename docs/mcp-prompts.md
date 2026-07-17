@@ -47,8 +47,9 @@ the results to guide review rather than treating them as a binary pass/fail deci
 ## 8. Optimize the response for low token usage
 
 > Analyze this pipeline using compact output. Return only the rule ID, advisory guidance, severity,
-> message, file, and line for each finding. Omit repeated rule descriptions and remediation details
-> unless they are needed to understand a finding.
+> message, file, and line for each finding. Use `format: "compact"` when calling the analysis tool.
+> Omit repeated rule descriptions and remediation details unless they are needed to understand a
+> finding.
 
 ## 9. Prioritize findings for remediation
 

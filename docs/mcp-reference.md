@@ -246,6 +246,8 @@ Analyzes inline Azure Pipelines YAML content.
 - `yaml` (string, required) — The pipeline YAML to analyze
 - `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check. If omitted, all rules are checked.
 - `category` (string, optional) — Category filter for analysis options
+- `format` (string, optional) — `json` (default) for diagnostics and rule summaries or `compact`
+  for findings only
 - `includeGuidance` (boolean, optional) — Include the guideline's remediation summary in the
   `rules` array. Defaults to `false`.
 
@@ -268,8 +270,8 @@ Analyzes one or more pipeline files or directories on disk.
 - `paths` (array of strings, required) — File paths or directory paths to analyze
 - `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check
 - `category` (string, optional) — Category filter for analysis options
-- `format` (string, optional) — `json` (default) for structured output or `markdown` for a
-  compact user-facing report
+- `format` (string, optional) — `json` (default) for structured output, `compact` for findings
+  only, or `markdown` for a compact user-facing report
 - `includeGuidance` (boolean, optional) — Include remediation summaries in JSON rule details.
   Defaults to `false`; Markdown includes them automatically.
 
@@ -282,6 +284,12 @@ Analyzes one or more pipeline files or directories on disk.
   manifest reference; IDs remain
   unlinked when the manifest has no valid reference URL.
 - Call `get_guideline` for full remediation details when needed.
+
+For either analysis tool, `format: compact` returns only the findings needed for a low-token review.
+Inline analysis returns a `findings` array; path analysis returns `files`, each with a `file` path and
+`findings` array. Compact findings contain `ruleId`, `severity`, advisory `guidance`, `message`, and
+an optional `line`; path findings also include the source `file`. Compact responses omit `rules` and
+remediation summaries. Use the default JSON response or `get_guideline` when rule metadata is needed.
 
 #### File-access boundary
 

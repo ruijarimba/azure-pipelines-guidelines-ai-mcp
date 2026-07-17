@@ -233,6 +233,26 @@ public sealed class PipelineAnalysisToolsTests
     }
 
     [Fact]
+    public async Task AnalyzePipelineAsync_GivenCompactFormat_ShouldReturnFindingsWithoutRuleSummaries()
+    {
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+                .Returns(MakeResult([MakeDiagnostic("ADOG-STEPS-001", line: 7)]));
+        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+
+        string result = await sut.AnalyzePipelineAsync("steps: []", format: "compact");
+
+        JsonElement response = Deserialize<JsonElement>(result);
+        JsonElement finding = response.GetProperty("findings")[0];
+        finding.GetProperty("ruleId").GetString().Should().Be("ADOG-STEPS-001");
+        finding.GetProperty("line").GetInt32().Should().Be(7);
+        finding.TryGetProperty("file", out _).Should().BeFalse();
+        response.TryGetProperty("rules", out _).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task AnalyzePipelineAsync_GivenRepeatedKnownGuideline_ShouldReturnCompactRuleDetailsOnce()
     {
         // Arrange
@@ -261,6 +281,34 @@ public sealed class PipelineAnalysisToolsTests
         rules[0].TryGetProperty("description", out _).Should().BeFalse();
         rules[0].TryGetProperty("rationale", out _).Should().BeFalse();
         rules[0].TryGetProperty("fix", out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AnalyzePipelinePathsAsync_GivenCompactFormat_ShouldReturnFileFindingsWithoutRuleSummaries()
+    {
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+                .Returns(MakeResult([MakeDiagnostic("ADOG-STEPS-001", line: 3)]));
+        PipelineAnalysisTools sut = MakeSut(parser, analyser, new PipelinePathResolver());
+        string tempDirectory = CreateTempDirectory();
+        await File.WriteAllTextAsync(Path.Combine(tempDirectory, "pipeline.yml"), "steps: []");
+
+        try
+        {
+            string result = await sut.AnalyzePipelinePathsAsync([tempDirectory], format: "compact");
+
+            JsonElement response = Deserialize<JsonElement>(result);
+            JsonElement file = response.GetProperty("files")[0];
+            file.GetProperty("file").GetString().Should().EndWith("pipeline.yml");
+            file.GetProperty("findings")[0].GetProperty("line").GetInt32().Should().Be(3);
+            response.TryGetProperty("rules", out _).Should().BeFalse();
+        }
+        finally
+        {
+            Directory.Delete(tempDirectory, recursive: true);
+        }
     }
 
     [Fact]
@@ -616,7 +664,7 @@ public sealed class PipelineAnalysisToolsTests
 
         // Assert
         JsonElement response = Deserialize<JsonElement>(result);
-        response.GetProperty("error").GetString().Should().Contain("Allowed values: json, markdown");
+        response.GetProperty("error").GetString().Should().Contain("Allowed values: json, compact, markdown");
     }
 
     // ── category filter ─────────────────────────────────────────────────────

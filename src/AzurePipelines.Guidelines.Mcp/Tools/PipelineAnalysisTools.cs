@@ -56,6 +56,8 @@ internal sealed class PipelineAnalysisTools(
             "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables. " +
             "Omit or pass null to include all categories.")]
         string? category = null,
+        [Description("Output format: json (default) for diagnostics and rule summaries, or compact for findings only.")]
+        string? format = "json",
         [Description("Include rule guidance in the response. Defaults to false; use get_guideline for full remediation details.")]
         bool includeGuidance = false)
     {
@@ -63,6 +65,12 @@ internal sealed class PipelineAnalysisTools(
         {
             return JsonSerializer.Serialize(
                 new ErrorResponse("Parameter 'yaml' is required."), _jsonOptions);
+        }
+
+        if (!TryParseOutputFormat(format, out _, out bool useCompact))
+        {
+            return JsonSerializer.Serialize(
+                new ErrorResponse("Unknown format. Allowed values: json, compact."), _jsonOptions);
         }
 
         PipelineDocument document;
@@ -84,6 +92,12 @@ internal sealed class PipelineAnalysisTools(
         AnalysisResult result = await analyser
             .AnalyseAsync(document, options)
             .ConfigureAwait(false);
+
+        if (useCompact)
+        {
+            return JsonSerializer.Serialize(new CompactDiagnosticsResponseDto(
+                BuildCompactDiagnosticDtos(result.Diagnostics)), _jsonOptions);
+        }
 
         return JsonSerializer.Serialize(BuildAnalysisResponse(result.Diagnostics, includeGuidance), _jsonOptions);
     }
@@ -127,10 +141,10 @@ internal sealed class PipelineAnalysisTools(
                 new ErrorResponse("Parameter 'paths' is required."), _jsonOptions);
         }
 
-        if (!TryParseOutputFormat(format, out bool useMarkdown))
+        if (!TryParseOutputFormat(format, out bool useMarkdown, out bool useCompact))
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse("Unknown format. Allowed values: json, markdown."), _jsonOptions);
+                new ErrorResponse("Unknown format. Allowed values: json, compact, markdown."), _jsonOptions);
         }
 
         IReadOnlyList<string> discoveredPaths;
@@ -149,6 +163,7 @@ internal sealed class PipelineAnalysisTools(
         }
 
         List<FileAnalysisResultDto> fileResults = [];
+        List<CompactFileAnalysisResultDto> compactFileResults = [];
         List<Diagnostic> allDiagnostics = [];
 
         foreach (string discoveredPath in discoveredPaths)
@@ -179,7 +194,16 @@ internal sealed class PipelineAnalysisTools(
                 .AnalyseAsync(document, options)
                 .ConfigureAwait(false);
 
-            fileResults.Add(new FileAnalysisResultDto(discoveredPath, BuildDiagnosticDtos(result.Diagnostics)));
+            if (useCompact)
+            {
+                compactFileResults.Add(new CompactFileAnalysisResultDto(
+                    discoveredPath,
+                    BuildCompactDiagnosticDtos(result.Diagnostics, discoveredPath)));
+            }
+            else
+            {
+                fileResults.Add(new FileAnalysisResultDto(discoveredPath, BuildDiagnosticDtos(result.Diagnostics)));
+            }
             allDiagnostics.AddRange(result.Diagnostics);
         }
 
@@ -187,6 +211,11 @@ internal sealed class PipelineAnalysisTools(
         if (useMarkdown)
         {
             return BuildMarkdownReport(fileResults, allDiagnostics, rules);
+        }
+
+        if (useCompact)
+        {
+            return JsonSerializer.Serialize(new CompactPathsResponseDto([.. compactFileResults]), _jsonOptions);
         }
 
         return JsonSerializer.Serialize(new AnalysisPathsResponseDto([.. fileResults], rules), _jsonOptions);
@@ -256,22 +285,33 @@ internal sealed class PipelineAnalysisTools(
     /// <summary>Parses the requested analysis response format.</summary>
     /// <param name="format">The requested format name.</param>
     /// <param name="useMarkdown">Whether the response should be rendered as Markdown.</param>
+    /// <param name="useCompact">Whether the response should use the compact findings-only shape.</param>
     /// <returns><see langword="true"/> when the format is supported.</returns>
-    private static bool TryParseOutputFormat(string? format, out bool useMarkdown)
+    private static bool TryParseOutputFormat(string? format, out bool useMarkdown, out bool useCompact)
     {
         if (string.IsNullOrWhiteSpace(format) || string.Equals(format, "json", StringComparison.OrdinalIgnoreCase))
         {
             useMarkdown = false;
+            useCompact = false;
             return true;
         }
 
         if (string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
         {
             useMarkdown = true;
+            useCompact = false;
+            return true;
+        }
+
+        if (string.Equals(format, "compact", StringComparison.OrdinalIgnoreCase))
+        {
+            useMarkdown = false;
+            useCompact = true;
             return true;
         }
 
         useMarkdown = false;
+        useCompact = false;
         return false;
     }
 
@@ -312,6 +352,31 @@ internal sealed class PipelineAnalysisTools(
                 guideline is null ? null : EnumToGuidanceString(guideline.Severity),
                 d.Message,
                 d.Line);
+        }
+
+        return dtos;
+    }
+
+    /// <summary>Maps diagnostics to the token-efficient compact response contract.</summary>
+    /// <param name="diagnostics">The diagnostics to map.</param>
+    /// <param name="filePath">The optional source file path.</param>
+    /// <returns>The mapped compact diagnostics.</returns>
+    private CompactDiagnosticDto[] BuildCompactDiagnosticDtos(
+        IReadOnlyList<Diagnostic> diagnostics,
+        string? filePath = null)
+    {
+        CompactDiagnosticDto[] dtos = new CompactDiagnosticDto[diagnostics.Count];
+        for (int i = 0; i < diagnostics.Count; i++)
+        {
+            Diagnostic diagnostic = diagnostics[i];
+            GuidelineDefinition? guideline = repository.FindById(diagnostic.GuidelineId);
+            dtos[i] = new CompactDiagnosticDto(
+                diagnostic.GuidelineId.Value,
+                EnumToJsonString(diagnostic.Severity),
+                guideline is null ? null : EnumToGuidanceString(guideline.Severity),
+                diagnostic.Message,
+                filePath,
+                diagnostic.Line);
         }
 
         return dtos;
@@ -513,6 +578,15 @@ internal sealed class PipelineAnalysisTools(
         [property: JsonPropertyName("message")] string Message,
         [property: JsonPropertyName("line")] int? Line);
 
+    /// <summary>Represents one diagnostic in a compact MCP response.</summary>
+    private sealed record CompactDiagnosticDto(
+        [property: JsonPropertyName("ruleId")] string RuleId,
+        [property: JsonPropertyName("severity")] string Severity,
+        [property: JsonPropertyName("guidance")] string? Guidance,
+        [property: JsonPropertyName("message")] string Message,
+        [property: JsonPropertyName("file")] string? File,
+        [property: JsonPropertyName("line")] int? Line);
+
     /// <summary>Represents a single-document analysis response.</summary>
     private sealed record AnalysisResponseDto(
         [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics,
@@ -527,6 +601,19 @@ internal sealed class PipelineAnalysisTools(
     private sealed record AnalysisPathsResponseDto(
         [property: JsonPropertyName("files")] FileAnalysisResultDto[] Files,
         [property: JsonPropertyName("rules")] RuleDetailDto[] Rules);
+
+    /// <summary>Represents a compact single-document analysis response.</summary>
+    private sealed record CompactDiagnosticsResponseDto(
+        [property: JsonPropertyName("findings")] CompactDiagnosticDto[] Findings);
+
+    /// <summary>Represents a compact multi-file analysis response.</summary>
+    private sealed record CompactPathsResponseDto(
+        [property: JsonPropertyName("files")] CompactFileAnalysisResultDto[] Files);
+
+    /// <summary>Represents compact diagnostics for one analyzed file.</summary>
+    private sealed record CompactFileAnalysisResultDto(
+        [property: JsonPropertyName("file")] string File,
+        [property: JsonPropertyName("findings")] CompactDiagnosticDto[] Findings);
 
     /// <summary>Represents a linked summary for one violated guideline.</summary>
     private sealed record RuleDetailDto(
