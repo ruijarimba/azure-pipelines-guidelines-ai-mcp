@@ -169,6 +169,95 @@ public sealed class AnalyzeCommandTests
     }
 
     [Fact]
+    public async Task RunAsync_GivenNoPaths_ShouldReturnErrorExitCode()
+    {
+        int exitCode = await AnalyzeCommand.RunAsync(
+            CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
+            new AnalyzeCommandOptions([], "console", [], null, null, false, false, false, false));
+
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
+    public async Task RunAsync_GivenBlankFormat_ShouldUseConsoleFormatter()
+    {
+        using StringWriter output = new();
+        TextWriter originalOut = Console.Out;
+        Console.SetOut(output);
+        try
+        {
+            int exitCode = await AnalyzeCommand.RunAsync(
+                CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
+                [GetFixturePath("clean-pipeline.yml")], " ", "info");
+
+            exitCode.Should().Be(ExitCodes.Success);
+            output.ToString().Should().Contain("Summary:");
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+    }
+
+    [Theory]
+    [InlineData("not-a-severity")]
+    [InlineData("error,not-a-severity")]
+    public async Task RunAsync_GivenUnknownSeverity_ShouldReturnErrorExitCode(string severity)
+    {
+        int exitCode = await AnalyzeCommand.RunAsync(
+            CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
+            [GetFixturePath("clean-pipeline.yml")], "console", severity);
+
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
+    public async Task RunAsync_GivenUnknownCategory_ShouldReturnErrorExitCode()
+    {
+        int exitCode = await AnalyzeCommand.RunAsync(
+            CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
+            [GetFixturePath("clean-pipeline.yml")], "console", "info", ["unknown"]);
+
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
+    public async Task RunAsync_GivenMissingPath_ShouldReturnErrorExitCode()
+    {
+        int exitCode = await AnalyzeCommand.RunAsync(
+            CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
+            [Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "missing.yml")], "console", "info");
+
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
+    public async Task RunAsync_GivenParserFailure_ShouldReturnErrorExitCode()
+    {
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>())
+            .Returns(_ => throw new PipelineParsingException("invalid document"));
+
+        int exitCode = await AnalyzeCommand.RunAsync(
+            parser, CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
+            [GetFixturePath("clean-pipeline.yml")], "console", "info");
+
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
+    public async Task RunAsync_GivenInvalidOutputPath_ShouldReturnErrorExitCode()
+    {
+        string outputPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "report.json");
+
+        int exitCode = await AnalyzeCommand.RunAsync(
+            CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
+            [GetFixturePath("clean-pipeline.yml")], "json", "info", output: outputPath);
+
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
     public async Task RunAsync_GivenCommaSeparatedFormats_ShouldRenderEachFormatterInOrder()
     {
         // Arrange

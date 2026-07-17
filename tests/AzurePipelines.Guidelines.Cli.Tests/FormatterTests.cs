@@ -142,4 +142,36 @@ public sealed class FormatterTests
         JsonElement[] items = JsonSerializer.Deserialize<JsonElement[]>(output)!;
         items[0].TryGetProperty("line", out _).Should().BeFalse();
     }
+
+    [Fact]
+    public void ConsoleFormatter_GivenGuidelineList_ShouldUsePluralAndSeverityLabels()
+    {
+        GuidelineDefinition[] guidelines =
+        [
+            new(new GuidelineId("ADOG-GENERAL-001"), GuidelineCategory.General, GuidelineSeverity.DoNot, "Do not", "Description", null, [], [], null, []),
+            new(new GuidelineId("ADOG-STEPS-001"), GuidelineCategory.Steps, GuidelineSeverity.Avoid, "Avoid", "Description", null, [], [], null, []),
+            new(new GuidelineId("ADOG-JOBS-001"), GuidelineCategory.Jobs, GuidelineSeverity.Consider, "Consider", "Description", null, [], [], null, []),
+        ];
+
+        string output = ConsoleFormatter.FormatGuidelineList(guidelines);
+
+        output.Should().Contain("do-not");
+        output.Should().Contain("avoid");
+        output.Should().Contain("consider");
+        output.Should().Contain("3 guidelines.");
+    }
+
+    [Fact]
+    public void ConsoleFormatter_GivenGuidelineWithRationaleFixAndReferences_ShouldShowDetails()
+    {
+        GuidelineDefinition guideline = new(
+            new GuidelineId("ADOG-STEPS-001"), GuidelineCategory.Steps, GuidelineSeverity.Consider,
+            "Title", "Description", "Rationale", [], [], new FixGuidance("Fix", null, null), ["reference"]);
+
+        string output = ConsoleFormatter.FormatGuidelineDetail(guideline);
+
+        output.Should().Contain("Rationale:");
+        output.Should().Contain("Fix:");
+        output.Should().Contain("reference");
+    }
 }

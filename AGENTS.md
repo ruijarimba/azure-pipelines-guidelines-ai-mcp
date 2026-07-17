@@ -199,7 +199,7 @@ extension-point catalogue.
 - **One top-level C# type per file** applies regardless of accessibility or `sealed` status.
   Tightly coupled private nested DTOs and options may remain nested when locality improves
   readability.
-- **Unit test coverage** must stay above 90% repository-wide and must cover all logical
+- **Unit test coverage** must stay strictly above 95% repository-wide and must cover all logical
   branches including edge cases (null inputs, empty collections, boundary values, error
   paths).
 - **Every behavior change** must be tested beyond the happy path. Include normal success

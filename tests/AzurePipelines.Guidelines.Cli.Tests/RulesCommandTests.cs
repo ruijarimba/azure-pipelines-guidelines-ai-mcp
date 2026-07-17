@@ -68,6 +68,42 @@ public sealed class RulesCommandTests
     }
 
     [Fact]
+    public async Task RunListAsync_GivenCommaSeparatedFilters_ShouldFilterValues()
+    {
+        IGuidelineRepository repo = MakeRepo([
+            MakeGuideline("ADOG-STEPS-001", GuidelineCategory.Steps, GuidelineSeverity.Do),
+            MakeGuideline("ADOG-JOBS-006", GuidelineCategory.Jobs, GuidelineSeverity.Avoid)]);
+
+        int exitCode = await RulesCommand.RunListAsync(repo, ["steps,jobs"], ["do,avoid"], "console");
+
+        exitCode.Should().Be(ExitCodes.Success);
+    }
+
+    [Fact]
+    public async Task RunListAsync_GivenUnknownCategoryInMultipleValues_ShouldReturnError()
+    {
+        int exitCode = await RulesCommand.RunListAsync(MakeRepo(), ["steps,unknown"], format: "console");
+
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
+    public async Task RunListAsync_GivenUnknownSeverityInMultipleValues_ShouldReturnError()
+    {
+        int exitCode = await RulesCommand.RunListAsync(MakeRepo(), severity: ["do,unknown"], format: "console");
+
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
+    public async Task RunShowAsync_GivenBlankId_ShouldReturnError()
+    {
+        int exitCode = await RulesCommand.RunShowAsync(MakeRepo(), " ", "console");
+
+        exitCode.Should().Be(ExitCodes.Error);
+    }
+
+    [Fact]
     public async Task RunListAsync_GivenAllGuidelines_ShouldReturnExitCodeClean()
     {
         IGuidelineRepository repo = MakeRepo([
@@ -285,6 +321,33 @@ public sealed class RulesCommandTests
 
         int exitCode = await RulesCommand.RunListAsync(
             repo, category: null, severity: null, format: "console");
+
+        exitCode.Should().Be(ExitCodes.Success);
+    }
+
+    [Theory]
+    [InlineData("general")]
+    [InlineData("jobs")]
+    [InlineData("parameters")]
+    [InlineData("pipelines")]
+    [InlineData("stages")]
+    [InlineData("steps")]
+    [InlineData("variables")]
+    public async Task RunListAsync_GivenEachCategory_ShouldReturnSuccess(string category)
+    {
+        int exitCode = await RulesCommand.RunListAsync(MakeRepo(), [category], format: "json");
+
+        exitCode.Should().Be(ExitCodes.Success);
+    }
+
+    [Theory]
+    [InlineData("do")]
+    [InlineData("do-not")]
+    [InlineData("avoid")]
+    [InlineData("consider")]
+    public async Task RunListAsync_GivenEachSeverity_ShouldReturnSuccess(string severity)
+    {
+        int exitCode = await RulesCommand.RunListAsync(MakeRepo(), severity: [severity], format: "json");
 
         exitCode.Should().Be(ExitCodes.Success);
     }

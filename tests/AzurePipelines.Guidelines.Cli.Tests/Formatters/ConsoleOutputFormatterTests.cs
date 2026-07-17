@@ -277,4 +277,39 @@ public sealed class ConsoleOutputFormatterTests
         output.Should().NotContain("clean1.yml"); // Clean files not listed
         output.Should().NotContain("clean2.yml");
     }
+
+    [Fact]
+    public void FormatGuidelineList_GivenNoGuidelines_ShouldShowEmptyMessage()
+    {
+        ConsoleFormatter.FormatGuidelineList([]).Should().Contain("No guidelines found");
+    }
+
+    [Fact]
+    public void FormatGuidelineList_GivenOneGuideline_ShouldUseSingularSummary()
+    {
+        GuidelineDefinition guideline = new(
+            new GuidelineId("ADOG-STEPS-001"), GuidelineCategory.Steps, GuidelineSeverity.Do,
+            "Use templates", "Description", null, [], [], null, []);
+
+        string output = ConsoleFormatter.FormatGuidelineList([guideline]);
+
+        output.Should().Contain("ADOG-STEPS-001");
+        output.Should().Contain("1 guideline.");
+    }
+
+    [Fact]
+    public void FormatGuidelineDetail_GivenCompleteGuideline_ShouldIncludeOptionalSections()
+    {
+        GuidelineDefinition guideline = new(
+            new GuidelineId("ADOG-STEPS-001"), GuidelineCategory.Steps, GuidelineSeverity.DoNot,
+            "Use templates", "Description", "Rationale", [], [],
+            new FixGuidance("Fix it", null, null), ["https://example.test"]);
+
+        string output = ConsoleFormatter.FormatGuidelineDetail(guideline);
+
+        output.Should().Contain("Rationale:");
+        output.Should().Contain("Fix:");
+        output.Should().Contain("References:");
+        output.Should().Contain("do-not");
+    }
 }

@@ -63,4 +63,41 @@ public sealed class ParameterSchemaAlignmentRuleTests
 
         diagnostics.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenCommentAndBlankLines_ShouldIgnoreThem()
+    {
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync("""
+        parameters:
+          # ignored
+
+          - name: displayName
+            description: A name
+        """);
+
+        diagnostics.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenInlineParameterType_ShouldUseThatType()
+    {
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync("""
+        parameters:
+          - name: enabled type: string
+        """);
+
+        diagnostics.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenTypeOnFollowingLine_ShouldDetectMismatch()
+    {
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync("""
+        parameters:
+          - name: enabled
+            type: string
+        """);
+
+        diagnostics.Should().ContainSingle();
+    }
 }

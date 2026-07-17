@@ -26,7 +26,7 @@ gantt
     Output formatters                 :done, p1-fmt, after p1-cli, 14d
     Package and distribution assets   :done, p1-dist, after p1-rules, 7d
     Documentation                     :done, p1-docs, after p1-cli, 21d
-    Unit test coverage (≥90%)         :done, p1-tests, 2024-11-01, 90d
+    Unit test coverage (>95%)         :done, p1-tests, 2024-11-01, 90d
 
     section Phase 2 - Future Enhancements
     Autofixable rules                 :p2-autofix, 2025-02-01, 30d
@@ -48,7 +48,7 @@ gantt
 - Global-tool packaging configuration for `adog` and `adog-mcp`.
 - Docker-image distribution assets and Docker Hub publication for `adog-mcp`.
 - NuGet publication is deferred. The package configuration remains for a future release.
-- Comprehensive unit test coverage (xUnit + FluentAssertions + NSubstitute) with repository-wide line coverage above 90% and explicit tests for success, failure, and edge-case scenarios.
+- Comprehensive unit test coverage (xUnit + FluentAssertions + NSubstitute) with repository-wide line coverage strictly above 95% and explicit tests for success, failure, and edge-case scenarios.
 
 ### Phase 2 (future enhancements) 🔮
 
@@ -82,7 +82,7 @@ gantt
 - CLI produces accurate diagnostics and exits with correct codes.
 - Package metadata and local packing remain valid for a future NuGet release.
 - Docker image distribution remains available for the MCP server.
-- Repository-wide line coverage above 90% (measured via `dotnet test --collect:"XPlat Code Coverage"`).
+- Repository-wide line coverage strictly above 95% (enforced by `scripts/quality-check.ps1`).
 - Tests must cover normal success paths, failure paths, and edge cases for every behavior change; no change is accepted without broad regression coverage.
 - Documentation complete: `AGENTS.md`, `architecture.md`, this file, and per-project `AGENTS.md`.
 
