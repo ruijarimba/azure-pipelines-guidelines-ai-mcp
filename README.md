@@ -25,6 +25,21 @@ Your AI can analyze pipeline YAML against current guidelines and return precise,
 
 **→ See [MCP Server Reference](docs/mcp-reference.md) for installation, configuration, and usage.**
 
+### Sample prompts
+
+Ask your AI client:
+
+> Analyze this Azure Pipelines YAML against the available guidelines. Identify any issues, explain
+> what each issue means, and suggest a concise fix. Do not modify the file.
+
+Or:
+
+> Analyze all Azure Pipelines YAML files under `<directory>`. Summarize the findings and point out
+> repeated issues across files. Do not modify the files.
+
+See the [MCP sample prompts](docs/mcp-prompts.md) for more examples, including template reviews,
+rule exclusions, category filters, and low-token analysis.
+
 ---
 
 ## What does it analyze?

@@ -91,6 +91,7 @@
     <File Path="docs/decisions.md" />
     <File Path="docs/glossary.md" />
     <File Path="docs/how-it-works.md" />
+    <File Path="docs/mcp-prompts.md" />
     <File Path="docs/mcp-reference.md" />
     <File Path="docs/progress.md" />
     <File Path="docs/TODO.md" />

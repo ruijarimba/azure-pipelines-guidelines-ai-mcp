@@ -89,3 +89,7 @@ For multi-item remediation work in this repository, commit and push each indepen
 - Use XML documentation for API contracts and comments for non-obvious private implementation details.
 - Every top-level type, regardless of accessibility or sealed status, should be in its own file.
 - Tightly coupled private nested DTOs/options may remain nested when appropriate.
+
+## MCP Advisory Responses
+
+- Preserve the original guideline wording exactly as do, don't, avoid, and consider; do not use stronger labels such as required/prohibited or substitute do-not for don't.

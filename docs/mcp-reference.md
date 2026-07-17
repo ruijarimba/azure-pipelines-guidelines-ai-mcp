@@ -15,6 +15,7 @@ The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines cod
   - [Cline](#cline)
 - [Debug mode with Visual Studio](#debug-mode-with-visual-studio)
 - [Available tools](#available-tools)
+  - [Analysis response contract](#analysis-response-contract)
 - [Usage examples](#usage-examples)
 - [Troubleshooting](#troubleshooting)
 - [See also](#see-also)
@@ -190,6 +191,53 @@ The MCP server exposes six tools in the current implementation:
 | `search_guidelines` | Search guidelines by text |
 | `list_categories` | List the supported categories |
 
+### Analysis response contract
+
+Analysis findings are advisory. The MCP server returns detected findings as normal tool results;
+it does not turn a guideline finding into a tool failure. Each diagnostic includes:
+
+- `severity` — the diagnostic level used for filtering and machine-readable grouping:
+  `error`, `warning`, or `info`
+- `guidance` — the original wording from the guideline: `do`, `don't`, `avoid`, or `consider`
+- `ruleId`, `message`, and an optional `line` number
+
+The `guidance` value describes the tone of the guideline. It does not use stronger wording such as
+"required" or "prohibited". Operational problems, such as invalid parameters, YAML parsing
+failures, missing paths, or file read failures, are returned separately as error responses.
+
+For example, an inline analysis can return a diagnostic like this:
+
+```json
+{
+  "ruleId": "ADOG-STEPS-001",
+  "severity": "error",
+  "guidance": "do",
+  "message": "Use a template for repeated steps.",
+  "line": 12
+}
+```
+
+The `severity` and `guidance` fields serve different purposes. A response can contain findings
+with different advisory labels:
+
+```json
+[
+  { "ruleId": "ADOG-STEPS-001", "severity": "error", "guidance": "do" },
+  { "ruleId": "ADOG-VARIABLES-003", "severity": "error", "guidance": "don't" },
+  { "ruleId": "ADOG-JOBS-006", "severity": "warning", "guidance": "avoid" },
+  { "ruleId": "ADOG-STEPS-004", "severity": "info", "guidance": "consider" }
+]
+```
+
+For `analyze_pipeline_paths` with `format: "markdown"`, the rule summary includes the same
+advisory wording:
+
+```text
+| Rule | Title | Count | Advisory | Guidance |
+| --- | --- | ---: | --- | --- |
+| ADOG-JOBS-006 | Set job timeouts | 1 | avoid | Add a timeout to long-running jobs. |
+```
+
 ### `analyze_pipeline`
 
 Analyzes inline Azure Pipelines YAML content.
@@ -198,12 +246,19 @@ Analyzes inline Azure Pipelines YAML content.
 - `yaml` (string, required) — The pipeline YAML to analyze
 - `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check. If omitted, all rules are checked.
 - `category` (string, optional) — Category filter for analysis options
+- `includeGuidance` (boolean, optional) — Include the guideline's remediation summary in the
+  `rules` array. Defaults to `false`.
 
 **Returns:**
-- `diagnostics`: line-level violations with rule ID, severity, message, and line number
-- `rules`: one compact summary per violated rule, with its title, guidance, and reference URLs
+- `diagnostics`: line-level findings with rule ID, severity, advisory `guidance`, message, and
+  optional line number
+- `rules`: one compact summary per finding, with its title, advisory label, optional remediation
+  `guidance`, and reference URLs
 - Render returned reference URLs as Markdown links; call `get_guideline` for full descriptions,
   rationale, and before/after fix examples
+
+The diagnostic `guidance` label is always included when the guideline is known. The `rules[].guidance`
+value is different: it is an optional remediation summary controlled by `includeGuidance`.
 
 ### `analyze_pipeline_paths`
 
@@ -215,12 +270,16 @@ Analyzes one or more pipeline files or directories on disk.
 - `category` (string, optional) — Category filter for analysis options
 - `format` (string, optional) — `json` (default) for structured output or `markdown` for a
   compact user-facing report
+- `includeGuidance` (boolean, optional) — Include remediation summaries in JSON rule details.
+  Defaults to `false`; Markdown includes them automatically.
 
 **Returns:**
-- With `format: json`, `files` contains per-file diagnostics and `rules` contains compact,
-  deduplicated rule summaries with guidance and reference URLs.
-- With `format: markdown`, a compact report contains severity counts, linked rule IDs, guidance,
-  and per-file counts. A rule ID links to its first valid HTTP(S) manifest reference; IDs remain
+- With `format: json`, `files` contains per-file diagnostics with advisory labels and `rules`
+  contains compact, deduplicated rule summaries with advisory labels, optional remediation
+  guidance, and reference URLs.
+- With `format: markdown`, a compact report contains severity counts, linked rule IDs, advisory
+  labels, remediation guidance, and per-file counts. A rule ID links to its first valid HTTP(S)
+  manifest reference; IDs remain
   unlinked when the manifest has no valid reference URL.
 - Call `get_guideline` for full remediation details when needed.
 
