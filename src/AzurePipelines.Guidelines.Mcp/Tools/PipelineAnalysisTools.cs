@@ -55,7 +55,9 @@ internal sealed class PipelineAnalysisTools(
             "Optional category filter. " +
             "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables. " +
             "Omit or pass null to include all categories.")]
-        string? category = null)
+        string? category = null,
+        [Description("Include rule guidance in the response. Defaults to false; use get_guideline for full remediation details.")]
+        bool includeGuidance = false)
     {
         if (string.IsNullOrWhiteSpace(yaml))
         {
@@ -83,7 +85,7 @@ internal sealed class PipelineAnalysisTools(
             .AnalyseAsync(document, options)
             .ConfigureAwait(false);
 
-        return JsonSerializer.Serialize(BuildAnalysisResponse(result.Diagnostics), _jsonOptions);
+        return JsonSerializer.Serialize(BuildAnalysisResponse(result.Diagnostics, includeGuidance), _jsonOptions);
     }
 
     // ── analyze_pipeline_paths ───────────────────────────────────────────────
@@ -97,6 +99,7 @@ internal sealed class PipelineAnalysisTools(
         "and returns per-file diagnostics plus compact deduplicated rule summaries with reference links. " +
         "Use format=markdown for a compact user-facing report with linked rule IDs; use the default " +
         "JSON format for structured processing. Directories are scanned recursively. " +
+        "Rule guidance is omitted from JSON by default; set includeGuidance to true when needed. " +
         "Pass an optional category to restrict analysis to one guideline category, or an " +
         "optional comma-separated list of guideline IDs to restrict to specific rules.")]
     internal async Task<string> AnalyzePipelinePathsAsync(
@@ -114,7 +117,9 @@ internal sealed class PipelineAnalysisTools(
         [Description(
             "Output format: json (default) for structured diagnostics or markdown for a compact " +
             "user-facing report with linked rule IDs.")]
-        string? format = "json")
+        string? format = "json",
+        [Description("Include rule guidance in JSON responses. Defaults to false; Markdown always includes guidance.")]
+        bool includeGuidance = false)
     {
         if (paths is null || paths.Length == 0 || paths.All(string.IsNullOrWhiteSpace))
         {
@@ -178,7 +183,7 @@ internal sealed class PipelineAnalysisTools(
             allDiagnostics.AddRange(result.Diagnostics);
         }
 
-        RuleDetailDto[] rules = BuildRuleDetails(allDiagnostics);
+        RuleDetailDto[] rules = BuildRuleDetails(allDiagnostics, includeGuidance || useMarkdown);
         if (useMarkdown)
         {
             return BuildMarkdownReport(fileResults, allDiagnostics, rules);
@@ -312,14 +317,20 @@ internal sealed class PipelineAnalysisTools(
 
     /// <summary>Builds the single-document analysis response.</summary>
     /// <param name="diagnostics">The diagnostics produced by analysis.</param>
+    /// <param name="includeGuidance">Whether to include rule guidance in the response.</param>
     /// <returns>The structured analysis response.</returns>
-    private AnalysisResponseDto BuildAnalysisResponse(IReadOnlyList<Diagnostic> diagnostics) =>
-        new(BuildDiagnosticDtos(diagnostics), BuildRuleDetails(diagnostics));
+    private AnalysisResponseDto BuildAnalysisResponse(
+        IReadOnlyList<Diagnostic> diagnostics,
+        bool includeGuidance) =>
+        new(BuildDiagnosticDtos(diagnostics), BuildRuleDetails(diagnostics, includeGuidance));
 
     /// <summary>Builds one linked rule summary for each distinct violated guideline.</summary>
     /// <param name="diagnostics">The diagnostics whose guideline summaries are needed.</param>
+    /// <param name="includeGuidance">Whether to include rule guidance in each summary.</param>
     /// <returns>Distinct rule details in first-seen order.</returns>
-    private RuleDetailDto[] BuildRuleDetails(IEnumerable<Diagnostic> diagnostics)
+    private RuleDetailDto[] BuildRuleDetails(
+        IEnumerable<Diagnostic> diagnostics,
+        bool includeGuidance)
     {
         List<RuleDetailDto> details = [];
         HashSet<string> ruleIds = new(StringComparer.Ordinal);
@@ -340,7 +351,7 @@ internal sealed class PipelineAnalysisTools(
             details.Add(new RuleDetailDto(
                 guideline.Id.Value,
                 guideline.Title,
-                guideline.Fix?.Summary ?? guideline.Description,
+                includeGuidance ? guideline.Fix?.Summary ?? guideline.Description : null,
                 guideline.References.Count > 0 ? [.. guideline.References] : null));
         }
 
@@ -502,7 +513,7 @@ internal sealed class PipelineAnalysisTools(
     private sealed record RuleDetailDto(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("title")] string Title,
-        [property: JsonPropertyName("guidance")] string Guidance,
+        [property: JsonPropertyName("guidance")] string? Guidance,
         [property: JsonPropertyName("references")] string[]? References);
 
     /// <summary>Represents an MCP tool error response.</summary>

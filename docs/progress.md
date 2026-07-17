@@ -20,6 +20,7 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `local` | fix: make MCP analysis guidance opt-in for compact JSON responses while retaining it for Markdown |
 | `local` | docs/comments: add inline comments, host README, and AGENTS updates to the MCP project so contributors without deep .NET knowledge can follow transport modes, launch profiles, and startup choices |
 | `local` | feat: add optional SSE debug transport to MCP host so it can run under Visual Studio while VS Code connects over HTTP |
 | `local` | feat: add source-mode and local Docker MCP launch scripts with local-client configuration guidance |

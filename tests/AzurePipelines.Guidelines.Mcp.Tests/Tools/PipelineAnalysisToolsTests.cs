@@ -231,7 +231,7 @@ public sealed class PipelineAnalysisToolsTests
     }
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenRepeatedKnownGuideline_ShouldReturnRuleDetailsOnce()
+    public async Task AnalyzePipelineAsync_GivenRepeatedKnownGuideline_ShouldReturnCompactRuleDetailsOnce()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -254,11 +254,34 @@ public sealed class PipelineAnalysisToolsTests
         JsonElement[] rules = [.. Deserialize<JsonElement>(result).GetProperty("rules").EnumerateArray()];
         rules.Should().ContainSingle();
         rules[0].GetProperty("id").GetString().Should().Be("ADOG-STEPS-001");
-        rules[0].GetProperty("guidance").GetString().Should().NotBeNullOrWhiteSpace();
+        rules[0].TryGetProperty("guidance", out _).Should().BeFalse();
         rules[0].GetProperty("references")[0].GetString().Should().StartWith("https://");
         rules[0].TryGetProperty("description", out _).Should().BeFalse();
         rules[0].TryGetProperty("rationale", out _).Should().BeFalse();
         rules[0].TryGetProperty("fix", out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task AnalyzePipelineAsync_GivenIncludeGuidance_ShouldReturnRuleGuidance()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+                .Returns(MakeResult([MakeDiagnostic("ADOG-STEPS-001")]));
+        PipelineAnalysisTools sut = MakeSut(
+            parser,
+            analyser,
+            repository: new GuidelineRepository([MakeGuideline("ADOG-STEPS-001")]));
+
+        // Act
+        string result = await sut.AnalyzePipelineAsync("steps: []", includeGuidance: true);
+
+        // Assert
+        JsonElement[] rules = [.. Deserialize<JsonElement>(result).GetProperty("rules").EnumerateArray()];
+        rules.Should().ContainSingle();
+        rules[0].GetProperty("guidance").GetString().Should().NotBeNullOrWhiteSpace();
     }
 
     [Fact]
