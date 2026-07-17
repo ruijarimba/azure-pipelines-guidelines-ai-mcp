@@ -30,6 +30,7 @@
     <None Include="AGENTS.md" />
     <None Include="RuleMetadataTests.cs" />
     <None Include="RuleMetadataProviderTests.cs" />
+    <None Include="RuleCoverageInventoryTests.cs" />
   </ItemGroup>
 
 </Project>
