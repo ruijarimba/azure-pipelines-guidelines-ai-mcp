@@ -25,6 +25,7 @@ Before committing, edit the sections below:
 | `local` | docs: add client-side MCP sample prompts and README examples |
 | `local` | feat: add compact MCP analysis responses for low-token workflows |
 | `local` | test: verify dedicated behavioral coverage exists for every implemented rule |
+| `local` | docs: add Azure Pipelines YAML schema reference and MCP guidance |
 | `local` | test: raise normalized production line coverage to 95.88% with focused branch and edge-case tests |
 | `local` | fix: make MCP analysis guidance opt-in for compact JSON responses while retaining it for Markdown |
 | `local` | docs/comments: add inline comments, host README, and AGENTS updates to the MCP project so contributors without deep .NET knowledge can follow transport modes, launch profiles, and startup choices |
@@ -138,9 +139,13 @@ The host README and MCP reference document the deterministic default and overrid
    `RuleCoverageInventoryTests` test requires a matching dedicated test class.
 2. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
    rule template workflow when they appear.
+3. **Design a limited local schema validator** for pipeline and template contexts. Keep it separate
+   from advisory guideline rules and use the Microsoft Learn reference as the canonical source.
 
 ---
 
 ## Open questions / blockers
 
 - NuGet publication is deferred. Package metadata and local packing remain for a future release.
+- The exported Microsoft Learn schema PDF remains an offline reference and is not committed. Confirm
+  provenance and redistribution terms before adding any documentation snapshot to source control.

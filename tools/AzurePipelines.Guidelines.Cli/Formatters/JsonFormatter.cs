@@ -5,7 +5,7 @@ namespace AzurePipelines.Guidelines.Cli.Formatters;
 
 /// <summary>
 /// Formats analysis results as structured JSON.
-/// Output structure: { summary: {...}, results: [{file, diagnostics: [...]}] }
+/// Output structure: { summary: {...}, results: [{file, diagnostics: [...], schemaDiagnostics: [...]}] }
 /// </summary>
 internal sealed class JsonAnalysisFormatter : IOutputFormatter
 {
@@ -44,6 +44,12 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
                     Line = d.Line,
                     Column = d.Column,
                 }).ToArray(),
+                SchemaDiagnostics = r.StructuralDiagnostics.Select(d => new SchemaDiagnosticOutput
+                {
+                    Code = d.Code,
+                    Message = d.Message,
+                    Line = d.Line,
+                }).ToArray(),
             }).ToArray(),
         };
 
@@ -60,6 +66,7 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
         foreach (AnalysisResult result in results)
         {
             totalDiagnostics += result.Diagnostics.Count;
+            totalDiagnostics += result.StructuralDiagnostics.Count;
 
             foreach (Diagnostic diagnostic in result.Diagnostics)
             {
@@ -117,6 +124,7 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
     {
         public required string File { get; init; }
         public required DiagnosticOutput[] Diagnostics { get; init; }
+        public required SchemaDiagnosticOutput[] SchemaDiagnostics { get; init; }
     }
 
     /// <summary>Serialized representation of one diagnostic.</summary>
@@ -127,5 +135,13 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
         public required string Message { get; init; }
         public int? Line { get; init; }
         public int? Column { get; init; }
+    }
+
+    /// <summary>Serialized representation of one structural schema diagnostic.</summary>
+    private sealed class SchemaDiagnosticOutput
+    {
+        public required string Code { get; init; }
+        public required string Message { get; init; }
+        public int? Line { get; init; }
     }
 }

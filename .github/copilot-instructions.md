@@ -93,3 +93,7 @@ For multi-item remediation work in this repository, commit and push each indepen
 ## MCP Advisory Responses
 
 - Preserve the original guideline wording exactly as do, don't, avoid, and consider; do not use stronger labels such as required/prohibited or substitute do-not for don't.
+
+## Rule Testing
+
+- When a rule test uses an invalid Azure Pipelines fixture, move the invalid-shape coverage to schema/analysis tests and keep rule tests focused on valid pipeline structures.

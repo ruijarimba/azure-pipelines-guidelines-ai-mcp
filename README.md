@@ -133,6 +133,8 @@ Configure your AI client to use Docker:
 
 ## Project documentation
 
+- **[Azure Pipelines YAML schema guide](docs/azure-pipelines-schema.md)** — official schema reference,
+  local validation scope, and Microsoft Learn MCP guidance
 - **[Architecture guide](docs/architecture.md)** — dependency graph, layer responsibilities, and extension points
 - **[How it works](docs/how-it-works.md)** — analysis pipeline and two-repository model
 - **[Contributing guide](CONTRIBUTING.md)** — build instructions and how to add rules

@@ -51,17 +51,6 @@ public sealed class JobMissingTimeoutRuleTests
         diagnostics[0].Message.Should().Contain("Build");
     }
 
-    [Fact]
-    public async Task EvaluateAsync_GivenUnnamedJob_ShouldReturnDiagnosticWithUnnamedPlaceholder()
-    {
-        string yaml = TestFixtures.Load("JobMissingTimeout/UnnamedJob.yml");
-
-        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
-
-        diagnostics.Should().ContainSingle();
-        diagnostics[0].Message.Should().Contain("(unnamed)");
-    }
-
     // ── No violations ─────────────────────────────────────────────────────────
 
     [Fact]

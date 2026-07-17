@@ -87,6 +87,7 @@
   </Folder>
   <Folder Name="/docs/">
     <File Path="docs/architecture.md" />
+    <File Path="docs/azure-pipelines-schema.md" />
     <File Path="docs/cli-reference.md" />
     <File Path="docs/decisions.md" />
     <File Path="docs/glossary.md" />

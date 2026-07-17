@@ -6,12 +6,19 @@ namespace AzurePipelines.Guidelines.Core;
 /// </summary>
 /// <param name="Document">The document that was analysed.</param>
 /// <param name="Diagnostics">All findings produced for this document.</param>
+/// <param name="SchemaDiagnostics">Structural schema findings for this document.</param>
 public sealed record AnalysisResult(
     PipelineDocument Document,
-    IReadOnlyList<Diagnostic> Diagnostics)
+    IReadOnlyList<Diagnostic> Diagnostics,
+    IReadOnlyList<SchemaDiagnostic>? SchemaDiagnostics = null)
 {
     /// <summary>
-    /// Gets <see langword="true"/> when no findings were produced (or all were filtered out).
+    /// Gets the structural schema findings, or an empty collection when schema validation was not run.
     /// </summary>
-    public bool IsClean => Diagnostics.Count == 0;
+    public IReadOnlyList<SchemaDiagnostic> StructuralDiagnostics => SchemaDiagnostics ?? [];
+
+    /// <summary>
+    /// Gets <see langword="true"/> when no guideline or schema findings were produced.
+    /// </summary>
+    public bool IsClean => Diagnostics.Count == 0 && StructuralDiagnostics.Count == 0;
 }

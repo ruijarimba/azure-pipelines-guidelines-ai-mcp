@@ -17,6 +17,8 @@ public static class ParsingServiceCollectionExtensions
     public static IServiceCollection AddPipelineParser(this IServiceCollection services)
     {
         services.AddSingleton<IPipelineParser, YamlPipelineParser>();
+        services.AddSingleton<IPipelineSchemaValidator,
+            YamlPipelineSchemaValidator>();
         return services;
     }
 }

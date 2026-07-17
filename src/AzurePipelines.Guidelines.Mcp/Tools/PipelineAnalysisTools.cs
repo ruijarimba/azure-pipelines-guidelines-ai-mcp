@@ -99,7 +99,8 @@ internal sealed class PipelineAnalysisTools(
                 BuildCompactDiagnosticDtos(result.Diagnostics)), _jsonOptions);
         }
 
-        return JsonSerializer.Serialize(BuildAnalysisResponse(result.Diagnostics, includeGuidance), _jsonOptions);
+        return JsonSerializer.Serialize(
+            BuildAnalysisResponse(result.Diagnostics, result.StructuralDiagnostics, includeGuidance), _jsonOptions);
     }
 
     // ── analyze_pipeline_paths ───────────────────────────────────────────────
@@ -202,7 +203,10 @@ internal sealed class PipelineAnalysisTools(
             }
             else
             {
-                fileResults.Add(new FileAnalysisResultDto(discoveredPath, BuildDiagnosticDtos(result.Diagnostics)));
+                fileResults.Add(new FileAnalysisResultDto(
+                    discoveredPath,
+                    BuildDiagnosticDtos(result.Diagnostics),
+                    BuildSchemaDiagnosticDtos(result.StructuralDiagnostics)));
             }
             allDiagnostics.AddRange(result.Diagnostics);
         }
@@ -357,6 +361,10 @@ internal sealed class PipelineAnalysisTools(
         return dtos;
     }
 
+    private static SchemaDiagnosticDto[] BuildSchemaDiagnosticDtos(
+        IReadOnlyList<SchemaDiagnostic> diagnostics) =>
+        diagnostics.Select(d => new SchemaDiagnosticDto(d.Code, d.Message, d.Line)).ToArray();
+
     /// <summary>Maps diagnostics to the token-efficient compact response contract.</summary>
     /// <param name="diagnostics">The diagnostics to map.</param>
     /// <param name="filePath">The optional source file path.</param>
@@ -384,12 +392,14 @@ internal sealed class PipelineAnalysisTools(
 
     /// <summary>Builds the single-document analysis response.</summary>
     /// <param name="diagnostics">The diagnostics produced by analysis.</param>
+    /// <param name="schemaDiagnostics">The structural schema diagnostics produced by analysis.</param>
     /// <param name="includeGuidance">Whether to include rule guidance in the response.</param>
     /// <returns>The structured analysis response.</returns>
     private AnalysisResponseDto BuildAnalysisResponse(
         IReadOnlyList<Diagnostic> diagnostics,
+        IReadOnlyList<SchemaDiagnostic> schemaDiagnostics,
         bool includeGuidance) =>
-        new(BuildDiagnosticDtos(diagnostics), BuildRuleDetails(diagnostics, includeGuidance));
+        new(BuildDiagnosticDtos(diagnostics), BuildSchemaDiagnosticDtos(schemaDiagnostics), BuildRuleDetails(diagnostics, includeGuidance));
 
     /// <summary>Builds one linked rule summary for each distinct violated guideline.</summary>
     /// <param name="diagnostics">The diagnostics whose guideline summaries are needed.</param>
@@ -578,6 +588,11 @@ internal sealed class PipelineAnalysisTools(
         [property: JsonPropertyName("message")] string Message,
         [property: JsonPropertyName("line")] int? Line);
 
+    private sealed record SchemaDiagnosticDto(
+        [property: JsonPropertyName("code")] string Code,
+        [property: JsonPropertyName("message")] string Message,
+        [property: JsonPropertyName("line")] int? Line);
+
     /// <summary>Represents one diagnostic in a compact MCP response.</summary>
     private sealed record CompactDiagnosticDto(
         [property: JsonPropertyName("ruleId")] string RuleId,
@@ -590,12 +605,14 @@ internal sealed class PipelineAnalysisTools(
     /// <summary>Represents a single-document analysis response.</summary>
     private sealed record AnalysisResponseDto(
         [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics,
+        [property: JsonPropertyName("schemaDiagnostics")] SchemaDiagnosticDto[] SchemaDiagnostics,
         [property: JsonPropertyName("rules")] RuleDetailDto[] Rules);
 
     /// <summary>Represents diagnostics for one analyzed file.</summary>
     private sealed record FileAnalysisResultDto(
         [property: JsonPropertyName("filePath")] string FilePath,
-        [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics);
+        [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics,
+        [property: JsonPropertyName("schemaDiagnostics")] SchemaDiagnosticDto[] SchemaDiagnostics);
 
     /// <summary>Represents a multi-file analysis response.</summary>
     private sealed record AnalysisPathsResponseDto(

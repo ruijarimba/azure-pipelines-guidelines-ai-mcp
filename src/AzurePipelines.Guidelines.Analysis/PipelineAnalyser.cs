@@ -30,19 +30,23 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
 
     private readonly IReadOnlyList<IGuidelineRule> _rules;
     private readonly IGuidelineRepository _repository;
+    private readonly IPipelineSchemaValidator _schemaValidator;
     private readonly ILogger<PipelineAnalyser> _logger;
 
     public PipelineAnalyser(
         IEnumerable<IGuidelineRule> rules,
         IGuidelineRepository repository,
+        IPipelineSchemaValidator schemaValidator,
         ILogger<PipelineAnalyser> logger)
     {
         ArgumentNullException.ThrowIfNull(rules);
         ArgumentNullException.ThrowIfNull(repository);
+        ArgumentNullException.ThrowIfNull(schemaValidator);
         ArgumentNullException.ThrowIfNull(logger);
 
         _rules = [.. rules];
         _repository = repository;
+        _schemaValidator = schemaValidator;
         _logger = logger;
     }
 
@@ -59,6 +63,10 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
         IEnumerable<IGuidelineRule> applicableRules = FilterRules(_rules, options, _repository);
 
         List<Diagnostic> diagnostics = [];
+        IReadOnlyList<SchemaDiagnostic> schemaDiagnostics = _schemaValidator.Validate(
+            document.RawContent,
+            document.FilePath,
+            PipelineSchemaContext.Pipeline);
 
         foreach (IGuidelineRule rule in applicableRules)
         {
@@ -82,7 +90,7 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
 
         LogAnalysisComplete(_logger, document.FilePath, diagnostics.Count);
 
-        return new AnalysisResult(document, diagnostics);
+        return new AnalysisResult(document, diagnostics, schemaDiagnostics);
     }
 
     private static IEnumerable<IGuidelineRule> FilterRules(
