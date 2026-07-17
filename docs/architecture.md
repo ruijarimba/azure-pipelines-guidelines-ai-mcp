@@ -90,11 +90,16 @@ The server provides two analysis tools:
 
 | Tool | Parameters | Returns |
 | --- | --- | --- |
-| `analyze_pipeline` | `yaml` (required), `guidelineIds` (optional) | Flat diagnostic list |
-| `analyze_pipeline_paths` | `paths` (required), `guidelineIds` (optional) | Per-file diagnostic list |
+| `analyze_pipeline` | `yaml` (required), `guidelineIds` (optional) | Flat advisory diagnostic list |
+| `analyze_pipeline_paths` | `paths` (required), `guidelineIds` (optional) | Per-file advisory diagnostic list |
 
 `guidelineIds` is a comma-separated list of rule IDs (for example, `ADOG-STEPS-001,ADOG-JOBS-006`).
 Omit it to run all rules.
+
+Analysis findings are advisory. Each diagnostic retains its machine-readable `severity` and
+includes the original guideline wording in `guidance`: `do`, `don't`, `avoid`, or `consider`.
+Detected findings are returned as normal tool results; error responses are reserved for invalid
+parameters, parsing failures, path resolution failures, and file I/O failures.
 
 Tool handlers live in `src/AzurePipelines.Guidelines.Mcp/Tools/` and are discovered automatically
 by the MCP host via `WithToolsFromAssembly`.

@@ -29,11 +29,13 @@ public sealed class PipelineAnalysisToolsTests
     private static JsonElement[] GetDiagnostics(string json) =>
         [.. Deserialize<JsonElement>(json).GetProperty("diagnostics").EnumerateArray()];
 
-    private static GuidelineDefinition MakeGuideline(string id) =>
+    private static GuidelineDefinition MakeGuideline(
+        string id,
+        GuidelineSeverity severity = GuidelineSeverity.Do) =>
         new(
             new GuidelineId(id),
             GuidelineCategory.Steps,
-            GuidelineSeverity.Do,
+            severity,
             "Use templates",
             "Extract repeated pipeline steps into templates.",
             "Templates reduce duplication.",
@@ -285,6 +287,43 @@ public sealed class PipelineAnalysisToolsTests
     }
 
     [Fact]
+    public async Task AnalyzePipelineAsync_GivenGuidelineSeverities_ShouldReturnOriginalAdvisoryLabels()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+                .Returns(MakeResult([
+                    MakeDiagnostic("ADOG-STEPS-001"),
+                    MakeDiagnostic("ADOG-STEPS-002", DiagnosticSeverity.Error),
+                    MakeDiagnostic("ADOG-STEPS-003", DiagnosticSeverity.Warning),
+                    MakeDiagnostic("ADOG-STEPS-004", DiagnosticSeverity.Info),
+                ]));
+
+        PipelineAnalysisTools sut = MakeSut(
+            parser,
+            analyser,
+            repository: new GuidelineRepository([
+                MakeGuideline("ADOG-STEPS-001", GuidelineSeverity.Do),
+                MakeGuideline("ADOG-STEPS-002", GuidelineSeverity.DoNot),
+                MakeGuideline("ADOG-STEPS-003", GuidelineSeverity.Avoid),
+                MakeGuideline("ADOG-STEPS-004", GuidelineSeverity.Consider),
+            ]));
+
+        // Act
+        string result = await sut.AnalyzePipelineAsync("steps: []");
+
+        // Assert
+        JsonElement[] diagnostics = GetDiagnostics(result);
+        diagnostics.Select(item => item.GetProperty("guidance").GetString())
+            .Should().Equal("do", "don't", "avoid", "consider");
+        diagnostics.Select(item => item.GetProperty("severity").GetString())
+            .Should().Equal("error", "error", "warning", "info");
+    }
+
+    [Fact]
     public async Task AnalyzePipelineAsync_GivenMultipleViolations_ShouldReturnAllDiagnostics()
     {
         // Arrange
@@ -527,6 +566,8 @@ public sealed class PipelineAnalysisToolsTests
             result.Should().Contain("## Azure Pipelines Guideline Analysis");
             result.Should().Contain("| Severity | Count |");
             result.Should().Contain("[ADOG-STEPS-001](https://learn.microsoft.com/azure/devops/pipelines/process/templates)");
+            result.Should().Contain("| Advisory | Guidance |");
+            result.Should().Contain("| do | Extract the steps into a template. |");
             result.Should().Contain("Use templates");
             result.Should().Contain("| File | Errors | Warnings | Info |");
         }

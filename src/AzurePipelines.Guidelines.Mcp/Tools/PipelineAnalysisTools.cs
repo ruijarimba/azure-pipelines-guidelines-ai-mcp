@@ -299,15 +299,17 @@ internal sealed class PipelineAnalysisTools(
     /// <summary>Maps diagnostics to the compact MCP response contract.</summary>
     /// <param name="diagnostics">The diagnostics to map.</param>
     /// <returns>The mapped diagnostics.</returns>
-    private static DiagnosticDto[] BuildDiagnosticDtos(IReadOnlyList<Diagnostic> diagnostics)
+    private DiagnosticDto[] BuildDiagnosticDtos(IReadOnlyList<Diagnostic> diagnostics)
     {
         DiagnosticDto[] dtos = new DiagnosticDto[diagnostics.Count];
         for (int i = 0; i < diagnostics.Count; i++)
         {
             Diagnostic d = diagnostics[i];
+            GuidelineDefinition? guideline = repository.FindById(d.GuidelineId);
             dtos[i] = new DiagnosticDto(
                 d.GuidelineId.Value,
                 EnumToJsonString(d.Severity),
+                guideline is null ? null : EnumToGuidanceString(guideline.Severity),
                 d.Message,
                 d.Line);
         }
@@ -351,6 +353,7 @@ internal sealed class PipelineAnalysisTools(
             details.Add(new RuleDetailDto(
                 guideline.Id.Value,
                 guideline.Title,
+                EnumToGuidanceString(guideline.Severity),
                 includeGuidance ? guideline.Fix?.Summary ?? guideline.Description : null,
                 guideline.References.Count > 0 ? [.. guideline.References] : null));
         }
@@ -386,8 +389,8 @@ internal sealed class PipelineAnalysisTools(
         report.AppendLine();
         report.AppendLine("### Violated guidelines");
         report.AppendLine();
-        report.AppendLine("| Rule | Title | Count | Guidance |");
-        report.AppendLine("| --- | --- | ---: | --- |");
+        report.AppendLine("| Rule | Title | Count | Advisory | Guidance |");
+        report.AppendLine("| --- | --- | ---: | --- | --- |");
 
         foreach (IGrouping<string, Diagnostic> group in diagnostics
             .GroupBy(static diagnostic => diagnostic.GuidelineId.Value)
@@ -401,6 +404,8 @@ internal sealed class PipelineAnalysisTools(
                 .Append(EscapeTableCell(rule?.Title ?? group.Key))
                 .Append(" | ")
                 .Append(group.Count())
+                .Append(" | ")
+                .Append(EscapeTableCell(rule?.Advisory ?? "Unknown"))
                 .Append(" | ")
                 .Append(EscapeTableCell(rule?.Guidance ?? "No additional guidance is available."))
                 .AppendLine(" |");
@@ -485,12 +490,26 @@ internal sealed class PipelineAnalysisTools(
         });
     }
 
+    /// <summary>Converts a guideline strength to its original advisory wording.</summary>
+    /// <param name="value">The guideline strength.</param>
+    /// <returns>The lower-case advisory label.</returns>
+    private static string EnumToGuidanceString(GuidelineSeverity value) =>
+        value switch
+        {
+            GuidelineSeverity.Do => "do",
+            GuidelineSeverity.DoNot => "don't",
+            GuidelineSeverity.Avoid => "avoid",
+            GuidelineSeverity.Consider => "consider",
+            _ => throw new ArgumentOutOfRangeException(nameof(value), value, null),
+        };
+
     // These records remain nested because they are private, tool-specific response contracts.
 
     /// <summary>Represents one diagnostic in an MCP response.</summary>
     private sealed record DiagnosticDto(
         [property: JsonPropertyName("ruleId")] string RuleId,
         [property: JsonPropertyName("severity")] string Severity,
+        [property: JsonPropertyName("guidance")] string? Guidance,
         [property: JsonPropertyName("message")] string Message,
         [property: JsonPropertyName("line")] int? Line);
 
@@ -513,6 +532,7 @@ internal sealed class PipelineAnalysisTools(
     private sealed record RuleDetailDto(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("title")] string Title,
+        [property: JsonPropertyName("advisory")] string Advisory,
         [property: JsonPropertyName("guidance")] string? Guidance,
         [property: JsonPropertyName("references")] string[]? References);
 

@@ -21,6 +21,7 @@ Before committing, edit the sections below:
 | Commit | Summary |
 | --- | --- |
 | `local` | docs/comments: clarify CLI command and formatter implementation details without changing behavior |
+| `local` | feat: make MCP analysis findings advisory with original do, don't, avoid, and consider wording |
 | `local` | test: raise normalized production line coverage to 95.88% with focused branch and edge-case tests |
 | `local` | fix: make MCP analysis guidance opt-in for compact JSON responses while retaining it for Markdown |
 | `local` | docs/comments: add inline comments, host README, and AGENTS updates to the MCP project so contributors without deep .NET knowledge can follow transport modes, launch profiles, and startup choices |
@@ -130,8 +131,8 @@ The host README and MCP reference document the deterministic default and overrid
 
 ## Next up
 
-1. **Run and review the new coverage-enforcing quality gate** to confirm the strict `>95%`
-   threshold remains stable in a clean environment.
+1. **Run and review the full quality gate** to confirm the MCP advisory response change and strict
+   `>95%` coverage threshold remain stable in a clean environment.
 2. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
    rule template workflow when they appear.
 
