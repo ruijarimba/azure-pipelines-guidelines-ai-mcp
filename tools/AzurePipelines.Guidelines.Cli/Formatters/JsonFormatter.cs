@@ -15,13 +15,15 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
+    /// <inheritdoc/>
     public string FormatName => "json";
 
+    /// <inheritdoc/>
     public string Format(IReadOnlyList<AnalysisResult> results, bool useColor = true)
     {
         ArgumentNullException.ThrowIfNull(results);
 
-    // Build the complete output structure before serialization so the JSON contract is explicit.
+        // Build the complete output structure before serialization so the JSON contract is explicit.
         JsonOutput output = new()
         {
             Summary = BuildSummary(results),
@@ -91,13 +93,11 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
         };
     }
 
-    // These classes remain nested because they are private and only model this formatter's output.
-
     /// <summary>Root JSON output containing summary and per-file results.</summary>
     private sealed class JsonOutput
     {
-        public Summary Summary { get; set; } = null!;
-        public FileResult[] Results { get; set; } = null!;
+        public required Summary Summary { get; init; }
+        public required FileResult[] Results { get; init; }
     }
 
     /// <summary>Aggregate counts for the analyzed files.</summary>
@@ -115,17 +115,17 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
     /// <summary>Diagnostics associated with one analyzed file.</summary>
     private sealed class FileResult
     {
-        public string File { get; set; } = null!;
-        public DiagnosticOutput[] Diagnostics { get; set; } = null!;
+        public required string File { get; init; }
+        public required DiagnosticOutput[] Diagnostics { get; init; }
     }
 
     /// <summary>Serialized representation of one diagnostic.</summary>
     private sealed class DiagnosticOutput
     {
-        public string RuleId { get; set; } = null!;
-        public string Severity { get; set; } = null!;
-        public string Message { get; set; } = null!;
-        public int? Line { get; set; }
-        public int? Column { get; set; }
+        public required string RuleId { get; init; }
+        public required string Severity { get; init; }
+        public required string Message { get; init; }
+        public int? Line { get; init; }
+        public int? Column { get; init; }
     }
 }

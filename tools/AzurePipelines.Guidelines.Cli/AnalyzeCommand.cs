@@ -10,6 +10,7 @@ namespace AzurePipelines.Guidelines.Cli;
 /// </summary>
 internal static class AnalyzeCommand
 {
+    /// <summary>Creates the <c>analyze</c> command and wires its option resolution.</summary>
     internal static Command Create(
         IPipelineParser parser,
         IPipelineAnalyser analyser,
@@ -105,6 +106,7 @@ internal static class AnalyzeCommand
         return command;
     }
 
+    /// <summary>Runs analysis for one file using the legacy single-file command shape.</summary>
     internal static Task<int> RunAsync(
         IPipelineParser parser,
         IPipelineAnalyser analyser,
@@ -119,6 +121,7 @@ internal static class AnalyzeCommand
             format,
             severity);
 
+    /// <summary>Runs analysis for the supplied paths and command options.</summary>
     internal static Task<int> RunAsync(
         IPipelineParser parser,
         IPipelineAnalyser analyser,
@@ -147,6 +150,7 @@ internal static class AnalyzeCommand
                 Quiet: quiet,
                 Verbose: verbose));
 
+    /// <summary>Analyzes resolved pipeline files and writes the selected output.</summary>
     internal static async Task<int> RunAsync(
         IPipelineParser parser,
         IPipelineAnalyser analyser,
@@ -279,7 +283,7 @@ internal static class AnalyzeCommand
 
         string formattedOutput = FormatResults(results, requestedFormats, useColor: !options.NoColor);
 
-        // Write to file if --output specified, otherwise stdout
+        // Keep the report on stdout unless the caller selected a file destination.
         if (!string.IsNullOrWhiteSpace(options.Output))
         {
             try
@@ -297,7 +301,7 @@ internal static class AnalyzeCommand
             Console.Write(formattedOutput);
         }
 
-        // Soft-fail mode: always exit 0 (audit mode)
+        // CI audit mode reports findings without failing the command.
         if (options.SoftFail)
         {
             return ExitCodes.Success;
@@ -306,6 +310,7 @@ internal static class AnalyzeCommand
         return results.Any(result => !result.IsClean) ? ExitCodes.Violations : ExitCodes.Success;
     }
 
+    /// <summary>Formats the analysis results in each requested format.</summary>
     private static string FormatResults(
         IReadOnlyList<AnalysisResult> results,
         IReadOnlyList<string> formats,
@@ -321,6 +326,7 @@ internal static class AnalyzeCommand
         return string.Join(Environment.NewLine + Environment.NewLine, renderedSections);
     }
 
+    /// <summary>Splits a format list and falls back to console output when it is empty.</summary>
     private static string[] ParseFormats(string format)
     {
         if (string.IsNullOrWhiteSpace(format))
@@ -335,6 +341,7 @@ internal static class AnalyzeCommand
         return parsedFormats.Length == 0 ? ["console"] : parsedFormats;
     }
 
+    /// <summary>Parses a case-insensitive diagnostic severity value.</summary>
     private static bool TryParseSeverity(string value, out DiagnosticSeverity result)
     {
         result = value.ToUpperInvariant() switch
@@ -348,6 +355,7 @@ internal static class AnalyzeCommand
         return (int)result >= 0;
     }
 
+    /// <summary>Splits a comma-separated option value and removes empty entries.</summary>
     private static string[] SplitValues(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -358,6 +366,7 @@ internal static class AnalyzeCommand
         return value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
     }
 
+    /// <summary>Parses a case-insensitive guideline category value.</summary>
     private static bool TryParseCategory(string value, out GuidelineCategory result)
     {
         result = value.ToUpperInvariant() switch

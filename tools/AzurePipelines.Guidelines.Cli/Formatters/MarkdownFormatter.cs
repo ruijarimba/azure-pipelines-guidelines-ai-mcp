@@ -12,8 +12,10 @@ internal sealed class MarkdownFormatter : IOutputFormatter
 {
     private const string _guidelineDocsBaseUrl = "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/data/guidelines.json";
 
+    /// <inheritdoc/>
     public string FormatName => "markdown";
 
+    /// <inheritdoc/>
     public string Format(IReadOnlyList<AnalysisResult> results, bool useColor = true)
     {
         ArgumentNullException.ThrowIfNull(results);
@@ -25,15 +27,12 @@ internal sealed class MarkdownFormatter : IOutputFormatter
 
         StringBuilder sb = new();
 
-        // Title
         sb.AppendLine("# Azure Pipelines Guidelines Analysis");
         sb.AppendLine();
 
-        // Summary section
         WriteSummary(sb, results);
         sb.AppendLine();
 
-        // Violations by file
         bool hasViolations = results.Any(r => r.Diagnostics.Count > 0);
         if (hasViolations)
         {
@@ -141,7 +140,7 @@ internal sealed class MarkdownFormatter : IOutputFormatter
 
             string ruleLink = $"[{diagnostic.GuidelineId.Value}]({_guidelineDocsBaseUrl}#{diagnostic.GuidelineId.Value})";
 
-            // Escape pipe characters in message for Markdown tables
+            // Escape pipes so a diagnostic message cannot break the Markdown table layout.
             string escapedMessage = diagnostic.Message.Replace("|", "\\|", StringComparison.Ordinal);
 
             sb.AppendLine(CultureInfo.InvariantCulture, $"| {line} | {severityIcon} | {ruleLink} | {escapedMessage} |");
