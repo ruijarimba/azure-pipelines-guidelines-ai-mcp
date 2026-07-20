@@ -35,6 +35,30 @@ public sealed class PipelineDocumentTests
     // ── AllJobs ───────────────────────────────────────────────────────────────
 
     [Fact]
+    public void Constructor_GivenAllProperties_ShouldExposeThem()
+    {
+        // Arrange
+        ParameterNode parameter = new("environment", "string", "dev", []);
+        VariableNode variable = new("Configuration", "Release", true, null);
+        StageNode stage = MakeStage("Build");
+        JobNode job = MakeJob("Test");
+        StepNode step = MakeStep();
+
+        // Act
+        PipelineDocument result = new("pipeline.yml", "steps: []", [parameter], [variable],
+            [stage], [job], [step]);
+
+        // Assert
+        result.FilePath.Should().Be("pipeline.yml");
+        result.RawContent.Should().Be("steps: []");
+        result.Parameters.Should().ContainSingle().Which.Should().Be(parameter);
+        result.Variables.Should().ContainSingle().Which.Should().Be(variable);
+        result.Stages.Should().ContainSingle().Which.Should().Be(stage);
+        result.Jobs.Should().ContainSingle().Which.Should().Be(job);
+        result.Steps.Should().ContainSingle().Which.Should().Be(step);
+    }
+
+    [Fact]
     public void AllJobs_GivenTopLevelJobsOnly_ShouldReturnThoseJobs()
     {
         // Arrange

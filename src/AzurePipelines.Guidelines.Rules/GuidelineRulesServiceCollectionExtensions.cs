@@ -1,4 +1,11 @@
 using AzurePipelines.Guidelines.Core;
+using AzurePipelines.Guidelines.Rules.General;
+using AzurePipelines.Guidelines.Rules.Jobs;
+using AzurePipelines.Guidelines.Rules.Parameters;
+using AzurePipelines.Guidelines.Rules.Pipelines;
+using AzurePipelines.Guidelines.Rules.Stages;
+using AzurePipelines.Guidelines.Rules.Steps;
+using AzurePipelines.Guidelines.Rules.Variables;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AzurePipelines.Guidelines.Rules;

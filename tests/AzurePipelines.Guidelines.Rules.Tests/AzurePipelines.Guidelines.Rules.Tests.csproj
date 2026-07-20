@@ -22,8 +22,6 @@
     <None Include="Fixtures\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Fixtures\PipelineValidationMode\**\*" />
-    <None Include="Fixtures\ServiceConnectionAuth\**\*" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,6 @@
 using System.Reflection;
 using AzurePipelines.Guidelines.Core;
+using AzurePipelines.Guidelines.Rules.General;
 using FluentAssertions;
 using Xunit;
 

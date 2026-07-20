@@ -38,6 +38,24 @@ public sealed class YamlPipelineSchemaValidatorTests
     }
 
     [Fact]
+    public void Validate_GivenJobsTemplate_ShouldValidateJobsSequence()
+    {
+        const string yaml = "- job: Build\n  steps: []";
+
+        _validator.Validate(yaml, "jobs.yml", PipelineSchemaContext.Jobs)
+            .Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Validate_GivenStepsTemplate_ShouldValidateStepsSequence()
+    {
+        const string yaml = "- script: echo hello";
+
+        _validator.Validate(yaml, "steps.yml", PipelineSchemaContext.Steps)
+            .Should().BeEmpty();
+    }
+
+    [Fact]
     public void Validate_GivenJobTemplate_ShouldValidateSingleJobMapping()
     {
         const string yaml = """

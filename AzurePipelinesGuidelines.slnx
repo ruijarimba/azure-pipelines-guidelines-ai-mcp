@@ -8,31 +8,6 @@
   </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
-    <Folder Name="/tests/FolderStructure/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithAbsolutePath.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithAdHocPath.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithSharedRootPath.yml" />
-    </Folder>
-    <Folder Name="/tests/DiagnosticLogging/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/WithLogging.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/WithoutLogging.yml" />
-    </Folder>
-    <Folder Name="/tests/SeparateConfiguration/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/WithEmbeddedConfiguration.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/WithVariableTemplate.yml" />
-    </Folder>
-    <Folder Name="/tests/SingleResponsibility/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/WithMultipleResponsibilities.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/WithSingleResponsibility.yml" />
-    </Folder>
-    <Folder Name="/tests/StepParameterValidation/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/WithoutValidation.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/WithValidation.yml" />
-    </Folder>
-    <Folder Name="/tests/EnvironmentParameterMinimization/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithEnvironmentParameters.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithVariableTemplates.yml" />
-    </Folder>
     <Project Path="tests/AzurePipelines.Guidelines.Integration.Tests/AzurePipelines.Guidelines.Integration.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Cli.Tests/AzurePipelines.Guidelines.Cli.Tests.csproj" />

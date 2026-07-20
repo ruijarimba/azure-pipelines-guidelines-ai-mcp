@@ -21,6 +21,7 @@ Before committing, edit the sections below:
 | Commit | Summary |
 | --- | --- |
 | `local` | docs/comments: clarify CLI command and formatter implementation details without changing behavior |
+| `local` | test: raise production line coverage above 95% with focused Core and Parsing tests |
 | `local` | feat: make MCP analysis findings advisory with original do, don't, avoid, and consider wording |
 | `local` | docs: add client-side MCP sample prompts and README examples |
 | `local` | feat: add compact MCP analysis responses for low-token workflows |
@@ -116,6 +117,17 @@ repository.
 | `ADOG-VARIABLES-006` | `MultiEnvironmentVariableTemplateRule` |
 
 New rule template: follow `.github/prompts/implement-rule.prompt.md`.
+
+---
+
+## Recently completed
+
+**Production coverage remediation**
+
+Focused tests were added to the existing Core model and loader test classes, plus valid jobs and
+steps collection-context cases were added to `YamlPipelineSchemaValidatorTests`. No production
+behavior or dependencies changed. The canonical quality gate now passes with 600 tests and
+95.03% production line coverage (3154/3319), above the strict 95% threshold.
 
 ---
 

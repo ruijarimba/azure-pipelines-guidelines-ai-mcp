@@ -6,6 +6,25 @@ namespace AzurePipelines.Guidelines.Core.Tests;
 
 public sealed class StageNodeTests
 {
+    [Fact]
+    public void Constructor_GivenAllProperties_ShouldExposeThem()
+    {
+        // Arrange
+        JobNode job = new("build", "Build job", 10, [], [], "succeeded()", 2);
+        VariableNode variable = new("Configuration", "Release", true, null);
+
+        // Act
+        StageNode result = new("Build", "Build stage", [job], [variable], "always()", 1);
+
+        // Assert
+        result.Name.Should().Be("Build");
+        result.DisplayName.Should().Be("Build stage");
+        result.Jobs.Should().ContainSingle().Which.Should().Be(job);
+        result.Variables.Should().ContainSingle().Which.Should().Be(variable);
+        result.Condition.Should().Be("always()");
+        result.Line.Should().Be(1);
+    }
+
     // ── ToString ─────────────────────────────────────────────────────────────────
 
     [Fact]
