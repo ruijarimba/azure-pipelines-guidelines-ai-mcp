@@ -14,7 +14,9 @@ internal static class ConsoleFormatter
     /// Formats a list of guideline summaries: one line per guideline —
     /// <c>{id}  {severity}  {title}</c>
     /// </summary>
-    internal static string FormatGuidelineList(IReadOnlyList<GuidelineDefinition> guidelines)
+    internal static string FormatGuidelineList(
+        IReadOnlyList<GuidelineDefinition> guidelines,
+        IGuidelineAutomationMetadataProvider? automationMetadataProvider = null)
     {
         if (guidelines.Count == 0)
         {
@@ -27,6 +29,7 @@ internal static class ConsoleFormatter
         {
             sb.Append(g.Id.Value.PadRight(22));
             sb.Append(GuidelineSeverityLabel(g.Severity).PadRight(10));
+            AppendAutomationStatus(sb, g, automationMetadataProvider);
             sb.AppendLine(g.Title);
         }
 
@@ -41,7 +44,9 @@ internal static class ConsoleFormatter
     /// <summary>
     /// Formats the full detail of a single guideline definition.
     /// </summary>
-    internal static string FormatGuidelineDetail(GuidelineDefinition g)
+    internal static string FormatGuidelineDetail(
+        GuidelineDefinition g,
+        IGuidelineAutomationMetadataProvider? automationMetadataProvider = null)
     {
         StringBuilder sb = new();
 
@@ -52,6 +57,7 @@ internal static class ConsoleFormatter
 
         sb.Append("Category : "); sb.AppendLine(g.Category.ToString().ToUpperInvariant());
         sb.Append("Severity : "); sb.AppendLine(GuidelineSeverityLabel(g.Severity));
+        AppendAutomationDetails(sb, g, automationMetadataProvider);
         sb.AppendLine();
 
         sb.AppendLine("Description:");
@@ -108,6 +114,33 @@ internal static class ConsoleFormatter
                 span[i] = c is >= 'A' and <= 'Z' ? (char)(c + 32) : c;
             }
         });
+    }
+
+    private static void AppendAutomationStatus(
+        StringBuilder builder,
+        GuidelineDefinition guideline,
+        IGuidelineAutomationMetadataProvider? automationMetadataProvider)
+    {
+        GuidelineAutomationMetadata? metadata = automationMetadataProvider?.GetAutomationMetadata(guideline.Id);
+        if (metadata is not null)
+        {
+            builder.Append(EnumToLower(metadata.Status).PadRight(18));
+        }
+    }
+
+    private static void AppendAutomationDetails(
+        StringBuilder builder,
+        GuidelineDefinition guideline,
+        IGuidelineAutomationMetadataProvider? automationMetadataProvider)
+    {
+        GuidelineAutomationMetadata? metadata = automationMetadataProvider?.GetAutomationMetadata(guideline.Id);
+        if (metadata is not null)
+        {
+            builder.Append("Automation status : ");
+            builder.AppendLine(EnumToLower(metadata.Status));
+            builder.Append("Automation reason : ");
+            builder.AppendLine(metadata.Reason);
+        }
     }
 
     // ── Analysis results ──────────────────────────────────────────────────────

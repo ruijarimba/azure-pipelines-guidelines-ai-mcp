@@ -59,7 +59,9 @@ internal sealed class PipelineAnalysisTools(
         [Description("Output format: json (default) for diagnostics and rule summaries, or compact for findings only.")]
         string? format = "json",
         [Description("Include rule guidance in the response. Defaults to false; use get_guideline for full remediation details.")]
-        bool includeGuidance = false)
+        bool includeGuidance = false,
+        [Description("Include advisory heuristic rules. Defaults to false because heuristic findings can be noisy.")]
+        bool includeHeuristics = false)
     {
         if (string.IsNullOrWhiteSpace(yaml))
         {
@@ -84,7 +86,7 @@ internal sealed class PipelineAnalysisTools(
                 new ErrorResponse($"Failed to parse YAML: {ex.Message}"), _jsonOptions);
         }
 
-        if (!TryBuildOptions(guidelineIds, category, out AnalysisOptions options, out string? optionsError))
+        if (!TryBuildOptions(guidelineIds, category, includeHeuristics, out AnalysisOptions options, out string? optionsError))
         {
             return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
         }
@@ -100,7 +102,12 @@ internal sealed class PipelineAnalysisTools(
         }
 
         return JsonSerializer.Serialize(
-            BuildAnalysisResponse(result.Diagnostics, result.StructuralDiagnostics, includeGuidance), _jsonOptions);
+            BuildAnalysisResponse(
+                result.Diagnostics,
+                result.StructuralDiagnostics,
+                result.SkippedRuleDetails,
+                includeGuidance),
+            _jsonOptions);
     }
 
     // ── analyze_pipeline_paths ───────────────────────────────────────────────
@@ -134,7 +141,9 @@ internal sealed class PipelineAnalysisTools(
             "user-facing report with linked rule IDs.")]
         string? format = "json",
         [Description("Include rule guidance in JSON responses. Defaults to false; Markdown always includes guidance.")]
-        bool includeGuidance = false)
+        bool includeGuidance = false,
+        [Description("Include advisory heuristic rules. Defaults to false because heuristic findings can be noisy.")]
+        bool includeHeuristics = false)
     {
         if (paths is null || paths.Length == 0 || paths.All(string.IsNullOrWhiteSpace))
         {
@@ -158,7 +167,7 @@ internal sealed class PipelineAnalysisTools(
             return JsonSerializer.Serialize(new ErrorResponse(ex.Message), _jsonOptions);
         }
 
-        if (!TryBuildOptions(guidelineIds, category, out AnalysisOptions options, out string? optionsError))
+        if (!TryBuildOptions(guidelineIds, category, includeHeuristics, out AnalysisOptions options, out string? optionsError))
         {
             return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
         }
@@ -166,6 +175,7 @@ internal sealed class PipelineAnalysisTools(
         List<FileAnalysisResultDto> fileResults = [];
         List<CompactFileAnalysisResultDto> compactFileResults = [];
         List<Diagnostic> allDiagnostics = [];
+        List<SkippedGuideline> skippedGuidelines = [];
 
         foreach (string discoveredPath in discoveredPaths)
         {
@@ -206,15 +216,17 @@ internal sealed class PipelineAnalysisTools(
                 fileResults.Add(new FileAnalysisResultDto(
                     discoveredPath,
                     BuildDiagnosticDtos(result.Diagnostics),
-                    BuildSchemaDiagnosticDtos(result.StructuralDiagnostics)));
+                    BuildSchemaDiagnosticDtos(result.StructuralDiagnostics),
+                    BuildSkippedGuidelineDtos(result.SkippedRuleDetails)));
             }
             allDiagnostics.AddRange(result.Diagnostics);
+            skippedGuidelines.AddRange(result.SkippedRuleDetails);
         }
 
         RuleDetailDto[] rules = BuildRuleDetails(allDiagnostics, includeGuidance || useMarkdown);
         if (useMarkdown)
         {
-            return BuildMarkdownReport(fileResults, allDiagnostics, rules);
+            return BuildMarkdownReport(fileResults, allDiagnostics, rules, skippedGuidelines);
         }
 
         if (useCompact)
@@ -222,7 +234,12 @@ internal sealed class PipelineAnalysisTools(
             return JsonSerializer.Serialize(new CompactPathsResponseDto([.. compactFileResults]), _jsonOptions);
         }
 
-        return JsonSerializer.Serialize(new AnalysisPathsResponseDto([.. fileResults], rules), _jsonOptions);
+        return JsonSerializer.Serialize(
+            new AnalysisPathsResponseDto(
+                [.. fileResults],
+                rules,
+                BuildSkippedGuidelineDtos(skippedGuidelines)),
+            _jsonOptions);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -230,6 +247,7 @@ internal sealed class PipelineAnalysisTools(
     private static bool TryBuildOptions(
         string? guidelineIds,
         string? category,
+        bool includeHeuristics,
         out AnalysisOptions options,
         out string? error)
     {
@@ -278,10 +296,11 @@ internal sealed class PipelineAnalysisTools(
         }
 
         options = includedCategories is null && includedIds is null
-            ? AnalysisOptions.Default
+            ? new AnalysisOptions(IncludeHeuristics: includeHeuristics)
             : new AnalysisOptions(
                 IncludedCategories: includedCategories,
-                IncludedGuidelineIds: includedIds);
+                IncludedGuidelineIds: includedIds,
+                IncludeHeuristics: includeHeuristics);
 
         return true;
     }
@@ -365,6 +384,20 @@ internal sealed class PipelineAnalysisTools(
         IReadOnlyList<SchemaDiagnostic> diagnostics) =>
         diagnostics.Select(d => new SchemaDiagnosticDto(d.Code, d.Message, d.Line)).ToArray();
 
+    /// <summary>Maps skipped guidelines to the MCP response contract.</summary>
+    /// <param name="skippedGuidelines">The guidelines that analysis did not evaluate.</param>
+    /// <returns>The mapped skipped-guideline details.</returns>
+    private static SkippedGuidelineDto[] BuildSkippedGuidelineDtos(
+        IEnumerable<SkippedGuideline> skippedGuidelines) =>
+        skippedGuidelines
+            .DistinctBy(static skipped => skipped.Id)
+            .OrderBy(static skipped => skipped.Id.Value, StringComparer.Ordinal)
+            .Select(static skipped => new SkippedGuidelineDto(
+                skipped.Id.Value,
+                EnumToJsonString(skipped.Status),
+                skipped.Reason))
+            .ToArray();
+
     /// <summary>Maps diagnostics to the token-efficient compact response contract.</summary>
     /// <param name="diagnostics">The diagnostics to map.</param>
     /// <param name="filePath">The optional source file path.</param>
@@ -393,13 +426,19 @@ internal sealed class PipelineAnalysisTools(
     /// <summary>Builds the single-document analysis response.</summary>
     /// <param name="diagnostics">The diagnostics produced by analysis.</param>
     /// <param name="schemaDiagnostics">The structural schema diagnostics produced by analysis.</param>
+    /// <param name="skippedGuidelines">The guidelines skipped by the automation policy.</param>
     /// <param name="includeGuidance">Whether to include rule guidance in the response.</param>
     /// <returns>The structured analysis response.</returns>
     private AnalysisResponseDto BuildAnalysisResponse(
         IReadOnlyList<Diagnostic> diagnostics,
         IReadOnlyList<SchemaDiagnostic> schemaDiagnostics,
+        IReadOnlyList<SkippedGuideline> skippedGuidelines,
         bool includeGuidance) =>
-        new(BuildDiagnosticDtos(diagnostics), BuildSchemaDiagnosticDtos(schemaDiagnostics), BuildRuleDetails(diagnostics, includeGuidance));
+        new(
+            BuildDiagnosticDtos(diagnostics),
+            BuildSchemaDiagnosticDtos(schemaDiagnostics),
+            BuildRuleDetails(diagnostics, includeGuidance),
+            BuildSkippedGuidelineDtos(skippedGuidelines));
 
     /// <summary>Builds one linked rule summary for each distinct violated guideline.</summary>
     /// <param name="diagnostics">The diagnostics whose guideline summaries are needed.</param>
@@ -440,11 +479,13 @@ internal sealed class PipelineAnalysisTools(
     /// <param name="files">The per-file analysis results.</param>
     /// <param name="diagnostics">All diagnostics across the analyzed files.</param>
     /// <param name="rules">Distinct rule details used for linked summaries.</param>
+    /// <param name="skippedGuidelines">The guidelines skipped by the automation policy.</param>
     /// <returns>The Markdown report.</returns>
     private static string BuildMarkdownReport(
         IReadOnlyList<FileAnalysisResultDto> files,
         List<Diagnostic> diagnostics,
-        IReadOnlyList<RuleDetailDto> rules)
+        IReadOnlyList<RuleDetailDto> rules,
+        IReadOnlyList<SkippedGuideline> skippedGuidelines)
     {
         Dictionary<string, RuleDetailDto> rulesById = rules.ToDictionary(static rule => rule.Id, StringComparer.Ordinal);
         StringBuilder report = new();
@@ -503,6 +544,27 @@ internal sealed class PipelineAnalysisTools(
                 .Append(" | ")
                 .Append(file.Diagnostics.Count(static diagnostic => diagnostic.Severity == "info"))
                 .AppendLine(" |");
+        }
+
+        SkippedGuidelineDto[] skipped = BuildSkippedGuidelineDtos(skippedGuidelines);
+        if (skipped.Length > 0)
+        {
+            report.AppendLine();
+            report.AppendLine("### Skipped guidelines");
+            report.AppendLine();
+            report.AppendLine("| Rule | Automation status | Reason |");
+            report.AppendLine("| --- | --- | --- |");
+
+            foreach (SkippedGuidelineDto guideline in skipped)
+            {
+                report.Append("| ")
+                    .Append(guideline.Id)
+                    .Append(" | ")
+                    .Append(guideline.AutomationStatus)
+                    .Append(" | ")
+                    .Append(EscapeTableCell(guideline.Reason))
+                    .AppendLine(" |");
+            }
         }
 
         return report.ToString();
@@ -606,18 +668,27 @@ internal sealed class PipelineAnalysisTools(
     private sealed record AnalysisResponseDto(
         [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics,
         [property: JsonPropertyName("schemaDiagnostics")] SchemaDiagnosticDto[] SchemaDiagnostics,
-        [property: JsonPropertyName("rules")] RuleDetailDto[] Rules);
+        [property: JsonPropertyName("rules")] RuleDetailDto[] Rules,
+        [property: JsonPropertyName("skippedGuidelines")] SkippedGuidelineDto[] SkippedGuidelines);
 
     /// <summary>Represents diagnostics for one analyzed file.</summary>
     private sealed record FileAnalysisResultDto(
         [property: JsonPropertyName("filePath")] string FilePath,
         [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics,
-        [property: JsonPropertyName("schemaDiagnostics")] SchemaDiagnosticDto[] SchemaDiagnostics);
+        [property: JsonPropertyName("schemaDiagnostics")] SchemaDiagnosticDto[] SchemaDiagnostics,
+        [property: JsonPropertyName("skippedGuidelines")] SkippedGuidelineDto[] SkippedGuidelines);
 
     /// <summary>Represents a multi-file analysis response.</summary>
     private sealed record AnalysisPathsResponseDto(
         [property: JsonPropertyName("files")] FileAnalysisResultDto[] Files,
-        [property: JsonPropertyName("rules")] RuleDetailDto[] Rules);
+        [property: JsonPropertyName("rules")] RuleDetailDto[] Rules,
+        [property: JsonPropertyName("skippedGuidelines")] SkippedGuidelineDto[] SkippedGuidelines);
+
+    /// <summary>Represents one guideline skipped by analysis policy.</summary>
+    private sealed record SkippedGuidelineDto(
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("automationStatus")] string AutomationStatus,
+        [property: JsonPropertyName("reason")] string Reason);
 
     /// <summary>Represents a compact single-document analysis response.</summary>
     private sealed record CompactDiagnosticsResponseDto(

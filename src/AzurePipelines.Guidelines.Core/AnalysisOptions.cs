@@ -22,12 +22,17 @@ namespace AzurePipelines.Guidelines.Core;
 /// An empty list means all severities are included (subject to
 /// <see cref="MinimumSeverity"/> filtering).
 /// </param>
+/// <param name="IncludeHeuristics">
+/// Gets whether rules that provide advisory, non-deterministic findings are evaluated.
+/// Defaults to <see langword="false"/> to avoid noisy analysis results.
+/// </param>
 public sealed record AnalysisOptions(
     DiagnosticSeverity MinimumSeverity = DiagnosticSeverity.Info,
     IReadOnlyList<GuidelineCategory>? IncludedCategories = null,
     IReadOnlyList<GuidelineId>? IncludedGuidelineIds = null,
-    IReadOnlyList<DiagnosticSeverity>? IncludedDiagnosticSeverities = null)
+    IReadOnlyList<DiagnosticSeverity>? IncludedDiagnosticSeverities = null,
+    bool IncludeHeuristics = false)
 {
-    /// <summary>Gets the default options: include all findings.</summary>
+    /// <summary>Gets the default options: include deterministic findings.</summary>
     public static AnalysisOptions Default { get; } = new();
 }

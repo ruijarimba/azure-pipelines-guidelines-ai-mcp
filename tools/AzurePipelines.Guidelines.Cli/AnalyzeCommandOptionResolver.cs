@@ -19,6 +19,7 @@ internal static class AnalyzeCommandOptionResolver
         Option<bool> noColorOpt,
         Option<bool> quietOpt,
         Option<bool> verboseOpt,
+        Option<bool> includeHeuristicsOpt,
         AnalyzeCommandEnvironment environment,
         CliConfiguration? configuration = null)
     {
@@ -68,6 +69,7 @@ internal static class AnalyzeCommandOptionResolver
             verboseOpt,
             environment.Verbose,
             configuration?.GetVerboseValue());
+        bool includeHeuristics = context.ParseResult.GetValueForOption(includeHeuristicsOpt);
 
         return new AnalyzeCommandOptions(
             Paths: paths,
@@ -78,7 +80,8 @@ internal static class AnalyzeCommandOptionResolver
             SoftFail: softFail,
             NoColor: noColor,
             Quiet: quiet,
-            Verbose: verbose);
+            Verbose: verbose,
+            IncludeHeuristics: includeHeuristics);
     }
 
     internal static string ResolveStringOption(

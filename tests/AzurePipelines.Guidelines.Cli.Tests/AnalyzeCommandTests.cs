@@ -173,7 +173,7 @@ public sealed class AnalyzeCommandTests
     {
         int exitCode = await AnalyzeCommand.RunAsync(
             CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
-            new AnalyzeCommandOptions([], "console", [], null, null, false, false, false, false));
+            new AnalyzeCommandOptions([], "console", [], null, null, false, false, false, false, false));
 
         exitCode.Should().Be(ExitCodes.Error);
     }

@@ -12,4 +12,5 @@ internal sealed record AnalyzeCommandOptions(
     bool SoftFail,
     bool NoColor,
     bool Quiet,
-    bool Verbose);
+    bool Verbose,
+    bool IncludeHeuristics);

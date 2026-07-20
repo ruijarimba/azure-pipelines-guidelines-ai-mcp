@@ -13,7 +13,9 @@ namespace AzurePipelines.Guidelines.Mcp.Tools;
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Performance", "CA1812:Avoid uninstantiated internal classes",
     Justification = "Instantiated by the MCP SDK via dependency injection.")]
-internal sealed class GuidelineTools(IGuidelineRepository repository)
+internal sealed class GuidelineTools(
+    IGuidelineRepository repository,
+    IGuidelineAutomationMetadataProvider automationMetadataProvider)
 {
     // Compact JSON with camel-case property names. Null values are omitted so AI clients
     // receive smaller responses and the shared contract stays predictable.
@@ -63,11 +65,13 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         for (int i = 0; i < guidelines.Count; i++)
         {
             GuidelineDefinition g = guidelines[i];
+            GuidelineAutomationMetadata? metadata = automationMetadataProvider.GetAutomationMetadata(g.Id);
             summaries[i] = new GuidelineSummary(
                 g.Id.Value,
                 g.Title,
                 EnumToJsonString(g.Category),
-                EnumToJsonString(g.Severity));
+                EnumToJsonString(g.Severity),
+                metadata is null ? null : EnumToJsonString(metadata.Status));
         }
 
         return JsonSerializer.Serialize(summaries, _jsonOptions);
@@ -115,7 +119,7 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
                 new ErrorResponse($"Guideline '{id}' not found."), _jsonOptions);
         }
 
-        return JsonSerializer.Serialize(ToDetailDto(guideline), _jsonOptions);
+        return JsonSerializer.Serialize(ToDetailDto(guideline, automationMetadataProvider), _jsonOptions);
     }
 
     // ── search_guidelines ─────────────────────────────────────────────────────
@@ -145,11 +149,13 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
             if (g.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
                 g.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase))
             {
+                GuidelineAutomationMetadata? metadata = automationMetadataProvider.GetAutomationMetadata(g.Id);
                 matches.Add(new GuidelineSummary(
                     g.Id.Value,
                     g.Title,
                     EnumToJsonString(g.Category),
-                    EnumToJsonString(g.Severity)));
+                    EnumToJsonString(g.Severity),
+                    metadata is null ? null : EnumToJsonString(metadata.Status)));
             }
         }
 
@@ -208,7 +214,9 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         return (int)result >= 0;
     }
 
-    private static GuidelineDetailDto ToDetailDto(GuidelineDefinition g)
+    private static GuidelineDetailDto ToDetailDto(
+        GuidelineDefinition g,
+        IGuidelineAutomationMetadataProvider automationMetadataProvider)
     {
         DetectionHintDto[]? hints = g.DetectionHints.Count > 0
             ? BuildHintDtos(g.DetectionHints)
@@ -217,6 +225,7 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         FixDto? fix = g.Fix is not null
             ? new FixDto(g.Fix.Summary, g.Fix.Before, g.Fix.After)
             : null;
+        GuidelineAutomationMetadata? metadata = automationMetadataProvider.GetAutomationMetadata(g.Id);
 
         return new GuidelineDetailDto(
             g.Id.Value,
@@ -228,7 +237,9 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
             g.Tags.Count > 0 ? [.. g.Tags] : null,
             hints,
             fix,
-            g.References.Count > 0 ? [.. g.References] : null);
+            g.References.Count > 0 ? [.. g.References] : null,
+            metadata is null ? null : EnumToJsonString(metadata.Status),
+            metadata?.Reason);
     }
 
     private static DetectionHintDto[] BuildHintDtos(IReadOnlyList<DetectionHint> hints)
@@ -270,7 +281,8 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("title")] string Title,
         [property: JsonPropertyName("category")] string Category,
-        [property: JsonPropertyName("severity")] string Severity);
+        [property: JsonPropertyName("severity")] string Severity,
+        [property: JsonPropertyName("automationStatus")] string? AutomationStatus);
 
     /// <summary>Represents the number of guidelines in one category.</summary>
     private sealed record CategoryCount(
@@ -292,7 +304,9 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         [property: JsonPropertyName("tags")] string[]? Tags,
         [property: JsonPropertyName("detectionHints")] DetectionHintDto[]? DetectionHints,
         [property: JsonPropertyName("fix")] FixDto? Fix,
-        [property: JsonPropertyName("references")] string[]? References);
+        [property: JsonPropertyName("references")] string[]? References,
+        [property: JsonPropertyName("automationStatus")] string? AutomationStatus,
+        [property: JsonPropertyName("automationReason")] string? AutomationReason);
 
     /// <summary>Represents one detection hint in an MCP response.</summary>
     private sealed record DetectionHintDto(

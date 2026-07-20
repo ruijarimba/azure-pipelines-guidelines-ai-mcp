@@ -64,4 +64,34 @@ public sealed class AnalysisResultTests
         // Assert
         result.Diagnostics.Should().HaveCount(2);
     }
+
+    [Fact]
+    public void SkippedRuleDetails_GivenNoSkippedGuidelines_ShouldReturnEmptyCollection()
+    {
+        // Arrange
+        AnalysisResult result = new(MakeDocument(), []);
+
+        // Act
+        IReadOnlyList<SkippedGuideline> skippedGuidelines = result.SkippedRuleDetails;
+
+        // Assert
+        skippedGuidelines.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void SkippedRuleDetails_GivenSkippedGuidelines_ShouldReturnPassedDetails()
+    {
+        // Arrange
+        SkippedGuideline expected = new(
+            new GuidelineId("ADOG-STEPS-008"),
+            GuidelineAutomationStatus.NotAutomatable,
+            "Task selection needs external context.");
+        AnalysisResult result = new(MakeDocument(), [], SkippedGuidelines: [expected]);
+
+        // Act
+        IReadOnlyList<SkippedGuideline> skippedGuidelines = result.SkippedRuleDetails;
+
+        // Assert
+        skippedGuidelines.Should().ContainSingle().Which.Should().Be(expected);
+    }
 }

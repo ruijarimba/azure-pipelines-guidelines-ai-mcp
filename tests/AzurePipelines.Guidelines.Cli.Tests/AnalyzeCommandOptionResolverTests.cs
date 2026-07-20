@@ -40,6 +40,7 @@ public sealed class AnalyzeCommandOptionResolverTests
         options.NoColor.Should().BeTrue();
         options.Quiet.Should().BeTrue();
         options.Verbose.Should().BeTrue();
+        options.IncludeHeuristics.Should().BeFalse();
     }
 
     [Fact]
@@ -69,6 +70,7 @@ public sealed class AnalyzeCommandOptionResolverTests
         options.NoColor.Should().BeTrue();
         options.Quiet.Should().BeTrue();
         options.Verbose.Should().BeTrue();
+        options.IncludeHeuristics.Should().BeFalse();
     }
 
     [Fact]
@@ -102,6 +104,17 @@ public sealed class AnalyzeCommandOptionResolverTests
         options.NoColor.Should().BeFalse();
         options.Quiet.Should().BeFalse();
         options.Verbose.Should().BeFalse();
+        options.IncludeHeuristics.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ResolveOptions_GivenIncludeHeuristicsSwitch_ShouldEnableHeuristicRules()
+    {
+        // Act
+        AnalyzeCommandOptions options = ResolveOptions(["fixture.yml", "--include-heuristics"]);
+
+        // Assert
+        options.IncludeHeuristics.Should().BeTrue();
     }
 
     [Fact]
@@ -191,7 +204,8 @@ public sealed class AnalyzeCommandOptionResolverTests
             SoftFail: false,
             NoColor: true,
             Quiet: false,
-            Verbose: false);
+            Verbose: false,
+            IncludeHeuristics: true);
 
         // Act
         int exitCode = await AnalyzeCommand.RunAsync(parser, analyser, new PipelinePathResolver(), options);
@@ -202,6 +216,7 @@ public sealed class AnalyzeCommandOptionResolverTests
         capturedAnalysisOptions!.MinimumSeverity.Should().Be(DiagnosticSeverity.Warning);
         capturedAnalysisOptions.IncludedCategories.Should().ContainSingle().Which.Should().Be(GuidelineCategory.Steps);
         capturedAnalysisOptions.IncludedDiagnosticSeverities.Should().ContainSingle().Which.Should().Be(DiagnosticSeverity.Warning);
+        capturedAnalysisOptions.IncludeHeuristics.Should().BeTrue();
     }
 
     /// <summary>Builds a minimal command and resolves options from the supplied arguments.</summary>
@@ -246,6 +261,10 @@ public sealed class AnalyzeCommandOptionResolverTests
             name: "--verbose",
             getDefaultValue: () => false);
 
+        Option<bool> includeHeuristicsOpt = new(
+            name: "--include-heuristics",
+            getDefaultValue: () => false);
+
         Command command = new("analyze")
         {
             pathArg,
@@ -257,6 +276,7 @@ public sealed class AnalyzeCommandOptionResolverTests
             noColorOpt,
             quietOpt,
             verboseOpt,
+            includeHeuristicsOpt,
         };
 
         ParseResult parseResult = command.Parse(args);
@@ -274,6 +294,7 @@ public sealed class AnalyzeCommandOptionResolverTests
             noColorOpt,
             quietOpt,
             verboseOpt,
+            includeHeuristicsOpt,
             environment,
             CliConfigurationLoader.Load());
     }

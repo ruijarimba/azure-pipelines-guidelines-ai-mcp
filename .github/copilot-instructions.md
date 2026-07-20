@@ -55,7 +55,12 @@ Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` →
 
 ## Adding new files to the solution
 
-**Every file must be visible in Visual Studio Solution Explorer** in the correct folder hierarchy.
+**Every file must be visible in Visual Studio Solution Explorer** in the correct folder hierarchy. 
+
+- Register non-code files inside a project with `<None Include="..." />` in its .csproj.
+- Register solution-level files with `<File Path="..." />` in `AzurePipelinesGuidelines.slnx` under matching folders. 
+- Preserve filesystem hierarchy.
+- Run `pwsh ./scripts/quality-check.ps1` before any push for shared-contract work. **Do not push before this script succeeds.**
 
 Full rules and registration examples are in
 [`.github/instructions/solution-files.instructions.md`](instructions/solution-files.instructions.md) — Rule 10.
@@ -85,6 +90,7 @@ For multi-item remediation work in this repository, commit and push each indepen
 
 ## Documentation Standards
 
+- Documentation should be written for both human readers and AI agents, so include explicit structured rule descriptions alongside automation status and rationale.
 - Every named C# type and member must have concise documentation.
 - Use XML documentation for API contracts and comments for non-obvious private implementation details.
 - Every top-level type, regardless of accessibility or sealed status, should be in its own file.
@@ -97,3 +103,9 @@ For multi-item remediation work in this repository, commit and push each indepen
 ## Rule Testing
 
 - When a rule test uses an invalid Azure Pipelines fixture, move the invalid-shape coverage to schema/analysis tests and keep rule tests focused on valid pipeline structures.
+
+## Repository-wide Instructions
+
+- For shared or multi-project changes, present an approved plan before edits.
+- Register all newly created non-code files immediately in the matching Solution Explorer hierarchy. 
+- Run `pwsh ./scripts/quality-check.ps1` before any push and do not push if it fails.

@@ -20,6 +20,12 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `local` | feat: classify all implemented guidelines by local automation capability; disable heuristic rules by default with CLI and MCP opt-in; document skipped-rule reasons; quality gate passes with 616 tests and 95.04% production line coverage |
+
+## Earlier completed work
+
+| Commit | Summary |
+| --- | --- |
 | `local` | docs/comments: clarify CLI command and formatter implementation details without changing behavior |
 | `local` | test: raise production line coverage above 95% with focused Core and Parsing tests |
 | `local` | feat: make MCP analysis findings advisory with original do, don't, avoid, and consider wording |

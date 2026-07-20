@@ -250,17 +250,24 @@ Analyzes inline Azure Pipelines YAML content.
   for findings only
 - `includeGuidance` (boolean, optional) — Include the guideline's remediation summary in the
   `rules` array. Defaults to `false`.
+- `includeHeuristics` (boolean, optional) — Include heuristic rules. Defaults to `false` because
+  these findings can be noisy.
 
 **Returns:**
 - `diagnostics`: line-level findings with rule ID, severity, advisory `guidance`, message, and
   optional line number
 - `rules`: one compact summary per finding, with its title, advisory label, optional remediation
   `guidance`, and reference URLs
+- `skippedGuidelines`: rules not evaluated by the automation policy, with their ID, automation
+  status, and reason
 - Render returned reference URLs as Markdown links; call `get_guideline` for full descriptions,
   rationale, and before/after fix examples
 
 The diagnostic `guidance` label is always included when the guideline is known. The `rules[].guidance`
 value is different: it is an optional remediation summary controlled by `includeGuidance`.
+The analyzer runs enforceable rules by default. It always skips not-automatable rules. Set
+`includeHeuristics` to `true` for optional advisory findings. See
+[guideline automation status](guideline-automation.md) for every rule's status and reason.
 
 ### `analyze_pipeline_paths`
 
@@ -274,11 +281,13 @@ Analyzes one or more pipeline files or directories on disk.
   only, or `markdown` for a compact user-facing report
 - `includeGuidance` (boolean, optional) — Include remediation summaries in JSON rule details.
   Defaults to `false`; Markdown includes them automatically.
+- `includeHeuristics` (boolean, optional) — Include heuristic rules. Defaults to `false` because
+  these findings can be noisy.
 
 **Returns:**
 - With `format: json`, `files` contains per-file diagnostics with advisory labels and `rules`
   contains compact, deduplicated rule summaries with advisory labels, optional remediation
-  guidance, and reference URLs.
+  guidance, reference URLs, and skipped-guideline details.
 - With `format: markdown`, a compact report contains severity counts, linked rule IDs, advisory
   labels, remediation guidance, and per-file counts. A rule ID links to its first valid HTTP(S)
   manifest reference; IDs remain

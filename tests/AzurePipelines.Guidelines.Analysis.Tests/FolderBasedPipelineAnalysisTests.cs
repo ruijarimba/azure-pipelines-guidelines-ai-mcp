@@ -67,7 +67,8 @@ public sealed class FolderBasedPipelineAnalysisTests
             string content = await File.ReadAllTextAsync(yamlFile);
             PipelineDocument document = parser.Parse(content, yamlFile);
             AnalysisOptions options = new(
-                IncludedGuidelineIds: [new GuidelineId("ADOG-STEPS-007")]);
+                IncludedGuidelineIds: [new GuidelineId("ADOG-STEPS-007")],
+                IncludeHeuristics: true);
             AnalysisResult result = await analyser.AnalyseAsync(document, options);
             diagnostics.AddRange(result.Diagnostics);
         }

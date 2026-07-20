@@ -61,8 +61,10 @@ public sealed class PipelineAnalysisToolsTests
             RawContent: string.Empty,
             FilePath: "(inline)");
 
-    private static AnalysisResult MakeResult(IReadOnlyList<Diagnostic>? diagnostics = null) =>
-        new(EmptyDocument(), diagnostics ?? []);
+    private static AnalysisResult MakeResult(
+        IReadOnlyList<Diagnostic>? diagnostics = null,
+        IReadOnlyList<SkippedGuideline>? skippedGuidelines = null) =>
+        new(EmptyDocument(), diagnostics ?? [], SkippedGuidelines: skippedGuidelines);
 
     private static Diagnostic MakeDiagnostic(
         string id = "ADOG-STEPS-001",
@@ -199,6 +201,7 @@ public sealed class PipelineAnalysisToolsTests
         JsonElement response = Deserialize<JsonElement>(result);
         response.GetProperty("diagnostics").EnumerateArray().Should().BeEmpty();
         response.GetProperty("rules").EnumerateArray().Should().BeEmpty();
+        response.GetProperty("skippedGuidelines").EnumerateArray().Should().BeEmpty();
     }
 
     // ── Pipeline with violations ──────────────────────────────────────────────
@@ -239,7 +242,12 @@ public sealed class PipelineAnalysisToolsTests
         parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
         IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
         analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
-                .Returns(MakeResult([MakeDiagnostic("ADOG-STEPS-001", line: 7)]));
+                .Returns(MakeResult(
+                    [MakeDiagnostic("ADOG-STEPS-001", line: 7)],
+                    [new SkippedGuideline(
+                        new GuidelineId("ADOG-STEPS-008"),
+                        GuidelineAutomationStatus.NotAutomatable,
+                        "Task selection needs external context.")]));
         PipelineAnalysisTools sut = MakeSut(parser, analyser);
 
         string result = await sut.AnalyzePipelineAsync("steps: []", format: "compact");
@@ -425,6 +433,53 @@ public sealed class PipelineAnalysisToolsTests
     }
 
     [Fact]
+    public async Task AnalyzePipelineAsync_GivenIncludeHeuristics_ShouldPassHeuristicOptInToAnalyser()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+            .Returns(MakeResult());
+        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+
+        // Act
+        await sut.AnalyzePipelineAsync("steps: []", includeHeuristics: true);
+
+        // Assert
+        await analyser.Received(1).AnalyseAsync(
+            Arg.Any<PipelineDocument>(),
+            Arg.Is<AnalysisOptions>(options => options.IncludeHeuristics),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task AnalyzePipelineAsync_GivenSkippedGuideline_ShouldReturnAutomationReason()
+    {
+        // Arrange
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+            .Returns(MakeResult(
+                skippedGuidelines:
+                [new SkippedGuideline(
+                    new GuidelineId("ADOG-STEPS-008"),
+                    GuidelineAutomationStatus.NotAutomatable,
+                    "Needs task-selection context.")]));
+        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+
+        // Act
+        string result = await sut.AnalyzePipelineAsync("steps: []");
+
+        // Assert
+        JsonElement skipped = Deserialize<JsonElement>(result).GetProperty("skippedGuidelines")[0];
+        skipped.GetProperty("id").GetString().Should().Be("ADOG-STEPS-008");
+        skipped.GetProperty("automationStatus").GetString().Should().Be("notautomatable");
+        skipped.GetProperty("reason").GetString().Should().Be("Needs task-selection context.");
+    }
+
+    [Fact]
     public async Task AnalyzePipelineAsync_GivenNullGuidelineIds_ShouldPassDefaultOptions()
     {
         // Arrange
@@ -597,7 +652,12 @@ public sealed class PipelineAnalysisToolsTests
         parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
         IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
         analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
-                .Returns(MakeResult([MakeDiagnostic("ADOG-STEPS-001", line: 7)]));
+                .Returns(MakeResult(
+                    [MakeDiagnostic("ADOG-STEPS-001", line: 7)],
+                    [new SkippedGuideline(
+                        new GuidelineId("ADOG-STEPS-008"),
+                        GuidelineAutomationStatus.NotAutomatable,
+                        "Task selection needs external context.")]));
         PipelineAnalysisTools sut = MakeSut(
             parser,
             analyser,
@@ -618,6 +678,8 @@ public sealed class PipelineAnalysisToolsTests
             result.Should().Contain("| do | Extract the steps into a template. |");
             result.Should().Contain("Use templates");
             result.Should().Contain("| File | Errors | Warnings | Info |");
+            result.Should().Contain("### Skipped guidelines");
+            result.Should().Contain("| ADOG-STEPS-008 | notautomatable | Task selection needs external context. |");
         }
         finally
         {
@@ -665,6 +727,20 @@ public sealed class PipelineAnalysisToolsTests
         // Assert
         JsonElement response = Deserialize<JsonElement>(result);
         response.GetProperty("error").GetString().Should().Contain("Allowed values: json, compact, markdown");
+    }
+
+    [Fact]
+    public async Task AnalyzePipelinePathsAsync_GivenNullPaths_ShouldReturnErrorResponse()
+    {
+        // Arrange
+        PipelineAnalysisTools sut = MakeSut();
+
+        // Act
+        string result = await sut.AnalyzePipelinePathsAsync(null!);
+
+        // Assert
+        JsonElement response = Deserialize<JsonElement>(result);
+        response.GetProperty("error").GetString().Should().Be("Parameter 'paths' is required.");
     }
 
     // ── category filter ─────────────────────────────────────────────────────

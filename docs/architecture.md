@@ -82,7 +82,22 @@ graph TD
 | `IPipelineParser` | Parses YAML text into a `PipelineDocument` |
 | `IGuidelineRule` | Analyzes a `PipelineDocument` and returns `Diagnostic` instances |
 | `IGuidelineRepository` | Loads and queries `GuidelineDefinition` records from the manifest |
+| `IGuidelineAutomationMetadataProvider` | Describes whether a local rule is enforceable, heuristic, or not automatable |
 | `IPipelineAnalyser` | Orchestrates parsing and rules to produce `AnalysisResult` |
+
+## Automation policy
+
+The Rules layer owns local automation metadata for every implemented guideline. The Analysis layer
+uses that metadata before it evaluates a rule:
+
+- `enforceable` rules run by default.
+- `heuristic` rules run only when the caller opts in.
+- `notAutomatable` rules do not run from a YAML document alone.
+
+`AnalysisResult` reports skipped rules with their status and reason. The CLI exposes heuristic
+opt-in through `--include-heuristics`. MCP analysis tools expose the same choice as
+`includeHeuristics`. The full per-rule rationale is in
+[guideline automation status](guideline-automation.md).
 
 ## MCP tool surface
 
@@ -90,8 +105,8 @@ The server provides two analysis tools:
 
 | Tool | Parameters | Returns |
 | --- | --- | --- |
-| `analyze_pipeline` | `yaml` (required), `guidelineIds` (optional) | Flat advisory diagnostic list |
-| `analyze_pipeline_paths` | `paths` (required), `guidelineIds` (optional) | Per-file advisory diagnostic list |
+| `analyze_pipeline` | `yaml` (required), `guidelineIds` and `includeHeuristics` (optional) | Flat advisory diagnostic list and skipped-rule details |
+| `analyze_pipeline_paths` | `paths` (required), `guidelineIds` and `includeHeuristics` (optional) | Per-file advisory diagnostic list and skipped-rule details |
 
 `guidelineIds` is a comma-separated list of rule IDs (for example, `ADOG-STEPS-001,ADOG-JOBS-006`).
 Omit it to run all rules.
@@ -141,7 +156,7 @@ see [`glossary.md`](glossary.md).
 ## CLI surface
 
 ```
-adog analyze <path> [<path> ...] [--format console|compact|json|junit|sarif|markdown] [--severity error|warning|info]
+adog analyze <path> [<path> ...] [--format console|compact|json|junit|sarif|markdown] [--severity error|warning|info] [--include-heuristics]
 adog rules list [--category <category>] [--format console|json]
 adog rules show <rule-id> [--format console|json]
 ```

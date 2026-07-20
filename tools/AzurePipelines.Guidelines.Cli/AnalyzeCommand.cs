@@ -61,6 +61,11 @@ internal static class AnalyzeCommand
             description: "Enable detailed logging.",
             getDefaultValue: () => false);
 
+        Option<bool> includeHeuristicsOpt = new(
+            name: "--include-heuristics",
+            description: "Include advisory heuristic rules that are disabled by default.",
+            getDefaultValue: () => false);
+
         Command command = new("analyze", "Analyse an Azure Pipelines YAML file against the guidelines.")
         {
             pathArg,
@@ -72,6 +77,7 @@ internal static class AnalyzeCommand
             noColorOpt,
             quietOpt,
             verboseOpt,
+            includeHeuristicsOpt,
         };
 
         command.SetHandler(
@@ -96,6 +102,7 @@ internal static class AnalyzeCommand
                     noColorOpt,
                     quietOpt,
                     verboseOpt,
+                    includeHeuristicsOpt,
                     environment,
                     configuration);
 
@@ -148,7 +155,8 @@ internal static class AnalyzeCommand
                 SoftFail: softFail,
                 NoColor: noColor,
                 Quiet: quiet,
-                Verbose: verbose));
+                Verbose: verbose,
+                IncludeHeuristics: false));
 
     /// <summary>Analyzes resolved pipeline files and writes the selected output.</summary>
     internal static async Task<int> RunAsync(
@@ -261,7 +269,8 @@ internal static class AnalyzeCommand
             AnalysisOptions analysisOptions = new(
                 MinimumSeverity: minimumSeverity,
                 IncludedCategories: includedCategories,
-                IncludedDiagnosticSeverities: includedDiagnosticSeverities);
+                IncludedDiagnosticSeverities: includedDiagnosticSeverities,
+                IncludeHeuristics: options.IncludeHeuristics);
 
             AnalysisResult result = await analyser
                 .AnalyseAsync(document, analysisOptions)

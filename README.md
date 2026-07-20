@@ -59,6 +59,8 @@ form `ADOG-{CATEGORY}-{NNN}`.
 
 For the full rule list and definitions, see the
 [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
+For local analyzer coverage and the reason each rule is enforceable, heuristic, or not automatable,
+see the [guideline automation status](docs/guideline-automation.md).
 
 ## Prerequisites
 
@@ -137,6 +139,7 @@ Configure your AI client to use Docker:
   local validation scope, and Microsoft Learn MCP guidance
 - **[Architecture guide](docs/architecture.md)** — dependency graph, layer responsibilities, and extension points
 - **[How it works](docs/how-it-works.md)** — analysis pipeline and two-repository model
+- **[Guideline automation status](docs/guideline-automation.md)** — local enforcement status and rationale for every implemented rule
 - **[Contributing guide](CONTRIBUTING.md)** — build instructions and how to add rules
 
 ## Repository structure
