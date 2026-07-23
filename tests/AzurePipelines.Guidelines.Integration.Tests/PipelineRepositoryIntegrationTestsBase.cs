@@ -25,11 +25,6 @@ public abstract class PipelineRepositoryIntegrationTestsBase
         PipelinePathResolver pathResolver = provider.GetRequiredService<PipelinePathResolver>();
         IPipelineParser parser = provider.GetRequiredService<IPipelineParser>();
         IPipelineAnalyser analyser = provider.GetRequiredService<IPipelineAnalyser>();
-        IGuidelineAutomationMetadataProvider automationMetadataProvider =
-            provider.GetRequiredService<IGuidelineAutomationMetadataProvider>();
-        GuidelineId[] expectedEvaluatedGuidelineIds = [.. ExpectedGuidelineIds.Where(id =>
-            automationMetadataProvider.GetAutomationMetadata(id)?.Status is
-                GuidelineAutomationStatus.Enforceable or GuidelineAutomationStatus.Heuristic)];
 
         string repositoryPath = Path.Combine(
             AppContext.BaseDirectory,
@@ -47,18 +42,16 @@ public abstract class PipelineRepositoryIntegrationTestsBase
             PipelineDocument document = parser.Parse(yaml, path);
             AnalysisResult result = await analyser.AnalyseAsync(
                 document,
-                new AnalysisOptions(
-                    IncludedGuidelineIds: [.. ExpectedGuidelineIds],
-                    IncludeHeuristics: true));
+                new AnalysisOptions(IncludedGuidelineIds: [.. ExpectedGuidelineIds]));
             diagnostics.AddRange(result.Diagnostics);
         }
 
         diagnostics.Select(diagnostic => diagnostic.GuidelineId)
             .Distinct()
             .Should()
-            .BeEquivalentTo(expectedEvaluatedGuidelineIds);
+            .BeEquivalentTo(ExpectedGuidelineIds);
 
-        diagnostics.Should().HaveCountGreaterThan(expectedEvaluatedGuidelineIds.Length);
+        diagnostics.Should().HaveCountGreaterThan(ExpectedGuidelineIds.Count);
     }
 
     internal static ServiceProvider CreateServiceProvider()

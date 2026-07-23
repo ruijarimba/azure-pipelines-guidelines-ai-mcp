@@ -207,11 +207,7 @@ by humans who do not have access to an AI assistant, including contributors who 
 English speakers.  
 **Decision:** Adopt explicit, measurable maintainability rules for code and documentation,
 grounded in the following public style guides. These apply to agent-generated and human-written
-code equally. Every named C# type and member must have concise documentation: XML documentation
-for contracts and concise comments for private implementation details when their purpose is not
-obvious from the code. Every top-level type must have its own file, regardless of accessibility or
-whether it is sealed. A tightly coupled private nested DTO or options type may remain nested when
-extracting it would reduce locality without improving reuse or readability.
+code equally.
 
 | Source | Key principles used |
 | --- | --- |
@@ -230,8 +226,6 @@ extracting it would reduce locality without improving reuse or readability.
   documentation; plain language reduces ambiguity for everyone.
 - Measurable limits (line counts, parameter counts) are enforceable in reviews and by
   analysers, unlike vague guidance such as "keep it simple."
-- Short documentation gives a reader enough context when opening an unfamiliar file, while the
-  nested-type exception avoids scattering implementation-only serialization details across files.
 
 **Consequences:**  
 - Maintainability rules are documented in
@@ -239,8 +233,6 @@ extracting it would reduce locality without improving reuse or readability.
 - Markdown writing rules are documented in
   `.github/instructions/markdown.instructions.md` with `applyTo: "**/*.md"`.
 - Both instruction files link back here so the rationale chain is traceable.
-- XML documentation warnings can enforce public API contracts, but private-member documentation
-  remains a maintainability and review rule unless a dedicated analyser is introduced.
 - Before changing any limit or rule, re-read the relevant source(s) above and update this ADR.
 
 ---

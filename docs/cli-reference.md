@@ -59,16 +59,6 @@ Directories are scanned recursively for `*.yml` and `*.yaml` files.
 | `--no-color` | flag | `false` | `ADOG_NO_COLOR` | Disable ANSI color codes in console output. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
 | `--quiet`, `-q` | flag | `false` | `ADOG_QUIET` | Suppress detailed output, show summary only. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
 | `--verbose`, `-v` | flag | `false` | `ADOG_VERBOSE` | Enable detailed logging. Boolean env values: `true`/`false`, `1`/`0`, `yes`/`no`. |
-| `--include-heuristics` | flag | `false` | _(none)_ | Include advisory heuristic rules. These rules can be noisy because YAML alone cannot prove every violation. |
-
-The analyzer always runs `enforceable` rules. It does not run `notAutomatable` rules. Use
-`--include-heuristics` only when you want optional advisory findings:
-
-```bash
-adog analyze pipeline.yml --include-heuristics
-```
-
-See [guideline automation status](guideline-automation.md) for the status and reason for every rule.
 
 #### Configuration files
 

@@ -13,9 +13,7 @@ namespace AzurePipelines.Guidelines.Mcp.Tools;
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Performance", "CA1812:Avoid uninstantiated internal classes",
     Justification = "Instantiated by the MCP SDK via dependency injection.")]
-internal sealed class GuidelineTools(
-    IGuidelineRepository repository,
-    IGuidelineAutomationMetadataProvider automationMetadataProvider)
+internal sealed class GuidelineTools(IGuidelineRepository repository)
 {
     // Compact JSON with camel-case property names. Null values are omitted so AI clients
     // receive smaller responses and the shared contract stays predictable.
@@ -65,13 +63,11 @@ internal sealed class GuidelineTools(
         for (int i = 0; i < guidelines.Count; i++)
         {
             GuidelineDefinition g = guidelines[i];
-            GuidelineAutomationMetadata? metadata = automationMetadataProvider.GetAutomationMetadata(g.Id);
             summaries[i] = new GuidelineSummary(
                 g.Id.Value,
                 g.Title,
                 EnumToJsonString(g.Category),
-                EnumToJsonString(g.Severity),
-                metadata is null ? null : EnumToJsonString(metadata.Status));
+                EnumToJsonString(g.Severity));
         }
 
         return JsonSerializer.Serialize(summaries, _jsonOptions);
@@ -119,7 +115,7 @@ internal sealed class GuidelineTools(
                 new ErrorResponse($"Guideline '{id}' not found."), _jsonOptions);
         }
 
-        return JsonSerializer.Serialize(ToDetailDto(guideline, automationMetadataProvider), _jsonOptions);
+        return JsonSerializer.Serialize(ToDetailDto(guideline), _jsonOptions);
     }
 
     // ── search_guidelines ─────────────────────────────────────────────────────
@@ -149,13 +145,11 @@ internal sealed class GuidelineTools(
             if (g.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
                 g.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase))
             {
-                GuidelineAutomationMetadata? metadata = automationMetadataProvider.GetAutomationMetadata(g.Id);
                 matches.Add(new GuidelineSummary(
                     g.Id.Value,
                     g.Title,
                     EnumToJsonString(g.Category),
-                    EnumToJsonString(g.Severity),
-                    metadata is null ? null : EnumToJsonString(metadata.Status)));
+                    EnumToJsonString(g.Severity)));
             }
         }
 
@@ -214,9 +208,7 @@ internal sealed class GuidelineTools(
         return (int)result >= 0;
     }
 
-    private static GuidelineDetailDto ToDetailDto(
-        GuidelineDefinition g,
-        IGuidelineAutomationMetadataProvider automationMetadataProvider)
+    private static GuidelineDetailDto ToDetailDto(GuidelineDefinition g)
     {
         DetectionHintDto[]? hints = g.DetectionHints.Count > 0
             ? BuildHintDtos(g.DetectionHints)
@@ -225,7 +217,6 @@ internal sealed class GuidelineTools(
         FixDto? fix = g.Fix is not null
             ? new FixDto(g.Fix.Summary, g.Fix.Before, g.Fix.After)
             : null;
-        GuidelineAutomationMetadata? metadata = automationMetadataProvider.GetAutomationMetadata(g.Id);
 
         return new GuidelineDetailDto(
             g.Id.Value,
@@ -237,9 +228,7 @@ internal sealed class GuidelineTools(
             g.Tags.Count > 0 ? [.. g.Tags] : null,
             hints,
             fix,
-            g.References.Count > 0 ? [.. g.References] : null,
-            metadata is null ? null : EnumToJsonString(metadata.Status),
-            metadata?.Reason);
+            g.References.Count > 0 ? [.. g.References] : null);
     }
 
     private static DetectionHintDto[] BuildHintDtos(IReadOnlyList<DetectionHint> hints)
@@ -258,9 +247,9 @@ internal sealed class GuidelineTools(
         return result;
     }
 
-    /// <summary>Converts an enum value to lowercase ASCII for JSON output.</summary>
-    /// <param name="value">The enum value to convert.</param>
-    /// <returns>The lowercase enum name.</returns>
+    // Converts an enum value to a lowercase ASCII string for JSON output.
+    // We avoid string.ToLowerInvariant because the codebase treats enum names as stable
+    // ASCII identifiers, and CA1308 warns against ToLowerInvariant in invariant contexts.
     private static string EnumToJsonString<T>(T value) where T : struct, Enum
     {
         string name = value.ToString();
@@ -274,26 +263,21 @@ internal sealed class GuidelineTools(
         });
     }
 
-    // These records remain nested because they are private, tool-specific JSON contracts.
+    // ── Internal DTOs ─────────────────────────────────────────────────────────
 
-    /// <summary>Represents a guideline summary in an MCP response.</summary>
     private sealed record GuidelineSummary(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("title")] string Title,
         [property: JsonPropertyName("category")] string Category,
-        [property: JsonPropertyName("severity")] string Severity,
-        [property: JsonPropertyName("automationStatus")] string? AutomationStatus);
+        [property: JsonPropertyName("severity")] string Severity);
 
-    /// <summary>Represents the number of guidelines in one category.</summary>
     private sealed record CategoryCount(
         [property: JsonPropertyName("category")] string Category,
         [property: JsonPropertyName("count")] int Count);
 
-    /// <summary>Represents an MCP tool error response.</summary>
     private sealed record ErrorResponse(
         [property: JsonPropertyName("error")] string Error);
 
-    /// <summary>Represents full guideline details in an MCP response.</summary>
     private sealed record GuidelineDetailDto(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("title")] string Title,
@@ -304,18 +288,14 @@ internal sealed class GuidelineTools(
         [property: JsonPropertyName("tags")] string[]? Tags,
         [property: JsonPropertyName("detectionHints")] DetectionHintDto[]? DetectionHints,
         [property: JsonPropertyName("fix")] FixDto? Fix,
-        [property: JsonPropertyName("references")] string[]? References,
-        [property: JsonPropertyName("automationStatus")] string? AutomationStatus,
-        [property: JsonPropertyName("automationReason")] string? AutomationReason);
+        [property: JsonPropertyName("references")] string[]? References);
 
-    /// <summary>Represents one detection hint in an MCP response.</summary>
     private sealed record DetectionHintDto(
         [property: JsonPropertyName("kind")] string Kind,
         [property: JsonPropertyName("scope")] string Scope,
         [property: JsonPropertyName("expression")] string? Expression,
         [property: JsonPropertyName("description")] string Description);
 
-    /// <summary>Represents fix guidance in an MCP response.</summary>
     private sealed record FixDto(
         [property: JsonPropertyName("summary")] string Summary,
         [property: JsonPropertyName("before")] string? Before,

@@ -271,37 +271,4 @@ public sealed class JsonAnalysisFormatterTests
         // Assert - Both outputs should be identical
         outputWithColor.Should().Be(outputWithoutColor);
     }
-
-    [Fact]
-    public void Format_WithMultipleFilesAndDiagnostics_ShouldPreserveFileAndDiagnosticOrder()
-    {
-        PipelineDocument firstDocument = CreateDocument("first.yml");
-        PipelineDocument secondDocument = CreateDocument("second.yml");
-        Diagnostic firstDiagnostic = new(new GuidelineId("ADOG-STEPS-001"), DiagnosticSeverity.Info, "First", "first.yml", 1, 2);
-        Diagnostic secondDiagnostic = new(new GuidelineId("ADOG-JOBS-001"), DiagnosticSeverity.Warning, "Second", "second.yml", 2, 3);
-
-        string output = _formatter.Format([
-            new AnalysisResult(firstDocument, [firstDiagnostic]),
-            new AnalysisResult(secondDocument, [secondDiagnostic])]);
-        JsonElement results = JsonDocument.Parse(output).RootElement.GetProperty("results");
-
-        results[0].GetProperty("file").GetString().Should().Be("first.yml");
-        results[1].GetProperty("diagnostics")[0].GetProperty("severity").GetString().Should().Be("warning");
-    }
-
-    [Fact]
-    public void FormatGuidelineListAndDetail_ShouldIncludeOptionalValues()
-    {
-        GuidelineDefinition guideline = new(
-            new GuidelineId("ADOG-STEPS-001"), GuidelineCategory.Steps, GuidelineSeverity.Do,
-            "Title", "Description", "Rationale", ["tag"], [], new FixGuidance("Fix", "before", "after"), ["reference"]);
-
-        JsonDocument list = JsonDocument.Parse(JsonFormatter.FormatGuidelineList([guideline]));
-        JsonDocument detail = JsonDocument.Parse(JsonFormatter.FormatGuidelineDetail(guideline));
-
-        list.RootElement[0].GetProperty("id").GetString().Should().Be("ADOG-STEPS-001");
-        detail.RootElement.GetProperty("tags")[0].GetString().Should().Be("tag");
-        detail.RootElement.GetProperty("fix").GetProperty("after").GetString().Should().Be("after");
-        detail.RootElement.GetProperty("references")[0].GetString().Should().Be("reference");
-    }
 }

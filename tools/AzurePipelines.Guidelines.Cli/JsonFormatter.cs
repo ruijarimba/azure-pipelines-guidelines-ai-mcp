@@ -17,34 +17,27 @@ internal static class JsonFormatter
 
     // ── Guidelines ────────────────────────────────────────────────────────────
 
-    internal static string FormatGuidelineList(
-        IReadOnlyList<GuidelineDefinition> guidelines,
-        IGuidelineAutomationMetadataProvider? automationMetadataProvider = null)
+    internal static string FormatGuidelineList(IReadOnlyList<GuidelineDefinition> guidelines)
     {
         GuidelineSummaryDto[] dtos = new GuidelineSummaryDto[guidelines.Count];
         for (int i = 0; i < guidelines.Count; i++)
         {
             GuidelineDefinition g = guidelines[i];
-            GuidelineAutomationMetadata? metadata = automationMetadataProvider?.GetAutomationMetadata(g.Id);
             dtos[i] = new GuidelineSummaryDto(
                 g.Id.Value,
                 EnumToLower(g.Category),
                 EnumToLower(g.Severity),
-                g.Title,
-                metadata is null ? null : EnumToLower(metadata.Status));
+                g.Title);
         }
 
         return JsonSerializer.Serialize(dtos, _options);
     }
 
-    internal static string FormatGuidelineDetail(
-        GuidelineDefinition g,
-        IGuidelineAutomationMetadataProvider? automationMetadataProvider = null)
+    internal static string FormatGuidelineDetail(GuidelineDefinition g)
     {
         string[]? tags    = g.Tags.Count > 0 ? [.. g.Tags] : null;
         string[]? refs    = g.References.Count > 0 ? [.. g.References] : null;
         FixDto?   fix     = g.Fix is not null ? new FixDto(g.Fix.Summary, g.Fix.Before, g.Fix.After) : null;
-        GuidelineAutomationMetadata? metadata = automationMetadataProvider?.GetAutomationMetadata(g.Id);
 
         GuidelineDetailDto dto = new(
             g.Id.Value,
@@ -55,9 +48,7 @@ internal static class JsonFormatter
             g.Rationale,
             tags,
             fix,
-            refs,
-            metadata is null ? null : EnumToLower(metadata.Status),
-            metadata?.Reason);
+            refs);
 
         return JsonSerializer.Serialize(dto, _options);
     }
@@ -101,9 +92,7 @@ internal static class JsonFormatter
         return dtos;
     }
 
-    /// <summary>Converts an enum value to lowercase ASCII without culture-sensitive processing.</summary>
-    /// <param name="value">The enum value to convert.</param>
-    /// <returns>The lowercase enum name.</returns>
+    // Converts an enum value to lowercase ASCII — avoids CA1308 (ToLowerInvariant).
     private static string EnumToLower<T>(T value) where T : struct, Enum
     {
         string name = value.ToString();
@@ -117,17 +106,14 @@ internal static class JsonFormatter
         });
     }
 
-    // These records remain nested because they are private, formatter-specific JSON contracts.
+    // ── DTOs ──────────────────────────────────────────────────────────────────
 
-    /// <summary>Represents a compact guideline summary in JSON output.</summary>
     private sealed record GuidelineSummaryDto(
         [property: JsonPropertyName("id")]       string Id,
         [property: JsonPropertyName("category")] string Category,
         [property: JsonPropertyName("severity")] string Severity,
-        [property: JsonPropertyName("title")]    string Title,
-        [property: JsonPropertyName("automationStatus")] string? AutomationStatus);
+        [property: JsonPropertyName("title")]    string Title);
 
-    /// <summary>Represents full guideline details in JSON output.</summary>
     private sealed record GuidelineDetailDto(
         [property: JsonPropertyName("id")]          string Id,
         [property: JsonPropertyName("category")]    string Category,
@@ -137,17 +123,13 @@ internal static class JsonFormatter
         [property: JsonPropertyName("rationale")]   string? Rationale,
         [property: JsonPropertyName("tags")]        string[]? Tags,
         [property: JsonPropertyName("fix")]         FixDto? Fix,
-        [property: JsonPropertyName("references")]  string[]? References,
-        [property: JsonPropertyName("automationStatus")] string? AutomationStatus,
-        [property: JsonPropertyName("automationReason")] string? AutomationReason);
+        [property: JsonPropertyName("references")]  string[]? References);
 
-    /// <summary>Represents fix guidance in JSON output.</summary>
     private sealed record FixDto(
         [property: JsonPropertyName("summary")] string Summary,
         [property: JsonPropertyName("before")]  string? Before,
         [property: JsonPropertyName("after")]   string? After);
 
-    /// <summary>Represents one diagnostic in JSON output.</summary>
     private sealed record DiagnosticDto(
         [property: JsonPropertyName("ruleId")]   string RuleId,
         [property: JsonPropertyName("severity")] string Severity,
@@ -155,7 +137,6 @@ internal static class JsonFormatter
         [property: JsonPropertyName("filePath")] string FilePath,
         [property: JsonPropertyName("line")]     int? Line);
 
-    /// <summary>Represents diagnostics grouped by source file in JSON output.</summary>
     private sealed record FileAnalysisResultDto(
         [property: JsonPropertyName("filePath")] string FilePath,
         [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics);

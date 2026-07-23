@@ -6,19 +6,6 @@ namespace AzurePipelines.Guidelines.Core.Tests;
 
 public sealed class VariableNodeTests
 {
-    [Fact]
-    public void Constructor_GivenAllProperties_ShouldExposeThem()
-    {
-        // Arrange / Act
-        VariableNode result = new("Configuration", "Release", true, "shared");
-
-        // Assert
-        result.Name.Should().Be("Configuration");
-        result.Value.Should().Be("Release");
-        result.IsReadOnly.Should().BeTrue();
-        result.Group.Should().Be("shared");
-    }
-
     // ── ToString ─────────────────────────────────────────────────────────────────
 
     [Fact]

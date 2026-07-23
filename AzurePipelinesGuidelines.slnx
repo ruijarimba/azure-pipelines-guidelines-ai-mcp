@@ -8,6 +8,31 @@
   </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
+    <Folder Name="/tests/FolderStructure/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithAbsolutePath.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithAdHocPath.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithSharedRootPath.yml" />
+    </Folder>
+    <Folder Name="/tests/DiagnosticLogging/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/WithLogging.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/WithoutLogging.yml" />
+    </Folder>
+    <Folder Name="/tests/SeparateConfiguration/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/WithEmbeddedConfiguration.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/WithVariableTemplate.yml" />
+    </Folder>
+    <Folder Name="/tests/SingleResponsibility/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/WithMultipleResponsibilities.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/WithSingleResponsibility.yml" />
+    </Folder>
+    <Folder Name="/tests/StepParameterValidation/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/WithoutValidation.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/WithValidation.yml" />
+    </Folder>
+    <Folder Name="/tests/EnvironmentParameterMinimization/">
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithEnvironmentParameters.yml" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithVariableTemplates.yml" />
+    </Folder>
     <Project Path="tests/AzurePipelines.Guidelines.Integration.Tests/AzurePipelines.Guidelines.Integration.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Cli.Tests/AzurePipelines.Guidelines.Cli.Tests.csproj" />
@@ -18,7 +43,6 @@
     <Project Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AzurePipelines.Guidelines.Mcp.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Rules.Tests/AzurePipelines.Guidelines.Rules.Tests.csproj" />
-    <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/GuidelineAutomationMetadataProviderTests.cs" />
   </Folder>
   <Folder Name="/tools/">
     <File Path="tools/Directory.Build.props" />
@@ -43,6 +67,10 @@
     <File Path=".github/prompts/add-mcp-tool.prompt.md" />
     <File Path=".github/prompts/implement-rule.prompt.md" />
   </Folder>
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/release.yml" />
+  </Folder>
   <Folder Name="/.solution/">
     <File Path=".dockerignore" />
     <File Path=".editorconfig" />
@@ -59,17 +87,35 @@
   </Folder>
   <Folder Name="/docs/">
     <File Path="docs/architecture.md" />
-    <File Path="docs/azure-pipelines-schema.md" />
     <File Path="docs/cli-reference.md" />
     <File Path="docs/decisions.md" />
-    <File Path="docs/guideline-automation.md" />
     <File Path="docs/glossary.md" />
     <File Path="docs/how-it-works.md" />
-    <File Path="docs/mcp-prompts.md" />
     <File Path="docs/mcp-reference.md" />
     <File Path="docs/progress.md" />
     <File Path="docs/TODO.md" />
     <File Path="docs/vision.md" />
+  </Folder>
+  <Folder Name="/.github/">
+    <File Path=".github/copilot-instructions.md" />
+    <Folder Name="/.github/instructions/">
+      <File Path=".github/instructions/agent-behaviour.instructions.md" />
+      <File Path=".github/instructions/architecture.instructions.md" />
+      <File Path=".github/instructions/code-style.instructions.md" />
+      <File Path=".github/instructions/csharp-patterns.instructions.md" />
+      <File Path=".github/instructions/documentation.instructions.md" />
+      <File Path=".github/instructions/maintainability.instructions.md" />
+      <File Path=".github/instructions/markdown.instructions.md" />
+        <File Path=".github/instructions/testing.instructions.md" />
+    </Folder>
+    <Folder Name="/.github/prompts/">
+      <File Path=".github/prompts/add-mcp-tool.prompt.md" />
+      <File Path=".github/prompts/implement-rule.prompt.md" />
+    </Folder>
+    <Folder Name="/.github/workflows/">
+      <File Path=".github/workflows/ci.yml" />
+      <File Path=".github/workflows/release.yml" />
+    </Folder>
   </Folder>
 </Solution>
 

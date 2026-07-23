@@ -105,9 +105,6 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    /// <summary>Maps a domain guideline to the detailed MCP resource contract.</summary>
-    /// <param name="g">The guideline to map.</param>
-    /// <returns>The serialized-resource data transfer object.</returns>
     private static GuidelineDetailDto ToDetailDto(GuidelineDefinition g)
     {
         DetectionHintDto[]? hints = g.DetectionHints.Count > 0
@@ -131,9 +128,6 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
             g.References.Count > 0 ? [.. g.References] : null);
     }
 
-    /// <summary>Maps domain detection hints to their compact MCP representation.</summary>
-    /// <param name="hints">The domain hints to map.</param>
-    /// <returns>The mapped hint array.</returns>
     private static DetectionHintDto[] BuildHintDtos(IReadOnlyList<DetectionHint> hints)
     {
         DetectionHintDto[] result = new DetectionHintDto[hints.Count];
@@ -150,11 +144,9 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         return result;
     }
 
-    /// <summary>
-    /// Converts an enum value to lowercase ASCII for stable JSON output.
-    /// </summary>
-    /// <param name="value">The enum value to convert.</param>
-    /// <returns>The lowercase enum name.</returns>
+    // Converts an enum value to a lowercase ASCII string for JSON output.
+    // We avoid string.ToLowerInvariant because the codebase treats enum names as stable
+    // ASCII identifiers, and CA1308 warns against ToLowerInvariant in invariant contexts.
     private static string EnumToJsonString<T>(T value) where T : struct, Enum
     {
         string name = value.ToString();
@@ -168,20 +160,17 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         });
     }
 
-    // These records remain nested because they are private, serialization-only resource contracts.
+    // ── Internal DTOs ─────────────────────────────────────────────────────────
 
-    /// <summary>Represents one item in the guideline catalogue resource.</summary>
     private sealed record GuidelineSummary(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("title")] string Title,
         [property: JsonPropertyName("category")] string Category,
         [property: JsonPropertyName("severity")] string Severity);
 
-    /// <summary>Represents an MCP resource error response.</summary>
     private sealed record ErrorResponse(
         [property: JsonPropertyName("error")] string Error);
 
-    /// <summary>Represents the detailed guideline resource payload.</summary>
     private sealed record GuidelineDetailDto(
         [property: JsonPropertyName("id")] string Id,
         [property: JsonPropertyName("title")] string Title,
@@ -194,14 +183,12 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         [property: JsonPropertyName("fix")] FixDto? Fix,
         [property: JsonPropertyName("references")] string[]? References);
 
-    /// <summary>Represents one detection hint in an MCP resource payload.</summary>
     private sealed record DetectionHintDto(
         [property: JsonPropertyName("kind")] string Kind,
         [property: JsonPropertyName("scope")] string Scope,
         [property: JsonPropertyName("expression")] string? Expression,
         [property: JsonPropertyName("description")] string Description);
 
-    /// <summary>Represents fix guidance in an MCP resource payload.</summary>
     private sealed record FixDto(
         [property: JsonPropertyName("summary")] string Summary,
         [property: JsonPropertyName("before")] string? Before,

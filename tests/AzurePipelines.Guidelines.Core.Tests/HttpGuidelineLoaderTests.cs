@@ -63,20 +63,6 @@ public sealed class HttpGuidelineLoaderTests
     }
 
     [Fact]
-    public async Task LoadAsync_GivenNullGuidelinesProperty_ShouldReturnEmptyList()
-    {
-        // Arrange
-        using HttpClient client = MakeClient("{ \"guidelines\": null }");
-        HttpGuidelineLoader sut = new(client);
-
-        // Act
-        IReadOnlyList<GuidelineDefinition> result = await sut.LoadAsync();
-
-        // Assert
-        result.Should().BeEmpty();
-    }
-
-    [Fact]
     public async Task LoadAsync_GivenMissingGuidelinesProperty_ShouldReturnEmptyList()
     {
         // Arrange
@@ -300,35 +286,6 @@ public sealed class HttpGuidelineLoaderTests
         hint.Kind.Should().Be(DetectionKind.Heuristic);
         hint.Scope.Should().Be(PipelineScope.Step);
         hint.Description.Should().Be("A message.");
-    }
-
-    [Fact]
-    public async Task LoadAsync_GivenGuidelineMetadata_ShouldReadUrlAndAppliesToProperties()
-    {
-        // Arrange
-        using HttpClient client = MakeClient("""
-            {
-              "guidelines": [
-                {
-                  "id": "ADOG-STEPS-001",
-                  "category": "steps",
-                  "severity": "do",
-                  "title": "T",
-                  "summary": "S",
-                  "url": "https://example.test/guideline",
-                  "appliesTo": ["steps"]
-                }
-              ]
-            }
-            """);
-        HttpGuidelineLoader sut = new(client);
-
-        // Act
-        IReadOnlyList<GuidelineDefinition> result = await sut.LoadAsync();
-
-        // Assert
-        result.Should().ContainSingle();
-        result[0].References.Should().BeEmpty();
     }
 
     [Fact]

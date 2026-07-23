@@ -20,8 +20,6 @@
   <ItemGroup>
     <None Include="AnalyzeCommandOptionResolverTests.cs" />
     <None Include="AssemblyInfo.cs" />
-      <None Include="CliConfigurationLoaderTests.cs" />
-      <None Include="AnalyzeCommandEnvironmentTests.cs" />
     <None Include="RulesCommandTests.cs" />
     <None Update="Fixtures\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

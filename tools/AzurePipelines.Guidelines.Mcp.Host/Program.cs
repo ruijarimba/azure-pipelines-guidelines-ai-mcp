@@ -1,16 +1,19 @@
 using AzurePipelines.Guidelines.Mcp.Host;
 
+// The MCP host is intentionally a thin dispatcher.
+// Real startup logic lives in McpHostStartup so that transport-specific behaviour
+// (web host for SSE, generic host for stdio) can be kept separate and tested.
 string transport = GetTransport(args);
 
 if (string.Equals(transport, "sse", StringComparison.OrdinalIgnoreCase))
 {
-    await SseMcpHost.RunAsync(args).ConfigureAwait(false);
+    await McpHostStartup.RunSseAsync(args).ConfigureAwait(false);
 }
 else
 {
     // stdio is the default and the only supported mode for Docker / CI usage.
     // SSE is provided only for local debugging from an IDE.
-    await StdioMcpHost.RunAsync(args).ConfigureAwait(false);
+    await McpHostStartup.RunStdioAsync(args).ConfigureAwait(false);
 }
 
 static string GetTransport(string[] args)

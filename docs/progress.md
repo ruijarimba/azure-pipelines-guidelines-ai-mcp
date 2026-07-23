@@ -20,23 +20,6 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
-| `local` | feat: classify all implemented guidelines by local automation capability; disable heuristic rules by default with CLI and MCP opt-in; document skipped-rule reasons; quality gate passes with 616 tests and 95.04% production line coverage |
-| `local` | feat: classify four additional structurally deterministic rules as enforceable; enforce explicit checkout, per-job step-template counts, step control parameters, and variable scope |
-| `local` | feat: classify absolute template paths, job variable scope, and pipeline-expression syntax as enforceable; preserve category-specific job and variable rules |
-
-## Earlier completed work
-
-| Commit | Summary |
-| --- | --- |
-| `local` | docs/comments: clarify CLI command and formatter implementation details without changing behavior |
-| `local` | test: raise production line coverage above 95% with focused Core and Parsing tests |
-| `local` | feat: make MCP analysis findings advisory with original do, don't, avoid, and consider wording |
-| `local` | docs: add client-side MCP sample prompts and README examples |
-| `local` | feat: add compact MCP analysis responses for low-token workflows |
-| `local` | test: verify dedicated behavioral coverage exists for every implemented rule |
-| `local` | docs: add Azure Pipelines YAML schema reference and MCP guidance |
-| `local` | test: raise normalized production line coverage to 95.88% with focused branch and edge-case tests |
-| `local` | fix: make MCP analysis guidance opt-in for compact JSON responses while retaining it for Markdown |
 | `local` | docs/comments: add inline comments, host README, and AGENTS updates to the MCP project so contributors without deep .NET knowledge can follow transport modes, launch profiles, and startup choices |
 | `local` | feat: add optional SSE debug transport to MCP host so it can run under Visual Studio while VS Code connects over HTTP |
 | `local` | feat: add source-mode and local Docker MCP launch scripts with local-client configuration guidance |
@@ -128,46 +111,46 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ---
 
-## Recently completed
-
-**Production coverage remediation**
-
-Focused tests were added to the existing Core model and loader test classes, plus valid jobs and
-steps collection-context cases were added to `YamlPipelineSchemaValidatorTests`. No production
-behavior or dependencies changed. The canonical quality gate now passes with 600 tests and
-95.03% production line coverage (3154/3319), above the strict 95% threshold.
-
----
-
-## Recently completed
+## In progress
 
 **MCP SSE port stabilization**
 
-Visual Studio passed the SSE transport argument and development environment but did not inject
-`ASPNETCORE_URLS` from the selected launch profile. With no effective URL configured, Kestrel
-bound to its default `http://localhost:5000` URL.
+The MCP host was refactored into a thin transport dispatcher (`Program.cs`) and a dedicated
+startup helper (`McpHostStartup.cs`). Minimal startup logging was added for both SSE and stdio
+using `LoggerMessage.Define`, so stdio protocol traffic stays on stdout and human-readable logs
+stay on stderr.
 
-`appsettings.json` configures SSE mode as `http://localhost:5050`. `SseMcpHost.cs` resolves the
-standard `urls` setting, so explicit `--urls` and `ASPNETCORE_URLS` settings remain authoritative.
-The host README and MCP reference document the deterministic default and override mechanisms.
+A live run without the **SSE** launch profile selected bound to `http://localhost:5000` instead
+of the documented `http://localhost:5050`. The `SSE` launch profile in `launchSettings.json`
+still declares `applicationUrl: http://localhost:5050`; the port mismatch was only observed when
+`applicationUrl` was not injected. The current code builds and the profiles are intact.
+
+Current focus:
+1. Make the SSE URL/port behavior explicit and deterministic.
+2. Verify the server starts on `http://localhost:5050/mcp` when the SSE profile is selected.
+
+Files in scope:
+- `tools/AzurePipelines.Guidelines.Mcp.Host/Program.cs`
+- `tools/AzurePipelines.Guidelines.Mcp.Host/McpHostStartup.cs`
+- `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`
+
+Validation completed:
+- Full solution quality gate passed (`491` passed, `0` failed) after the documentation changes.
 
 ---
 
 ## Next up
 
-1. **Add positive, compliant, and edge-case tests for any new `ADOG-*` rule**; the automated
-   `RuleCoverageInventoryTests` test requires a matching dedicated test class.
-2. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
+1. **Stabilize SSE port/URL resolution** so the debugging endpoint is deterministic without
+   relying solely on launch profile injection.
+2. **Address documentation and inline-comment debt** in the CLI project
+   (`tools/AzurePipelines.Guidelines.Cli`), so command options, formatters, and exit codes are
+   clear to contributors without deep .NET knowledge.
+3. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
    rule template workflow when they appear.
-3. **Design a limited local schema validator** for pipeline and template contexts. Keep it separate
-   from advisory guideline rules and use the Microsoft Learn reference as the canonical source.
 
 ---
 
 ## Open questions / blockers
 
 - NuGet publication is deferred. Package metadata and local packing remain for a future release.
-- The remaining potentially enforceable, heuristic, and non-automatable classifications are deferred
-  until their local structural policies are defined.
-- The exported Microsoft Learn schema PDF remains an offline reference and is not committed. Confirm
-  provenance and redistribution terms before adding any documentation snapshot to source control.

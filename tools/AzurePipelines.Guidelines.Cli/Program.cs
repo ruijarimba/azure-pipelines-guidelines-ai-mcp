@@ -26,15 +26,10 @@ await using ServiceProvider sp = services.BuildServiceProvider();
 IPipelineParser parser = sp.GetRequiredService<IPipelineParser>();
 IPipelineAnalyser analyser = sp.GetRequiredService<IPipelineAnalyser>();
 PipelinePathResolver pathResolver = sp.GetRequiredService<PipelinePathResolver>();
-IGuidelineAutomationMetadataProvider automationMetadataProvider =
-    sp.GetRequiredService<IGuidelineAutomationMetadataProvider>();
 
 RootCommand rootCommand = new("Azure Pipelines Guidelines static analyser (adog)");
 rootCommand.AddCommand(AnalyzeCommand.Create(parser, analyser, pathResolver, configuration));
-rootCommand.AddCommand(RulesCommand.Create(
-    repository,
-    configuration,
-    automationMetadataProvider));
+rootCommand.AddCommand(RulesCommand.Create(repository, configuration));
 
 return await rootCommand.InvokeAsync(args);
 

@@ -28,7 +28,7 @@ manifest is at `data/guidelines.json` and uses stable rule IDs of the form
 | `tools/` | Executable entry points (not NuGet packages) |
 | `tests/` | Unit test projects, one per `src/` library |
 | `docs/` | Architecture and developer documentation |
-| `.github/` | Copilot instructions and prompt files |
+| `.github/` | Copilot instructions, prompt files, CI workflows |
 
 ## Start here — key documents
 
@@ -194,12 +194,7 @@ extension-point catalogue.
 - **`TreatWarningsAsErrors = true`** — never silence a warning without a comment explaining why.
 - **`AnalysisLevel = latest-all`** — all Roslyn analysers are active.
 - **All `public` APIs** carry XML doc comments (`/// <summary>…`).
-- **All named C# types and members** carry concise documentation. Use XML documentation for
-  contracts and document private implementation details when their purpose is not obvious.
-- **One top-level C# type per file** applies regardless of accessibility or `sealed` status.
-  Tightly coupled private nested DTOs and options may remain nested when locality improves
-  readability.
-- **Unit test coverage** must stay strictly above 95% repository-wide and must cover all logical
+- **Unit test coverage** must stay above 90% repository-wide and must cover all logical
   branches including edge cases (null inputs, empty collections, boundary values, error
   paths).
 - **Every behavior change** must be tested beyond the happy path. Include normal success

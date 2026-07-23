@@ -33,21 +33,11 @@ public sealed class GuidelineToolsTests
     {
         IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
         repo.GetAll().Returns(all ?? []);
-        return new GuidelineTools(repo, AutomationMetadataProvider());
+        return new GuidelineTools(repo);
     }
 
     private static GuidelineTools MakeSutWithRepo(IGuidelineRepository repo) =>
-        new(repo, AutomationMetadataProvider());
-
-    private static IGuidelineAutomationMetadataProvider AutomationMetadataProvider()
-    {
-        IGuidelineAutomationMetadataProvider provider = Substitute.For<IGuidelineAutomationMetadataProvider>();
-        provider.GetAutomationMetadata(Arg.Any<GuidelineId>())
-            .Returns(new GuidelineAutomationMetadata(
-                GuidelineAutomationStatus.Enforceable,
-                "Test automation metadata."));
-        return provider;
-    }
+        new(repo);
 
     private static T Deserialize<T>(string json) =>
         JsonSerializer.Deserialize<T>(json)!;
@@ -105,7 +95,6 @@ public sealed class GuidelineToolsTests
         item.GetProperty("title").GetString().Should().Be("My title");
         item.GetProperty("category").GetString().Should().Be("steps");
         item.GetProperty("severity").GetString().Should().Be("do");
-        item.GetProperty("automationStatus").GetString().Should().Be("enforceable");
     }
 
     [Fact]

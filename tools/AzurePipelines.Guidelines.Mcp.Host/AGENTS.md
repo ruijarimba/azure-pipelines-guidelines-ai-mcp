@@ -11,11 +11,9 @@ logic is in the `src/` class libraries.
 ## What belongs here
 
 - `Program.cs` — resolves the transport (`stdio` or `SSE`) from `--transport` or
-  `MCP_TRANSPORT`, then calls the matching host.
-- `StdioMcpHost.cs` — hosts the MCP server with `Microsoft.Extensions.Hosting` and the stdio
-  transport and owns its logging configuration.
-- `SseMcpHost.cs` — hosts the MCP server with ASP.NET Core and the SSE transport.
-  It logs the endpoint path, bound ports, and URLs at startup.
+  `MCP_TRANSPORT`, then calls the matching startup path.
+- `McpHostStartup.cs` — hosts the MCP server; uses `Microsoft.Extensions.Hosting` for stdio
+  transport and ASP.NET Core for SSE transport.
 - `Properties/launchSettings.json` — Visual Studio launch profiles so you can start the host
   in the correct transport with `F5`.
 - Optional: `appsettings.json` for configuration (logging levels, MCP server options).
@@ -59,8 +57,7 @@ The host can run in two modes. Choose the one that matches how the client connec
 ## Key patterns
 
 - `Program.cs` should stay **5-15 lines**: read transport, dispatch, run.
-- Transport-specific startup belongs in its matching host class.
-- Each transport host owns its logging configuration and startup messages.
+- All transport-specific startup lives in `McpHostStartup.cs`.
 - All configuration is environment-variable or `appsettings.json`-driven — no hard-coded settings.
 - Exit codes:
   - `0` = healthy shutdown

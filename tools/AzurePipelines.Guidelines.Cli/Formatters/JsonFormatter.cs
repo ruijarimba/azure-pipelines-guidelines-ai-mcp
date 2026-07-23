@@ -5,7 +5,7 @@ namespace AzurePipelines.Guidelines.Cli.Formatters;
 
 /// <summary>
 /// Formats analysis results as structured JSON.
-/// Output structure: { summary: {...}, results: [{file, diagnostics: [...], schemaDiagnostics: [...]}] }
+/// Output structure: { summary: {...}, results: [{file, diagnostics: [...]}] }
 /// </summary>
 internal sealed class JsonAnalysisFormatter : IOutputFormatter
 {
@@ -15,15 +15,13 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
-    /// <inheritdoc/>
     public string FormatName => "json";
 
-    /// <inheritdoc/>
     public string Format(IReadOnlyList<AnalysisResult> results, bool useColor = true)
     {
         ArgumentNullException.ThrowIfNull(results);
 
-        // Build the complete output structure before serialization so the JSON contract is explicit.
+        // Build output structure
         JsonOutput output = new()
         {
             Summary = BuildSummary(results),
@@ -44,12 +42,6 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
                     Line = d.Line,
                     Column = d.Column,
                 }).ToArray(),
-                SchemaDiagnostics = r.StructuralDiagnostics.Select(d => new SchemaDiagnosticOutput
-                {
-                    Code = d.Code,
-                    Message = d.Message,
-                    Line = d.Line,
-                }).ToArray(),
             }).ToArray(),
         };
 
@@ -66,7 +58,6 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
         foreach (AnalysisResult result in results)
         {
             totalDiagnostics += result.Diagnostics.Count;
-            totalDiagnostics += result.StructuralDiagnostics.Count;
 
             foreach (Diagnostic diagnostic in result.Diagnostics)
             {
@@ -100,14 +91,13 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
         };
     }
 
-    /// <summary>Root JSON output containing summary and per-file results.</summary>
+    // JSON output structure classes
     private sealed class JsonOutput
     {
-        public required Summary Summary { get; init; }
-        public required FileResult[] Results { get; init; }
+        public Summary Summary { get; set; } = null!;
+        public FileResult[] Results { get; set; } = null!;
     }
 
-    /// <summary>Aggregate counts for the analyzed files.</summary>
     private sealed class Summary
     {
         public int FilesScanned { get; set; }
@@ -119,29 +109,18 @@ internal sealed class JsonAnalysisFormatter : IOutputFormatter
         public int Info { get; set; }
     }
 
-    /// <summary>Diagnostics associated with one analyzed file.</summary>
     private sealed class FileResult
     {
-        public required string File { get; init; }
-        public required DiagnosticOutput[] Diagnostics { get; init; }
-        public required SchemaDiagnosticOutput[] SchemaDiagnostics { get; init; }
+        public string File { get; set; } = null!;
+        public DiagnosticOutput[] Diagnostics { get; set; } = null!;
     }
 
-    /// <summary>Serialized representation of one diagnostic.</summary>
     private sealed class DiagnosticOutput
     {
-        public required string RuleId { get; init; }
-        public required string Severity { get; init; }
-        public required string Message { get; init; }
-        public int? Line { get; init; }
-        public int? Column { get; init; }
-    }
-
-    /// <summary>Serialized representation of one structural schema diagnostic.</summary>
-    private sealed class SchemaDiagnosticOutput
-    {
-        public required string Code { get; init; }
-        public required string Message { get; init; }
-        public int? Line { get; init; }
+        public string RuleId { get; set; } = null!;
+        public string Severity { get; set; } = null!;
+        public string Message { get; set; } = null!;
+        public int? Line { get; set; }
+        public int? Column { get; set; }
     }
 }

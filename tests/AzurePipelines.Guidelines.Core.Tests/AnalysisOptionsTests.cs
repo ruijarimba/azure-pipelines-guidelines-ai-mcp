@@ -37,26 +37,6 @@ public sealed class AnalysisOptionsTests
     }
 
     [Fact]
-    public void Default_ShouldNotIncludeHeuristicRules()
-    {
-        // Arrange / Act
-        AnalysisOptions options = AnalysisOptions.Default;
-
-        // Assert
-        options.IncludeHeuristics.Should().BeFalse();
-    }
-
-    [Fact]
-    public void Constructor_GivenHeuristicOptIn_ShouldIncludeHeuristicRules()
-    {
-        // Arrange / Act
-        AnalysisOptions options = new(IncludeHeuristics: true);
-
-        // Assert
-        options.IncludeHeuristics.Should().BeTrue();
-    }
-
-    [Fact]
     public void Default_ShouldReturnSameInstance()
     {
         // Arrange / Act

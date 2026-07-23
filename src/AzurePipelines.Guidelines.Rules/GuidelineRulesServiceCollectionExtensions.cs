@@ -1,11 +1,4 @@
 using AzurePipelines.Guidelines.Core;
-using AzurePipelines.Guidelines.Rules.General;
-using AzurePipelines.Guidelines.Rules.Jobs;
-using AzurePipelines.Guidelines.Rules.Parameters;
-using AzurePipelines.Guidelines.Rules.Pipelines;
-using AzurePipelines.Guidelines.Rules.Stages;
-using AzurePipelines.Guidelines.Rules.Steps;
-using AzurePipelines.Guidelines.Rules.Variables;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AzurePipelines.Guidelines.Rules;
@@ -27,9 +20,6 @@ public static class GuidelineRulesServiceCollectionExtensions
     public static IServiceCollection AddGuidelineRules(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
-
-        services.AddSingleton<IGuidelineMetadataProvider, RuleMetadataProvider>();
-        services.AddSingleton<IGuidelineAutomationMetadataProvider, GuidelineAutomationMetadataProvider>();
 
         // Rules are registered here in ADOG-ID order.
         // Add a new line here for each new rule class.

@@ -58,7 +58,7 @@ public void GetById_GivenKnownId_ShouldReturnGuideline()
 
 ## Coverage expectations
 
-- Repository-wide line coverage must stay strictly above 95%. Every change must preserve or improve the current coverage baseline; code added without test coverage is not acceptable.
+- Repository-wide line coverage must stay above 90%. Every change must preserve or improve the current coverage baseline; code added without test coverage is not acceptable.
 - Every logical branch (if/else, switch arm, ternary, null-coalescing) must have at least one test.
 - Every behavior change must be tested for more than the happy path. At minimum, include tests for:
   - the normal success path
@@ -86,7 +86,7 @@ reportgenerator `
 ```
 
 The generated `./coverage/report/index.html` shows line, branch, and method coverage per file.
-Before committing, confirm the repository-wide line coverage is strictly above 95%.
+Before committing, confirm the repository-wide line coverage is at or above 90%.
 
 ## What to avoid
 

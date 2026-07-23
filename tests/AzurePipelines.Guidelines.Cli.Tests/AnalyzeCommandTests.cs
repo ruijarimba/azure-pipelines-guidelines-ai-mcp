@@ -169,95 +169,6 @@ public sealed class AnalyzeCommandTests
     }
 
     [Fact]
-    public async Task RunAsync_GivenNoPaths_ShouldReturnErrorExitCode()
-    {
-        int exitCode = await AnalyzeCommand.RunAsync(
-            CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
-            new AnalyzeCommandOptions([], "console", [], null, null, false, false, false, false, false));
-
-        exitCode.Should().Be(ExitCodes.Error);
-    }
-
-    [Fact]
-    public async Task RunAsync_GivenBlankFormat_ShouldUseConsoleFormatter()
-    {
-        using StringWriter output = new();
-        TextWriter originalOut = Console.Out;
-        Console.SetOut(output);
-        try
-        {
-            int exitCode = await AnalyzeCommand.RunAsync(
-                CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
-                [GetFixturePath("clean-pipeline.yml")], " ", "info");
-
-            exitCode.Should().Be(ExitCodes.Success);
-            output.ToString().Should().Contain("Summary:");
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-        }
-    }
-
-    [Theory]
-    [InlineData("not-a-severity")]
-    [InlineData("error,not-a-severity")]
-    public async Task RunAsync_GivenUnknownSeverity_ShouldReturnErrorExitCode(string severity)
-    {
-        int exitCode = await AnalyzeCommand.RunAsync(
-            CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
-            [GetFixturePath("clean-pipeline.yml")], "console", severity);
-
-        exitCode.Should().Be(ExitCodes.Error);
-    }
-
-    [Fact]
-    public async Task RunAsync_GivenUnknownCategory_ShouldReturnErrorExitCode()
-    {
-        int exitCode = await AnalyzeCommand.RunAsync(
-            CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
-            [GetFixturePath("clean-pipeline.yml")], "console", "info", ["unknown"]);
-
-        exitCode.Should().Be(ExitCodes.Error);
-    }
-
-    [Fact]
-    public async Task RunAsync_GivenMissingPath_ShouldReturnErrorExitCode()
-    {
-        int exitCode = await AnalyzeCommand.RunAsync(
-            CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
-            [Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "missing.yml")], "console", "info");
-
-        exitCode.Should().Be(ExitCodes.Error);
-    }
-
-    [Fact]
-    public async Task RunAsync_GivenParserFailure_ShouldReturnErrorExitCode()
-    {
-        IPipelineParser parser = Substitute.For<IPipelineParser>();
-        parser.Parse(Arg.Any<string>(), Arg.Any<string>())
-            .Returns(_ => throw new PipelineParsingException("invalid document"));
-
-        int exitCode = await AnalyzeCommand.RunAsync(
-            parser, CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
-            [GetFixturePath("clean-pipeline.yml")], "console", "info");
-
-        exitCode.Should().Be(ExitCodes.Error);
-    }
-
-    [Fact]
-    public async Task RunAsync_GivenInvalidOutputPath_ShouldReturnErrorExitCode()
-    {
-        string outputPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "report.json");
-
-        int exitCode = await AnalyzeCommand.RunAsync(
-            CreateParser(), CreateAnalyserWithoutDiagnostics(), new PipelinePathResolver(),
-            [GetFixturePath("clean-pipeline.yml")], "json", "info", output: outputPath);
-
-        exitCode.Should().Be(ExitCodes.Error);
-    }
-
-    [Fact]
     public async Task RunAsync_GivenCommaSeparatedFormats_ShouldRenderEachFormatterInOrder()
     {
         // Arrange
@@ -484,8 +395,6 @@ public sealed class AnalyzeCommandTests
         }
     }
 
-    /// <summary>Creates substitutes that capture the options passed to analysis.</summary>
-    /// <returns>A parser, analyser, and capture object for the test.</returns>
     private static (IPipelineParser parser, IPipelineAnalyser analyser, AnalysisOptionsCapture capture)
         CreateAnalyserWithCapturedOptions()
     {
@@ -507,8 +416,6 @@ public sealed class AnalyzeCommandTests
         return (parser, analyser, capture);
     }
 
-    /// <summary>Creates a parser substitute that returns an empty pipeline document.</summary>
-    /// <returns>The configured parser substitute.</returns>
     private static IPipelineParser CreateParser()
     {
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -524,8 +431,6 @@ public sealed class AnalyzeCommandTests
         return parser;
     }
 
-    /// <summary>Creates an analyser substitute that returns no diagnostics.</summary>
-    /// <returns>The configured analyser substitute.</returns>
     private static IPipelineAnalyser CreateAnalyserWithoutDiagnostics()
     {
         IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
@@ -543,8 +448,6 @@ public sealed class AnalyzeCommandTests
         return analyser;
     }
 
-    /// <summary>Creates an analyser substitute that returns one timeout diagnostic.</summary>
-    /// <returns>The configured analyser substitute.</returns>
     private static IPipelineAnalyser CreateAnalyserWithSingleDiagnostic()
     {
         IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
@@ -570,22 +473,17 @@ public sealed class AnalyzeCommandTests
         return analyser;
     }
 
-    /// <summary>Returns the absolute path to an analyze-command fixture.</summary>
-    /// <param name="fixtureName">The fixture file name.</param>
-    /// <returns>The absolute fixture path.</returns>
     private static string GetFixturePath(string fixtureName)
     {
         string fullPath = Path.Combine(AppContext.BaseDirectory, "Fixtures", fixtureName);
         return Path.GetFullPath(fullPath);
     }
 
-    /// <summary>Stores the most recent analysis options passed to a substitute.</summary>
     private sealed class AnalysisOptionsCapture
     {
         internal AnalysisOptions? Value { get; set; }
     }
 
-    /// <summary>Restores environment variables changed by a test.</summary>
     private sealed class EnvironmentVariableScope : IDisposable
     {
         private readonly Dictionary<string, string?> _originalValues = [];

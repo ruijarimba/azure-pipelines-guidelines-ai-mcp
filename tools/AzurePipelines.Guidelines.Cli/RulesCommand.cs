@@ -17,23 +17,17 @@ internal static class RulesCommand
         new[] { "do", "do-not", "avoid", "consider" }
             .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
-    internal static Command Create(
-        IGuidelineRepository repository,
-        CliConfiguration? configuration = null,
-        IGuidelineAutomationMetadataProvider? automationMetadataProvider = null)
+    internal static Command Create(IGuidelineRepository repository, CliConfiguration? configuration = null)
     {
         Command rulesCommand = new("rules", "Browse and query the loaded Azure Pipelines guidelines.");
-        rulesCommand.AddCommand(CreateListCommand(repository, configuration, automationMetadataProvider));
-        rulesCommand.AddCommand(CreateShowCommand(repository, automationMetadataProvider));
+        rulesCommand.AddCommand(CreateListCommand(repository, configuration));
+        rulesCommand.AddCommand(CreateShowCommand(repository));
         return rulesCommand;
     }
 
     // ── rules list ────────────────────────────────────────────────────────────
 
-    private static Command CreateListCommand(
-        IGuidelineRepository repository,
-        CliConfiguration? configuration,
-        IGuidelineAutomationMetadataProvider? automationMetadataProvider)
+    private static Command CreateListCommand(IGuidelineRepository repository, CliConfiguration? configuration)
     {
         Option<string[]?> categoryOpt = new(
             name: "--category",
@@ -67,12 +61,7 @@ internal static class RulesCommand
                 configuration?.GetSeverityValue());
             string? format = context.ParseResult.GetValueForOption(formatOpt);
             string resolvedFormat = ResolveFormatValue(format, configuration);
-            context.ExitCode = await RunListAsync(
-                repository,
-                category,
-                severity,
-                resolvedFormat,
-                automationMetadataProvider);
+            context.ExitCode = await RunListAsync(repository, category, severity, resolvedFormat);
         });
 
         return listCommand;
@@ -82,8 +71,7 @@ internal static class RulesCommand
         IGuidelineRepository repository,
         string[]? category = null,
         string[]? severity = null,
-        string format = "console",
-        IGuidelineAutomationMetadataProvider? automationMetadataProvider = null)
+        string format = "console")
     {
         IReadOnlyList<GuidelineDefinition> guidelines;
 
@@ -142,8 +130,8 @@ internal static class RulesCommand
         }
 
         string output = format.Equals("json", StringComparison.OrdinalIgnoreCase)
-            ? JsonFormatter.FormatGuidelineList(guidelines, automationMetadataProvider)
-            : ConsoleFormatter.FormatGuidelineList(guidelines, automationMetadataProvider);
+            ? JsonFormatter.FormatGuidelineList(guidelines)
+            : ConsoleFormatter.FormatGuidelineList(guidelines);
 
         Console.Write(output);
         return ExitCodes.Success;
@@ -151,9 +139,7 @@ internal static class RulesCommand
 
     // ── rules show ────────────────────────────────────────────────────────────
 
-    private static Command CreateShowCommand(
-        IGuidelineRepository repository,
-        IGuidelineAutomationMetadataProvider? automationMetadataProvider)
+    private static Command CreateShowCommand(IGuidelineRepository repository)
     {
         Argument<string> idArg = new(
             name: "rule-id",
@@ -172,7 +158,7 @@ internal static class RulesCommand
 
         showCommand.SetHandler(
             async (string id, string format) =>
-                Environment.Exit(await RunShowAsync(repository, id, format, automationMetadataProvider)),
+                Environment.Exit(await RunShowAsync(repository, id, format)),
             idArg, formatOpt);
 
         return showCommand;
@@ -181,8 +167,7 @@ internal static class RulesCommand
     internal static async Task<int> RunShowAsync(
         IGuidelineRepository repository,
         string id,
-        string format,
-        IGuidelineAutomationMetadataProvider? automationMetadataProvider = null)
+        string format)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -213,8 +198,8 @@ internal static class RulesCommand
         }
 
         string output = format.Equals("json", StringComparison.OrdinalIgnoreCase)
-            ? JsonFormatter.FormatGuidelineDetail(guideline, automationMetadataProvider)
-            : ConsoleFormatter.FormatGuidelineDetail(guideline, automationMetadataProvider);
+            ? JsonFormatter.FormatGuidelineDetail(guideline)
+            : ConsoleFormatter.FormatGuidelineDetail(guideline);
 
         Console.Write(output);
         return ExitCodes.Success;

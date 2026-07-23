@@ -33,9 +33,6 @@ public sealed class FolderBasedPipelineAnalysisTests
         diagnostics.Should().Contain(d => Path.GetFileName(d.FilePath).Equals("step-with-controls.yml", StringComparison.OrdinalIgnoreCase));
     }
 
-    /// <summary>Analyses every YAML file below a fixture directory.</summary>
-    /// <param name="fixtureRoot">The fixture directory to scan.</param>
-    /// <returns>All diagnostics produced for the fixture files.</returns>
     private static async Task<IReadOnlyList<Diagnostic>> AnalyseFixtureAsync(string fixtureRoot)
     {
         IReadOnlyList<string> yamlFiles = Directory
@@ -47,7 +44,6 @@ public sealed class FolderBasedPipelineAnalysisTests
 
         ServiceCollection services = new();
         services.AddSingleton<IPipelineParser, YamlPipelineParser>();
-        services.AddSingleton<IPipelineSchemaValidator, YamlPipelineSchemaValidator>();
         services.AddGuidelineRules();
         services.AddSingleton<IPipelineAnalyser, PipelineAnalyser>();
         services.AddSingleton<PipelinePathResolver>();
@@ -67,8 +63,7 @@ public sealed class FolderBasedPipelineAnalysisTests
             string content = await File.ReadAllTextAsync(yamlFile);
             PipelineDocument document = parser.Parse(content, yamlFile);
             AnalysisOptions options = new(
-                IncludedGuidelineIds: [new GuidelineId("ADOG-STEPS-007")],
-                IncludeHeuristics: true);
+                IncludedGuidelineIds: [new GuidelineId("ADOG-STEPS-007")]);
             AnalysisResult result = await analyser.AnalyseAsync(document, options);
             diagnostics.AddRange(result.Diagnostics);
         }
@@ -76,7 +71,6 @@ public sealed class FolderBasedPipelineAnalysisTests
         return diagnostics;
     }
 
-    /// <summary>Provides the single rule needed by the folder-analysis fixtures.</summary>
     private sealed class TestGuidelineRepository : IGuidelineRepository
     {
         public IReadOnlyList<GuidelineDefinition> GetAll() =>

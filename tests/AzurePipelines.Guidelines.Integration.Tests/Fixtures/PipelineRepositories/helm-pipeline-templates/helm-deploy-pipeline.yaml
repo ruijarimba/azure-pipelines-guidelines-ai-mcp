@@ -7,10 +7,6 @@ parameters:
       - default
       - kube-system
 
-variables:
-  - name: deploymentMode
-    value: upgrade
-
 jobs:
   - job: deployChart
     pool:

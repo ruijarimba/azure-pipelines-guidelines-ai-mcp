@@ -170,39 +170,4 @@ public sealed class GuidelineRepositoryTests
         // Assert
         result.Should().BeEmpty();
     }
-
-    [Fact]
-    public void RuleMetadataAttribute_GivenValidValues_ShouldExposeThem()
-    {
-        RuleMetadataAttribute attribute = new("ADOG-STEPS-001", "https://example.test/rule");
-
-        attribute.RuleId.Should().Be("ADOG-STEPS-001");
-        attribute.GuidelineUrl.Should().Be("https://example.test/rule");
-    }
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    public void RuleMetadataAttribute_GivenMissingRuleId_ShouldThrow(string? ruleId)
-    {
-        Action act = () => _ = new RuleMetadataAttribute(ruleId!, "https://example.test");
-
-        act.Should().Throw<ArgumentException>();
-    }
-
-    [Fact]
-    public void RuleMetadataAttribute_GivenNullGuidelineUrl_ShouldThrow()
-    {
-        Action act = () => _ = new RuleMetadataAttribute("ADOG-STEPS-001", null!);
-
-        act.Should().Throw<ArgumentException>();
-    }
-
-    [Fact]
-    public void RuleMetadataAttribute_GivenEmptyGuidelineUrl_ShouldThrow()
-    {
-        Action act = () => _ = new RuleMetadataAttribute("ADOG-STEPS-001", "");
-
-        act.Should().Throw<ArgumentException>();
-    }
 }

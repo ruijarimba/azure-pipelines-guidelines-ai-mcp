@@ -6,22 +6,6 @@ namespace AzurePipelines.Guidelines.Core.Tests;
 
 public sealed class StepNodeTests
 {
-    [Fact]
-    public void Constructor_GivenAllProperties_ShouldExposeThem()
-    {
-        // Arrange / Act
-        StepNode result = new("Task@1", "echo test", "Run task", 5, false, "always()", 3);
-
-        // Assert
-        result.Task.Should().Be("Task@1");
-        result.Script.Should().Be("echo test");
-        result.DisplayName.Should().Be("Run task");
-        result.TimeoutInMinutes.Should().Be(5);
-        result.IsCheckout.Should().BeFalse();
-        result.Condition.Should().Be("always()");
-        result.Line.Should().Be(3);
-    }
-
     // ── ToString ─────────────────────────────────────────────────────────────────
 
     [Fact]

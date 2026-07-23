@@ -1,0 +1,3 @@
+jobs:
+  - steps:
+      - script: echo building

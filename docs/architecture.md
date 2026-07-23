@@ -82,23 +82,7 @@ graph TD
 | `IPipelineParser` | Parses YAML text into a `PipelineDocument` |
 | `IGuidelineRule` | Analyzes a `PipelineDocument` and returns `Diagnostic` instances |
 | `IGuidelineRepository` | Loads and queries `GuidelineDefinition` records from the manifest |
-| `IGuidelineAutomationMetadataProvider` | Describes whether a local rule is enforceable, heuristic, or not automatable |
 | `IPipelineAnalyser` | Orchestrates parsing and rules to produce `AnalysisResult` |
-
-## Automation policy
-
-The Rules layer owns local automation metadata for every implemented guideline. The Analysis layer
-uses that metadata before it evaluates a rule. Enforceable rules use explicit local structural
-policies; they do not call external APIs or consult Microsoft documentation:
-
-- `enforceable` rules run by default.
-- `heuristic` rules run only when the caller opts in.
-- `notAutomatable` rules do not run from a YAML document alone.
-
-`AnalysisResult` reports skipped rules with their status and reason. The CLI exposes heuristic
-opt-in through `--include-heuristics`. MCP analysis tools expose the same choice as
-`includeHeuristics`. The full per-rule rationale is in
-[guideline automation status](guideline-automation.md).
 
 ## MCP tool surface
 
@@ -106,16 +90,11 @@ The server provides two analysis tools:
 
 | Tool | Parameters | Returns |
 | --- | --- | --- |
-| `analyze_pipeline` | `yaml` (required), `guidelineIds` and `includeHeuristics` (optional) | Flat advisory diagnostic list and skipped-rule details |
-| `analyze_pipeline_paths` | `paths` (required), `guidelineIds` and `includeHeuristics` (optional) | Per-file advisory diagnostic list and skipped-rule details |
+| `analyze_pipeline` | `yaml` (required), `guidelineIds` (optional) | Flat diagnostic list |
+| `analyze_pipeline_paths` | `paths` (required), `guidelineIds` (optional) | Per-file diagnostic list |
 
 `guidelineIds` is a comma-separated list of rule IDs (for example, `ADOG-STEPS-001,ADOG-JOBS-006`).
 Omit it to run all rules.
-
-Analysis findings are advisory. Each diagnostic retains its machine-readable `severity` and
-includes the original guideline wording in `guidance`: `do`, `don't`, `avoid`, or `consider`.
-Detected findings are returned as normal tool results; error responses are reserved for invalid
-parameters, parsing failures, path resolution failures, and file I/O failures.
 
 Tool handlers live in `src/AzurePipelines.Guidelines.Mcp/Tools/` and are discovered automatically
 by the MCP host via `WithToolsFromAssembly`.
@@ -157,7 +136,7 @@ see [`glossary.md`](glossary.md).
 ## CLI surface
 
 ```
-adog analyze <path> [<path> ...] [--format console|compact|json|junit|sarif|markdown] [--severity error|warning|info] [--include-heuristics]
+adog analyze <path> [<path> ...] [--format console|compact|json|junit|sarif|markdown] [--severity error|warning|info]
 adog rules list [--category <category>] [--format console|json]
 adog rules show <rule-id> [--format console|json]
 ```

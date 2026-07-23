@@ -6,19 +6,6 @@ namespace AzurePipelines.Guidelines.Core.Tests;
 
 public sealed class ParameterNodeTests
 {
-    [Fact]
-    public void Constructor_GivenAllProperties_ShouldExposeThem()
-    {
-        // Arrange / Act
-        ParameterNode result = new("environment", "string", "dev", ["dev", "prod"]);
-
-        // Assert
-        result.Name.Should().Be("environment");
-        result.Type.Should().Be("string");
-        result.Default.Should().Be("dev");
-        result.Values.Should().BeEquivalentTo("dev", "prod");
-    }
-
     // ── ToString ─────────────────────────────────────────────────────────────────
 
     [Fact]

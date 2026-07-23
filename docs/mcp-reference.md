@@ -15,7 +15,6 @@ The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines cod
   - [Cline](#cline)
 - [Debug mode with Visual Studio](#debug-mode-with-visual-studio)
 - [Available tools](#available-tools)
-  - [Analysis response contract](#analysis-response-contract)
 - [Usage examples](#usage-examples)
 - [Troubleshooting](#troubleshooting)
 - [See also](#see-also)
@@ -84,101 +83,6 @@ docker run -i --rm adog-mcp:local
 ```
 
 ## Configuration
-
-MCP analysis defaults are configured when the server process starts. They apply to both
-`analyze_pipeline` and `analyze_pipeline_paths` when the corresponding tool argument is omitted.
-An explicit argument in an MCP tool call takes precedence over the server default.
-
-| Analysis option | Command-line option | Environment variable | Default | Accepted values |
-| --- | --- | --- | --- | --- |
-| Guideline filter | `--guideline-ids <ids>` | `ADOG_MCP_GUIDELINE_IDS` | all guidelines | Comma-separated guideline IDs |
-| Category filter | `--category <categories>` | `ADOG_MCP_CATEGORY` | all categories | Comma-separated `general`, `jobs`, `parameters`, `pipelines`, `stages`, `steps`, or `variables` |
-| Response format | `--format <format>` | `ADOG_MCP_FORMAT` | `json` | `json`, `compact`, or `markdown` |
-| Remediation guidance | `--include-guidance [true\|false]` | `ADOG_MCP_INCLUDE_GUIDANCE` | `false` | `true`/`false`, `1`/`0`, `yes`/`no`; Markdown includes guidance automatically |
-| Heuristic rules | `--include-heuristics [true\|false]` | `ADOG_MCP_INCLUDE_HEURISTICS` | `false` | `true`/`false`, `1`/`0`, `yes`/`no` |
-
-The effective-value precedence is:
-
-1. Explicit MCP tool-call argument
-2. Server command-line option
-3. Server environment variable
-4. Built-in default
-
-The server always evaluates enforceable rules and never evaluates `notAutomatable` rules.
-Set `includeHeuristics` to `true` in a tool call, or configure the server default, to include
-optional heuristic findings. Invalid startup values prevent the server from starting with a
-configuration error.
-
-### Complete server configuration example
-
-The following VS Code stdio configuration shows every analysis option. The `env` values are
-equivalent to the command-line arguments shown in the `args` array; configure each option in one
-place rather than setting both forms.
-
-```json
-{
-  "servers": {
-    "azure-pipelines-guidelines": {
-      "type": "stdio",
-      "command": "dotnet",
-      "args": [
-        "run",
-        "--project",
-        "/absolute/path/to/azure-pipelines-guidelines-ai-mcp/tools/AzurePipelines.Guidelines.Mcp.Host",
-        "--",
-        "--guideline-ids",
-        "ADOG-STEPS-001,ADOG-JOBS-006",
-        "--category",
-        "steps,jobs",
-        "--format",
-        "markdown",
-        "--include-guidance",
-        "true",
-        "--include-heuristics",
-        "true"
-      ],
-      "env": {
-        "ADOG_MCP_GUIDELINE_IDS": "ADOG-STEPS-001,ADOG-JOBS-006",
-        "ADOG_MCP_CATEGORY": "steps,jobs",
-        "ADOG_MCP_FORMAT": "markdown",
-        "ADOG_MCP_INCLUDE_GUIDANCE": "true",
-        "ADOG_MCP_INCLUDE_HEURISTICS": "true"
-      }
-    }
-  }
-}
-```
-
-To use the built-in defaults instead, omit the analysis arguments and environment variables:
-all guideline IDs and categories, `json` format, and both boolean options set to `false`.
-
-For an HTTP/SSE server, these settings belong to the process that starts the server. The VS Code
-client configuration only selects the endpoint:
-
-```json
-{
-  "servers": {
-    "azure-pipelines-guidelines": {
-      "type": "http",
-      "url": "http://localhost:5050/mcp"
-    }
-  }
-}
-```
-
-Start that server with command-line defaults:
-
-```powershell
-dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host -- --transport sse --urls "http://localhost:5050" --include-heuristics true --format markdown
-```
-
-Or with environment defaults:
-
-```powershell
-$env:ADOG_MCP_INCLUDE_HEURISTICS = "true"
-$env:ADOG_MCP_FORMAT = "markdown"
-dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host -- --transport sse --urls "http://localhost:5050"
-```
 
 ### Claude Desktop
 
@@ -286,53 +190,6 @@ The MCP server exposes six tools in the current implementation:
 | `search_guidelines` | Search guidelines by text |
 | `list_categories` | List the supported categories |
 
-### Analysis response contract
-
-Analysis findings are advisory. The MCP server returns detected findings as normal tool results;
-it does not turn a guideline finding into a tool failure. Each diagnostic includes:
-
-- `severity` — the diagnostic level used for filtering and machine-readable grouping:
-  `error`, `warning`, or `info`
-- `guidance` — the original wording from the guideline: `do`, `don't`, `avoid`, or `consider`
-- `ruleId`, `message`, and an optional `line` number
-
-The `guidance` value describes the tone of the guideline. It does not use stronger wording such as
-"required" or "prohibited". Operational problems, such as invalid parameters, YAML parsing
-failures, missing paths, or file read failures, are returned separately as error responses.
-
-For example, an inline analysis can return a diagnostic like this:
-
-```json
-{
-  "ruleId": "ADOG-STEPS-001",
-  "severity": "error",
-  "guidance": "do",
-  "message": "Use a template for repeated steps.",
-  "line": 12
-}
-```
-
-The `severity` and `guidance` fields serve different purposes. A response can contain findings
-with different advisory labels:
-
-```json
-[
-  { "ruleId": "ADOG-STEPS-001", "severity": "error", "guidance": "do" },
-  { "ruleId": "ADOG-VARIABLES-003", "severity": "error", "guidance": "don't" },
-  { "ruleId": "ADOG-JOBS-006", "severity": "warning", "guidance": "avoid" },
-  { "ruleId": "ADOG-STEPS-004", "severity": "info", "guidance": "consider" }
-]
-```
-
-For `analyze_pipeline_paths` with `format: "markdown"`, the rule summary includes the same
-advisory wording:
-
-```text
-| Rule | Title | Count | Advisory | Guidance |
-| --- | --- | ---: | --- | --- |
-| ADOG-JOBS-006 | Set job timeouts | 1 | avoid | Add a timeout to long-running jobs. |
-```
-
 ### `analyze_pipeline`
 
 Analyzes inline Azure Pipelines YAML content.
@@ -341,28 +198,9 @@ Analyzes inline Azure Pipelines YAML content.
 - `yaml` (string, required) — The pipeline YAML to analyze
 - `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check. If omitted, all rules are checked.
 - `category` (string, optional) — Category filter for analysis options
-- `format` (string, optional) — `json` (default) for diagnostics and rule summaries or `compact`
-  for findings only
-- `includeGuidance` (boolean, optional) — Include the guideline's remediation summary in the
-  `rules` array. Defaults to `false`.
-- `includeHeuristics` (boolean, optional) — Include heuristic rules. Defaults to `false` because
-  these findings can be noisy.
 
 **Returns:**
-- `diagnostics`: line-level findings with rule ID, severity, advisory `guidance`, message, and
-  optional line number
-- `rules`: one compact summary per finding, with its title, advisory label, optional remediation
-  `guidance`, and reference URLs
-- `skippedGuidelines`: rules not evaluated by the automation policy, with their ID, automation
-  status, and reason
-- Render returned reference URLs as Markdown links; call `get_guideline` for full descriptions,
-  rationale, and before/after fix examples
-
-The diagnostic `guidance` label is always included when the guideline is known. The `rules[].guidance`
-value is different: it is an optional remediation summary controlled by `includeGuidance`.
-The analyzer runs enforceable rules by default. It always skips not-automatable rules. Set
-`includeHeuristics` to `true` for optional advisory findings. See
-[guideline automation status](guideline-automation.md) for every rule's status and reason.
+- Structured analysis result with diagnostics and rule metadata
 
 ### `analyze_pipeline_paths`
 
@@ -372,28 +210,9 @@ Analyzes one or more pipeline files or directories on disk.
 - `paths` (array of strings, required) — File paths or directory paths to analyze
 - `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check
 - `category` (string, optional) — Category filter for analysis options
-- `format` (string, optional) — `json` (default) for structured output, `compact` for findings
-  only, or `markdown` for a compact user-facing report
-- `includeGuidance` (boolean, optional) — Include remediation summaries in JSON rule details.
-  Defaults to `false`; Markdown includes them automatically.
-- `includeHeuristics` (boolean, optional) — Include heuristic rules. Defaults to `false` because
-  these findings can be noisy.
 
 **Returns:**
-- With `format: json`, `files` contains per-file diagnostics with advisory labels and `rules`
-  contains compact, deduplicated rule summaries with advisory labels, optional remediation
-  guidance, reference URLs, and skipped-guideline details.
-- With `format: markdown`, a compact report contains severity counts, linked rule IDs, advisory
-  labels, remediation guidance, and per-file counts. A rule ID links to its first valid HTTP(S)
-  manifest reference; IDs remain
-  unlinked when the manifest has no valid reference URL.
-- Call `get_guideline` for full remediation details when needed.
-
-For either analysis tool, `format: compact` returns only the findings needed for a low-token review.
-Inline analysis returns a `findings` array; path analysis returns `files`, each with a `file` path and
-`findings` array. Compact findings contain `ruleId`, `severity`, advisory `guidance`, `message`, and
-an optional `line`; path findings also include the source `file`. Compact responses omit `rules` and
-remediation summaries. Use the default JSON response or `get_guideline` when rule metadata is needed.
+- Per-file analysis results with any found diagnostics
 
 #### File-access boundary
 
@@ -472,8 +291,8 @@ In Visual Studio, set the run/debug profile to **SSE** before you start debuggin
 3. Select **SSE**.
 4. Press **F5** (or choose **Debug &gt; Start Debugging**).
 
-The server defaults to `http://localhost:5050/mcp`. The process stays alive as long as the
-debugger is attached, and breakpoints in the host and library projects will be hit.
+The server starts on `http://localhost:5050/mcp` by default. The process stays alive as long as
+the debugger is attached, and breakpoints in the host and library projects will be hit.
 
 To start from the command line instead of Visual Studio:
 
@@ -511,9 +330,10 @@ server again.
   execution mode for day-to-day clients, Docker images, and CI.
 - The server binds to `localhost` by default. It is not intended to be exposed to other
   machines.
-- If port `5050` is in use, pass `--urls "http://localhost:<port>"` when starting from the
-  command line or set `ASPNETCORE_URLS` to the replacement URL. Update the `url` value in VS
-  Code's `mcp.json` to match.
+- If port `5050` is in use, change the **SSE** profile in
+  `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`, or pass
+  `--urls "http://localhost:<port>"` when starting from the command line. If you change the
+  port, update the `url` value in VS Code's `mcp.json` to match.
 - You can also switch transports with the environment variable `MCP_TRANSPORT=sse`, but the
   `--transport` command-line argument takes priority.
 

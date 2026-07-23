@@ -40,10 +40,6 @@ graph TD
 Each `IGuidelineRule` implementation maps to one `ADOG-{CATEGORY}-{NNN}` rule from the manifest.
 The rule examines the parsed AST and returns `Diagnostic` instances for each violation it finds.
 
-Schema validation is a separate concern from guideline analysis. See the
-[Azure Pipelines YAML schema guide](azure-pipelines-schema.md) for the official Microsoft Learn
-reference, planned local validation scope, and optional Microsoft Learn MCP workflow.
-
 ## How the MCP server handles a request
 
 When an AI assistant calls the MCP server, the following steps happen:

@@ -24,16 +24,12 @@ public static class GuidelinesMcpServiceCollectionExtensions
     /// Optional override for the guideline manifest URL. When <see langword="null"/>,
     /// <see cref="HttpGuidelineLoader.DefaultManifestUrl"/> is used.
     /// </param>
-        /// <param name="analysisDefaults">Optional defaults for MCP analysis tool requests.</param>
     /// <returns>An <see cref="IMcpServerBuilder"/> for configuring the server transport.</returns>
     public static IMcpServerBuilder AddGuidelinesMcp(
         this IServiceCollection services,
-        Uri? manifestUrl = null,
-        McpAnalysisDefaults? analysisDefaults = null)
+        Uri? manifestUrl = null)
     {
         ArgumentNullException.ThrowIfNull(services);
-
-        services.AddSingleton(analysisDefaults ?? new McpAnalysisDefaults());
 
         // Register the parser, all guideline rules, and the analysis engine.
         services.AddGuidelinesAnalysis();
@@ -63,9 +59,7 @@ public static class GuidelinesMcpServiceCollectionExtensions
             {
                 // Synchronous wait is acceptable here: this factory runs once during
                 // service provider build, before any MCP requests are processed.
-                guidelines = CanonicalizeReferences(
-                    loader.LoadAsync().GetAwaiter().GetResult(),
-                    sp.GetRequiredService<IGuidelineMetadataProvider>());
+                guidelines = loader.LoadAsync().GetAwaiter().GetResult();
                 LoaderLog.GuidelinesLoaded(logger, guidelines.Count);
             }
             catch (HttpRequestException ex)
@@ -78,6 +72,7 @@ public static class GuidelinesMcpServiceCollectionExtensions
                 LoaderLog.LoadFailed(logger, ex);
                 guidelines = [];
             }
+
             return new GuidelineRepository(guidelines);
         });
 
@@ -98,41 +93,21 @@ public static class GuidelinesMcpServiceCollectionExtensions
 
         return builder;
     }
+}
 
-    /// <summary>
-    /// Places canonical rule metadata URLs before distinct manifest references.
-    /// </summary>
-    /// <param name="guidelines">The definitions loaded from the manifest.</param>
-    /// <param name="metadataProvider">The provider of canonical rule URLs.</param>
-    /// <returns>Definitions whose references have canonical URLs first.</returns>
-    internal static IReadOnlyList<GuidelineDefinition> CanonicalizeReferences(
-        IReadOnlyList<GuidelineDefinition> guidelines,
-        IGuidelineMetadataProvider metadataProvider)
-    {
-        List<GuidelineDefinition> canonicalized = new(guidelines.Count);
+/// <summary>High-performance logger messages for the guidelines loader.</summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+internal static partial class LoaderLog
+{
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Information,
+        Message = "Loaded {Count} guideline definitions from manifest.")]
+    internal static partial void GuidelinesLoaded(ILogger logger, int count);
 
-        foreach (GuidelineDefinition guideline in guidelines)
-        {
-            string? canonicalReference = metadataProvider.GetCanonicalReference(guideline.Id);
-            if (string.IsNullOrWhiteSpace(canonicalReference))
-            {
-                canonicalized.Add(guideline);
-                continue;
-            }
-
-            List<string> references = [canonicalReference];
-            foreach (string reference in guideline.References)
-            {
-                if (!string.IsNullOrWhiteSpace(reference) &&
-                    !references.Contains(reference, StringComparer.OrdinalIgnoreCase))
-                {
-                    references.Add(reference);
-                }
-            }
-
-            canonicalized.Add(guideline with { References = references });
-        }
-
-        return canonicalized;
-    }
+    [LoggerMessage(
+        EventId = 2,
+        Level = LogLevel.Error,
+        Message = "Failed to load guideline manifest. The repository will be empty.")]
+    internal static partial void LoadFailed(ILogger logger, Exception exception);
 }

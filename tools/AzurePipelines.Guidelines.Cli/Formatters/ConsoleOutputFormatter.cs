@@ -12,17 +12,15 @@ internal sealed class ConsoleOutputFormatter : IOutputFormatter
     private const string _warningIcon = "⚠️ ";
     private const string _infoIcon = "ℹ️ ";
 
-    // ANSI color codes keep terminal formatting separate from report content.
+    // ANSI color codes
     private const string _redColor = "\x1b[31m";
     private const string _yellowColor = "\x1b[33m";
     private const string _cyanColor = "\x1b[36m";
     private const string _resetColor = "\x1b[0m";
     private const string _boldColor = "\x1b[1m";
 
-    /// <inheritdoc/>
     public string FormatName => "console";
 
-    /// <inheritdoc/>
     public string Format(IReadOnlyList<AnalysisResult> results, bool useColor = true)
     {
         ArgumentNullException.ThrowIfNull(results);
@@ -34,13 +32,15 @@ internal sealed class ConsoleOutputFormatter : IOutputFormatter
 
         StringBuilder sb = new();
 
+        // Group by file and display diagnostics
         foreach (AnalysisResult result in results)
         {
             if (result.Diagnostics.Count == 0)
             {
-                continue;
+                continue; // Skip clean files in detailed output
             }
 
+            // File header
             if (useColor)
             {
                 sb.Append(_boldColor);
@@ -51,14 +51,16 @@ internal sealed class ConsoleOutputFormatter : IOutputFormatter
                 sb.Append(_resetColor);
             }
 
+            // Diagnostics for this file
             foreach (Diagnostic diagnostic in result.Diagnostics)
             {
                 FormatDiagnostic(sb, diagnostic, useColor);
             }
 
-            sb.AppendLine();
+            sb.AppendLine(); // Blank line between files
         }
 
+        // Summary statistics
         FormatSummary(sb, results, useColor);
 
         return sb.ToString();
@@ -66,6 +68,7 @@ internal sealed class ConsoleOutputFormatter : IOutputFormatter
 
     private static void FormatDiagnostic(StringBuilder sb, Diagnostic diagnostic, bool useColor)
     {
+        // Severity icon and color
         string icon;
         string? color = null;
 
@@ -85,6 +88,7 @@ internal sealed class ConsoleOutputFormatter : IOutputFormatter
                 break;
         }
 
+        // Apply color if enabled
         if (color is not null)
         {
             sb.Append(color);
@@ -109,6 +113,7 @@ internal sealed class ConsoleOutputFormatter : IOutputFormatter
 
         sb.Append(diagnostic.Message);
 
+        // Reset color if enabled
         if (color is not null)
         {
             sb.Append(_resetColor);

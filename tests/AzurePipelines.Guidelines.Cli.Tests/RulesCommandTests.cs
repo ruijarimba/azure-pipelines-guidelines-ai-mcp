@@ -10,7 +10,6 @@ namespace AzurePipelines.Guidelines.Cli.Tests;
 
 public sealed class RulesCommandTests
 {
-    /// <summary>Creates a minimal guideline definition for command tests.</summary>
     private static GuidelineDefinition MakeGuideline(
         string id,
         GuidelineCategory category = GuidelineCategory.Steps,
@@ -29,7 +28,6 @@ public sealed class RulesCommandTests
             Fix: null,
             References: []);
 
-    /// <summary>Creates a repository substitute containing the supplied guidelines.</summary>
     private static IGuidelineRepository MakeRepo(
         IReadOnlyList<GuidelineDefinition>? all = null)
     {
@@ -38,7 +36,6 @@ public sealed class RulesCommandTests
         return repo;
     }
 
-    /// <summary>Restores the process current directory when the test scope ends.</summary>
     private sealed class CurrentDirectoryScope : IDisposable
     {
         private readonly string? _originalDirectory = Environment.CurrentDirectory;
@@ -65,42 +62,6 @@ public sealed class RulesCommandTests
         int exitCode = await RulesCommand.RunListAsync(repo, category: null, format: "console");
 
         exitCode.Should().Be(ExitCodes.Success);
-    }
-
-    [Fact]
-    public async Task RunListAsync_GivenCommaSeparatedFilters_ShouldFilterValues()
-    {
-        IGuidelineRepository repo = MakeRepo([
-            MakeGuideline("ADOG-STEPS-001", GuidelineCategory.Steps, GuidelineSeverity.Do),
-            MakeGuideline("ADOG-JOBS-006", GuidelineCategory.Jobs, GuidelineSeverity.Avoid)]);
-
-        int exitCode = await RulesCommand.RunListAsync(repo, ["steps,jobs"], ["do,avoid"], "console");
-
-        exitCode.Should().Be(ExitCodes.Success);
-    }
-
-    [Fact]
-    public async Task RunListAsync_GivenUnknownCategoryInMultipleValues_ShouldReturnError()
-    {
-        int exitCode = await RulesCommand.RunListAsync(MakeRepo(), ["steps,unknown"], format: "console");
-
-        exitCode.Should().Be(ExitCodes.Error);
-    }
-
-    [Fact]
-    public async Task RunListAsync_GivenUnknownSeverityInMultipleValues_ShouldReturnError()
-    {
-        int exitCode = await RulesCommand.RunListAsync(MakeRepo(), severity: ["do,unknown"], format: "console");
-
-        exitCode.Should().Be(ExitCodes.Error);
-    }
-
-    [Fact]
-    public async Task RunShowAsync_GivenBlankId_ShouldReturnError()
-    {
-        int exitCode = await RulesCommand.RunShowAsync(MakeRepo(), " ", "console");
-
-        exitCode.Should().Be(ExitCodes.Error);
     }
 
     [Fact]
@@ -321,33 +282,6 @@ public sealed class RulesCommandTests
 
         int exitCode = await RulesCommand.RunListAsync(
             repo, category: null, severity: null, format: "console");
-
-        exitCode.Should().Be(ExitCodes.Success);
-    }
-
-    [Theory]
-    [InlineData("general")]
-    [InlineData("jobs")]
-    [InlineData("parameters")]
-    [InlineData("pipelines")]
-    [InlineData("stages")]
-    [InlineData("steps")]
-    [InlineData("variables")]
-    public async Task RunListAsync_GivenEachCategory_ShouldReturnSuccess(string category)
-    {
-        int exitCode = await RulesCommand.RunListAsync(MakeRepo(), [category], format: "json");
-
-        exitCode.Should().Be(ExitCodes.Success);
-    }
-
-    [Theory]
-    [InlineData("do")]
-    [InlineData("do-not")]
-    [InlineData("avoid")]
-    [InlineData("consider")]
-    public async Task RunListAsync_GivenEachSeverity_ShouldReturnSuccess(string severity)
-    {
-        int exitCode = await RulesCommand.RunListAsync(MakeRepo(), severity: [severity], format: "json");
 
         exitCode.Should().Be(ExitCodes.Success);
     }

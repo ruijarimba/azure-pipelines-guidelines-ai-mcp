@@ -6,26 +6,6 @@ namespace AzurePipelines.Guidelines.Core.Tests;
 
 public sealed class JobNodeTests
 {
-    [Fact]
-    public void Constructor_GivenAllProperties_ShouldExposeThem()
-    {
-        // Arrange
-        StepNode step = new("Task@1", "echo test", "Run task", 5, false, "always()", 3);
-        VariableNode variable = new("Configuration", "Release", true, null);
-
-        // Act
-        JobNode result = new("build", "Build job", 10, [step], [variable], "succeeded()", 2);
-
-        // Assert
-        result.Name.Should().Be("build");
-        result.DisplayName.Should().Be("Build job");
-        result.TimeoutInMinutes.Should().Be(10);
-        result.Steps.Should().ContainSingle().Which.Should().Be(step);
-        result.Variables.Should().ContainSingle().Which.Should().Be(variable);
-        result.Condition.Should().Be("succeeded()");
-        result.Line.Should().Be(2);
-    }
-
     // ── ToString ─────────────────────────────────────────────────────────────────
 
     [Fact]

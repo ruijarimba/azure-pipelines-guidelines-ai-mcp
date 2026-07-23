@@ -25,21 +25,6 @@ Your AI can analyze pipeline YAML against current guidelines and return precise,
 
 **→ See [MCP Server Reference](docs/mcp-reference.md) for installation, configuration, and usage.**
 
-### Sample prompts
-
-Ask your AI client:
-
-> Analyze this Azure Pipelines YAML against the available guidelines. Identify any issues, explain
-> what each issue means, and suggest a concise fix. Do not modify the file.
-
-Or:
-
-> Analyze all Azure Pipelines YAML files under `<directory>`. Summarize the findings and point out
-> repeated issues across files. Do not modify the files.
-
-See the [MCP sample prompts](docs/mcp-prompts.md) for more examples, including template reviews,
-rule exclusions, category filters, and low-token analysis.
-
 ---
 
 ## What does it analyze?
@@ -59,10 +44,6 @@ form `ADOG-{CATEGORY}-{NNN}`.
 
 For the full rule list and definitions, see the
 [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
-Not every guideline can be automatically enforced from a single YAML document. Some require
-repository-wide context, deployment intent, task semantics, or human judgment. For local analyzer
-coverage and the reason each rule is enforceable, heuristic, or not automatable, see the
-[guideline automation status](docs/guideline-automation.md).
 
 ## Prerequisites
 
@@ -137,11 +118,8 @@ Configure your AI client to use Docker:
 
 ## Project documentation
 
-- **[Azure Pipelines YAML schema guide](docs/azure-pipelines-schema.md)** — official schema reference,
-  local validation scope, and Microsoft Learn MCP guidance
 - **[Architecture guide](docs/architecture.md)** — dependency graph, layer responsibilities, and extension points
 - **[How it works](docs/how-it-works.md)** — analysis pipeline and two-repository model
-- **[Guideline automation status](docs/guideline-automation.md)** — local enforcement status and rationale for every implemented rule
 - **[Contributing guide](CONTRIBUTING.md)** — build instructions and how to add rules
 
 ## Repository structure
@@ -153,7 +131,7 @@ tools/     Executable entry points
            Cli (adog) · Mcp.Host (adog-mcp)
 tests/     Unit test projects, one per src/ library
 docs/      Architecture, decisions, glossary, and vision documents
-.github/   AI agent instructions and prompt files
+.github/   AI agent instructions, prompt files, and CI workflows
 ```
 
 ## Disclaimer

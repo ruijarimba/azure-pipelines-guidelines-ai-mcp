@@ -22,13 +22,13 @@
     <None Include="Fixtures\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Fixtures\PipelineValidationMode\**\*" />
+    <None Include="Fixtures\ServiceConnectionAuth\**\*" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="AGENTS.md" />
     <None Include="RuleMetadataTests.cs" />
-    <None Include="RuleMetadataProviderTests.cs" />
-    <None Include="RuleCoverageInventoryTests.cs" />
   </ItemGroup>
 
 </Project>

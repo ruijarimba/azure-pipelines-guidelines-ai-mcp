@@ -25,7 +25,6 @@ public static class GuidelinesAnalysisServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
 
         services.AddSingleton<IPipelineParser, YamlPipelineParser>();
-        services.AddSingleton<IPipelineSchemaValidator, YamlPipelineSchemaValidator>();
         services.AddGuidelineRules();
         services.AddSingleton<IPipelineAnalyser, PipelineAnalyser>();
         services.AddSingleton<PipelinePathResolver>();
