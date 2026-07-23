@@ -51,13 +51,19 @@ the results to guide review rather than treating them as a binary pass/fail deci
 > Omit repeated rule descriptions and remediation details unless they are needed to understand a
 > finding.
 
-## 9. Prioritize findings for remediation
+## 9. Include heuristic rules
+
+> Analyze this pipeline using the server's configured defaults. Include heuristic guideline findings
+> in addition to enforceable findings, and explain which findings are heuristic. Do not modify the
+> file. Set `includeHeuristics: true` when calling the analysis tool if the server default is false.
+
+## 10. Prioritize findings for remediation
 
 > Analyze this pipeline and prioritize the findings for review. Preserve each guideline's original
 > advisory label (`do`, `don't`, `avoid`, or `consider`), group repeated findings by rule, and
 > suggest the smallest practical fixes first.
 
-## 10. Review a proposed change
+## 11. Review a proposed change
 
 > Analyze this Azure Pipelines change for guideline regressions. Focus on the added or modified
 > lines, compare the result with the previous version if provided, and report only actionable

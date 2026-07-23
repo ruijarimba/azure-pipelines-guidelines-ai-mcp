@@ -24,12 +24,16 @@ public static class GuidelinesMcpServiceCollectionExtensions
     /// Optional override for the guideline manifest URL. When <see langword="null"/>,
     /// <see cref="HttpGuidelineLoader.DefaultManifestUrl"/> is used.
     /// </param>
+        /// <param name="analysisDefaults">Optional defaults for MCP analysis tool requests.</param>
     /// <returns>An <see cref="IMcpServerBuilder"/> for configuring the server transport.</returns>
     public static IMcpServerBuilder AddGuidelinesMcp(
         this IServiceCollection services,
-        Uri? manifestUrl = null)
+        Uri? manifestUrl = null,
+        McpAnalysisDefaults? analysisDefaults = null)
     {
         ArgumentNullException.ThrowIfNull(services);
+
+        services.AddSingleton(analysisDefaults ?? new McpAnalysisDefaults());
 
         // Register the parser, all guideline rules, and the analysis engine.
         services.AddGuidelinesAnalysis();

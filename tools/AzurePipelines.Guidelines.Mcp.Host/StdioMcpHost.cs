@@ -24,7 +24,9 @@ internal static class StdioMcpHost
         HostApplicationBuilder builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder(args);
         ConfigureLogging(builder.Logging);
 
-        builder.Services.AddGuidelinesMcp().WithStdioServerTransport();
+        builder.Services.AddGuidelinesMcp(
+            analysisDefaults: McpAnalysisDefaults.FromConfiguration(args))
+            .WithStdioServerTransport();
 
         IHost host = builder.Build();
 

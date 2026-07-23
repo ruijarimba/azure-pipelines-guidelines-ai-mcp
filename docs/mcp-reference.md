@@ -85,6 +85,101 @@ docker run -i --rm adog-mcp:local
 
 ## Configuration
 
+MCP analysis defaults are configured when the server process starts. They apply to both
+`analyze_pipeline` and `analyze_pipeline_paths` when the corresponding tool argument is omitted.
+An explicit argument in an MCP tool call takes precedence over the server default.
+
+| Analysis option | Command-line option | Environment variable | Default | Accepted values |
+| --- | --- | --- | --- | --- |
+| Guideline filter | `--guideline-ids <ids>` | `ADOG_MCP_GUIDELINE_IDS` | all guidelines | Comma-separated guideline IDs |
+| Category filter | `--category <categories>` | `ADOG_MCP_CATEGORY` | all categories | Comma-separated `general`, `jobs`, `parameters`, `pipelines`, `stages`, `steps`, or `variables` |
+| Response format | `--format <format>` | `ADOG_MCP_FORMAT` | `json` | `json`, `compact`, or `markdown` |
+| Remediation guidance | `--include-guidance [true\|false]` | `ADOG_MCP_INCLUDE_GUIDANCE` | `false` | `true`/`false`, `1`/`0`, `yes`/`no`; Markdown includes guidance automatically |
+| Heuristic rules | `--include-heuristics [true\|false]` | `ADOG_MCP_INCLUDE_HEURISTICS` | `false` | `true`/`false`, `1`/`0`, `yes`/`no` |
+
+The effective-value precedence is:
+
+1. Explicit MCP tool-call argument
+2. Server command-line option
+3. Server environment variable
+4. Built-in default
+
+The server always evaluates enforceable rules and never evaluates `notAutomatable` rules.
+Set `includeHeuristics` to `true` in a tool call, or configure the server default, to include
+optional heuristic findings. Invalid startup values prevent the server from starting with a
+configuration error.
+
+### Complete server configuration example
+
+The following VS Code stdio configuration shows every analysis option. The `env` values are
+equivalent to the command-line arguments shown in the `args` array; configure each option in one
+place rather than setting both forms.
+
+```json
+{
+  "servers": {
+    "azure-pipelines-guidelines": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "/absolute/path/to/azure-pipelines-guidelines-ai-mcp/tools/AzurePipelines.Guidelines.Mcp.Host",
+        "--",
+        "--guideline-ids",
+        "ADOG-STEPS-001,ADOG-JOBS-006",
+        "--category",
+        "steps,jobs",
+        "--format",
+        "markdown",
+        "--include-guidance",
+        "true",
+        "--include-heuristics",
+        "true"
+      ],
+      "env": {
+        "ADOG_MCP_GUIDELINE_IDS": "ADOG-STEPS-001,ADOG-JOBS-006",
+        "ADOG_MCP_CATEGORY": "steps,jobs",
+        "ADOG_MCP_FORMAT": "markdown",
+        "ADOG_MCP_INCLUDE_GUIDANCE": "true",
+        "ADOG_MCP_INCLUDE_HEURISTICS": "true"
+      }
+    }
+  }
+}
+```
+
+To use the built-in defaults instead, omit the analysis arguments and environment variables:
+all guideline IDs and categories, `json` format, and both boolean options set to `false`.
+
+For an HTTP/SSE server, these settings belong to the process that starts the server. The VS Code
+client configuration only selects the endpoint:
+
+```json
+{
+  "servers": {
+    "azure-pipelines-guidelines": {
+      "type": "http",
+      "url": "http://localhost:5050/mcp"
+    }
+  }
+}
+```
+
+Start that server with command-line defaults:
+
+```powershell
+dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host -- --transport sse --urls "http://localhost:5050" --include-heuristics true --format markdown
+```
+
+Or with environment defaults:
+
+```powershell
+$env:ADOG_MCP_INCLUDE_HEURISTICS = "true"
+$env:ADOG_MCP_FORMAT = "markdown"
+dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host -- --transport sse --urls "http://localhost:5050"
+```
+
 ### Claude Desktop
 
 Edit your Claude Desktop configuration file:

@@ -16,12 +16,14 @@ public sealed class PipelineAnalysisToolsTests
         IPipelineParser? parser = null,
         IPipelineAnalyser? analyser = null,
         PipelinePathResolver? pathResolver = null,
-        IGuidelineRepository? repository = null) =>
+        IGuidelineRepository? repository = null,
+        McpAnalysisDefaults? defaults = null) =>
         new(
             parser ?? Substitute.For<IPipelineParser>(),
             analyser ?? Substitute.For<IPipelineAnalyser>(),
             pathResolver ?? new PipelinePathResolver(),
-            repository ?? new GuidelineRepository([]));
+            repository ?? new GuidelineRepository([]),
+            defaults ?? new McpAnalysisDefaults());
 
     private static T Deserialize<T>(string json) =>
         JsonSerializer.Deserialize<T>(json)!;
@@ -429,6 +431,54 @@ public sealed class PipelineAnalysisToolsTests
             Arg.Is<AnalysisOptions>(o =>
                 o.IncludedGuidelineIds != null &&
                 o.IncludedGuidelineIds.Count == 2),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task AnalyzePipelineAsync_GivenServerDefaults_ShouldUseThemWhenRequestOmitsValues()
+    {
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+            .Returns(MakeResult());
+        PipelineAnalysisTools sut = MakeSut(
+            parser,
+            analyser,
+            defaults: new McpAnalysisDefaults(
+                GuidelineIds: "ADOG-STEPS-001",
+                Category: "steps",
+                IncludeHeuristics: true));
+
+        await sut.AnalyzePipelineAsync("steps: []");
+
+        await analyser.Received(1).AnalyseAsync(
+            Arg.Any<PipelineDocument>(),
+            Arg.Is<AnalysisOptions>(options =>
+                options.IncludeHeuristics &&
+                options.IncludedCategories!.Count == 1 &&
+                options.IncludedGuidelineIds!.Count == 1),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task AnalyzePipelineAsync_GivenExplicitRequestOverride_ShouldIgnoreServerDefault()
+    {
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+            .Returns(MakeResult());
+        PipelineAnalysisTools sut = MakeSut(
+            parser,
+            analyser,
+            defaults: new McpAnalysisDefaults(IncludeHeuristics: true));
+
+        await sut.AnalyzePipelineAsync("steps: []", includeHeuristics: false);
+
+        await analyser.Received(1).AnalyseAsync(
+            Arg.Any<PipelineDocument>(),
+            Arg.Is<AnalysisOptions>(options => !options.IncludeHeuristics),
             Arg.Any<CancellationToken>());
     }
 

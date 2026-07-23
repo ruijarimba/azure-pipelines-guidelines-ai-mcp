@@ -41,7 +41,9 @@ internal static class SseMcpHost
         builder.WebHost.UseUrls(configuredUrl);
         ConfigureLogging(builder.Logging);
 
-        builder.Services.AddGuidelinesMcp().WithHttpTransport();
+        builder.Services.AddGuidelinesMcp(
+            analysisDefaults: McpAnalysisDefaults.FromConfiguration(args))
+            .WithHttpTransport();
 
         WebApplication app = builder.Build();
         app.MapMcp("/mcp");

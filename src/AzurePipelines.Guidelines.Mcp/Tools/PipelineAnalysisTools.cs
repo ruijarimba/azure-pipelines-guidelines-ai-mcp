@@ -19,7 +19,8 @@ internal sealed class PipelineAnalysisTools(
     IPipelineParser parser,
     IPipelineAnalyser analyser,
     PipelinePathResolver pathResolver,
-    IGuidelineRepository repository)
+    IGuidelineRepository repository,
+    McpAnalysisDefaults defaults)
 {
     // Compact JSON with camel-case property names. Null values are omitted so AI clients
     // receive smaller responses and the shared contract stays predictable.
@@ -57,17 +58,23 @@ internal sealed class PipelineAnalysisTools(
             "Omit or pass null to include all categories.")]
         string? category = null,
         [Description("Output format: json (default) for diagnostics and rule summaries, or compact for findings only.")]
-        string? format = "json",
+        string? format = null,
         [Description("Include rule guidance in the response. Defaults to false; use get_guideline for full remediation details.")]
-        bool includeGuidance = false,
+        bool? includeGuidance = null,
         [Description("Include advisory heuristic rules. Defaults to false because heuristic findings can be noisy.")]
-        bool includeHeuristics = false)
+        bool? includeHeuristics = null)
     {
         if (string.IsNullOrWhiteSpace(yaml))
         {
             return JsonSerializer.Serialize(
                 new ErrorResponse("Parameter 'yaml' is required."), _jsonOptions);
         }
+
+        format ??= defaults.Format;
+        includeGuidance ??= defaults.IncludeGuidance;
+        includeHeuristics ??= defaults.IncludeHeuristics;
+        guidelineIds ??= defaults.GuidelineIds;
+        category ??= defaults.Category;
 
         if (!TryParseOutputFormat(format, out _, out bool useCompact))
         {
@@ -86,7 +93,7 @@ internal sealed class PipelineAnalysisTools(
                 new ErrorResponse($"Failed to parse YAML: {ex.Message}"), _jsonOptions);
         }
 
-        if (!TryBuildOptions(guidelineIds, category, includeHeuristics, out AnalysisOptions options, out string? optionsError))
+        if (!TryBuildOptions(guidelineIds, category, includeHeuristics.Value, out AnalysisOptions options, out string? optionsError))
         {
             return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
         }
@@ -106,7 +113,7 @@ internal sealed class PipelineAnalysisTools(
                 result.Diagnostics,
                 result.StructuralDiagnostics,
                 result.SkippedRuleDetails,
-                includeGuidance),
+                includeGuidance.Value),
             _jsonOptions);
     }
 
@@ -139,12 +146,18 @@ internal sealed class PipelineAnalysisTools(
         [Description(
             "Output format: json (default) for structured diagnostics or markdown for a compact " +
             "user-facing report with linked rule IDs.")]
-        string? format = "json",
+        string? format = null,
         [Description("Include rule guidance in JSON responses. Defaults to false; Markdown always includes guidance.")]
-        bool includeGuidance = false,
+        bool? includeGuidance = null,
         [Description("Include advisory heuristic rules. Defaults to false because heuristic findings can be noisy.")]
-        bool includeHeuristics = false)
+        bool? includeHeuristics = null)
     {
+        format ??= defaults.Format;
+        includeGuidance ??= defaults.IncludeGuidance;
+        includeHeuristics ??= defaults.IncludeHeuristics;
+        guidelineIds ??= defaults.GuidelineIds;
+        category ??= defaults.Category;
+
         if (paths is null || paths.Length == 0 || paths.All(string.IsNullOrWhiteSpace))
         {
             return JsonSerializer.Serialize(
@@ -167,7 +180,7 @@ internal sealed class PipelineAnalysisTools(
             return JsonSerializer.Serialize(new ErrorResponse(ex.Message), _jsonOptions);
         }
 
-        if (!TryBuildOptions(guidelineIds, category, includeHeuristics, out AnalysisOptions options, out string? optionsError))
+        if (!TryBuildOptions(guidelineIds, category, includeHeuristics.Value, out AnalysisOptions options, out string? optionsError))
         {
             return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
         }
@@ -223,7 +236,7 @@ internal sealed class PipelineAnalysisTools(
             skippedGuidelines.AddRange(result.SkippedRuleDetails);
         }
 
-        RuleDetailDto[] rules = BuildRuleDetails(allDiagnostics, includeGuidance || useMarkdown);
+        RuleDetailDto[] rules = BuildRuleDetails(allDiagnostics, includeGuidance.Value || useMarkdown);
         if (useMarkdown)
         {
             return BuildMarkdownReport(fileResults, allDiagnostics, rules, skippedGuidelines);
