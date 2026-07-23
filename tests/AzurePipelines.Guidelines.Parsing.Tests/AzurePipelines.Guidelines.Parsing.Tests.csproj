@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <None Include="AGENTS.md" />
+    <None Include="CommentFreeContentBuilderTests.cs" />
   </ItemGroup>
 
 </Project>

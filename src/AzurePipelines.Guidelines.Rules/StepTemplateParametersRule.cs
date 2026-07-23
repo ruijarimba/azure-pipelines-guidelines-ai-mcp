@@ -22,7 +22,7 @@ internal sealed class StepTemplateParametersRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         bool looksLikeTemplate = content.Contains("steps:", StringComparison.OrdinalIgnoreCase)
             && content.Contains("template:", StringComparison.OrdinalIgnoreCase);
         bool hasControlSetting = content.Contains("condition:", StringComparison.OrdinalIgnoreCase)

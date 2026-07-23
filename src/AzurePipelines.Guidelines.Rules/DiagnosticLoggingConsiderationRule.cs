@@ -22,7 +22,7 @@ internal sealed class DiagnosticLoggingConsiderationRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         bool hasStepContent = content.Contains("script:", StringComparison.OrdinalIgnoreCase)
             || content.Contains("pwsh:", StringComparison.OrdinalIgnoreCase)
             || content.Contains("bash:", StringComparison.OrdinalIgnoreCase)

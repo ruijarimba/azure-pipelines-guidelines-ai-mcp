@@ -23,7 +23,7 @@ internal sealed class StepRetryRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string[] lines = document.RawContent
+        string[] lines = document.CommentFreeContent
             .Replace("\r\n", "\n", StringComparison.Ordinal)
             .Split('\n');
 

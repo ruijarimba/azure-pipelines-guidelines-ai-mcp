@@ -22,7 +22,7 @@ internal sealed class VariableTemplateOrganizationRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         bool hasVariableTemplates = content.Contains("template:", StringComparison.OrdinalIgnoreCase)
             && content.Contains("variables:", StringComparison.OrdinalIgnoreCase);
         bool isEnvironmentGrouped = content.Contains("dev", StringComparison.OrdinalIgnoreCase)

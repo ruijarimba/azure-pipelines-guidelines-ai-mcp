@@ -36,7 +36,7 @@ internal sealed partial class LargeExpressionInStepsRule : IGuidelineRule
 
         // Report at most one diagnostic per file to avoid flooding the output
         // with every individual expression occurrence.
-        Match first = ExpressionPattern().Match(document.RawContent);
+        Match first = ExpressionPattern().Match(document.CommentFreeContent);
 
         if (!first.Success)
         {
@@ -45,7 +45,7 @@ internal sealed partial class LargeExpressionInStepsRule : IGuidelineRule
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        int line = RuleHelpers.GetLineNumber(document.RawContent, first.Index);
+        int line = RuleHelpers.GetLineNumber(document.CommentFreeContent, first.Index);
 
         yield return new Diagnostic(
             _id,

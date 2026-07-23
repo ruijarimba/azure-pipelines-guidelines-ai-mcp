@@ -24,8 +24,8 @@ internal sealed partial class StringEncodedConstructsRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        if (SingleQuotedPattern().IsMatch(document.RawContent) ||
-            DoubleQuotedPattern().IsMatch(document.RawContent))
+        if (SingleQuotedPattern().IsMatch(document.CommentFreeContent) ||
+            DoubleQuotedPattern().IsMatch(document.CommentFreeContent))
         {
             cancellationToken.ThrowIfCancellationRequested();
 

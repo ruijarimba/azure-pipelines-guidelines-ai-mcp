@@ -22,7 +22,7 @@ internal sealed class ParameterSchemaAlignmentRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         string[] lines = content.Split('\n');
         for (int index = 0; index < lines.Length; index++)
         {

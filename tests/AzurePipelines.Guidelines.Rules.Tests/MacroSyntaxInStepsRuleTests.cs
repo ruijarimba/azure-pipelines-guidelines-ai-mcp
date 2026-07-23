@@ -51,4 +51,61 @@ public sealed class MacroSyntaxInStepsRuleTests
 
         diagnostics.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenTemplateParameterMacros_ShouldReturnNoDiagnostics()
+    {
+        const string yaml = """
+            extends:
+              template: /pipelines/templates/base.yaml
+              parameters:
+                agentPool: $(agentPool)
+                configuration: ${{ variables.configuration }}
+            stages:
+              - template: /pipelines/stages/build-stage.yaml
+                parameters:
+                  environment: $(environment)
+            jobs:
+              - template: /pipelines/jobs/build-job.yaml
+                parameters:
+                  imageName: $(imageName)
+            """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenMacroOutsideTemplateParameters_ShouldReturnDiagnostic()
+    {
+        const string yaml = """
+            name: build-$(buildNumber)
+            jobs:
+              - template: /pipelines/jobs/build-job.yaml
+                parameters:
+                  imageName: $(imageName)
+            """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().ContainSingle();
+        diagnostics[0].Message.Should().Contain("$(buildNumber)");
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenCommentedMacro_ShouldReturnNoDiagnostics()
+    {
+        const string yaml = """
+            # $(yamlComment)
+            steps:
+              - script: |
+                  # $(scriptComment)
+                  echo no macro here
+            """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().BeEmpty();
+    }
 }

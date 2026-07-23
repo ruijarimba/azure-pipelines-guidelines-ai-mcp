@@ -22,7 +22,7 @@ internal sealed class ValidationModeJobParameterRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         bool hasJobDefinition = content.Contains("jobs:", StringComparison.OrdinalIgnoreCase)
             || content.Contains("job:", StringComparison.OrdinalIgnoreCase);
         bool hasValidationParameter = content.Contains("name: validationMode", StringComparison.OrdinalIgnoreCase)

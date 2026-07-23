@@ -24,7 +24,7 @@ internal sealed class RunIndependentStagesInParallelRule : IGuidelineRule
         ArgumentNullException.ThrowIfNull(document);
 
         if (document.Stages.Count > 1 &&
-            !document.RawContent.Contains("dependsOn", StringComparison.OrdinalIgnoreCase))
+            !document.CommentFreeContent.Contains("dependsOn", StringComparison.OrdinalIgnoreCase))
         {
             cancellationToken.ThrowIfCancellationRequested();
 

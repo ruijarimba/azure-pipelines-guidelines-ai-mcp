@@ -24,7 +24,10 @@ internal sealed class YamlPipelineParser : IPipelineParser
         IReadOnlyList<JobNode> jobs = ParseJobs(root);
         IReadOnlyList<StepNode> steps = ParseSteps(root);
 
-        return new PipelineDocument(filePath, yaml, parameters, variables, stages, jobs, steps);
+        return new PipelineDocument(filePath, yaml, parameters, variables, stages, jobs, steps)
+        {
+            CommentFreeContent = CommentFreeContentBuilder.Build(yaml)
+        };
     }
 
     // ── Root loading ───────────────────────────────────────────────────────────

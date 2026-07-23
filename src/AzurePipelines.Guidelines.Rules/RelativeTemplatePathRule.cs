@@ -35,11 +35,11 @@ internal sealed partial class RelativeTemplatePathRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        foreach (Match match in RelativeTemplatePattern().Matches(document.RawContent))
+        foreach (Match match in RelativeTemplatePattern().Matches(document.CommentFreeContent))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            int line = RuleHelpers.GetLineNumber(document.RawContent, match.Index);
+            int line = RuleHelpers.GetLineNumber(document.CommentFreeContent, match.Index);
 
             yield return new Diagnostic(
                 _id,

@@ -22,7 +22,7 @@ internal sealed class StepParameterValidationRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         bool hasParametersBlock = content.Contains("parameters:", StringComparison.OrdinalIgnoreCase);
         bool hasValidationLogic = content.Contains("if", StringComparison.OrdinalIgnoreCase)
             || content.Contains("throw", StringComparison.OrdinalIgnoreCase)

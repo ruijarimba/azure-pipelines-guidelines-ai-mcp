@@ -81,3 +81,9 @@ Full rules are in [`.github/instructions/agent-behaviour.instructions.md`](instr
 For multi-item remediation work in this repository, commit and push each independently reviewable item one at a time after validation.
 
 > Before changing any rule here or in the instruction file, re-read [ADR-010](../docs/decisions.md) and the reference sources listed there.
+
+## Raw-Text Guidelines
+
+- Raw-text guideline rules must ignore YAML comments and comment-only lines inside script block scalars.
+- Preserve original `PipelineDocument.RawContent` for documentation rules and diagnostics.
+- Use a centralized, source-length-preserving comment-free analysis view for other raw-text rules.

@@ -22,7 +22,7 @@ internal sealed class SeparateConfigurationRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         bool hasTemplateContent = content.Contains("template:", StringComparison.OrdinalIgnoreCase)
             || content.Contains("parameters:", StringComparison.OrdinalIgnoreCase);
         bool hasHardCodedConfig = content.Contains("environment:", StringComparison.OrdinalIgnoreCase)

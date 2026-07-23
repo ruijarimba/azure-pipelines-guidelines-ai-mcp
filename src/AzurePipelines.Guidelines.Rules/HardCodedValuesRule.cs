@@ -22,7 +22,7 @@ internal sealed class HardCodedValuesRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        foreach (string line in document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
+        foreach (string line in document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
         {
             cancellationToken.ThrowIfCancellationRequested();
 

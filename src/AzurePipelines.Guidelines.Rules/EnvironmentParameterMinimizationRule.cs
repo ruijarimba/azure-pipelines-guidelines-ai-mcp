@@ -22,7 +22,7 @@ internal sealed class EnvironmentParameterMinimizationRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         bool hasParametersBlock = content.Contains("parameters:", StringComparison.OrdinalIgnoreCase);
         bool hasEnvironmentParameters = content.Contains("environment", StringComparison.OrdinalIgnoreCase)
             || content.Contains("env", StringComparison.OrdinalIgnoreCase)

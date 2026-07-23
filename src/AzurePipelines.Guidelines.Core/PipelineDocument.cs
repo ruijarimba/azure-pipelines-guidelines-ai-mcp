@@ -36,6 +36,13 @@ public sealed record PipelineDocument(
     IReadOnlyList<StepNode> Steps)
 {
     /// <summary>
+    /// YAML content with comments masked for raw-text rule analysis. The content preserves the
+    /// original length and line endings so diagnostic locations remain aligned with
+    /// <see cref="RawContent"/>.
+    /// </summary>
+    public string CommentFreeContent { get; init; } = RawContent;
+
+    /// <summary>
     /// Returns all jobs across all stages plus any top-level jobs.
     /// </summary>
     public IEnumerable<JobNode> AllJobs =>

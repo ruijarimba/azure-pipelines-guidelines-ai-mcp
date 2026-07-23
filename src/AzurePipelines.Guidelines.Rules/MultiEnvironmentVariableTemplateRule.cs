@@ -24,13 +24,13 @@ internal sealed partial class MultiEnvironmentVariableTemplateRule : IGuidelineR
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        if (!document.RawContent.Contains("variables:", StringComparison.OrdinalIgnoreCase))
+        if (!document.CommentFreeContent.Contains("variables:", StringComparison.OrdinalIgnoreCase))
         {
             yield break;
         }
 
         HashSet<string> environments = EnvironmentTokenPattern()
-            .Matches(document.RawContent)
+            .Matches(document.CommentFreeContent)
             .Select(match => match.Value.ToUpperInvariant())
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 

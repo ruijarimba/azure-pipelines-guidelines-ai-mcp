@@ -22,7 +22,7 @@ internal sealed class SingleResponsibilityJobRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         bool hasBuildLikeContent = content.Contains("build", StringComparison.OrdinalIgnoreCase)
             || content.Contains("test", StringComparison.OrdinalIgnoreCase)
             || content.Contains("deploy", StringComparison.OrdinalIgnoreCase);

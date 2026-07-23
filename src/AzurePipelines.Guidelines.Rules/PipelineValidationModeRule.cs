@@ -23,7 +23,7 @@ internal sealed class PipelineValidationModeRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent;
+        string content = document.CommentFreeContent;
         bool hasValidationHint = content.Contains("validation", StringComparison.OrdinalIgnoreCase)
             || content.Contains("validate", StringComparison.OrdinalIgnoreCase)
             || content.Contains("skipDeployment", StringComparison.OrdinalIgnoreCase)

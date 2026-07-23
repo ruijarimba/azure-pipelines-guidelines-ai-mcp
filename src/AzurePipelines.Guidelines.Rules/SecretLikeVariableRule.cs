@@ -45,20 +45,20 @@ internal sealed partial class SecretLikeVariableRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        foreach (Match match in BlockStyleSecretPattern().Matches(document.RawContent))
+        foreach (Match match in BlockStyleSecretPattern().Matches(document.CommentFreeContent))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            int line = RuleHelpers.GetLineNumber(document.RawContent, match.Index);
+            int line = RuleHelpers.GetLineNumber(document.CommentFreeContent, match.Index);
 
             yield return CreateDiagnostic(document.FilePath, line);
         }
 
-        foreach (Match match in MappingStyleSecretPattern().Matches(document.RawContent))
+        foreach (Match match in MappingStyleSecretPattern().Matches(document.CommentFreeContent))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            int line = RuleHelpers.GetLineNumber(document.RawContent, match.Index);
+            int line = RuleHelpers.GetLineNumber(document.CommentFreeContent, match.Index);
 
             yield return CreateDiagnostic(document.FilePath, line);
         }

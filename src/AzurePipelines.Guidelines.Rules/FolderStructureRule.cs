@@ -23,7 +23,7 @@ internal sealed class FolderStructureRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         int lineNumber = 1;
 
         foreach (string line in content.Split('\n'))

@@ -22,7 +22,7 @@ internal sealed class ReusableJobTemplateParametersRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         bool hasJobTemplateStructure = content.Contains("jobs:", StringComparison.OrdinalIgnoreCase)
             || content.Contains("job:", StringComparison.OrdinalIgnoreCase)
             || content.Contains("template:", StringComparison.OrdinalIgnoreCase);

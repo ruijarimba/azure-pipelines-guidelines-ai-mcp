@@ -22,7 +22,7 @@ internal sealed class InlineTemplateLogicRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
+        string content = document.CommentFreeContent.Replace("\r\n", "\n", StringComparison.Ordinal);
         bool hasInlineSteps = content.Contains("steps:", StringComparison.OrdinalIgnoreCase)
             && (content.Contains("script:", StringComparison.OrdinalIgnoreCase)
                 || content.Contains("task:", StringComparison.OrdinalIgnoreCase));
