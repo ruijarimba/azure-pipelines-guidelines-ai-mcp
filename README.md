@@ -59,8 +59,10 @@ form `ADOG-{CATEGORY}-{NNN}`.
 
 For the full rule list and definitions, see the
 [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
-For local analyzer coverage and the reason each rule is enforceable, heuristic, or not automatable,
-see the [guideline automation status](docs/guideline-automation.md).
+Not every guideline can be automatically enforced from a single YAML document. Some require
+repository-wide context, deployment intent, task semantics, or human judgment. For local analyzer
+coverage and the reason each rule is enforceable, heuristic, or not automatable, see the
+[guideline automation status](docs/guideline-automation.md).
 
 ## Prerequisites
 
