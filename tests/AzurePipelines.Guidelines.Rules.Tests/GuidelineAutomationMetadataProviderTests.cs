@@ -10,8 +10,13 @@ public sealed class GuidelineAutomationMetadataProviderTests
     [InlineData("ADOG-STEPS-001", GuidelineAutomationStatus.Enforceable)]
     [InlineData("ADOG-JOBS-001", GuidelineAutomationStatus.Enforceable)]
     [InlineData("ADOG-JOBS-002", GuidelineAutomationStatus.Enforceable)]
+    [InlineData("ADOG-JOBS-003", GuidelineAutomationStatus.Enforceable)]
+    [InlineData("ADOG-GENERAL-001", GuidelineAutomationStatus.Enforceable)]
     [InlineData("ADOG-STEPS-007", GuidelineAutomationStatus.Enforceable)]
+    [InlineData("ADOG-STEPS-010", GuidelineAutomationStatus.Enforceable)]
     [InlineData("ADOG-VARIABLES-005", GuidelineAutomationStatus.Enforceable)]
+    [InlineData("ADOG-STEPS-006", GuidelineAutomationStatus.Heuristic)]
+    [InlineData("ADOG-VARIABLES-006", GuidelineAutomationStatus.Heuristic)]
     [InlineData("ADOG-STEPS-008", GuidelineAutomationStatus.NotAutomatable)]
     public void GetAutomationMetadata_GivenImplementedGuideline_ShouldReturnExpectedStatus(
         string guidelineId,

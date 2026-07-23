@@ -45,4 +45,23 @@ public sealed class JobLevelVariableRuleTests
 
         diagnostics.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenStageVariableWithJobs_ShouldReturnOneDiagnostic()
+    {
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync("""
+            stages:
+            - stage: Build
+              variables:
+              - name: BuildConfiguration
+                value: Debug
+              jobs:
+              - job: Build
+                steps:
+                - script: echo hello
+            """);
+
+        diagnostics.Should().ContainSingle();
+        diagnostics[0].GuidelineId.Value.Should().Be("ADOG-JOBS-003");
+    }
 }

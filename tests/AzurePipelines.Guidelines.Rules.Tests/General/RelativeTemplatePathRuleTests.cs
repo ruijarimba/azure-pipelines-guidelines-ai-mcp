@@ -54,6 +54,28 @@ public sealed class RelativeTemplatePathRuleTests
     }
 
     [Fact]
+    public async Task EvaluateAsync_GivenWindowsAbsoluteTemplatePath_ShouldReturnNoDiagnostics()
+    {
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync("""
+            steps:
+              - template: \\templates\\steps\\build.yml
+            """);
+
+        diagnostics.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenDotRelativeTemplatePath_ShouldReturnOneDiagnostic()
+    {
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync("""
+            steps:
+              - template: ./templates/steps/build.yml
+            """);
+
+        diagnostics.Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task EvaluateAsync_GivenCrossRepoTemplateRef_ShouldReturnNoDiagnostics()
     {
         string yaml = TestFixtures.Load("General/RelativeTemplatePath/WithCrossRepoRef.yml");

@@ -4,9 +4,9 @@ using AzurePipelines.Guidelines.Core;
 namespace AzurePipelines.Guidelines.Rules.Jobs;
 
 /// <summary>
-/// ADOG-JOBS-003 (consider): Detects variables declared at the pipeline root while the
-/// pipeline also defines jobs. Moving those values to job scope makes each job's inputs
-/// more explicit and can reduce accidental reuse across unrelated jobs.
+/// ADOG-JOBS-003 (consider): Detects variables declared at pipeline or stage scope while
+/// jobs are defined. Moving those values to job scope makes each job's inputs more
+/// explicit and can reduce accidental reuse across unrelated jobs.
 /// </summary>
 [RuleMetadata("ADOG-JOBS-003", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/jobs/consider-job-variables.md")]
 internal sealed class JobLevelVariableRule : IGuidelineRule
@@ -28,7 +28,10 @@ internal sealed class JobLevelVariableRule : IGuidelineRule
             yield break;
         }
 
-        foreach (VariableNode variable in document.Variables)
+        IEnumerable<VariableNode> broadScopeVariables = document.Variables
+            .Concat(document.Stages.SelectMany(stage => stage.Variables));
+
+        foreach (VariableNode variable in broadScopeVariables)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

@@ -11,7 +11,7 @@ internal sealed class GuidelineAutomationMetadataProvider : IGuidelineAutomation
     private static readonly FrozenDictionary<string, GuidelineAutomationMetadata> _metadata =
         new Dictionary<string, GuidelineAutomationMetadata>(StringComparer.Ordinal)
         {
-            ["ADOG-GENERAL-001"] = Heuristic("Template path style is a repository convention."),
+            ["ADOG-GENERAL-001"] = Enforceable("Template references can be checked for absolute paths directly in local YAML."),
             ["ADOG-GENERAL-002"] = Heuristic("Quoted values can be valid YAML and valid task input."),
             ["ADOG-GENERAL-003"] = Heuristic("Parameter names do not prove their intended schema field."),
             ["ADOG-GENERAL-004"] = Enforceable("A first non-empty comment is a deterministic local documentation policy."),
@@ -20,7 +20,7 @@ internal sealed class GuidelineAutomationMetadataProvider : IGuidelineAutomation
             ["ADOG-GENERAL-007"] = Heuristic("Literal values can be intentional stable defaults."),
             ["ADOG-JOBS-001"] = Enforceable("A job's explicit checkout entries are directly identifiable in local YAML."),
             ["ADOG-JOBS-002"] = Enforceable("All non-checkout job steps can be counted as logic steps in local YAML."),
-            ["ADOG-JOBS-003"] = NotAutomatable("Variable scope requires cross-job usage knowledge."),
+            ["ADOG-JOBS-003"] = Enforceable("Pipeline-root variable declarations are directly identifiable when jobs are present in local YAML."),
             ["ADOG-JOBS-004"] = NotAutomatable("Only some jobs need a non-destructive validation mode."),
             ["ADOG-JOBS-005"] = Heuristic("YAML cannot prove that a job template is reused or needs each control."),
             ["ADOG-JOBS-006"] = Enforceable("The parsed job node deterministically exposes timeoutInMinutes."),
@@ -40,7 +40,7 @@ internal sealed class GuidelineAutomationMetadataProvider : IGuidelineAutomation
             ["ADOG-STEPS-007"] = Enforceable("Supported step control settings and template parameters are directly identifiable in local YAML."),
             ["ADOG-STEPS-008"] = NotAutomatable("YAML cannot prove a service-connection-capable task alternative exists or applies."),
             ["ADOG-STEPS-009"] = NotAutomatable("Parameter validation needs depend on the template's accepted input domain."),
-            ["ADOG-STEPS-010"] = Heuristic("Expression complexity is a readability judgment."),
+            ["ADOG-STEPS-010"] = Enforceable("Pipeline macro and template expressions are directly identifiable in local YAML step content."),
             ["ADOG-STEPS-011"] = Enforceable("AzureKeyVault task references are directly identifiable in YAML."),
             ["ADOG-VARIABLES-001"] = Heuristic("YAML cannot determine whether a variable should remain mutable."),
             ["ADOG-VARIABLES-002"] = NotAutomatable("Folder organization requires repository path context."),

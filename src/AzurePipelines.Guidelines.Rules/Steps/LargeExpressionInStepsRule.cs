@@ -5,20 +5,18 @@ using AzurePipelines.Guidelines.Core;
 namespace AzurePipelines.Guidelines.Rules.Steps;
 
 /// <summary>
-/// ADOG-STEPS-010 (do-not): Detects template or macro expressions used directly
-/// inside step definitions. Complex inline expressions make pipelines hard to read
-/// and debug. Move logic into parameters or variables instead.
+/// ADOG-STEPS-010 (do-not): Detects Azure Pipelines template or macro expressions
+/// in step content. Expressions embedded in scripts make pipelines harder to read
+/// and debug. Move values to the task boundary where appropriate.
 /// </summary>
 [RuleMetadata("ADOG-STEPS-010", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/steps/donot-mix-syntax.md")]
 internal sealed partial class LargeExpressionInStepsRule : IGuidelineRule
 {
     // Matches: ${{ ... }} template expressions or $( ... ) macro expressions.
-    // This pattern intentionally matches both opening forms; the closing delimiters
-    // are optional so that partial or multi-line expressions are also detected.
     // One diagnostic per file is reported (see below) to avoid flooding output.
     // Example:  "${{ variables.buildConfig }}"  or  "$(Build.SourceBranch)"
     [GeneratedRegex(
-        @"(\$\{\{|\$\()[^)]*\}?\}?",
+        @"\$\{\{.*?\}\}|\$\([^)]*\)",
         RegexOptions.Multiline | RegexOptions.CultureInvariant)]
     private static partial Regex ExpressionPattern();
 
@@ -50,9 +48,9 @@ internal sealed partial class LargeExpressionInStepsRule : IGuidelineRule
         yield return new Diagnostic(
             _id,
             DiagnosticSeverity.Error,
-            "Inline expressions (${{ }} or $()) detected in step definitions. " +
-            "Do not embed complex expressions directly in steps; " +
-            "move values into parameters or variables for readability.",
+            "Pipeline expressions ($(...) or ${{ ... }}) detected in step content. " +
+            "Bind values at the task boundary where appropriate instead of embedding " +
+            "them throughout script content.",
             document.FilePath,
             line,
             Column: null);

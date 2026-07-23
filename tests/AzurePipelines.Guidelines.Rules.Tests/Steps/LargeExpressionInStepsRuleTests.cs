@@ -41,6 +41,18 @@ public sealed class LargeExpressionInStepsRuleTests
         diagnostics[0].Severity.Should().Be(DiagnosticSeverity.Error);
     }
 
+    [Fact]
+    public async Task EvaluateAsync_GivenMacroExpression_ShouldReturnOneDiagnostic()
+    {
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync("""
+            steps:
+            - script: echo $(Build.SourceBranch)
+            """);
+
+        diagnostics.Should().ContainSingle();
+        diagnostics[0].GuidelineId.Value.Should().Be("ADOG-STEPS-010");
+    }
+
     // ── No violations ─────────────────────────────────────────────────────────
 
     [Fact]

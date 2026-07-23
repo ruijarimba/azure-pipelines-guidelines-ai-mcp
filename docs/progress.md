@@ -22,6 +22,7 @@ Before committing, edit the sections below:
 | --- | --- |
 | `local` | feat: classify all implemented guidelines by local automation capability; disable heuristic rules by default with CLI and MCP opt-in; document skipped-rule reasons; quality gate passes with 616 tests and 95.04% production line coverage |
 | `local` | feat: classify four additional structurally deterministic rules as enforceable; enforce explicit checkout, per-job step-template counts, step control parameters, and variable scope |
+| `local` | feat: classify absolute template paths, job variable scope, and pipeline-expression syntax as enforceable; preserve category-specific job and variable rules |
 
 ## Earlier completed work
 

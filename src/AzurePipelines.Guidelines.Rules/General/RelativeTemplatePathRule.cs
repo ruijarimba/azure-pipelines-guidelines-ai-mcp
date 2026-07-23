@@ -7,7 +7,7 @@ namespace AzurePipelines.Guidelines.Rules.General;
 /// <summary>
 /// ADOG-GENERAL-001 (consider): Detects template references that use a relative path
 /// (e.g. <c>template: steps/build.yml</c>) instead of an absolute path starting with
-/// <c>/</c> (e.g. <c>template: /templates/steps/build.yml</c>).
+/// <c>/</c> or <c>\</c> (e.g. <c>template: /templates/steps/build.yml</c>).
 /// </summary>
 [RuleMetadata("ADOG-GENERAL-001", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/general/consider-absolute-paths.md")]
 internal sealed partial class RelativeTemplatePathRule : IGuidelineRule
@@ -15,11 +15,12 @@ internal sealed partial class RelativeTemplatePathRule : IGuidelineRule
     // Matches:  template: <value> where value ends with .yml or .yaml
     // Requires: at least one space after the colon (so \s+ prevents the lookahead
     //           from inspecting the colon character itself).
-    // Excludes: absolute paths (value starts with /) via negative lookahead (?!/)
+    // Excludes: absolute paths (value starts with / or \) via negative lookahead
+    //           (?![/\\])
     // Excludes: cross-repo references (value contains @alias) via trailing (?!\s*@)
     // Example:  "  - template: steps/build.yml"
     [GeneratedRegex(
-        @"template:\s+(?!/)[^@\n]+\.ya?ml(?!\s*@)",
+        @"template:\s+(?![/\\])[^@\n]+\.ya?ml(?!\s*@)",
         RegexOptions.Multiline | RegexOptions.CultureInvariant)]
     private static partial Regex RelativeTemplatePattern();
 
@@ -45,7 +46,7 @@ internal sealed partial class RelativeTemplatePathRule : IGuidelineRule
                 _id,
                 DiagnosticSeverity.Info,
                 $"Template reference '{match.Value.Trim()}' uses a relative path. " +
-                "Consider using an absolute path (starting with '/') for clarity.",
+                "Consider using an absolute path (starting with '/' or '\\') for clarity.",
                 document.FilePath,
                 line,
                 Column: null);
