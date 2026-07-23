@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using AzurePipelines.Guidelines.Core;
 
 namespace AzurePipelines.Guidelines.Rules.Steps;
@@ -11,6 +12,14 @@ namespace AzurePipelines.Guidelines.Rules.Steps;
 internal sealed class StepTemplateParametersRule : IGuidelineRule
 {
     private static readonly GuidelineId _id = new("ADOG-STEPS-007");
+    private static readonly string[] _controlParameters =
+    [
+        "condition",
+        "continueOnError",
+        "enabled",
+        "retryCountOnTaskFailure",
+        "timeoutInMinutes"
+    ];
 
     /// <inheritdoc/>
     public GuidelineId GuidelineId => _id;
@@ -22,25 +31,63 @@ internal sealed class StepTemplateParametersRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        string content = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal);
-        bool looksLikeTemplate = content.Contains("steps:", StringComparison.OrdinalIgnoreCase)
-            && content.Contains("template:", StringComparison.OrdinalIgnoreCase);
-        bool hasControlSetting = content.Contains("condition:", StringComparison.OrdinalIgnoreCase)
-            || content.Contains("dependsOn:", StringComparison.OrdinalIgnoreCase)
-            || content.Contains("pool:", StringComparison.OrdinalIgnoreCase);
-        bool hasParametersBlock = content.Contains("parameters:", StringComparison.OrdinalIgnoreCase);
+        string[] lines = document.RawContent.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        List<string> missingParameters = FindMissingParameters(lines);
 
-        if (looksLikeTemplate && hasControlSetting && !hasParametersBlock)
+        if (missingParameters.Count > 0)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             yield return new Diagnostic(
                 _id,
                 DiagnosticSeverity.Info,
-                "Expose reusable step-template controls such as condition, dependsOn, or pool as parameters.",
+                $"Expose step-template control settings as parameters: {string.Join(", ", missingParameters)}.",
                 document.FilePath,
                 Line: null,
                 Column: null);
         }
+    }
+
+    private static List<string> FindMissingParameters(IReadOnlyList<string> lines)
+    {
+        HashSet<string> usedControls = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> declaredParameters = new(StringComparer.OrdinalIgnoreCase);
+        bool inParameters = false;
+
+        foreach (string line in lines)
+        {
+            string trimmed = line.Trim();
+            if (trimmed.Equals("parameters:", StringComparison.OrdinalIgnoreCase))
+            {
+                inParameters = true;
+                continue;
+            }
+
+            if (inParameters && line.Length - line.TrimStart().Length == 0)
+            {
+                inParameters = false;
+            }
+
+            Match setting = Regex.Match(trimmed, "^(?<name>condition|continueOnError|enabled|retryCountOnTaskFailure|timeoutInMinutes):", RegexOptions.IgnoreCase);
+            if (!setting.Success)
+            {
+                continue;
+            }
+
+            string name = setting.Groups["name"].Value;
+            if (inParameters)
+            {
+                declaredParameters.Add(name);
+            }
+            else
+            {
+                usedControls.Add(name);
+            }
+        }
+
+        return _controlParameters
+            .Where(usedControls.Contains)
+            .Where(name => !declaredParameters.Contains(name))
+            .ToList();
     }
 }

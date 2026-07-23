@@ -4,10 +4,9 @@ using AzurePipelines.Guidelines.Core;
 namespace AzurePipelines.Guidelines.Rules.Jobs;
 
 /// <summary>
-/// ADOG-JOBS-001 (consider): Detects jobs that have no <c>checkout</c> step.
-/// Most CI jobs need source code; omitting an explicit checkout may rely on implicit
-/// behaviour that can change. Add <c>- checkout: self</c> (or <c>checkout: none</c>
-/// when source is intentionally not needed) to make intent clear.
+/// ADOG-JOBS-001 (consider): Detects jobs that have no explicit <c>checkout</c> step.
+/// Add one or more checkout steps with the required repository value to make the job's
+/// source checkout intent clear.
 /// </summary>
 [RuleMetadata("ADOG-JOBS-001", "https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/guidelines/jobs/consider-explicit-checkout.md")]
 internal sealed class JobMissingCheckoutRule : IGuidelineRule

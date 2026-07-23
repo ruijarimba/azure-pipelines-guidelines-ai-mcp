@@ -88,7 +88,8 @@ graph TD
 ## Automation policy
 
 The Rules layer owns local automation metadata for every implemented guideline. The Analysis layer
-uses that metadata before it evaluates a rule:
+uses that metadata before it evaluates a rule. Enforceable rules use explicit local structural
+policies; they do not call external APIs or consult Microsoft documentation:
 
 - `enforceable` rules run by default.
 - `heuristic` rules run only when the caller opts in.

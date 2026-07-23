@@ -46,4 +46,57 @@ public sealed class VariableScopeRuleTests
 
         diagnostics.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenStageScopeVariable_ShouldReturnOneDiagnostic()
+    {
+        const string yaml = """
+        stages:
+        - stage: Build
+          variables:
+          - name: BuildConfiguration
+            value: Debug
+          jobs:
+          - job: Build
+            steps:
+            - script: echo hello
+        """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().ContainSingle();
+        diagnostics[0].Severity.Should().Be(DiagnosticSeverity.Error);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenVariableTemplateDocument_ShouldReturnNoDiagnostics()
+    {
+        const string yaml = """
+        variables:
+        - name: BuildConfiguration
+          value: Debug
+        """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml, "templates/variables.yml");
+
+        diagnostics.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenPipelineVariableGroup_ShouldReturnOneDiagnostic()
+    {
+        const string yaml = """
+        variables:
+        - group: shared-settings
+        jobs:
+        - job: Build
+          steps:
+          - script: echo hello
+        """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().ContainSingle();
+        diagnostics[0].Message.Should().Contain("(unnamed)");
+    }
 }

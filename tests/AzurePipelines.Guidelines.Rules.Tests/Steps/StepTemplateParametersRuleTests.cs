@@ -51,4 +51,59 @@ public sealed class StepTemplateParametersRuleTests
 
         diagnostics.Should().BeEmpty();
     }
+
+    [Theory]
+    [InlineData("condition")]
+    [InlineData("continueOnError")]
+    [InlineData("enabled")]
+    [InlineData("retryCountOnTaskFailure")]
+    [InlineData("timeoutInMinutes")]
+    public async Task EvaluateAsync_GivenSupportedControlWithoutParameter_ShouldReturnOneDiagnostic(string control)
+    {
+        string content = $"""
+        steps:
+          - template: templates/step.yml
+            {control}: true
+        """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(content);
+
+        diagnostics.Should().ContainSingle();
+        diagnostics[0].Message.Should().Contain(control);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenOneParameterizedAndOneUnparameterizedControl_ShouldReportOnlyUnparameterizedControl()
+    {
+        const string content = """
+        steps:
+          - template: templates/step.yml
+            condition: ${{ parameters.condition }}
+            timeoutInMinutes: 10
+            parameters:
+              condition: true
+        """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(content);
+
+        diagnostics.Should().ContainSingle();
+        diagnostics[0].Message.Should().Contain("timeoutInMinutes");
+        diagnostics[0].Message.Should().NotContain("condition");
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenDeclaredControlParameterAndUnrelatedLines_ShouldReturnNoDiagnostics()
+    {
+        const string content = """
+        steps:
+          - template: templates/step.yml
+            parameters:
+              condition: true
+        # This line is not a control setting.
+        """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(content);
+
+        diagnostics.Should().BeEmpty();
+    }
 }

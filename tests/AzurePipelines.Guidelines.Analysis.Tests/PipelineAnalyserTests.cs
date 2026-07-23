@@ -286,6 +286,19 @@ public sealed class PipelineAnalyserTests
     }
 
     [Fact]
+    public async Task AnalyseAsync_GivenEnforceableRuleAndDefaultOptions_ShouldEvaluateTheRule()
+    {
+        Diagnostic expected = MakeDiagnostic("ADOG-JOBS-001");
+        IGuidelineRule rule = MakeRule("ADOG-JOBS-001", expected);
+        PipelineAnalyser sut = CreateAnalyser([rule]);
+
+        AnalysisResult result = await sut.AnalyseAsync(EmptyDocument());
+
+        result.Diagnostics.Should().ContainSingle().Which.Should().Be(expected);
+        result.SkippedRuleDetails.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task AnalyseAsync_GivenHeuristicRuleAndOptIn_ShouldEvaluateTheRule()
     {
         Diagnostic expected = MakeDiagnostic("ADOG-GENERAL-001");

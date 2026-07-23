@@ -257,7 +257,7 @@ internal sealed class YamlPipelineParser : IPipelineParser
                 ?? ScalarOrNull(map, "pwsh");
             string? displayName = ScalarOrNull(map, "displayName");
             int? timeout = IntOrNull(map, "timeoutInMinutes");
-            bool isCheckout = TryGetNode(map, "checkout", out _);
+            bool isCheckout = !string.IsNullOrWhiteSpace(ScalarOrNull(map, "checkout"));
             string? condition = ScalarOrNull(map, "condition");
 
             result.Add(new StepNode(task, script, displayName, timeout, isCheckout, condition, line));

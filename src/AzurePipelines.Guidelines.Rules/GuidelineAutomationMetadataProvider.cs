@@ -18,8 +18,8 @@ internal sealed class GuidelineAutomationMetadataProvider : IGuidelineAutomation
             ["ADOG-GENERAL-005"] = Heuristic("Shared template roots are repository conventions."),
             ["ADOG-GENERAL-006"] = NotAutomatable("YAML alone cannot establish whether inline logic should be reused."),
             ["ADOG-GENERAL-007"] = Heuristic("Literal values can be intentional stable defaults."),
-            ["ADOG-JOBS-001"] = Heuristic("YAML cannot determine whether a job needs source code."),
-            ["ADOG-JOBS-002"] = Heuristic("Multiple templates can be clearer than one combined template."),
+            ["ADOG-JOBS-001"] = Enforceable("A job's explicit checkout entries are directly identifiable in local YAML."),
+            ["ADOG-JOBS-002"] = Enforceable("All non-checkout job steps can be counted as logic steps in local YAML."),
             ["ADOG-JOBS-003"] = NotAutomatable("Variable scope requires cross-job usage knowledge."),
             ["ADOG-JOBS-004"] = NotAutomatable("Only some jobs need a non-destructive validation mode."),
             ["ADOG-JOBS-005"] = Heuristic("YAML cannot prove that a job template is reused or needs each control."),
@@ -37,7 +37,7 @@ internal sealed class GuidelineAutomationMetadataProvider : IGuidelineAutomation
             ["ADOG-STEPS-004"] = Heuristic("Logging sufficiency is contextual and task-specific."),
             ["ADOG-STEPS-005"] = NotAutomatable("Retry suitability depends on operation idempotency and failure modes."),
             ["ADOG-STEPS-006"] = Heuristic("Task-level timeouts are not appropriate for every task."),
-            ["ADOG-STEPS-007"] = Heuristic("Control settings do not prove that a step template is reusable."),
+            ["ADOG-STEPS-007"] = Enforceable("Supported step control settings and template parameters are directly identifiable in local YAML."),
             ["ADOG-STEPS-008"] = NotAutomatable("YAML cannot prove a service-connection-capable task alternative exists or applies."),
             ["ADOG-STEPS-009"] = NotAutomatable("Parameter validation needs depend on the template's accepted input domain."),
             ["ADOG-STEPS-010"] = Heuristic("Expression complexity is a readability judgment."),
@@ -46,7 +46,7 @@ internal sealed class GuidelineAutomationMetadataProvider : IGuidelineAutomation
             ["ADOG-VARIABLES-002"] = NotAutomatable("Folder organization requires repository path context."),
             ["ADOG-VARIABLES-003"] = Heuristic("A secret-like name is not proof that an inline value is a secret."),
             ["ADOG-VARIABLES-004"] = NotAutomatable("Configuration ownership requires template and environment context."),
-            ["ADOG-VARIABLES-005"] = NotAutomatable("Narrowest valid variable scope requires usage analysis."),
+            ["ADOG-VARIABLES-005"] = Enforceable("Pipeline- and stage-scope variable declarations are directly identifiable in local YAML."),
             ["ADOG-VARIABLES-006"] = Heuristic("Environment naming and file purpose cannot be proven from one YAML file."),
         }.ToFrozenDictionary(StringComparer.Ordinal);
 

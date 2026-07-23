@@ -1,6 +1,6 @@
 # Guideline automation status
 
-This page gives people and AI agents the rule description, local automation status, and evaluation reason for every implemented guideline. It shows what the local analyzer can prove from one Azure Pipelines YAML document.
+This page gives people and AI agents the rule description, local automation status, and evaluation reason for every implemented guideline. It shows what the local analyzer can prove from one Azure Pipelines YAML document without external APIs or documentation lookup.
 
 ## How analysis handles each status
 
@@ -28,8 +28,8 @@ For example, the analyzer cannot enforce `ADOG-STEPS-008` from YAML alone. A scr
 
 | Rule | Description | Status | Reason |
 | --- | --- | --- | --- |
-| `ADOG-JOBS-001` | Explicitly set `checkout` in every job to make source code checkout behavior clear and stable. | `heuristic` | YAML cannot determine whether a job needs source code |
-| `ADOG-JOBS-002` | Group job tasks into a single steps template, rather than using multiple steps templates in a job. | `heuristic` | Multiple templates can be clearer than one combined template |
+| `ADOG-JOBS-001` | Explicitly set `checkout` in every job to make source code checkout behavior clear and stable. | `enforceable` | Any non-empty checkout entry is directly identifiable in local YAML |
+| `ADOG-JOBS-002` | Group job tasks into a single steps template, rather than using multiple steps templates in a job. | `enforceable` | All non-checkout steps count as job logic; only checkout steps are excluded |
 | `ADOG-JOBS-003` | Declare variables at the job level instead of the stage or root level. | `notAutomatable` | Variable scope requires cross-job usage knowledge |
 | `ADOG-JOBS-004` | Add a `boolean` parameter to your job to run it in _validation mode_, without deploying or executing any changes. | `notAutomatable` | Only some jobs need a non-destructive validation mode |
 | `ADOG-JOBS-005` | When creating job templates for reuse by different teams, stages, or pipelines, add parameters such as: | `heuristic` | YAML cannot prove that a job template is reused or needs each control |
@@ -67,7 +67,7 @@ For example, the analyzer cannot enforce `ADOG-STEPS-008` from YAML alone. A scr
 | `ADOG-STEPS-004` | Log enough diagnostic details required to troubleshoot issues and failures. | `heuristic` | Logging sufficiency is contextual and task-specific |
 | `ADOG-STEPS-005` | Configure the number of retries if a task faces transient failures. | `notAutomatable` | Retry suitability depends on operation idempotency and failure modes |
 | `ADOG-STEPS-006` | Set timeouts for tasks to avoid stalling pipeline runs. Provide reasonable values based on the expected execution time. | `heuristic` | Task-level timeouts are not appropriate for every task |
-| `ADOG-STEPS-007` | When building reusable templates, add these control parameters: | `heuristic` | Control settings do not prove that a step template is reusable |
+| `ADOG-STEPS-007` | When building reusable templates, add these control parameters: | `enforceable` | Each supported control setting used by a local step-template reference can be checked against its parameters |
 | `ADOG-STEPS-008` | Use Service Connections to authenticate with external services (Azure, GitHub, Docker, Kubernetes, etc.). | `notAutomatable` | YAML cannot prove that a service-connection-capable task alternative exists or applies |
 | `ADOG-STEPS-009` | Validate step parameters in templates. Fail the pipeline if a parameter is invalid. | `notAutomatable` | Parameter validation needs depend on the template's accepted input domain |
 | `ADOG-STEPS-010` | Do not embed pipeline expressions (`$(...)` or `${{ ... }}`) throughout the body of a script task. Bind them at the boundary instead—either in the task-level `env:` block or as variable assignments at the very top of the script. | `heuristic` | Expression complexity is a readability judgment |
@@ -81,9 +81,20 @@ For example, the analyzer cannot enforce `ADOG-STEPS-008` from YAML alone. A scr
 | `ADOG-VARIABLES-002` | Organize your variables into folders by functionality, environment, or any logical partition that fits your project. | `notAutomatable` | Folder organization requires repository path context |
 | `ADOG-VARIABLES-003` | Store passwords, tokens, and keys inside [variable groups](https://learn.microsoft.com/en-us/azure/devops/pipelines/library/variable-groups?view=azure-devops&tabs=yaml). | `heuristic` | A secret-like name is not proof that an inline value is a secret |
 | `ADOG-VARIABLES-004` | Avoid hard-coding configuration values inside pipeline, step, job, or stage templates. | `notAutomatable` | Configuration ownership requires template and environment context |
-| `ADOG-VARIABLES-005` | Restrict the scope of variables as much as possible. | `notAutomatable` | Narrowest valid variable scope requires usage analysis |
+| `ADOG-VARIABLES-005` | Restrict the scope of variables as much as possible. | `enforceable` | Pipeline- and stage-scope declarations are directly identifiable; job scope is allowed |
 | `ADOG-VARIABLES-006` | Do not define variables for multiple environments inside a single variable template. | `heuristic` | Environment naming and file purpose cannot be proven from one YAML file |
 
 ## Review skipped rules
 
 Structured MCP responses include `skippedGuidelines` with each skipped rule ID, status, and reason. The `adog rules` commands also show the current local automation status. Use these details to decide whether a manual review or repository-specific policy is needed.
+
+## Local structural policies
+
+The following enforceable rules use explicit local policies:
+
+- `ADOG-JOBS-001` requires one or more checkout entries in every parsed job. Any non-empty checkout value is accepted.
+- `ADOG-JOBS-002` reports more than one non-checkout step in a job. Templates, tasks, scripts, and other non-checkout steps count as job logic; only checkout entries are excluded.
+- `ADOG-STEPS-007` checks `condition`, `continueOnError`, `enabled`, `retryCountOnTaskFailure`, and `timeoutInMinutes`. Each setting used by a local step-template reference must be exposed through that template invocation's `parameters` block.
+- `ADOG-VARIABLES-005` reports pipeline- and stage-scope variables. Job-scope variables and variable-template documents are allowed.
+
+These checks inspect only the current YAML document. They do not resolve templates from other files or infer task behavior, repository intent, or deployment context. A variables-only document is treated as a variable template when its local file name identifies it as a variables template.

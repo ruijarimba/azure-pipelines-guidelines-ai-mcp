@@ -21,6 +21,7 @@ Before committing, edit the sections below:
 | Commit | Summary |
 | --- | --- |
 | `local` | feat: classify all implemented guidelines by local automation capability; disable heuristic rules by default with CLI and MCP opt-in; document skipped-rule reasons; quality gate passes with 616 tests and 95.04% production line coverage |
+| `local` | feat: classify four additional structurally deterministic rules as enforceable; enforce explicit checkout, per-job step-template counts, step control parameters, and variable scope |
 
 ## Earlier completed work
 
@@ -165,5 +166,7 @@ The host README and MCP reference document the deterministic default and overrid
 ## Open questions / blockers
 
 - NuGet publication is deferred. Package metadata and local packing remain for a future release.
+- The remaining potentially enforceable, heuristic, and non-automatable classifications are deferred
+  until their local structural policies are defined.
 - The exported Microsoft Learn schema PDF remains an offline reference and is not committed. Confirm
   provenance and redistribution terms before adding any documentation snapshot to source control.

@@ -62,4 +62,35 @@ public sealed class JobMissingCheckoutRuleTests
 
         diagnostics.Should().BeEmpty();
     }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenJobWithArbitraryCheckoutRepository_ShouldReturnNoDiagnostics()
+    {
+        const string yaml = """
+        jobs:
+        - job: Build
+          steps:
+          - checkout: sourceRepository
+          - checkout: anotherRepository
+        """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenJobWithEmptyCheckoutValue_ShouldReturnOneDiagnostic()
+    {
+        const string yaml = """
+        jobs:
+        - job: Build
+          steps:
+          - checkout:
+        """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().ContainSingle();
+    }
 }

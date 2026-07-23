@@ -23,21 +23,35 @@ internal sealed class VariableScopeRule : IGuidelineRule
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        foreach (VariableNode variable in document.Variables)
+        if (IsVariablesTemplate(document))
+        {
+            yield break;
+        }
+
+        foreach (VariableNode variable in GetBroadScopeVariables(document))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (variable.Value is not null && variable.Group is null)
-            {
-                yield return new Diagnostic(
-                    _id,
-                    DiagnosticSeverity.Error,
-                    $"Variable '{variable.Name ?? "(unnamed)"}' is declared at pipeline scope. " +
-                    "Restrict it to the narrowest scope that still satisfies your pipeline needs.",
-                    document.FilePath,
-                    Line: null,
-                    Column: null);
-            }
+            yield return new Diagnostic(
+                _id,
+                DiagnosticSeverity.Error,
+                $"Variable '{variable.Name ?? "(unnamed)"}' is declared at pipeline or stage scope. " +
+                "Declare variables at job scope or in a variables template.",
+                document.FilePath,
+                Line: null,
+                Column: null);
         }
     }
+
+    private static IEnumerable<VariableNode> GetBroadScopeVariables(PipelineDocument document) =>
+        document.Variables.Concat(document.Stages.SelectMany(stage => stage.Variables))
+            .Where(variable => variable.Name is not null || variable.Value is not null || variable.Group is not null);
+
+    private static bool IsVariablesTemplate(PipelineDocument document) =>
+        document.Variables.Count > 0 &&
+        document.Stages.Count == 0 &&
+        document.Jobs.Count == 0 &&
+        document.Steps.Count == 0 &&
+        Path.GetFileNameWithoutExtension(document.FilePath)
+            .Contains("variable", StringComparison.OrdinalIgnoreCase);
 }

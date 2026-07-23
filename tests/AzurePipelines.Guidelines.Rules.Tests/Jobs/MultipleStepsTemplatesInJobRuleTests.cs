@@ -7,7 +7,7 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Rules.Tests.Jobs;
 
-/// <summary>Tests detection of jobs that compose multiple step templates.</summary>
+/// <summary>Tests detection of jobs that contain multiple non-checkout logic steps.</summary>
 public sealed class MultipleStepsTemplatesInJobRuleTests
 {
     private static readonly YamlPipelineParser _parser = new();
@@ -45,5 +45,41 @@ public sealed class MultipleStepsTemplatesInJobRuleTests
         IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
 
         diagnostics.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenJobWithOneTemplateAndOneTask_ShouldReturnOneDiagnostic()
+    {
+        const string yaml = """
+        jobs:
+        - job: Build
+          steps:
+          - checkout: self
+          - script: dotnet build
+          - template: templates/build-steps.yml
+        """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_GivenJobWithTemplatesTasksAndCheckout_ShouldReportMultipleLogicSteps()
+    {
+        const string yaml = """
+        jobs:
+        - job: Build
+          steps:
+          - checkout: self
+          - script: dotnet build
+          - template: templates/build-steps.yml
+          - task: PublishBuildArtifacts@1
+          - template: templates/publish-steps.yml
+        """;
+
+        IReadOnlyList<Diagnostic> diagnostics = await EvaluateAsync(yaml);
+
+        diagnostics.Should().ContainSingle();
     }
 }

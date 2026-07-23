@@ -55,10 +55,10 @@ Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` →
 
 ## Adding new files to the solution
 
-**Every file must be visible in Visual Studio Solution Explorer** in the correct folder hierarchy. 
+**Every file must be visible in Visual Studio Solution Explorer** in the correct folder hierarchy.
 
 - Register non-code files inside a project with `<None Include="..." />` in its .csproj.
-- Register solution-level files with `<File Path="..." />` in `AzurePipelinesGuidelines.slnx` under matching folders. 
+- Register solution-level files with `<File Path="..." />` in `AzurePipelinesGuidelines.slnx` under matching folders.
 - Preserve filesystem hierarchy.
 - Run `pwsh ./scripts/quality-check.ps1` before any push for shared-contract work. **Do not push before this script succeeds.**
 
@@ -107,5 +107,11 @@ For multi-item remediation work in this repository, commit and push each indepen
 ## Repository-wide Instructions
 
 - For shared or multi-project changes, present an approved plan before edits.
-- Register all newly created non-code files immediately in the matching Solution Explorer hierarchy. 
+- Register all newly created non-code files immediately in the matching Solution Explorer hierarchy.
 - Run `pwsh ./scripts/quality-check.ps1` before any push and do not push if it fails.
+
+## Job Logic Step Count Rule
+
+- For `ADOG-JOBS-002`, checkout steps are the only steps excluded from the logic-step count.
+- All other step entries, including template references, scripts, tasks, and other executable steps, count.
+- A job violates the rule when it contains more than one non-checkout logic step, even if only one of those is a template reference.
