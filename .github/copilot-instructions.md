@@ -47,6 +47,12 @@ Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` →
 
 - Integration tests are a high-priority repository quality area.
 - Ensure tests are deterministic, reliable, and easy to debug manually.
+- Verify that the MCP server starts successfully under both configured launch profiles, in addition to build and test checks.
+
+## MCP Capability Planning
+
+- Exclude Sampling / LLM heuristics from planning.
+- Track recommended MCP additions and token-usage guidance in the repository TODO list, including a future comprehensive token-usage document.
 
 ## Prompt files
 

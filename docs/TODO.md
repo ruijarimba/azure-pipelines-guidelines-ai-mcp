@@ -73,9 +73,51 @@ Related files:
 
 ---
 
+### 4. Expand MCP capabilities with token-conscious defaults
+
+Improve MCP support without making clients load the full guideline catalogue or detailed rule
+content by default.
+
+- [ ] Surface `automationStatus` and its reason in single-guideline tools and resources by using
+      `IGuidelineAutomationMetadataProvider`
+- [ ] Add focused resources for guideline categories and guideline automation metadata
+- [ ] Add concise MCP prompts for reviewing a pipeline, explaining a guideline, and preparing a
+      remediation plan
+- [ ] Add server-side analysis summaries that group diagnostics by file, category, severity, and
+      rule
+- [ ] Consider an `explain_diagnostic` tool when the raw diagnostic and fix guidance are not
+      sufficient for AI clients
+- [ ] Consider `analyze_changed_pipelines` for pull-request review workflows, with strict
+      workspace-path boundaries
+- [ ] Do not add Sampling or LLM-assisted heuristic analysis as part of this work
+
+Related files:
+- `src/AzurePipelines.Guidelines.Core/IGuidelineAutomationMetadataProvider.cs`
+- `src/AzurePipelines.Guidelines.Rules/GuidelineAutomationMetadataProvider.cs`
+- `src/AzurePipelines.Guidelines.Mcp/Tools/GuidelineTools.cs`
+- `src/AzurePipelines.Guidelines.Mcp/Tools/PipelineAnalysisTools.cs`
+- `src/AzurePipelines.Guidelines.Mcp/Resources/GuidelineResources.cs`
+- `docs/mcp-reference.md`
+
+---
+
+### 5. Document MCP token usage
+
+Create a user-facing document that explains how each MCP capability affects client token usage.
+Include practical guidance for keeping usage low: use focused lookups instead of full catalogues,
+return summaries by default, make detailed results opt-in, limit and page list results, omit empty
+fields, and keep prompts procedural. Explain that full-catalogue resources and large analysis
+results are the main token risks.
+
+Related files:
+- `docs/mcp-reference.md`
+- `docs/` token-usage document to be created and registered in `AzurePipelinesGuidelines.slnx`
+
+---
+
 ## Low Priority / Future Enhancements
 
-### 4. Improve CLI documentation examples
+### 6. Improve CLI documentation examples
 
 Add more end-to-end examples for CI/CD, scripting, and mixed-format output scenarios.
 

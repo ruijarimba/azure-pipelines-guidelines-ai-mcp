@@ -113,40 +113,30 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**MCP SSE port stabilization**
+**Guideline automation status recovery and MCP capability planning**
 
-The MCP host was refactored into a thin transport dispatcher (`Program.cs`) and a dedicated
-startup helper (`McpHostStartup.cs`). Minimal startup logging was added for both SSE and stdio
-using `LoggerMessage.Define`, so stdio protocol traffic stays on stdout and human-readable logs
-stay on stderr.
-
-A live run without the **SSE** launch profile selected bound to `http://localhost:5000` instead
-of the documented `http://localhost:5050`. The `SSE` launch profile in `launchSettings.json`
-still declares `applicationUrl: http://localhost:5050`; the port mismatch was only observed when
-`applicationUrl` was not injected. The current code builds and the profiles are intact.
+The automation-status documentation and metadata provider were manually reconstructed. The
+provider maps guideline IDs to enforceable, heuristic, or not-automatable local capabilities.
+The quality gate now starts the MCP host with both the `stdio` and `SSE` launch profiles.
 
 Current focus:
-1. Make the SSE URL/port behavior explicit and deterministic.
-2. Verify the server starts on `http://localhost:5050/mcp` when the SSE profile is selected.
-
-Files in scope:
-- `tools/AzurePipelines.Guidelines.Mcp.Host/Program.cs`
-- `tools/AzurePipelines.Guidelines.Mcp.Host/McpHostStartup.cs`
-- `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`
+1. Review whether automation status should appear in CLI and MCP guideline lookup output.
+2. Prioritize the token-conscious MCP capability work recorded in `docs/TODO.md`.
 
 Validation completed:
-- Full solution quality gate passed (`491` passed, `0` failed) after the documentation changes.
+- Full solution quality gate passed (`510` passed, `0` failed).
+- The MCP `stdio` and `SSE` launch profiles both started successfully.
 
 ---
 
 ## Next up
 
-1. **Stabilize SSE port/URL resolution** so the debugging endpoint is deterministic without
-   relying solely on launch profile injection.
-2. **Address documentation and inline-comment debt** in the CLI project
+1. **Surface automation status** in CLI and MCP guideline lookup output.
+2. **Prioritize MCP capabilities and token usage documentation** from `docs/TODO.md`.
+3. **Address documentation and inline-comment debt** in the CLI project
    (`tools/AzurePipelines.Guidelines.Cli`), so command options, formatters, and exit codes are
    clear to contributors without deep .NET knowledge.
-3. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
+4. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
    rule template workflow when they appear.
 
 ---

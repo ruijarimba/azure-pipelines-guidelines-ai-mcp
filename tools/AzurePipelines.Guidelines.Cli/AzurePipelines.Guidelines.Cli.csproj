@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <PackageId>adog</PackageId>
     <Description>CLI static analyzer for Azure Pipelines YAML. Analyzes pipeline files against the azure-pipelines-guidelines ruleset and reports violations with fix suggestions.</Description>
+    <PackageReleaseNotes>This proof-of-concept tool is not production-ready. APIs and behavior may change without notice.</PackageReleaseNotes>
     <!--
       Publish as a .NET global tool via:
         dotnet tool install -g adog

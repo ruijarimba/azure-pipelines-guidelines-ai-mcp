@@ -21,6 +21,8 @@ public static class GuidelineRulesServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
+        services.AddSingleton<IGuidelineAutomationMetadataProvider, GuidelineAutomationMetadataProvider>();
+
         // Rules are registered here in ADOG-ID order.
         // Add a new line here for each new rule class.
         services.AddSingleton<IGuidelineRule, RelativeTemplatePathRule>();

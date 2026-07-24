@@ -129,7 +129,7 @@ function Test-McpProfile {
     finally {
         if ($null -ne $process -and -not $process.HasExited) {
             Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
-            $process.WaitForExit(5000)
+            $process.WaitForExit(5000) | Out-Null
         }
 
         if (Test-Path $temporaryDirectory) {

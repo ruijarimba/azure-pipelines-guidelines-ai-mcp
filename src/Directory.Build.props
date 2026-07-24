@@ -17,6 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>azure-devops;azure-pipelines;yaml;linter;mcp</PackageTags>
+    <PackageReleaseNotes>This proof-of-concept package is not production-ready. APIs and behavior may change without notice.</PackageReleaseNotes>
     <!-- PackageVersion is set at CI time via /p:PackageVersion=x.y.z — do not hard-code here -->
   </PropertyGroup>
 

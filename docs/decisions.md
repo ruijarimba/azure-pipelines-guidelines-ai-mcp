@@ -295,9 +295,8 @@ Phase 2."
 - The split aligns with the detection kinds defined in the manifest itself.
 
 **Consequences:**  
-- Do not implement `IGuidelineRule` classes for `heuristic` rules in Phase 1.
-  If you encounter a heuristic rule ID while working in the `Rules` project, skip
-  it and note the ADR number.
+- Do not claim that a `heuristic` rule is deterministically enforced solely because a rule
+  class exists. Record its local automation status and rationale in the metadata provider.
 - The `IGuidelineRepository` and `IGuidelineLoader` already load all 36 rules
   from the manifest at runtime, so heuristic rules are available for lookup via
   `list_guidelines`, `get_guideline`, and `adog rules show` even without a

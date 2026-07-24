@@ -1,16 +1,16 @@
 # Azure Pipelines Guidelines tools
 
-> **Proof of concept:** This project is not production-ready. Bugs and incomplete behavior are
-> expected. The analyzer cannot automatically enforce every guideline. See the [rule detection
-> kinds and enforcement scope](docs/how-it-works.md#detection-kinds) for the current limitations.
-> Results should not be treated as a complete validation of an Azure Pipelines file.
+![Status: proof of concept](https://img.shields.io/badge/status-proof--of--concept-orange)
 
-Command-line and AI assistant tools for checking Azure Pipelines YAML against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines). Get rule-backed diagnostics for your pipeline files with stable rule IDs and fix suggestions — enforce coding guidelines across your team and catch issues early.
+Command-line and AI assistant tools for checking Azure Pipelines YAML against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
 
 **Two tools:**
 
 - **CLI (`adog`)** — static analyzer for local development and CI/CD pipelines
 - **MCP server (`adog-mcp`)** — AI assistant integration (GitHub Copilot, Claude, Cursor, etc.)
+
+Get rule-backed diagnostics for your pipeline files with stable rule IDs and fix suggestions.
+Use the tools to enforce coding guidelines across your team and catch issues early.
 
 ---
 
@@ -141,11 +141,17 @@ docs/      Architecture, decisions, glossary, and vision documents
 
 ## Disclaimer
 
-This is a **proof-of-concept project** developed in the author's spare time. It is **not production-ready** and is provided **as-is** with no guarantees of support, maintenance, or fitness for any particular purpose.
+This is a **proof of concept** developed in the author's spare time. It is **not production-ready**
+and is provided **as-is**, with no guarantees of support, maintenance, or fitness for any particular
+purpose.
 
-**Use at your own risk.** Do not expect frequent updates or bug fixes. The project is experimental and may contain bugs, breaking changes, or incomplete features.
+**Use at your own risk.** Bugs and incomplete behavior are expected. The analyzer cannot
+automatically enforce every guideline. See the [rule detection kinds and enforcement scope](docs/how-it-works.md#detection-kinds)
+for the current limitations. Results should not be treated as a complete validation of an Azure
+Pipelines file.
 
-If you find issues or have suggestions, contributions are welcome — but there is no commitment to addressing them in any particular timeframe.
+If you find issues or have suggestions, contributions are welcome, but there is no commitment to
+addressing them within any particular timeframe.
 
 ## Companion repository
 
