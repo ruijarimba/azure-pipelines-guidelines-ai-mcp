@@ -1,5 +1,10 @@
 # Azure Pipelines Guidelines tools
 
+> **Proof of concept:** This project is not production-ready. Bugs and incomplete behavior are
+> expected. The analyzer cannot automatically enforce every guideline. See the [rule detection
+> kinds and enforcement scope](docs/how-it-works.md#detection-kinds) for the current limitations.
+> Results should not be treated as a complete validation of an Azure Pipelines file.
+
 Command-line and AI assistant tools for checking Azure Pipelines YAML against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines). Get rule-backed diagnostics for your pipeline files with stable rule IDs and fix suggestions — enforce coding guidelines across your team and catch issues early.
 
 **Two tools:**
