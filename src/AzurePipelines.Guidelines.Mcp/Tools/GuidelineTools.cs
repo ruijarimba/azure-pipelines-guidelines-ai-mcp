@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AzurePipelines.Guidelines.Core;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 
 namespace AzurePipelines.Guidelines.Mcp.Tools;
@@ -13,7 +14,9 @@ namespace AzurePipelines.Guidelines.Mcp.Tools;
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Performance", "CA1812:Avoid uninstantiated internal classes",
     Justification = "Instantiated by the MCP SDK via dependency injection.")]
-internal sealed class GuidelineTools(IGuidelineRepository repository)
+internal sealed class GuidelineTools(
+    IGuidelineRepository repository,
+    ILogger<GuidelineTools>? logger = null)
 {
     // Compact JSON with camel-case property names. Null values are omitted so AI clients
     // receive smaller responses and the shared contract stays predictable.
@@ -41,6 +44,9 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
             "Omit or pass null to return all categories.")]
         string? category = null)
     {
+        McpToolInvocationLog.Log(logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<GuidelineTools>.Instance,
+            "list_guidelines", category: category);
+
         IReadOnlyList<GuidelineDefinition> guidelines;
 
         if (category is null)
@@ -87,6 +93,9 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         [Description("The stable guideline identifier, e.g. ADOG-STEPS-001.")]
         string id)
     {
+        McpToolInvocationLog.Log(logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<GuidelineTools>.Instance,
+            "get_guideline");
+
         if (string.IsNullOrWhiteSpace(id))
         {
             return JsonSerializer.Serialize(
@@ -131,6 +140,9 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         [Description("The keyword to search for in guideline titles and descriptions.")]
         string keyword)
     {
+        McpToolInvocationLog.Log(logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<GuidelineTools>.Instance,
+            "search_guidelines");
+
         if (string.IsNullOrWhiteSpace(keyword))
         {
             return JsonSerializer.Serialize(
@@ -167,6 +179,9 @@ internal sealed class GuidelineTools(IGuidelineRepository repository)
         "it contains. Useful for exploring what the server knows before calling list_guidelines.")]
     internal string ListCategories()
     {
+        McpToolInvocationLog.Log(logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<GuidelineTools>.Instance,
+            "list_categories");
+
         IReadOnlyList<GuidelineDefinition> all = repository.GetAll();
         Dictionary<string, int> counts = new(StringComparer.Ordinal);
 

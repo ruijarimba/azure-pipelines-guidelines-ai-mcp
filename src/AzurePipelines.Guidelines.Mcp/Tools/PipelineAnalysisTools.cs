@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using AzurePipelines.Guidelines.Analysis;
 using AzurePipelines.Guidelines.Core;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 
 namespace AzurePipelines.Guidelines.Mcp.Tools;
@@ -17,7 +18,8 @@ namespace AzurePipelines.Guidelines.Mcp.Tools;
 internal sealed class PipelineAnalysisTools(
     IPipelineParser parser,
     IPipelineAnalyser analyser,
-    PipelinePathResolver pathResolver)
+    PipelinePathResolver pathResolver,
+    ILogger<PipelineAnalysisTools>? logger = null)
 {
     // Compact JSON with camel-case property names. Null values are omitted so AI clients
     // receive smaller responses and the shared contract stays predictable.
@@ -54,6 +56,10 @@ internal sealed class PipelineAnalysisTools(
             "Omit or pass null to include all categories.")]
         string? category = null)
     {
+        ILogger<PipelineAnalysisTools> invocationLogger =
+            logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<PipelineAnalysisTools>.Instance;
+        McpToolInvocationLog.Log(invocationLogger, "analyze_pipeline", category, guidelineIds);
+
         if (string.IsNullOrWhiteSpace(yaml))
         {
             return JsonSerializer.Serialize(
@@ -75,6 +81,8 @@ internal sealed class PipelineAnalysisTools(
         {
             return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
         }
+
+        McpToolInvocationLog.Log(invocationLogger, "analyze_pipeline", category, guidelineIds, options);
 
         AnalysisResult result = await analyser
             .AnalyseAsync(document, options)
@@ -107,6 +115,10 @@ internal sealed class PipelineAnalysisTools(
             "Omit or pass null to include all categories.")]
         string? category = null)
     {
+        ILogger<PipelineAnalysisTools> invocationLogger =
+            logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<PipelineAnalysisTools>.Instance;
+        McpToolInvocationLog.Log(invocationLogger, "analyze_pipeline_paths", category, guidelineIds);
+
         if (paths is null || paths.Length == 0 || paths.All(string.IsNullOrWhiteSpace))
         {
             return JsonSerializer.Serialize(
@@ -127,6 +139,8 @@ internal sealed class PipelineAnalysisTools(
         {
             return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
         }
+
+        McpToolInvocationLog.Log(invocationLogger, "analyze_pipeline_paths", category, guidelineIds, options);
 
         List<FileAnalysisResultDto> fileResults = [];
 
