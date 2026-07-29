@@ -354,6 +354,41 @@ Additional reasoning:
 
 ---
 
+## ADR-015: Support both local and HTTP MCP transports
+
+**Date:** 2026-07-29  
+**Context:** The MCP server must run in more than one context. A local AI client can start the
+server as a child process, while an IDE debugger or a separately hosted service needs an HTTP
+endpoint. Earlier documentation called `stdio` the primary transport and described the HTTP
+endpoint as SSE-only. That wording incorrectly treated an executable default as a product
+preference and did not reflect the current MCP transport direction.  
+**Decision:** Support both `stdio` and HTTP transports. Keep `stdio` as the executable's
+default because it works with process-launching clients and the existing Docker command. Use the
+HTTP transport when the client connects to an already-running server, including Visual Studio
+debugging and future remote hosting. The host exposes the HTTP endpoint at `/mcp`. The existing
+`SSE` profile names remain as compatibility selectors for the HTTP transport.  
+**Rationale:**
+- `stdio` uses the standard input and output streams of a locally started process. It avoids a
+  listening port and lets the client manage the server lifetime.
+- HTTP separates the client and server lifecycles. It supports an already-running server and
+  allows the server to be reached across a network when deployment, authentication, transport
+  security, and access controls are configured.
+- The MCP transport specification recommends Streamable HTTP and treats the earlier HTTP+SSE
+  transport as a legacy compatibility option.
+- No transport is universally better. The correct transport depends on the client, deployment
+  boundary, and operational requirements.
+
+**Consequences:**
+- Documentation must distinguish the current `stdio` default from a general recommendation.
+- Documentation must call the `/mcp` endpoint HTTP or Streamable HTTP, not SSE-only, unless the
+  implementation explicitly adds the legacy HTTP+SSE transport.
+- The existing `SSE` launch-profile name remains for compatibility with the local debugging
+  workflow. Its documentation must explain that it starts the host HTTP transport.
+- Remote HTTP deployments require HTTPS and appropriate authentication and authorization. They
+  must not expose the endpoint publicly without those controls.
+
+---
+
 ## Template for new decisions
 
 Copy this block when recording a new decision:

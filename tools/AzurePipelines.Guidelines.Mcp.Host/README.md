@@ -16,10 +16,12 @@ connects.
 
 | Transport | When to use it | How messages travel |
 | --- | --- | --- |
-| **stdio** | Production, Docker, the `adog-mcp` CLI tool, and any editor that launches the process directly. | Over `stdout`. All logs go to `stderr` so they do not corrupt the protocol. |
-| **SSE** | Local debugging only. Starts a small ASP.NET Core web server so you can inspect live requests in an IDE. | Over HTTP/SSE at `/mcp`. |
+| **stdio** | A local MCP client launches the process. This includes Docker and editor integrations that start a command. | Over `stdin` and `stdout`. All logs go to `stderr` so they do not corrupt the protocol. |
+| **HTTP transport** | A client connects to an already-running server. This includes local debugging and remote hosting. | HTTP at `/mcp`. Secure remote access with HTTPS, authentication, and authorization. |
 
-The default transport is **stdio**. SSE is only used when you explicitly select it.
+The executable defaults to **stdio**. This default supports process-launching clients; it is not
+a general preference over HTTP. The **SSE** launch-profile name and `--transport sse` selector
+remain for workflow compatibility. They start the host HTTP transport.
 
 ## Build the host
 
@@ -52,15 +54,15 @@ adog-mcp
 2. Select the **stdio** launch profile in the toolbar.
 3. Press `F5`.
 
-## Run in SSE debug mode
+## Run the HTTP transport
 
-SSE lets you debug live MCP requests from Visual Studio while clients such as VS Code talk to
-the server over HTTP.
+The HTTP transport lets you debug live MCP requests from Visual Studio while a supported client
+connects to the server over HTTP.
 
 ### From Visual Studio
 
 1. Set **AzurePipelines.Guidelines.Mcp.Host** as the startup project.
-2. Select the **SSE** launch profile in the toolbar.
+2. Select the **SSE** launch profile in the toolbar. Its name is retained for compatibility.
 3. Press `F5`.
 
 The launch profile binds the server to `http://localhost:5050`. The MCP endpoint is at:
@@ -69,11 +71,12 @@ The launch profile binds the server to `http://localhost:5050`. The MCP endpoint
 http://localhost:5050/mcp
 ```
 
-### Why selecting the launch profile matters
+### Why the launch profile matters
 
 The `applicationUrl` value in `launchSettings.json` is only injected when you choose the
 **SSE** launch profile. If you start the project without that profile, ASP.NET Core falls back
-to its default URL (typically port `5000`). Always select the profile when debugging SSE.
+to its default URL (typically port `5000`). Always select the profile when debugging over the
+HTTP transport.
 
 ### From the command line for quick testing
 
@@ -87,7 +90,7 @@ You can also pass `--urls` explicitly:
 dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host -- --transport sse --urls "http://localhost:5050"
 ```
 
-## Connect VS Code to the SSE endpoint
+## Connect a client to the HTTP endpoint
 
 Add a server entry to your user `mcp.json`:
 
@@ -95,15 +98,15 @@ Add a server entry to your user `mcp.json`:
 {
   "servers": {
     "adog-sse-debug": {
-      "type": "sse",
+      "type": "http",
       "url": "http://localhost:5050/mcp"
     }
   }
 }
 ```
 
-Then start the host with the **SSE** launch profile. VS Code will list the available tools and
-resources once the server is running.
+Then start the host with the **SSE** launch profile. A client version that supports the HTTP
+transport will list the available tools and resources once the server is running.
 
 ## Switch transport with an environment variable
 
@@ -119,7 +122,7 @@ The command line flag `--transport` takes priority over the environment variable
 ## Logging behavior
 
 - In **stdio** mode, all logs are written to `stderr`. `stdout` is reserved for MCP traffic.
-- In **SSE** mode, logs are written to `stderr` by default and are visible in the Visual Studio
+- In **HTTP** mode, logs are written to `stderr` by default and are visible in the Visual Studio
   debug output.
 
 If you see no startup logs, check that the log level is set to `Information` or lower.

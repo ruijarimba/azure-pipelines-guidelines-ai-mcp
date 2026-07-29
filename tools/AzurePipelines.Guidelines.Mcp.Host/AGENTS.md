@@ -33,26 +33,29 @@ logic is in the `src/` class libraries.
 
 - `Microsoft.Extensions.Hosting` (full runtime)
 - `Microsoft.Extensions.Logging.Console`
-- `ModelContextProtocol.AspNetCore` (enables the optional HTTP/SSE debug transport)
+- `ModelContextProtocol.AspNetCore` (enables the optional HTTP transport for local debugging and hosted deployments)
 
 ## Transport modes
 
-The host can run in two modes. Choose the one that matches how the client connects.
+The host supports two transport modes. Choose the one that matches how the client connects.
 
-### `stdio` — default production mode
+### `stdio` — local process transport
 
-- Used by Docker, the .NET global tool (`adog-mcp`), and editor integrations that launch the
-  process directly.
-- MCP messages travel over `stdout`, so all human-readable logs are forced to `stderr`.
+- Used when Docker, the .NET global tool (`adog-mcp`), or an editor integration starts the
+  process directly on the local machine.
+- MCP messages travel over `stdin` and `stdout`, so all human-readable logs are forced to
+  `stderr`.
 - Start with `--transport stdio` or by selecting the **stdio** launch profile in Visual Studio.
 
-### `SSE` — local debugging mode
+### HTTP — already-running server transport
 
-- Starts an ASP.NET Core web server so you can debug the live MCP endpoint from an IDE.
-- The MCP endpoint is `/mcp` and the configured URL is `http://localhost:5050`.
-- Start by selecting the **SSE** launch profile in Visual Studio; this injects the
-  `applicationUrl` value from `launchSettings.json` and binds to port 5050.
-- Connect VS Code by adding an SSE server pointing to `http://localhost:5050/mcp`.
+- Starts an ASP.NET Core web server for Visual Studio debugging or hosted deployments.
+- The MCP endpoint is `/mcp` and the local development URL is `http://localhost:5050`.
+- Start by selecting the **SSE** launch profile in Visual Studio; the legacy name is retained,
+  but it selects the HTTP transport and injects `applicationUrl` from `launchSettings.json`.
+- Connect an MCP client that supports the HTTP transport to `http://localhost:5050/mcp`.
+- Configure HTTPS, authentication, authorization, and network access controls before exposing
+  the endpoint beyond the local machine.
 
 ## Key patterns
 

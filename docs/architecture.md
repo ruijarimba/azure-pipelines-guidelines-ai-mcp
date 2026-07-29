@@ -99,6 +99,20 @@ Omit it to run all rules.
 Tool handlers live in `src/AzurePipelines.Guidelines.Mcp/Tools/` and are discovered automatically
 by the MCP host via `WithToolsFromAssembly`.
 
+## MCP host and transports
+
+`Mcp.Host` selects a transport before it registers the MCP server. The application services and
+tool surface are the same for both transport modes.
+
+| Transport | Host type | Use it when |
+| --- | --- | --- |
+| `stdio` | Generic host | The MCP client starts the server as a local child process. |
+| HTTP transport | ASP.NET Core web host | The MCP client connects to an already-running server. |
+
+The executable defaults to `stdio` for process-launching clients. Use the HTTP transport for
+local debugging or a hosted deployment. The existing `SSE` launch-profile and selector names
+start the HTTP transport for compatibility with the existing local workflow.
+
 ## Extension points
 
 | Goal | Where to add |

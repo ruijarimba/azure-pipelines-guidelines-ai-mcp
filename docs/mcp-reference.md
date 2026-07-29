@@ -6,6 +6,7 @@ The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines cod
 
 - [What is MCP?](#what-is-mcp)
 - [How it works](#how-it-works)
+- [Choose a transport](#choose-a-transport)
 - [Installation](#installation)
   - [Option 1 — Local clone](#option-1--local-clone)
   - [Option 2 — Local Docker image](#option-2--local-docker-image)
@@ -13,7 +14,6 @@ The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines cod
   - [Claude Desktop](#claude-desktop)
   - [GitHub Copilot (VS Code)](#github-copilot-vs-code)
   - [Cline](#cline)
-- [Debug mode with Visual Studio](#debug-mode-with-visual-studio)
 - [Available tools](#available-tools)
 - [Usage examples](#usage-examples)
 - [Troubleshooting](#troubleshooting)
@@ -23,7 +23,9 @@ The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines cod
 
 [Model Context Protocol (MCP)](https://modelcontextprotocol.io) is an open standard that lets AI assistants connect to external tools and data sources. Think of it as a plugin system for AI: instead of relying only on training data, the assistant calls a running server to get live, structured results.
 
-The MCP server runs as a local process. The AI client starts it and communicates over `stdin`/`stdout`. No network port is opened.
+`adog-mcp` supports two ways for a client to connect: a locally started process that uses
+standard input/output (`stdio`), and an HTTP endpoint. Choose the transport that matches where
+the client and server run. The server does not require one transport to be primary.
 
 Without the MCP server, the AI can only advise based on training data. With it running, the AI analyzes your actual pipeline file against the current guidelines and returns precise, rule-keyed diagnostics.
 
@@ -40,7 +42,7 @@ graph TD
     mnf["guidelines.json\ncompanion repo"]
 
     dev -->|"ask a question\nor paste YAML"| ai
-    ai -->|"MCP tool call\nover stdio"| srv
+    ai -->|"MCP tool call\nover selected transport"| srv
     srv --> eng
     eng -->|"loads rules from"| mnf
     eng -->|"returns diagnostics"| srv
@@ -48,7 +50,38 @@ graph TD
     ai -->|"explains violations\nand fix suggestions"| dev
 ```
 
-The server runs as a child process of your AI client. Communication happens over standard input/output streams (stdio transport).
+The server can run as a child process of the AI client or as a separately running HTTP service.
+
+## Choose a transport
+
+Choose the transport based on the deployment boundary and your MCP client support. Both
+transports expose the same tools and resources.
+
+| Transport | Use it when | Connection and lifecycle | Key considerations |
+| --- | --- | --- | --- |
+| `stdio` | The client starts the server on the same machine. | The client communicates with its child process through `stdin` and `stdout`. | No listening port. The client owns the process lifetime. |
+| HTTP transport | The client connects to an already-running server. | The client sends MCP requests to the `/mcp` HTTP endpoint. | Supports local debugging and remote hosting. Secure remote access with HTTPS, authentication, and authorization. |
+
+`stdio` is the current executable default. It is not a general recommendation over HTTP. It is
+the practical default for clients that launch a local command, including the Docker command in
+this repository.
+
+Use the HTTP transport when the client must connect to a server that is already running, such as a
+local debugging setup or a hosted deployment. The host uses the HTTP endpoint at `/mcp` for this
+mode. The existing `SSE` launch-profile and `--transport sse` selector names remain for local
+compatibility. They select the HTTP transport for the host.
+
+### HTTP endpoint
+
+Use an MCP client that supports the HTTP transport when you want the client to connect to an
+already-running host. Configure the client with this endpoint:
+
+```text
+http://localhost:5050/mcp
+```
+
+The exact startup method depends on the host environment. The important point is that the client
+must support the selected transport and connect to the running server endpoint.
 
 ## Installation
 
@@ -274,17 +307,18 @@ The AI will call `analyze_pipeline_paths` with the directory path and summarize 
 
 The AI can filter by category (e.g., `ADOG-JOBS-*`, `ADOG-STEPS-*`) or specific rule IDs.
 
-## Debug mode with Visual Studio
+## Debug through HTTP with Visual Studio
 
-The default stdio transport keeps the protocol stream tied to the client process. That makes
-it hard to debug the server inside Visual Studio while a second tool such as VS Code uses it.
+`stdio` keeps the protocol stream tied to the client process. That makes it hard to debug the
+server inside Visual Studio while a separate MCP client sends requests.
 
-For that workflow, use the optional **SSE transport**. The server listens on a local HTTP port,
-so you can start it in Visual Studio and connect VS Code to the running instance.
+For that workflow, start the host HTTP transport. The server listens on a local HTTP port, so
+you can start it in Visual Studio and connect a supported client to the running instance.
 
-### 1. Start the server in Visual Studio in SSE mode
+### 1. Start the server in Visual Studio
 
-In Visual Studio, set the run/debug profile to **SSE** before you start debugging:
+In Visual Studio, set the run/debug profile to **SSE** before you start debugging. The profile
+name is retained for compatibility; it starts the host HTTP transport:
 
 1. Open the `tools/AzurePipelines.Guidelines.Mcp.Host` project.
 2. In the toolbar, click the run/debug profile dropdown (normally shows the project name).
@@ -300,7 +334,7 @@ To start from the command line instead of Visual Studio:
 dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host -- --transport sse --urls "http://localhost:5050"
 ```
 
-### 2. Configure VS Code to connect over SSE
+### 2. Configure a client to connect over HTTP
 
 Edit `.vscode/mcp.json` in the workspace you want the AI to analyze:
 
@@ -308,7 +342,7 @@ Edit `.vscode/mcp.json` in the workspace you want the AI to analyze:
 {
   "servers": {
     "azure-pipelines-guidelines": {
-      "type": "sse",
+      "type": "http",
       "url": "http://localhost:5050/mcp"
     }
   }
@@ -324,18 +358,20 @@ The server runs only while the Visual Studio debugger is attached. To stop it, d
 debugging in Visual Studio. The VS Code client will lose its connection until you start the
 server again.
 
-### Debug notes and limitations
+### Debug and hosting notes
 
-- SSE mode is for **local debugging only**. The default stdio transport remains the supported
-  execution mode for day-to-day clients, Docker images, and CI.
-- The server binds to `localhost` by default. It is not intended to be exposed to other
-  machines.
-- If port `5050` is in use, change the **SSE** profile in
+- The current executable defaults to `stdio`. Choose HTTP when a supported client must connect
+  to an already-running server.
+- The development profile binds to `localhost` by default. For a remote deployment, configure
+  HTTPS, authentication, authorization, and network access controls before making the endpoint
+  reachable by other machines.
+- If port `5050` is in use, change the **SSE** launch profile in
   `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`, or pass
   `--urls "http://localhost:<port>"` when starting from the command line. If you change the
   port, update the `url` value in VS Code's `mcp.json` to match.
-- You can also switch transports with the environment variable `MCP_TRANSPORT=sse`, but the
-  `--transport` command-line argument takes priority.
+- You can also start the HTTP transport with `MCP_TRANSPORT=sse`, but the `--transport`
+  command-line argument takes priority. This value is an implementation selector name, not a
+  statement that the endpoint uses legacy HTTP+SSE.
 
 ## Troubleshooting
 
