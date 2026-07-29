@@ -9,6 +9,14 @@ machine-readable definitions:
 1. **MCP server** — AI assistants call it to look up guidelines and analyze pipeline YAML files.
 2. **CLI static analyzer** (`adog`) — runs in CI or locally to flag violations.
 
+## At a glance
+
+| Area | Summary |
+| --- | --- |
+| Solution shape | Layered .NET 10 solution with strict dependency direction |
+| Main outputs | MCP server for AI assistants and CLI analyzer for CI or local runs |
+| Runtime boundary | `Mcp.Host` manages transport selection; `Cli` stays command-line focused |
+
 ## Dependency graph
 
 ```

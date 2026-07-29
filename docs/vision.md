@@ -10,6 +10,13 @@ machine-readable manifest that make the guidelines **actionable** for humans and
 
 Both tools consume the same `data/guidelines.json` manifest from the companion repository.
 
+## At a glance
+
+| Focus | Current position |
+| --- | --- |
+| Phase 1 | The core release is complete and documented |
+| Phase 2 | Future work focuses on automation, IDE integrations, and CI/CD adoption |
+
 ## In scope
 
 ```mermaid

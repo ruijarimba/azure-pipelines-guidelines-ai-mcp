@@ -3,6 +3,14 @@
 This file is the **session handoff note** for AI agents and human contributors.
 Update it before every commit so the next session starts with accurate context.
 
+## Current snapshot
+
+| Area | Status |
+| --- | --- |
+| Current focus | Guideline automation status recovery and MCP capability planning |
+| Recent wins | MCP transport docs, launch profile guidance, and local validation are in place |
+| Next up | Review automation status in CLI and MCP output, then prioritize token-conscious MCP work |
+
 ---
 
 ## How to update this file

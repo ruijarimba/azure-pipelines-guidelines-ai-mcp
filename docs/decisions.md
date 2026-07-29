@@ -3,6 +3,26 @@
 Lightweight log of significant decisions and rationale. When an agent considers changing one of
 these, it must re-read the rationale first; if the context has changed, document the reversal here.
 
+## ADR index
+
+| ADR | Date | Summary |
+| --- | --- | --- |
+| ADR-001 | 2026-07-06 | .NET 10 as target framework |
+| ADR-002 | 2026-07-06 | Central package management via `Directory.Packages.props` |
+| ADR-003 | 2026-07-06 | Strict layered architecture with no cycles |
+| ADR-004 | 2026-07-06 | xUnit, FluentAssertions, and NSubstitute as the only test libraries |
+| ADR-005 | 2026-07-06 | Solution file format uses `.slnx` |
+| ADR-006 | 2026-07-06 | `TreatWarningsAsErrors = true` everywhere |
+| ADR-007 | 2026-07-06 | Guidelines manifest lives in the companion repository |
+| ADR-008 | 2026-07-06 | All `src/` projects are NuGet packages |
+| ADR-009 | 2026-07-06 | Parser uses YamlDotNet |
+| ADR-010 | 2026-07-06 | Agent behaviour is governed by published collaboration frameworks |
+| ADR-011 | 2026-07-06 | Code patterns and maintainability standards |
+| ADR-012 | 2026-07-07 | Maintainability rules and pattern guidance |
+| ADR-013 | 2026-07-07 | Heuristic detection rules are deferred to Phase 2 |
+| ADR-014 | 2026-07-08 | Debuggability is a first-class concern |
+| ADR-015 | 2026-07-29 | Support both local and HTTP MCP transports |
+
 ---
 
 ## ADR-001: .NET 10 as target framework

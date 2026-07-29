@@ -2,6 +2,16 @@
 
 The `adog` command-line tool analyzes Azure Pipelines YAML files against the [coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines) and reports violations with fix suggestions.
 
+## Quick start
+
+Use these commands to get to a result fast:
+
+| Goal | Command |
+| --- | --- |
+| Analyze a file | `dotnet run --project tools/AzurePipelines.Guidelines.Cli -- analyze azure-pipelines.yml` |
+| List the available rules | `dotnet run --project tools/AzurePipelines.Guidelines.Cli -- rules list` |
+| Show one rule in detail | `dotnet run --project tools/AzurePipelines.Guidelines.Cli -- rules show ADOG-STEPS-001` |
+
 ## Command Overview
 
 | Command | Purpose |
@@ -46,6 +56,15 @@ adog analyze <path> [<path> ...]
 
 Analyze one or more pipeline files or directories against the guidelines.
 Directories are scanned recursively for `*.yml` and `*.yaml` files.
+
+#### Common choices
+
+| If you want to... | Use |
+| --- | --- |
+| Write machine-readable output | `--format json` |
+| Reduce noise to errors only | `--severity error` |
+| Limit the scan to one area | `--category steps` |
+| Save output to disk | `--output report.json` |
 
 #### Options
 

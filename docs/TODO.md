@@ -8,6 +8,14 @@ The backlog below reflects the current state of the repository after the latest 
 - Folder-based integration tests for the real analysis stack are implemented and validated.
 - Local tests, packaging, and documentation validation passed.
 
+## Priority at a glance
+
+| Priority | Item | Why it matters |
+| --- | --- | --- |
+| Now | Improve executable and runnable-project docs | The MCP host and CLI need clearer guidance for transport, profiles, and options |
+| Next | Expand MCP capabilities with token-conscious defaults | This improves client experience without overloading the context window |
+| Later | Improve CLI examples and revisit rule coverage | These are useful follow-ups once the main path is stable |
+
 ---
 
 ## High Priority

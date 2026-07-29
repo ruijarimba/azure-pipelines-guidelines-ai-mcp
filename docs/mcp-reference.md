@@ -29,6 +29,15 @@ the client and server run. The server does not require one transport to be prima
 
 Without the MCP server, the AI can only advise based on training data. With it running, the AI analyzes your actual pipeline file against the current guidelines and returns precise, rule-keyed diagnostics.
 
+## Quick decision
+
+| If your client... | Use this transport |
+| --- | --- |
+| Starts the server as a local process | `stdio` |
+| Connects to an already-running server | HTTP transport |
+
+Choose `stdio` for local editor integrations and Docker. Choose the HTTP transport for Visual Studio debugging or a hosted deployment.
+
 ## How it works
 
 Here is how the MCP server fits into your workflow:
