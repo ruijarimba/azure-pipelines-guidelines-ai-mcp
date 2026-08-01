@@ -295,6 +295,28 @@ Resource endpoints are useful when a client wants to cache the catalogue or fetc
 
 - `adog://guidelines` returns the full guideline catalogue as a JSON array of summaries.
 - `adog://guidelines/version` returns a small JSON object with the current catalogue version, for example `{"version":"..."}`. Clients can cache this and skip reloading the catalogue when it is unchanged.
+- `adog://capabilities` returns a compact, cacheable description of the server version, catalogue version, supported transports, available tools, resources, and future capability flags.
+
+The capabilities resource is intended for client discovery rather than analysis. Its `tools`,
+`resources`, and `prompts` arrays describe the currently exposed MCP surface. The `supports`
+object reports optional features that clients should not assume are available. The current
+server reports automation metadata and prompts as unsupported; those features may be added in
+later increments.
+
+Example capability fields:
+
+```json
+{
+  "server": "azure-pipelines-guidelines",
+  "version": "1.0.0",
+  "catalogueVersion": "...",
+  "transports": ["stdio", "streamable-http"],
+  "supports": {
+    "automationMetadata": false,
+    "prompts": false
+  }
+}
+```
 - `adog://guidelines/category/{category}` returns the entries for one category, such as `adog://guidelines/category/steps`.
 - `adog://guidelines/{id}` returns the full detail for one guideline, such as `adog://guidelines/ADOG-STEPS-001`.
 

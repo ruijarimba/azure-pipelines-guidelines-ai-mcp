@@ -16,6 +16,9 @@ namespace AzurePipelines.Guidelines.Mcp.Resources;
     Justification = "Instantiated by the MCP SDK via dependency injection.")]
 internal sealed class GuidelineResources(IGuidelineRepository repository)
 {
+    private static string ServerName => "azure-pipelines-guidelines";
+    private static string ServerVersion => "1.0.0";
+
     // Compact JSON with camel-case property names. Null values are omitted so AI clients
     // receive smaller responses and the shared contract stays predictable.
     private static readonly JsonSerializerOptions _jsonOptions = new()
@@ -23,6 +26,47 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         WriteIndented = false,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
+
+    // ── adog://capabilities ──────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns the cacheable MCP surface and current catalogue version.
+    /// </summary>
+    [McpServerResource(
+        UriTemplate = "adog://capabilities",
+        Name = "capabilities",
+        Title = "MCP capabilities",
+        MimeType = "application/json")]
+    [Description(
+        "Returns the server version, catalogue version, supported transports, and the " +
+        "currently available tools, resources, and prompts.")]
+    internal Task<string> GetCapabilitiesAsync()
+    {
+        CapabilitiesResponseDto capabilities = new(
+            ServerName,
+            ServerVersion,
+            repository.ContentVersion,
+            ["stdio", "streamable-http"],
+            [
+                "analyze_pipeline",
+                "analyze_pipeline_paths",
+                "list_guidelines",
+                "get_guideline",
+                "search_guidelines",
+                "list_categories"
+            ],
+            [
+                "adog://capabilities",
+                "adog://guidelines",
+                "adog://guidelines/version",
+                "adog://guidelines/category/{category}",
+                "adog://guidelines/{id}"
+            ],
+            [],
+            new CapabilitiesSupportDto(AutomationMetadata: false, Prompts: false));
+
+        return Task.FromResult(JsonSerializer.Serialize(capabilities, _jsonOptions));
+    }
 
     // ── adog://guidelines ─────────────────────────────────────────────────────
 

@@ -3,6 +3,12 @@
     <Project Path="src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj" />
     <Project Path="src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj" />
     <Project Path="src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj" />
+    <Folder Name="/src/AzurePipelines.Guidelines.Mcp/">
+      <Folder Name="/src/AzurePipelines.Guidelines.Mcp/Resources/">
+        <File Path="src/AzurePipelines.Guidelines.Mcp/Resources/CapabilitiesResponseDto.cs" />
+        <File Path="src/AzurePipelines.Guidelines.Mcp/Resources/CapabilitiesSupportDto.cs" />
+      </Folder>
+    </Folder>
     <Project Path="src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj" />
     <Project Path="src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj" />
   </Folder>

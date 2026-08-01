@@ -87,7 +87,7 @@ public sealed class GuidelineRepository : IGuidelineRepository
         }
 
         byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(builder.ToString()));
-        Span<char> hashChars = stackalloc char[32];
+        Span<char> hashChars = stackalloc char[hashBytes.Length * 2];
         for (int i = 0; i < hashBytes.Length; i++)
         {
             hashChars[i * 2] = GetHexDigit(hashBytes[i] >> 4);

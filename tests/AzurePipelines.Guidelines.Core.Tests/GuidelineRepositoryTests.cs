@@ -52,6 +52,34 @@ public sealed class GuidelineRepositoryTests
     }
 
     [Fact]
+    public void ContentVersion_GivenEmptyRepository_ShouldReturnSha256HexValue()
+    {
+        // Arrange
+        GuidelineRepository sut = new([]);
+
+        // Act
+        string result = sut.ContentVersion;
+
+        // Assert
+        result.Should().HaveLength(64);
+        result.Should().MatchRegex("^[0-9a-f]{64}$");
+    }
+
+    [Fact]
+    public void ContentVersion_GivenGuidelines_ShouldReturnSha256HexValue()
+    {
+        // Arrange
+        GuidelineRepository sut = new([MakeGuideline("ADOG-STEPS-001")]);
+
+        // Act
+        string result = sut.ContentVersion;
+
+        // Assert
+        result.Should().HaveLength(64);
+        result.Should().MatchRegex("^[0-9a-f]{64}$");
+    }
+
+    [Fact]
     public void GetAll_GivenTwoGuidelines_ShouldReturnBoth()
     {
         // Arrange

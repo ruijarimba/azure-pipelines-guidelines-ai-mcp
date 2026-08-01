@@ -29,6 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Resources/CapabilitiesResponseDto.cs" />
+    <Compile Include="Resources/CapabilitiesSupportDto.cs" />
     <Compile Include="Resources/CatalogueVersionResponseDto.cs" />
     <Compile Include="Resources/DetectionHintDto.cs" />
     <Compile Include="Resources/ErrorResponseDto.cs" />

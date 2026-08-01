@@ -94,6 +94,8 @@ content by default.
       detailed payload
 - [ ] Add concise MCP prompts for reviewing a pipeline, explaining a guideline, and preparing a
       remediation plan
+- [x] Add a cacheable `adog://capabilities` resource for server, catalogue, transport, and MCP
+      surface discovery
 - [ ] Add server-side analysis summaries that group diagnostics by file, category, severity, and
       rule
 - [ ] Consider an `explain_diagnostic` tool when the raw diagnostic and fix guidance are not
