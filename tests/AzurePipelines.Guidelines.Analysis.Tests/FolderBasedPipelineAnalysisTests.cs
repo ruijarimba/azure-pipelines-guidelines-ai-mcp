@@ -73,6 +73,8 @@ public sealed class FolderBasedPipelineAnalysisTests
 
     private sealed class TestGuidelineRepository : IGuidelineRepository
     {
+        public string ContentVersion => "test";
+
         public IReadOnlyList<GuidelineDefinition> GetAll() =>
             [
                 new GuidelineDefinition(

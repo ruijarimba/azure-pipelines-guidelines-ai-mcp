@@ -13,6 +13,13 @@ applyTo: "**/*.cs"
 - **Collection expressions** (`[a, b, c]`) over `new List<>()` or array initializers where the target type is clear.
 - **`IReadOnlyList<T>`** or **`IReadOnlyCollection<T>`** for all public collection properties — never `List<T>`.
 - **`init`-only setters** on properties where post-construction mutation must be prevented.
+- **One type per file** — each class, record, enum, or interface must be declared in its own file, with the file name matching the type name. Do not group multiple types in a single implementation file.
+
+This rule applies even for small helper DTOs, response wrappers, and private/internal records.
+
+---
+
+## Naming conventions
 
 ## Naming conventions
 

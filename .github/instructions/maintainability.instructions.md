@@ -73,6 +73,22 @@ Each file, class, and method must have exactly one reason to change.
 
 - **One public type per file.** Private nested helper records are allowed; anything else goes
   in its own file.
+- **Every class and record must live in its own file.** Do not declare a second class or record
+  in the same file as another type, even if the other type is private or nested. Create a new
+  top-level file for each type and keep the file name aligned with the type name.
+- **Do not use nested private helper types as a shortcut for organization.** Nested helpers are
+  acceptable only when the codebase already uses them and the file is otherwise not being
+  refactored; otherwise extract the type into a dedicated file.
+
+The rule is intentionally strict: it makes the code easier to navigate, easier to review, and
+less likely to accumulate unrelated helpers inside a single implementation file.
+
+*Inspiration: Google C# Style Guide (one top-level type per file), Microsoft C# conventions,
+Oracle Java Code Conventions.*
+
+---
+
+## 5. Comment discipline
 - **One concern per class.** If you need the word "and" to describe what a class does,
   split it.
 - **One concern per method.** A method either queries state or changes state — not both

@@ -60,16 +60,16 @@ internal sealed class GuidelineTools(
         else
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse($"Unknown category '{category}'. " +
+                new ErrorResponseDto($"Unknown category '{category}'. " +
                     "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables."),
                 _jsonOptions);
         }
 
-        GuidelineSummary[] summaries = new GuidelineSummary[guidelines.Count];
+        GuidelineSummaryDto[] summaries = new GuidelineSummaryDto[guidelines.Count];
         for (int i = 0; i < guidelines.Count; i++)
         {
             GuidelineDefinition g = guidelines[i];
-            summaries[i] = new GuidelineSummary(
+            summaries[i] = new GuidelineSummaryDto(
                 g.Id.Value,
                 g.Title,
                 EnumToJsonString(g.Category),
@@ -101,7 +101,7 @@ internal sealed class GuidelineTools(
         if (string.IsNullOrWhiteSpace(id))
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse("Parameter 'id' is required."), _jsonOptions);
+                new ErrorResponseDto("Parameter 'id' is required."), _jsonOptions);
         }
 
         GuidelineId guidelineId;
@@ -112,7 +112,7 @@ internal sealed class GuidelineTools(
         catch (ArgumentException)
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse(
+                new ErrorResponseDto(
                     $"'{id}' is not a valid guideline ID. " +
                     "Expected format: ADOG-{CATEGORY}-{NNN}, e.g. ADOG-STEPS-001."),
                 _jsonOptions);
@@ -123,7 +123,7 @@ internal sealed class GuidelineTools(
         if (guideline is null)
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse($"Guideline '{id}' not found."), _jsonOptions);
+                new ErrorResponseDto($"Guideline '{id}' not found."), _jsonOptions);
         }
 
         if (string.Equals(detail, "full", StringComparison.OrdinalIgnoreCase))
@@ -134,11 +134,11 @@ internal sealed class GuidelineTools(
         if (!string.IsNullOrWhiteSpace(detail) && !string.Equals(detail, "summary", StringComparison.OrdinalIgnoreCase))
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse("Parameter 'detail' must be either 'summary' or 'full'."), _jsonOptions);
+                new ErrorResponseDto("Parameter 'detail' must be either 'summary' or 'full'."), _jsonOptions);
         }
 
         return JsonSerializer.Serialize(
-            new GuidelineSummary(guideline.Id.Value, guideline.Title, EnumToJsonString(guideline.Category), EnumToJsonString(guideline.Severity)),
+            new GuidelineSummaryDto(guideline.Id.Value, guideline.Title, EnumToJsonString(guideline.Category), EnumToJsonString(guideline.Severity)),
             _jsonOptions);
     }
 
@@ -161,18 +161,18 @@ internal sealed class GuidelineTools(
         if (string.IsNullOrWhiteSpace(keyword))
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse("Parameter 'keyword' is required."), _jsonOptions);
+                new ErrorResponseDto("Parameter 'keyword' is required."), _jsonOptions);
         }
 
         IReadOnlyList<GuidelineDefinition> all = repository.GetAll();
-        List<GuidelineSummary> matches = [];
+        List<GuidelineSummaryDto> matches = [];
 
         foreach (GuidelineDefinition g in all)
         {
             if (g.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
                 g.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase))
             {
-                matches.Add(new GuidelineSummary(
+                matches.Add(new GuidelineSummaryDto(
                     g.Id.Value,
                     g.Title,
                     EnumToJsonString(g.Category),
@@ -206,11 +206,11 @@ internal sealed class GuidelineTools(
             counts[key] = counts.TryGetValue(key, out int current) ? current + 1 : 1;
         }
 
-        CategoryCount[] result = new CategoryCount[counts.Count];
+        CategoryCountDto[] result = new CategoryCountDto[counts.Count];
         int idx = 0;
         foreach (KeyValuePair<string, int> kv in counts)
         {
-            result[idx++] = new CategoryCount(kv.Key, kv.Value);
+            result[idx++] = new CategoryCountDto(kv.Key, kv.Value);
         }
 
         Array.Sort(result, static (a, b) =>
@@ -261,22 +261,6 @@ internal sealed class GuidelineTools(
             g.References.Count > 0 ? [.. g.References] : null);
     }
 
-    private static DetectionHintDto[] BuildHintDtos(IReadOnlyList<DetectionHint> hints)
-    {
-        DetectionHintDto[] result = new DetectionHintDto[hints.Count];
-        for (int i = 0; i < hints.Count; i++)
-        {
-            DetectionHint h = hints[i];
-            result[i] = new DetectionHintDto(
-                EnumToJsonString(h.Kind),
-                EnumToJsonString(h.Scope),
-                h.Expression,
-                h.Description);
-        }
-
-        return result;
-    }
-
     // Converts an enum value to a lowercase ASCII string for JSON output.
     // We avoid string.ToLowerInvariant because the codebase treats enum names as stable
     // ASCII identifiers, and CA1308 warns against ToLowerInvariant in invariant contexts.
@@ -295,39 +279,76 @@ internal sealed class GuidelineTools(
 
     // ── Internal DTOs ─────────────────────────────────────────────────────────
 
-    private sealed record GuidelineSummary(
-        [property: JsonPropertyName("id")] string Id,
-        [property: JsonPropertyName("title")] string Title,
-        [property: JsonPropertyName("category")] string Category,
-        [property: JsonPropertyName("severity")] string Severity);
+    private static GuidelineSummaryDto CreateSummary(GuidelineDefinition guideline) =>
+        new(
+            guideline.Id.Value,
+            guideline.Title,
+            EnumToJsonString(guideline.Category),
+            EnumToJsonString(guideline.Severity));
 
-    private sealed record CategoryCount(
-        [property: JsonPropertyName("category")] string Category,
-        [property: JsonPropertyName("count")] int Count);
+    private static GuidelineDetailDto CreateDetail(GuidelineDefinition guideline) =>
+        new(
+            guideline.Id.Value,
+            guideline.Title,
+            EnumToJsonString(guideline.Category),
+            EnumToJsonString(guideline.Severity),
+            guideline.Description,
+            guideline.Rationale,
+            guideline.Tags.Count > 0 ? [.. guideline.Tags] : null,
+            BuildHintDtos(guideline.DetectionHints),
+            BuildFixDto(guideline.Fix),
+            guideline.References.Count > 0 ? [.. guideline.References] : null);
 
-    private sealed record ErrorResponse(
-        [property: JsonPropertyName("error")] string Error);
+    private static FixDto? BuildFixDto(FixGuidance? fix) =>
+        fix is null ? null : new FixDto(fix.Summary, fix.Before, fix.After);
 
-    private sealed record GuidelineDetailDto(
-        [property: JsonPropertyName("id")] string Id,
-        [property: JsonPropertyName("title")] string Title,
-        [property: JsonPropertyName("category")] string Category,
-        [property: JsonPropertyName("severity")] string Severity,
-        [property: JsonPropertyName("description")] string Description,
-        [property: JsonPropertyName("rationale")] string? Rationale,
-        [property: JsonPropertyName("tags")] string[]? Tags,
-        [property: JsonPropertyName("detectionHints")] DetectionHintDto[]? DetectionHints,
-        [property: JsonPropertyName("fix")] FixDto? Fix,
-        [property: JsonPropertyName("references")] string[]? References);
+    private static DetectionHintDto[] BuildHintDtos(IReadOnlyList<DetectionHint> hints)
+    {
+        DetectionHintDto[] result = new DetectionHintDto[hints.Count];
+        for (int i = 0; i < hints.Count; i++)
+        {
+            DetectionHint h = hints[i];
+            result[i] = new DetectionHintDto(
+                EnumToJsonString(h.Kind),
+                EnumToJsonString(h.Scope),
+                h.Expression,
+                h.Description);
+        }
 
-    private sealed record DetectionHintDto(
-        [property: JsonPropertyName("kind")] string Kind,
-        [property: JsonPropertyName("scope")] string Scope,
-        [property: JsonPropertyName("expression")] string? Expression,
-        [property: JsonPropertyName("description")] string Description);
+        return result;
+    }
 
-    private sealed record FixDto(
-        [property: JsonPropertyName("summary")] string Summary,
-        [property: JsonPropertyName("before")] string? Before,
-        [property: JsonPropertyName("after")] string? After);
+    private static GuidelineSummaryDto[] BuildSummaryDtos(IReadOnlyList<GuidelineDefinition> guidelines)
+    {
+        GuidelineSummaryDto[] summaries = new GuidelineSummaryDto[guidelines.Count];
+        for (int i = 0; i < guidelines.Count; i++)
+        {
+            summaries[i] = CreateSummary(guidelines[i]);
+        }
+
+        return summaries;
+    }
+
+    private static GuidelineSummaryDto[] BuildSummaryDtos(IEnumerable<GuidelineDefinition> guidelines)
+    {
+        List<GuidelineSummaryDto> summaries = [];
+        foreach (GuidelineDefinition guideline in guidelines)
+        {
+            summaries.Add(CreateSummary(guideline));
+        }
+
+        return [.. summaries];
+    }
+
+    private static GuidelineSummaryDto[] BuildSummaryDtos(IReadOnlyCollection<GuidelineDefinition> guidelines)
+    {
+        GuidelineSummaryDto[] summaries = new GuidelineSummaryDto[guidelines.Count];
+        int index = 0;
+        foreach (GuidelineDefinition guideline in guidelines)
+        {
+            summaries[index++] = CreateSummary(guideline);
+        }
+
+        return summaries;
+    }
 }

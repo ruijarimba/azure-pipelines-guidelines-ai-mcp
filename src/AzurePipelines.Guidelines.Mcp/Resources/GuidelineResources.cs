@@ -42,11 +42,11 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
     {
         IReadOnlyList<GuidelineDefinition> all = repository.GetAll();
 
-        GuidelineSummary[] summaries = new GuidelineSummary[all.Count];
+        GuidelineSummaryDto[] summaries = new GuidelineSummaryDto[all.Count];
         for (int i = 0; i < all.Count; i++)
         {
             GuidelineDefinition g = all[i];
-            summaries[i] = new GuidelineSummary(
+            summaries[i] = new GuidelineSummaryDto(
                 g.Id.Value,
                 g.Title,
                 EnumToJsonString(g.Category),
@@ -71,7 +71,7 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         "Clients can use this as a cache key and skip refetching the full catalogue when the version is unchanged.")]
     internal Task<string> GetCatalogueVersionAsync()
     {
-        return Task.FromResult(JsonSerializer.Serialize(new CatalogueVersionResponse(repository.ContentVersion), _jsonOptions));
+        return Task.FromResult(JsonSerializer.Serialize(new CatalogueVersionResponseDto(repository.ContentVersion), _jsonOptions));
     }
 
     // ── adog://guidelines/category/{category} ──────────────────────────────
@@ -92,22 +92,22 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
     {
         if (string.IsNullOrWhiteSpace(category))
         {
-            return Task.FromResult(JsonSerializer.Serialize(new ErrorResponse("Path segment 'category' is required."), _jsonOptions));
+            return Task.FromResult(JsonSerializer.Serialize(new ErrorResponseDto("Path segment 'category' is required."), _jsonOptions));
         }
 
         if (!TryParseCategory(category, out GuidelineCategory parsedCategory))
         {
             return Task.FromResult(JsonSerializer.Serialize(
-                new ErrorResponse($"Unknown category '{category}'. Allowed values: general, jobs, parameters, pipelines, stages, steps, variables."),
+                new ErrorResponseDto($"Unknown category '{category}'. Allowed values: general, jobs, parameters, pipelines, stages, steps, variables."),
                 _jsonOptions));
         }
 
         IReadOnlyList<GuidelineDefinition> matching = repository.GetByCategory(parsedCategory);
-        GuidelineSummary[] summaries = new GuidelineSummary[matching.Count];
+        GuidelineSummaryDto[] summaries = new GuidelineSummaryDto[matching.Count];
         for (int i = 0; i < matching.Count; i++)
         {
             GuidelineDefinition guideline = matching[i];
-            summaries[i] = new GuidelineSummary(
+            summaries[i] = new GuidelineSummaryDto(
                 guideline.Id.Value,
                 guideline.Title,
                 EnumToJsonString(guideline.Category),
@@ -137,7 +137,7 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         if (string.IsNullOrWhiteSpace(id))
         {
             return Task.FromResult(
-                JsonSerializer.Serialize(new ErrorResponse("Path segment 'id' is required."), _jsonOptions));
+                JsonSerializer.Serialize(new ErrorResponseDto("Path segment 'id' is required."), _jsonOptions));
         }
 
         GuidelineId guidelineId;
@@ -149,7 +149,7 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         {
             return Task.FromResult(
                 JsonSerializer.Serialize(
-                    new ErrorResponse(
+                    new ErrorResponseDto(
                         $"'{id}' is not a valid guideline ID. " +
                         "Expected format: ADOG-{CATEGORY}-{NNN}, e.g. ADOG-STEPS-001."),
                     _jsonOptions));
@@ -160,13 +160,13 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         if (guideline is null)
         {
             return Task.FromResult(
-                JsonSerializer.Serialize(new ErrorResponse($"Guideline '{id}' not found."), _jsonOptions));
+                JsonSerializer.Serialize(new ErrorResponseDto($"Guideline '{id}' not found."), _jsonOptions));
         }
 
         return Task.FromResult(JsonSerializer.Serialize(ToDetailDto(guideline), _jsonOptions));
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ── Helpers ──────────────────────────────────────────────
 
     private static bool TryParseCategory(string value, out GuidelineCategory result)
     {
@@ -240,40 +240,4 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         });
     }
 
-    // ── Internal DTOs ─────────────────────────────────────────────────────────
-
-    private sealed record GuidelineSummary(
-        [property: JsonPropertyName("id")] string Id,
-        [property: JsonPropertyName("title")] string Title,
-        [property: JsonPropertyName("category")] string Category,
-        [property: JsonPropertyName("severity")] string Severity);
-
-    private sealed record ErrorResponse(
-        [property: JsonPropertyName("error")] string Error);
-
-    private sealed record CatalogueVersionResponse(
-        [property: JsonPropertyName("version")] string Version);
-
-    private sealed record GuidelineDetailDto(
-        [property: JsonPropertyName("id")] string Id,
-        [property: JsonPropertyName("title")] string Title,
-        [property: JsonPropertyName("category")] string Category,
-        [property: JsonPropertyName("severity")] string Severity,
-        [property: JsonPropertyName("description")] string Description,
-        [property: JsonPropertyName("rationale")] string? Rationale,
-        [property: JsonPropertyName("tags")] string[]? Tags,
-        [property: JsonPropertyName("detectionHints")] DetectionHintDto[]? DetectionHints,
-        [property: JsonPropertyName("fix")] FixDto? Fix,
-        [property: JsonPropertyName("references")] string[]? References);
-
-    private sealed record DetectionHintDto(
-        [property: JsonPropertyName("kind")] string Kind,
-        [property: JsonPropertyName("scope")] string Scope,
-        [property: JsonPropertyName("expression")] string? Expression,
-        [property: JsonPropertyName("description")] string Description);
-
-    private sealed record FixDto(
-        [property: JsonPropertyName("summary")] string Summary,
-        [property: JsonPropertyName("before")] string? Before,
-        [property: JsonPropertyName("after")] string? After);
-}
+    }
