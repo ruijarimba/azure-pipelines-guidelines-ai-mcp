@@ -39,6 +39,11 @@ public sealed class GuidelineResourcesTests
     private static GuidelineResources MakeSutWithRepo(IGuidelineRepository repo) =>
         new(repo);
 
+    private static GuidelineResources MakeSutWithRepoAndMetadata(
+        IGuidelineRepository repo,
+        IGuidelineAutomationMetadataProvider metadataProvider) =>
+        new(repo, metadataProvider);
+
     private static T Deserialize<T>(string json) =>
         JsonSerializer.Deserialize<T>(json)!;
 
@@ -94,8 +99,10 @@ public sealed class GuidelineResourcesTests
             .Should().Contain("analyze_pipeline");
         payload.GetProperty("resources").EnumerateArray().Select(item => item.GetString())
             .Should().Contain("adog://capabilities");
+        payload.GetProperty("resources").EnumerateArray().Select(item => item.GetString())
+            .Should().Contain("adog://guidelines/{id}/automation");
         payload.GetProperty("prompts").GetArrayLength().Should().Be(0);
-        payload.GetProperty("supports").GetProperty("automationMetadata").GetBoolean().Should().BeFalse();
+        payload.GetProperty("supports").GetProperty("automationMetadata").GetBoolean().Should().BeTrue();
         payload.GetProperty("supports").GetProperty("prompts").GetBoolean().Should().BeFalse();
     }
 
@@ -245,6 +252,63 @@ public sealed class GuidelineResourcesTests
         doc.GetProperty("description").GetString().Should().Be("Always set a timeout on tasks.");
         doc.GetProperty("category").GetString().Should().Be("steps");
         doc.GetProperty("severity").GetString().Should().Be("do");
+    }
+
+    [Fact]
+    public async Task GetGuidelineAsync_GivenMetadata_ShouldIncludeAutomationStatusAndReason()
+    {
+        // Arrange
+        GuidelineDefinition guideline = MakeGuideline("ADOG-STEPS-006");
+        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
+        repo.FindById(Arg.Any<GuidelineId>()).Returns(guideline);
+        IGuidelineAutomationMetadataProvider metadataProvider = Substitute.For<IGuidelineAutomationMetadataProvider>();
+        metadataProvider.GetAutomationMetadata(guideline.Id).Returns(
+            new GuidelineAutomationMetadata(GuidelineAutomationStatus.Enforceable, "The YAML evidence is deterministic."));
+        GuidelineResources sut = MakeSutWithRepoAndMetadata(repo, metadataProvider);
+
+        // Act
+        string result = await sut.GetGuidelineAsync("ADOG-STEPS-006");
+
+        // Assert
+        JsonElement doc = Deserialize<JsonElement>(result);
+        doc.GetProperty("automationStatus").GetString().Should().Be("enforceable");
+        doc.GetProperty("automationReason").GetString().Should().Be("The YAML evidence is deterministic.");
+    }
+
+    [Fact]
+    public async Task GetGuidelineAutomationAsync_GivenKnownId_ShouldReturnMetadata()
+    {
+        // Arrange
+        GuidelineDefinition guideline = MakeGuideline("ADOG-STEPS-006");
+        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
+        repo.FindById(Arg.Any<GuidelineId>()).Returns(guideline);
+        IGuidelineAutomationMetadataProvider metadataProvider = Substitute.For<IGuidelineAutomationMetadataProvider>();
+        metadataProvider.GetAutomationMetadata(guideline.Id).Returns(
+            new GuidelineAutomationMetadata(GuidelineAutomationStatus.Heuristic, "The YAML evidence needs context."));
+        GuidelineResources sut = MakeSutWithRepoAndMetadata(repo, metadataProvider);
+
+        // Act
+        string result = await sut.GetGuidelineAutomationAsync("ADOG-STEPS-006");
+
+        // Assert
+        JsonElement doc = Deserialize<JsonElement>(result);
+        doc.GetProperty("guidelineId").GetString().Should().Be("ADOG-STEPS-006");
+        doc.GetProperty("automationStatus").GetString().Should().Be("heuristic");
+        doc.GetProperty("automationReason").GetString().Should().Be("The YAML evidence needs context.");
+    }
+
+    [Fact]
+    public async Task GetGuidelineAutomationAsync_GivenInvalidId_ShouldReturnErrorResponse()
+    {
+        // Arrange
+        GuidelineResources sut = MakeSut();
+
+        // Act
+        string result = await sut.GetGuidelineAutomationAsync("not-a-valid-id");
+
+        // Assert
+        JsonElement doc = Deserialize<JsonElement>(result);
+        doc.GetProperty("error").GetString().Should().Contain("not a valid guideline ID");
     }
 
     [Fact]

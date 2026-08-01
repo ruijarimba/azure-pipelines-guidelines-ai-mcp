@@ -254,6 +254,27 @@ public sealed class GuidelineToolsTests
     }
 
     [Fact]
+    public void GetGuideline_GivenMetadataAndFullDetail_ShouldIncludeAutomationStatusAndReason()
+    {
+        // Arrange
+        GuidelineDefinition guideline = MakeGuideline("ADOG-STEPS-001");
+        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
+        repo.FindById(Arg.Any<GuidelineId>()).Returns(guideline);
+        IGuidelineAutomationMetadataProvider metadataProvider = Substitute.For<IGuidelineAutomationMetadataProvider>();
+        metadataProvider.GetAutomationMetadata(guideline.Id).Returns(
+            new GuidelineAutomationMetadata(GuidelineAutomationStatus.NotAutomatable, "The rule needs repository context."));
+        GuidelineTools sut = new(repo, metadataProvider);
+
+        // Act
+        string result = sut.GetGuideline("ADOG-STEPS-001", "full");
+
+        // Assert
+        JsonElement obj = Deserialize<JsonElement>(result);
+        obj.GetProperty("automationStatus").GetString().Should().Be("notautomatable");
+        obj.GetProperty("automationReason").GetString().Should().Be("The rule needs repository context.");
+    }
+
+    [Fact]
     public void GetGuideline_GivenInvalidDetailValue_ShouldReturnErrorObject()
     {
         // Arrange

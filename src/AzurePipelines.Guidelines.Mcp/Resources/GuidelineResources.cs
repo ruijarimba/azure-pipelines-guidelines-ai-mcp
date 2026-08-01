@@ -14,7 +14,9 @@ namespace AzurePipelines.Guidelines.Mcp.Resources;
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Performance", "CA1812:Avoid uninstantiated internal classes",
     Justification = "Instantiated by the MCP SDK via dependency injection.")]
-internal sealed class GuidelineResources(IGuidelineRepository repository)
+internal sealed class GuidelineResources(
+    IGuidelineRepository repository,
+    IGuidelineAutomationMetadataProvider? automationMetadataProvider = null)
 {
     private static string ServerName => "azure-pipelines-guidelines";
     private static string ServerVersion => "1.0.0";
@@ -60,10 +62,11 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
                 "adog://guidelines",
                 "adog://guidelines/version",
                 "adog://guidelines/category/{category}",
-                "adog://guidelines/{id}"
+                "adog://guidelines/{id}",
+                "adog://guidelines/{id}/automation"
             ],
             [],
-            new CapabilitiesSupportDto(AutomationMetadata: false, Prompts: false));
+            new CapabilitiesSupportDto(AutomationMetadata: true, Prompts: false));
 
         return Task.FromResult(JsonSerializer.Serialize(capabilities, _jsonOptions));
     }
@@ -210,6 +213,60 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         return Task.FromResult(JsonSerializer.Serialize(ToDetailDto(guideline), _jsonOptions));
     }
 
+    // ── adog://guidelines/{id}/automation ─────────────────────────────────────
+
+    /// <summary>
+    /// Returns automation metadata for a single guideline identified by its stable ID.
+    /// </summary>
+    [McpServerResource(
+        UriTemplate = "adog://guidelines/{id}/automation",
+        Name = "guideline-automation",
+        Title = "Guideline automation metadata",
+        MimeType = "application/json")]
+    [Description(
+        "Returns the local automation status and reason for a single Azure Pipelines guideline. " +
+        "Supply the stable guideline ID as the {id} path segment, e.g. adog://guidelines/ADOG-STEPS-001/automation.")]
+    internal Task<string> GetGuidelineAutomationAsync(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return Task.FromResult(
+                JsonSerializer.Serialize(new ErrorResponseDto("Path segment 'id' is required."), _jsonOptions));
+        }
+
+        GuidelineId guidelineId;
+        try
+        {
+            guidelineId = new GuidelineId(id);
+        }
+        catch (ArgumentException)
+        {
+            return Task.FromResult(JsonSerializer.Serialize(
+                new ErrorResponseDto(
+                    $"'{id}' is not a valid guideline ID. " +
+                    "Expected format: ADOG-{CATEGORY}-{NNN}, e.g. ADOG-STEPS-001."),
+                _jsonOptions));
+        }
+
+        if (repository.FindById(guidelineId) is null)
+        {
+            return Task.FromResult(JsonSerializer.Serialize(
+                new ErrorResponseDto($"Guideline '{id}' not found."), _jsonOptions));
+        }
+
+        GuidelineAutomationMetadata metadata = automationMetadataProvider?.GetAutomationMetadata(guidelineId)
+            ?? new GuidelineAutomationMetadata(
+                GuidelineAutomationStatus.NotAutomatable,
+                "No local automation metadata is available.");
+
+        return Task.FromResult(JsonSerializer.Serialize(
+            new GuidelineAutomationMetadataDto(
+                guidelineId.Value,
+                EnumToJsonString(metadata.Status),
+                metadata.Reason),
+            _jsonOptions));
+    }
+
     // ── Helpers ──────────────────────────────────────────────
 
     private static bool TryParseCategory(string value, out GuidelineCategory result)
@@ -229,7 +286,7 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         return (int)result >= 0;
     }
 
-    private static GuidelineDetailDto ToDetailDto(GuidelineDefinition g)
+    private GuidelineDetailDto ToDetailDto(GuidelineDefinition g)
     {
         DetectionHintDto[]? hints = g.DetectionHints.Count > 0
             ? BuildHintDtos(g.DetectionHints)
@@ -249,8 +306,16 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
             g.Tags.Count > 0 ? [.. g.Tags] : null,
             hints,
             fix,
-            g.References.Count > 0 ? [.. g.References] : null);
+            g.References.Count > 0 ? [.. g.References] : null,
+            GetAutomationStatus(g),
+            GetAutomationReason(g));
     }
+
+    private string GetAutomationStatus(GuidelineDefinition guideline) =>
+        EnumToJsonString(automationMetadataProvider?.GetAutomationMetadata(guideline.Id)?.Status ?? GuidelineAutomationStatus.NotAutomatable);
+
+    private string GetAutomationReason(GuidelineDefinition guideline) =>
+        automationMetadataProvider?.GetAutomationMetadata(guideline.Id)?.Reason ?? "No local automation metadata is available.";
 
     private static DetectionHintDto[] BuildHintDtos(IReadOnlyList<DetectionHint> hints)
     {

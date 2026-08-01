@@ -16,6 +16,7 @@ namespace AzurePipelines.Guidelines.Mcp.Tools;
     Justification = "Instantiated by the MCP SDK via dependency injection.")]
 internal sealed class GuidelineTools(
     IGuidelineRepository repository,
+    IGuidelineAutomationMetadataProvider? automationMetadataProvider = null,
     ILogger<GuidelineTools>? logger = null)
 {
     // Compact JSON with camel-case property names. Null values are omitted so AI clients
@@ -128,7 +129,7 @@ internal sealed class GuidelineTools(
 
         if (string.Equals(detail, "full", StringComparison.OrdinalIgnoreCase))
         {
-            return JsonSerializer.Serialize(ToDetailDto(guideline), _jsonOptions);
+            return JsonSerializer.Serialize(ToDetailDto(guideline, automationMetadataProvider), _jsonOptions);
         }
 
         if (!string.IsNullOrWhiteSpace(detail) && !string.Equals(detail, "summary", StringComparison.OrdinalIgnoreCase))
@@ -238,7 +239,9 @@ internal sealed class GuidelineTools(
         return (int)result >= 0;
     }
 
-    private static GuidelineDetailDto ToDetailDto(GuidelineDefinition g)
+    private static GuidelineDetailDto ToDetailDto(
+        GuidelineDefinition g,
+        IGuidelineAutomationMetadataProvider? automationMetadataProvider)
     {
         DetectionHintDto[]? hints = g.DetectionHints.Count > 0
             ? BuildHintDtos(g.DetectionHints)
@@ -258,8 +261,20 @@ internal sealed class GuidelineTools(
             g.Tags.Count > 0 ? [.. g.Tags] : null,
             hints,
             fix,
-            g.References.Count > 0 ? [.. g.References] : null);
+            g.References.Count > 0 ? [.. g.References] : null,
+            GetAutomationStatus(g, automationMetadataProvider),
+            GetAutomationReason(g, automationMetadataProvider));
     }
+
+    private static string GetAutomationStatus(
+        GuidelineDefinition guideline,
+        IGuidelineAutomationMetadataProvider? automationMetadataProvider) =>
+        EnumToJsonString(automationMetadataProvider?.GetAutomationMetadata(guideline.Id)?.Status ?? GuidelineAutomationStatus.NotAutomatable);
+
+    private static string GetAutomationReason(
+        GuidelineDefinition guideline,
+        IGuidelineAutomationMetadataProvider? automationMetadataProvider) =>
+        automationMetadataProvider?.GetAutomationMetadata(guideline.Id)?.Reason ?? "No local automation metadata is available.";
 
     // Converts an enum value to a lowercase ASCII string for JSON output.
     // We avoid string.ToLowerInvariant because the codebase treats enum names as stable
@@ -297,7 +312,9 @@ internal sealed class GuidelineTools(
             guideline.Tags.Count > 0 ? [.. guideline.Tags] : null,
             BuildHintDtos(guideline.DetectionHints),
             BuildFixDto(guideline.Fix),
-            guideline.References.Count > 0 ? [.. guideline.References] : null);
+            guideline.References.Count > 0 ? [.. guideline.References] : null,
+            EnumToJsonString(GuidelineAutomationStatus.NotAutomatable),
+            "No local automation metadata is available.");
 
     private static FixDto? BuildFixDto(FixGuidance? fix) =>
         fix is null ? null : new FixDto(fix.Summary, fix.Before, fix.After);

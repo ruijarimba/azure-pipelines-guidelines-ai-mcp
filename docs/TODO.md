@@ -86,9 +86,9 @@ Related files:
 Improve MCP support without making clients load the full guideline catalogue or detailed rule
 content by default.
 
-- [ ] Surface `automationStatus` and its reason in single-guideline tools and resources by using
+- [x] Surface `automationStatus` and its reason in single-guideline tools and resources by using
       `IGuidelineAutomationMetadataProvider`
-- [ ] Add focused resources for guideline automation metadata
+- [x] Add focused resources for guideline automation metadata
 - [x] Add cache-friendly guideline catalogue version and category resources
 - [x] Make `get_guideline` return summaries by default and require explicit full detail for the
       detailed payload
@@ -110,6 +110,8 @@ Related files:
 - `src/AzurePipelines.Guidelines.Mcp/Tools/GuidelineTools.cs`
 - `src/AzurePipelines.Guidelines.Mcp/Tools/PipelineAnalysisTools.cs`
 - `src/AzurePipelines.Guidelines.Mcp/Resources/GuidelineResources.cs`
+- `src/AzurePipelines.Guidelines.Mcp/Resources/GuidelineAutomationMetadataDto.cs`
+- `src/AzurePipelines.Guidelines.Mcp/Tools/GuidelineAutomationMetadataDto.cs`
 - `docs/mcp-reference.md`
 
 ---

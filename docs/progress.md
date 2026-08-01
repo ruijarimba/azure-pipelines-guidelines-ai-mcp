@@ -7,9 +7,9 @@ Update it before every commit so the next session starts with accurate context.
 
 | Area | Status |
 | --- | --- |
-| Current focus | Token-conscious MCP enhancements are implemented and documented; the next step is final review and commit |
-| Recent wins | Added a repository-level content version, cache-friendly `adog://guidelines/version` and `adog://guidelines/category/{category}` resources, and a summary-first `get_guideline` path with opt-in full detail |
-| Next up | Review the MCP docs and backlog updates, then commit the cache-aware MCP changes as one reviewable item |
+| Current focus | MCP automation metadata is implemented; the next step is final validation and review |
+| Recent wins | Added cache-friendly catalogue resources, summary-first guideline lookup, capability discovery, and guideline automation metadata through tools and resources |
+| Next up | Run the repository quality gate, review the complete diff, and commit the automation metadata feature as one reviewable item |
 
 ---
 
@@ -28,6 +28,7 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `local` | feat: expose guideline automation metadata through MCP tools and resources |
 | `local` | feat: add cache-friendly MCP guideline resources and summary-first guideline lookup for lower token use |
 | `local` | feat: upgrade ModelContextProtocol/ModelContextProtocol.AspNetCore to stable 2.0.0; bump Microsoft.Extensions.* to 10.0.10; keep legacy SSE (Stateless=false, suppressed obsolete MCP9004) alongside default Streamable HTTP; add Title/ReadOnly tool hints; document the compatibility decision in ADR-015 |
 | `local` | docs/comments: add inline comments, host README, and AGENTS updates to the MCP project so contributors without deep .NET knowledge can follow transport modes, launch profiles, and startup choices |

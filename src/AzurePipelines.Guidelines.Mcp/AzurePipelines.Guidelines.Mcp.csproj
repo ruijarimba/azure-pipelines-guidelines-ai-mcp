@@ -28,21 +28,4 @@
     <None Include="AGENTS.md" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="Resources/CapabilitiesResponseDto.cs" />
-    <Compile Include="Resources/CapabilitiesSupportDto.cs" />
-    <Compile Include="Resources/CatalogueVersionResponseDto.cs" />
-    <Compile Include="Resources/DetectionHintDto.cs" />
-    <Compile Include="Resources/ErrorResponseDto.cs" />
-    <Compile Include="Resources/FixDto.cs" />
-    <Compile Include="Resources/GuidelineDetailDto.cs" />
-    <Compile Include="Resources/GuidelineSummaryDto.cs" />
-    <Compile Include="Tools/CategoryCountDto.cs" />
-    <Compile Include="Tools/DetectionHintDto.cs" />
-    <Compile Include="Tools/ErrorResponseDto.cs" />
-    <Compile Include="Tools/FixDto.cs" />
-    <Compile Include="Tools/GuidelineDetailDto.cs" />
-    <Compile Include="Tools/GuidelineSummaryDto.cs" />
-  </ItemGroup>
-
 </Project>

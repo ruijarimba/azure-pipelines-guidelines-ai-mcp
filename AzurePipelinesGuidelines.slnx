@@ -7,6 +7,10 @@
       <Folder Name="/src/AzurePipelines.Guidelines.Mcp/Resources/">
         <File Path="src/AzurePipelines.Guidelines.Mcp/Resources/CapabilitiesResponseDto.cs" />
         <File Path="src/AzurePipelines.Guidelines.Mcp/Resources/CapabilitiesSupportDto.cs" />
+        <File Path="src/AzurePipelines.Guidelines.Mcp/Resources/GuidelineAutomationMetadataDto.cs" />
+      </Folder>
+      <Folder Name="/src/AzurePipelines.Guidelines.Mcp/Tools/">
+        <File Path="src/AzurePipelines.Guidelines.Mcp/Tools/GuidelineAutomationMetadataDto.cs" />
       </Folder>
     </Folder>
     <Project Path="src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj" />

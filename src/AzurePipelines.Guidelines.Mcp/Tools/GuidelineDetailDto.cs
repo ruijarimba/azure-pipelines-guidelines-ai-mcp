@@ -12,4 +12,6 @@ internal sealed record GuidelineDetailDto(
     [property: JsonPropertyName("tags")] string[]? Tags,
     [property: JsonPropertyName("detectionHints")] DetectionHintDto[]? DetectionHints,
     [property: JsonPropertyName("fix")] FixDto? Fix,
-    [property: JsonPropertyName("references")] string[]? References);
+    [property: JsonPropertyName("references")] string[]? References,
+    [property: JsonPropertyName("automationStatus")] string AutomationStatus,
+    [property: JsonPropertyName("automationReason")] string AutomationReason);

@@ -2,8 +2,32 @@
 
 The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines coding guideline analysis. Instead of relying only on training data, your AI tool can analyze your actual pipeline files against the current guidelines and return precise, rule-keyed diagnostics.
 
+## Capability summary
+
+The table below shows the complete MCP surface. Use the linked sections for details and examples.
+
+| Type | Name or URI | Purpose | Cacheable | Status |
+| --- | --- | --- | --- | --- |
+| Tool | `analyze_pipeline` | Analyze inline YAML content | No | Available |
+| Tool | `analyze_pipeline_paths` | Analyze files or directories on disk | No | Available |
+| Tool | `list_guidelines` | List guideline summaries | No | Available |
+| Tool | `get_guideline` | Get one guideline by ID | No | Available |
+| Tool | `search_guidelines` | Search guidelines by text | No | Available |
+| Tool | `list_categories` | List guideline categories | No | Available |
+| Resource | `adog://capabilities` | Discover server and MCP capabilities | Yes | Available |
+| Resource | `adog://guidelines` | Read the full guideline catalogue | Yes | Available |
+| Resource | `adog://guidelines/version` | Check the catalogue version | Yes | Available |
+| Resource | `adog://guidelines/category/{category}` | Read one catalogue category | Yes | Available |
+| Resource | `adog://guidelines/{id}` | Read one guideline in full | Yes | Available |
+| Resource | `adog://guidelines/{id}/automation` | Read guideline automation metadata | Yes | Available |
+| Prompt | — | Guided MCP prompt templates | — | Not implemented |
+
+The server currently exposes tools and resources only. The prompt row records the planned MCP
+surface so clients and contributors can see the full capability plan in one place.
+
 ## Table of Contents
 
+- [Capability summary](#capability-summary)
 - [What is MCP?](#what-is-mcp)
 - [How it works](#how-it-works)
 - [Choose a transport](#choose-a-transport)
@@ -15,6 +39,8 @@ The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines cod
   - [GitHub Copilot (VS Code)](#github-copilot-vs-code)
   - [Cline](#cline)
 - [Available tools](#available-tools)
+- [Resources](#resources)
+- [Prompts](#prompts)
 - [Usage examples](#usage-examples)
 - [Troubleshooting](#troubleshooting)
 - [See also](#see-also)
@@ -289,7 +315,7 @@ The server also exposes lookup helpers for the guideline catalogue:
 - `search_guidelines` searches by text.
 - `list_categories` lists the supported categories.
 
-### Resource-based catalogue access
+## Resources
 
 Resource endpoints are useful when a client wants to cache the catalogue or fetch a narrower slice of data. They are smaller and more predictable than repeatedly requesting the full list.
 
@@ -299,9 +325,8 @@ Resource endpoints are useful when a client wants to cache the catalogue or fetc
 
 The capabilities resource is intended for client discovery rather than analysis. Its `tools`,
 `resources`, and `prompts` arrays describe the currently exposed MCP surface. The `supports`
-object reports optional features that clients should not assume are available. The current
-server reports automation metadata and prompts as unsupported; those features may be added in
-later increments.
+object reports optional features that clients should not assume are available. Automation metadata
+is supported. Prompts remain unsupported.
 
 Example capability fields:
 
@@ -312,13 +337,23 @@ Example capability fields:
   "catalogueVersion": "...",
   "transports": ["stdio", "streamable-http"],
   "supports": {
-    "automationMetadata": false,
+     "automationMetadata": true,
     "prompts": false
   }
 }
 ```
 - `adog://guidelines/category/{category}` returns the entries for one category, such as `adog://guidelines/category/steps`.
 - `adog://guidelines/{id}` returns the full detail for one guideline, such as `adog://guidelines/ADOG-STEPS-001`.
+- `adog://guidelines/{id}/automation` returns the local automation status and reason for one guideline.
+
+Full guideline responses from `get_guideline` with `detail=full` and `adog://guidelines/{id}` also
+include `automationStatus` and `automationReason`. The status is `enforceable`, `heuristic`, or
+`notAutomatable`.
+
+## Prompts
+
+The server does not currently expose MCP prompts. Prompt support is reserved for a future
+increment and is shown as **Not implemented** in the [capability summary](#capability-summary).
 
 ## Usage examples
 
