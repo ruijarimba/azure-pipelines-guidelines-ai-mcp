@@ -104,6 +104,12 @@ The server provides two analysis tools:
 `guidelineIds` is a comma-separated list of rule IDs (for example, `ADOG-STEPS-001,ADOG-JOBS-006`).
 Omit it to run all rules.
 
+Guideline lookup is also exposed through MCP tools and resources:
+
+- `list_guidelines`, `get_guideline`, `search_guidelines`, and `list_categories` browse the loaded catalogue.
+- `get_guideline` returns a compact summary by default and switches to the full detail payload only when `detail=full` is requested.
+- Resource endpoints such as `adog://guidelines/version` and `adog://guidelines/category/{category}` let clients cache the catalogue and fetch narrower slices of data.
+
 Tool handlers live in `src/AzurePipelines.Guidelines.Mcp/Tools/` and are discovered automatically
 by the MCP host via `WithToolsFromAssembly`.
 

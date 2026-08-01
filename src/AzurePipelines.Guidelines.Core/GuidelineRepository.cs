@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using System.Text;
+
 namespace AzurePipelines.Guidelines.Core;
 
 /// <summary>
@@ -7,6 +10,7 @@ namespace AzurePipelines.Guidelines.Core;
 public sealed class GuidelineRepository : IGuidelineRepository
 {
     private readonly IReadOnlyList<GuidelineDefinition> _guidelines;
+    private readonly string _contentVersion;
 
     /// <summary>
     /// Initialises a new <see cref="GuidelineRepository"/> with the given guidelines.
@@ -23,7 +27,11 @@ public sealed class GuidelineRepository : IGuidelineRepository
     {
         ArgumentNullException.ThrowIfNull(guidelines);
         _guidelines = guidelines;
+        _contentVersion = ComputeContentVersion(guidelines);
     }
+
+    /// <inheritdoc/>
+    public string ContentVersion => _contentVersion;
 
     /// <inheritdoc/>
     public IReadOnlyList<GuidelineDefinition> GetAll() => _guidelines;
@@ -59,4 +67,36 @@ public sealed class GuidelineRepository : IGuidelineRepository
 
         return results;
     }
+
+    private static string ComputeContentVersion(IReadOnlyList<GuidelineDefinition> guidelines)
+    {
+        StringBuilder builder = new();
+        for (int index = 0; index < guidelines.Count; index++)
+        {
+            GuidelineDefinition guideline = guidelines[index];
+            builder.Append(guideline.Id.Value);
+            builder.Append('|');
+            builder.Append(guideline.Category.ToString().ToUpperInvariant());
+            builder.Append('|');
+            builder.Append(guideline.Severity.ToString().ToUpperInvariant());
+            builder.Append('|');
+            builder.Append(guideline.Title);
+            builder.Append('|');
+            builder.Append(guideline.Description);
+            builder.Append('\n');
+        }
+
+        byte[] hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(builder.ToString()));
+        Span<char> hashChars = stackalloc char[32];
+        for (int i = 0; i < hashBytes.Length; i++)
+        {
+            hashChars[i * 2] = GetHexDigit(hashBytes[i] >> 4);
+            hashChars[(i * 2) + 1] = GetHexDigit(hashBytes[i] & 0x0F);
+        }
+
+        return new string(hashChars[..(hashBytes.Length * 2)]);
+    }
+
+    private static char GetHexDigit(int value) =>
+        value < 10 ? (char)('0' + value) : (char)('a' + (value - 10));
 }

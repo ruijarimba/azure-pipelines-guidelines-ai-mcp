@@ -88,7 +88,10 @@ content by default.
 
 - [ ] Surface `automationStatus` and its reason in single-guideline tools and resources by using
       `IGuidelineAutomationMetadataProvider`
-- [ ] Add focused resources for guideline categories and guideline automation metadata
+- [ ] Add focused resources for guideline automation metadata
+- [x] Add cache-friendly guideline catalogue version and category resources
+- [x] Make `get_guideline` return summaries by default and require explicit full detail for the
+      detailed payload
 - [ ] Add concise MCP prompts for reviewing a pipeline, explaining a guideline, and preparing a
       remediation plan
 - [ ] Add server-side analysis summaries that group diagnostics by file, category, severity, and

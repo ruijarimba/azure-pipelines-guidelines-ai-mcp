@@ -33,6 +33,7 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
     [McpServerResource(
         UriTemplate = "adog://guidelines",
         Name = "guidelines",
+        Title = "Guideline catalogue",
         MimeType = "application/json")]
     [Description(
         "The complete Azure Pipelines guideline catalogue. " +
@@ -55,6 +56,67 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
         return Task.FromResult(JsonSerializer.Serialize(summaries, _jsonOptions));
     }
 
+    // ── adog://guidelines/version ───────────────────────────────────────────
+
+    /// <summary>
+    /// Returns a small cache fingerprint for the current guideline catalogue.
+    /// </summary>
+    [McpServerResource(
+        UriTemplate = "adog://guidelines/version",
+        Name = "guidelines-version",
+        Title = "Guideline catalogue version",
+        MimeType = "application/json")]
+    [Description(
+        "Returns a small JSON object with the current guideline catalogue version. " +
+        "Clients can use this as a cache key and skip refetching the full catalogue when the version is unchanged.")]
+    internal Task<string> GetCatalogueVersionAsync()
+    {
+        return Task.FromResult(JsonSerializer.Serialize(new CatalogueVersionResponse(repository.ContentVersion), _jsonOptions));
+    }
+
+    // ── adog://guidelines/category/{category} ──────────────────────────────
+
+    /// <summary>
+    /// Returns the guideline catalogue for a single category.
+    /// </summary>
+    [McpServerResource(
+        UriTemplate = "adog://guidelines/category/{category}",
+        Name = "guidelines-by-category",
+        Title = "Guideline catalogue by category",
+        MimeType = "application/json")]
+    [Description(
+        "Returns the guideline catalogue filtered to a single category. " +
+        "Supply the category as the {category} path segment, for example adog://guidelines/category/steps. " +
+        "Returns a JSON array with id, title, category, and severity for each matching guideline.")]
+    internal Task<string> GetGuidelinesByCategoryAsync(string category)
+    {
+        if (string.IsNullOrWhiteSpace(category))
+        {
+            return Task.FromResult(JsonSerializer.Serialize(new ErrorResponse("Path segment 'category' is required."), _jsonOptions));
+        }
+
+        if (!TryParseCategory(category, out GuidelineCategory parsedCategory))
+        {
+            return Task.FromResult(JsonSerializer.Serialize(
+                new ErrorResponse($"Unknown category '{category}'. Allowed values: general, jobs, parameters, pipelines, stages, steps, variables."),
+                _jsonOptions));
+        }
+
+        IReadOnlyList<GuidelineDefinition> matching = repository.GetByCategory(parsedCategory);
+        GuidelineSummary[] summaries = new GuidelineSummary[matching.Count];
+        for (int i = 0; i < matching.Count; i++)
+        {
+            GuidelineDefinition guideline = matching[i];
+            summaries[i] = new GuidelineSummary(
+                guideline.Id.Value,
+                guideline.Title,
+                EnumToJsonString(guideline.Category),
+                EnumToJsonString(guideline.Severity));
+        }
+
+        return Task.FromResult(JsonSerializer.Serialize(summaries, _jsonOptions));
+    }
+
     // ── adog://guidelines/{id} ────────────────────────────────────────────────
 
     /// <summary>
@@ -63,6 +125,7 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
     [McpServerResource(
         UriTemplate = "adog://guidelines/{id}",
         Name = "guideline",
+        Title = "Guideline detail",
         MimeType = "application/json")]
     [Description(
         "Full details for a single Azure Pipelines guideline. " +
@@ -104,6 +167,23 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private static bool TryParseCategory(string value, out GuidelineCategory result)
+    {
+        result = value.ToUpperInvariant() switch
+        {
+            "GENERAL" => GuidelineCategory.General,
+            "JOBS" => GuidelineCategory.Jobs,
+            "PARAMETERS" => GuidelineCategory.Parameters,
+            "PIPELINES" => GuidelineCategory.Pipelines,
+            "STAGES" => GuidelineCategory.Stages,
+            "STEPS" => GuidelineCategory.Steps,
+            "VARIABLES" => GuidelineCategory.Variables,
+            _ => (GuidelineCategory)(-1),
+        };
+
+        return (int)result >= 0;
+    }
 
     private static GuidelineDetailDto ToDetailDto(GuidelineDefinition g)
     {
@@ -170,6 +250,9 @@ internal sealed class GuidelineResources(IGuidelineRepository repository)
 
     private sealed record ErrorResponse(
         [property: JsonPropertyName("error")] string Error);
+
+    private sealed record CatalogueVersionResponse(
+        [property: JsonPropertyName("version")] string Version);
 
     private sealed record GuidelineDetailDto(
         [property: JsonPropertyName("id")] string Id,

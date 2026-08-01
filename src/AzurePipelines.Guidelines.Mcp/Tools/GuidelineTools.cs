@@ -32,7 +32,7 @@ internal sealed class GuidelineTools(
     /// Lists all loaded Azure Pipelines guidelines (id, title, category, severity).
     /// Returns a JSON array. Optionally filter by category.
     /// </summary>
-    [McpServerTool(Name = "list_guidelines")]
+    [McpServerTool(Name = "list_guidelines", Title = "List guidelines", ReadOnly = true)]
     [Description(
         "Lists all Azure Pipelines guidelines. " +
         "Returns a JSON array with id, title, category, and severity for each guideline. " +
@@ -82,16 +82,18 @@ internal sealed class GuidelineTools(
     // ── get_guideline ─────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Returns the full details of a single guideline by its ID.
+    /// Returns the details of a single guideline by its ID.
     /// </summary>
-    [McpServerTool(Name = "get_guideline")]
+    [McpServerTool(Name = "get_guideline", Title = "Get guideline details", ReadOnly = true)]
     [Description(
-        "Returns the full details of a single Azure Pipelines guideline by its stable ID " +
-        "(e.g. ADOG-STEPS-001). Includes title, description, detection hints, fix guidance, " +
-        "and reference links.")]
+        "Returns the details of a single Azure Pipelines guideline by its stable ID " +
+        "(e.g. ADOG-STEPS-001). By default this returns a compact summary with id, title, category, and severity. " +
+        "Pass detail=full to include description, detection hints, fix guidance, and reference links.")]
     internal string GetGuideline(
         [Description("The stable guideline identifier, e.g. ADOG-STEPS-001.")]
-        string id)
+        string id,
+        [Description("Optional detail level. Use 'summary' for the compact response or 'full' for the detailed response. Defaults to 'summary'.")]
+        string? detail = null)
     {
         McpToolInvocationLog.Log(logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<GuidelineTools>.Instance,
             "get_guideline");
@@ -124,7 +126,20 @@ internal sealed class GuidelineTools(
                 new ErrorResponse($"Guideline '{id}' not found."), _jsonOptions);
         }
 
-        return JsonSerializer.Serialize(ToDetailDto(guideline), _jsonOptions);
+        if (string.Equals(detail, "full", StringComparison.OrdinalIgnoreCase))
+        {
+            return JsonSerializer.Serialize(ToDetailDto(guideline), _jsonOptions);
+        }
+
+        if (!string.IsNullOrWhiteSpace(detail) && !string.Equals(detail, "summary", StringComparison.OrdinalIgnoreCase))
+        {
+            return JsonSerializer.Serialize(
+                new ErrorResponse("Parameter 'detail' must be either 'summary' or 'full'."), _jsonOptions);
+        }
+
+        return JsonSerializer.Serialize(
+            new GuidelineSummary(guideline.Id.Value, guideline.Title, EnumToJsonString(guideline.Category), EnumToJsonString(guideline.Severity)),
+            _jsonOptions);
     }
 
     // ── search_guidelines ─────────────────────────────────────────────────────
@@ -132,7 +147,7 @@ internal sealed class GuidelineTools(
     /// <summary>
     /// Searches guideline titles and descriptions for a keyword.
     /// </summary>
-    [McpServerTool(Name = "search_guidelines")]
+    [McpServerTool(Name = "search_guidelines", Title = "Search guidelines", ReadOnly = true)]
     [Description(
         "Searches Azure Pipelines guidelines whose title or description contains the given " +
         "keyword (case-insensitive). Returns a JSON array with id, title, category, and severity.")]
@@ -173,7 +188,7 @@ internal sealed class GuidelineTools(
     /// <summary>
     /// Returns a summary of available guideline categories and their counts.
     /// </summary>
-    [McpServerTool(Name = "list_categories")]
+    [McpServerTool(Name = "list_categories", Title = "List guideline categories", ReadOnly = true)]
     [Description(
         "Returns a JSON array listing each guideline category and the number of guidelines " +
         "it contains. Useful for exploring what the server knows before calling list_guidelines.")]

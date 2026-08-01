@@ -6,6 +6,11 @@ namespace AzurePipelines.Guidelines.Core;
 public interface IGuidelineRepository
 {
     /// <summary>
+    /// Returns the stable fingerprint for the currently loaded guideline content.
+    /// </summary>
+    public string ContentVersion { get; }
+
+    /// <summary>
     /// Returns all loaded guideline definitions.
     /// </summary>
     public IReadOnlyList<GuidelineDefinition> GetAll();

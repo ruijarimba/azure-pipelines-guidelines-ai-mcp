@@ -200,7 +200,7 @@ public sealed class GuidelineToolsTests
     }
 
     [Fact]
-    public void GetGuideline_GivenKnownId_ShouldReturnFullDetails()
+    public void GetGuideline_GivenKnownIdWithoutDetailParameter_ShouldReturnSummary()
     {
         // Arrange
         GuidelineDefinition guideline = MakeGuideline(
@@ -221,9 +221,53 @@ public sealed class GuidelineToolsTests
         JsonElement obj = Deserialize<JsonElement>(result);
         obj.GetProperty("id").GetString().Should().Be("ADOG-STEPS-001");
         obj.GetProperty("title").GetString().Should().Be("My title");
+        obj.GetProperty("category").GetString().Should().Be("steps");
+        obj.GetProperty("severity").GetString().Should().Be("avoid");
+        obj.TryGetProperty("description", out JsonElement _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void GetGuideline_GivenDetailFull_ShouldReturnFullDetails()
+    {
+        // Arrange
+        GuidelineDefinition guideline = MakeGuideline(
+            "ADOG-STEPS-001",
+            GuidelineCategory.Steps,
+            GuidelineSeverity.Avoid,
+            "My title",
+            "My description");
+
+        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
+        repo.FindById(Arg.Is<GuidelineId>(x => x.Value == "ADOG-STEPS-001")).Returns(guideline);
+        GuidelineTools sut = MakeSutWithRepo(repo);
+
+        // Act
+        string result = sut.GetGuideline("ADOG-STEPS-001", "full");
+
+        // Assert
+        JsonElement obj = Deserialize<JsonElement>(result);
+        obj.GetProperty("id").GetString().Should().Be("ADOG-STEPS-001");
+        obj.GetProperty("title").GetString().Should().Be("My title");
         obj.GetProperty("description").GetString().Should().Be("My description");
         obj.GetProperty("category").GetString().Should().Be("steps");
         obj.GetProperty("severity").GetString().Should().Be("avoid");
+    }
+
+    [Fact]
+    public void GetGuideline_GivenInvalidDetailValue_ShouldReturnErrorObject()
+    {
+        // Arrange
+        GuidelineDefinition guideline = MakeGuideline("ADOG-STEPS-001");
+        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
+        repo.FindById(Arg.Any<GuidelineId>()).Returns(guideline);
+        GuidelineTools sut = MakeSutWithRepo(repo);
+
+        // Act
+        string result = sut.GetGuideline("ADOG-STEPS-001", "bogus");
+
+        // Assert
+        JsonElement obj = Deserialize<JsonElement>(result);
+        obj.GetProperty("error").GetString().Should().Contain("summary");
     }
 
     [Fact]
@@ -247,7 +291,7 @@ public sealed class GuidelineToolsTests
         GuidelineTools sut = MakeSutWithRepo(repo);
 
         // Act
-        string result = sut.GetGuideline("ADOG-STEPS-001");
+        string result = sut.GetGuideline("ADOG-STEPS-001", "full");
 
         // Assert
         JsonElement obj = Deserialize<JsonElement>(result);
@@ -281,7 +325,7 @@ public sealed class GuidelineToolsTests
         GuidelineTools sut = MakeSutWithRepo(repo);
 
         // Act
-        string result = sut.GetGuideline("ADOG-STEPS-001");
+        string result = sut.GetGuideline("ADOG-STEPS-001", "full");
 
         // Assert
         JsonElement obj = Deserialize<JsonElement>(result);

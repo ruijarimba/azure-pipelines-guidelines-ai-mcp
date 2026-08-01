@@ -7,6 +7,15 @@
         "DOTNET_ENVIRONMENT": "Development"
       }
     },
+    "Debug": {
+      "commandName": "Project",
+      "commandLineArgs": "--transport sse",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5050",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
     "SSE": {
       "commandName": "Project",
       "commandLineArgs": "--transport sse",

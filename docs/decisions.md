@@ -407,9 +407,19 @@ debugging and future remote hosting. The host exposes the HTTP endpoint at `/mcp
 - Remote HTTP deployments require HTTPS and appropriate authentication and authorization. They
   must not expose the endpoint publicly without those controls.
 
----
+### Update 2026-08-05: MCP 2.0 transport compatibility
+The repository upgraded the MCP .NET SDK to `ModelContextProtocol 2.0.0` and kept the existing
+HTTP transport path for local debugging while enabling the newer Streamable HTTP behaviour. In
+2.0, `HttpServerTransportOptions.EnableLegacySse` is marked obsolete (diagnostic `MCP9004`) because
+legacy SSE has no built-in request backpressure and is only recommended for trusted, isolated
+clients. This repository keeps the legacy SSE path only for the local-debugging workflow already
+covered by ADR-015, and the host disables stateless mode (`Stateless = false`) so the legacy SSE
+session state can be maintained. The obsolete warning is suppressed with a local-debugging
+justification comment rather than being ignored silently; if the host is ever exposed beyond that
+trusted, isolated local-process use case, the legacy SSE option should be removed and only
+Streamable HTTP served.
 
-## Template for new decisions
+---
 
 Copy this block when recording a new decision:
 

@@ -7,9 +7,9 @@ Update it before every commit so the next session starts with accurate context.
 
 | Area | Status |
 | --- | --- |
-| Current focus | Guideline automation status recovery and MCP capability planning |
-| Recent wins | MCP transport docs, launch profile guidance, and local validation are in place |
-| Next up | Review automation status in CLI and MCP output, then prioritize token-conscious MCP work |
+| Current focus | Token-conscious MCP enhancements are implemented and documented; the next step is final review and commit |
+| Recent wins | Added a repository-level content version, cache-friendly `adog://guidelines/version` and `adog://guidelines/category/{category}` resources, and a summary-first `get_guideline` path with opt-in full detail |
+| Next up | Review the MCP docs and backlog updates, then commit the cache-aware MCP changes as one reviewable item |
 
 ---
 
@@ -28,6 +28,8 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `local` | feat: add cache-friendly MCP guideline resources and summary-first guideline lookup for lower token use |
+| `local` | feat: upgrade ModelContextProtocol/ModelContextProtocol.AspNetCore to stable 2.0.0; bump Microsoft.Extensions.* to 10.0.10; keep legacy SSE (Stateless=false, suppressed obsolete MCP9004) alongside default Streamable HTTP; add Title/ReadOnly tool hints; document the compatibility decision in ADR-015 |
 | `local` | docs/comments: add inline comments, host README, and AGENTS updates to the MCP project so contributors without deep .NET knowledge can follow transport modes, launch profiles, and startup choices |
 | `local` | feat: add optional SSE debug transport to MCP host so it can run under Visual Studio while VS Code connects over HTTP |
 | `local` | feat: add source-mode and local Docker MCP launch scripts with local-client configuration guidance |

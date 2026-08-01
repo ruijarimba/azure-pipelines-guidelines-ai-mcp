@@ -59,6 +59,55 @@ public sealed class GuidelineResourcesTests
     }
 
     [Fact]
+    public async Task GetCatalogueVersionAsync_ShouldReturnRepositoryVersion()
+    {
+        // Arrange
+        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
+        repo.ContentVersion.Returns("abc123");
+        GuidelineResources sut = MakeSutWithRepo(repo);
+
+        // Act
+        string result = await sut.GetCatalogueVersionAsync();
+
+        // Assert
+        JsonElement payload = Deserialize<JsonElement>(result);
+        payload.GetProperty("version").GetString().Should().Be("abc123");
+    }
+
+    [Fact]
+    public async Task GetGuidelinesByCategoryAsync_GivenKnownCategory_ShouldReturnFilteredSummaries()
+    {
+        // Arrange
+        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
+        repo.GetByCategory(GuidelineCategory.Steps).Returns([
+            MakeGuideline("ADOG-STEPS-001", GuidelineCategory.Steps),
+        ]);
+        GuidelineResources sut = MakeSutWithRepo(repo);
+
+        // Act
+        string result = await sut.GetGuidelinesByCategoryAsync("steps");
+
+        // Assert
+        JsonElement[] items = Deserialize<JsonElement[]>(result);
+        items.Should().HaveCount(1);
+        items[0].GetProperty("id").GetString().Should().Be("ADOG-STEPS-001");
+    }
+
+    [Fact]
+    public async Task GetGuidelinesByCategoryAsync_GivenUnknownCategory_ShouldReturnErrorResponse()
+    {
+        // Arrange
+        GuidelineResources sut = MakeSut();
+
+        // Act
+        string result = await sut.GetGuidelinesByCategoryAsync("not-a-category");
+
+        // Assert
+        JsonElement payload = Deserialize<JsonElement>(result);
+        payload.GetProperty("error").GetString().Should().Contain("Unknown category");
+    }
+
+    [Fact]
     public async Task GetAllGuidelinesAsync_GivenMultipleGuidelines_ShouldReturnAllSummaries()
     {
         // Arrange

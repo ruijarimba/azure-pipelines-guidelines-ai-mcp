@@ -51,8 +51,9 @@ The host supports two transport modes. Choose the one that matches how the clien
 
 - Starts an ASP.NET Core web server for Visual Studio debugging or hosted deployments.
 - The MCP endpoint is `/mcp` and the local development URL is `http://localhost:5050`.
-- Start by selecting the **SSE** launch profile in Visual Studio; the legacy name is retained,
-  but it selects the HTTP transport and injects `applicationUrl` from `launchSettings.json`.
+- Start by selecting the **Debug** launch profile in Visual Studio; the legacy **SSE** name is
+  retained as a compatibility alias, but the **Debug** profile is the recommended entry point for
+  local debugging and injects `applicationUrl` from `launchSettings.json`.
 - Connect an MCP client that supports the HTTP transport to `http://localhost:5050/mcp`.
 - Configure HTTPS, authentication, authorization, and network access controls before exposing
   the endpoint beyond the local machine.

@@ -64,15 +64,23 @@ sequenceDiagram
     AI->>Dev: explains violations and fix suggestions
 ```
 
-The server uses **stdio transport**: the AI client starts `adog-mcp` as a child process and
-communicates with it over `stdin`/`stdout`. No network port is opened.
+The MCP server supports both a local **stdio** transport and an **HTTP transport** for local
+debugging or hosted connections. The stdio mode launches `adog-mcp` as a child process and uses
+`stdin`/`stdout`; the HTTP mode exposes the `/mcp` endpoint and also supports the legacy SSE
+compatibility path for local debugging workflows.
 
-The MCP server exposes six tools: two analysis tools and four guideline lookup tools.
+The MCP server exposes six tools: two analysis tools and four guideline lookup tools, plus
+resource endpoints for the guideline catalogue.
 
 - `analyze_pipeline` accepts YAML text and returns a flat list of diagnostics.
 - `analyze_pipeline_paths` accepts one or more file or directory paths and returns per-file results.
 - `list_guidelines`, `get_guideline`, `search_guidelines`, and `list_categories` browse the
   loaded guideline catalogue.
+- `get_guideline` returns a compact summary by default and only returns the full detail payload
+  when `detail=full` is requested.
+- Resource endpoints such as `adog://guidelines/version` and
+  `adog://guidelines/category/{category}` let clients cache the catalogue and fetch narrower
+  slices of data.
 
 Both tools accept an optional `guidelineIds` parameter. Pass a comma-separated list such as
 `ADOG-STEPS-001,ADOG-JOBS-006` to restrict analysis to specific rules. Omit it to run all rules.

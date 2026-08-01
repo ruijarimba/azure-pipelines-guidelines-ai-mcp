@@ -77,8 +77,11 @@ this repository.
 
 Use the HTTP transport when the client must connect to a server that is already running, such as a
 local debugging setup or a hosted deployment. The host uses the HTTP endpoint at `/mcp` for this
-mode. The existing `SSE` launch-profile and `--transport sse` selector names remain for local
-compatibility. They select the HTTP transport for the host.
+mode. As of the MCP 2.0 SDK, this endpoint serves the modern **Streamable HTTP** transport by
+default and additionally accepts the legacy HTTP+SSE transport for backward compatibility with
+older SSE-only clients. The `Debug` launch profile is the recommended Visual Studio entry point
+for local debugging; the existing `SSE` launch-profile and `--transport sse` selector names remain
+for compatibility and start the same HTTP host with both transports enabled.
 
 ### HTTP endpoint
 
@@ -221,7 +224,7 @@ Cline follows the Claude Desktop configuration format. Edit your Cline MCP setti
 
 ## Available tools
 
-The MCP server exposes six tools in the current implementation:
+The MCP server exposes six tools plus resource-based catalogue endpoints in the current implementation:
 
 | Tool | Purpose |
 | --- | --- |
@@ -281,10 +284,19 @@ example source path with the absolute host path that Docker Desktop can access.
 
 The server also exposes lookup helpers for the guideline catalogue:
 
-- `list_guidelines` returns the available guidelines
-- `get_guideline` returns the details for one specific guideline ID
-- `search_guidelines` searches by text
-- `list_categories` lists the supported categories
+- `list_guidelines` returns a compact list of guideline summaries for browsing or filtering.
+- `get_guideline` returns a compact summary by default. Pass `detail=full` when you need the full description, detection hints, fix advice, and references.
+- `search_guidelines` searches by text.
+- `list_categories` lists the supported categories.
+
+### Resource-based catalogue access
+
+Resource endpoints are useful when a client wants to cache the catalogue or fetch a narrower slice of data. They are smaller and more predictable than repeatedly requesting the full list.
+
+- `adog://guidelines` returns the full guideline catalogue as a JSON array of summaries.
+- `adog://guidelines/version` returns a small JSON object with the current catalogue version, for example `{"version":"..."}`. Clients can cache this and skip reloading the catalogue when it is unchanged.
+- `adog://guidelines/category/{category}` returns the entries for one category, such as `adog://guidelines/category/steps`.
+- `adog://guidelines/{id}` returns the full detail for one guideline, such as `adog://guidelines/ADOG-STEPS-001`.
 
 ## Usage examples
 
@@ -326,12 +338,12 @@ you can start it in Visual Studio and connect a supported client to the running 
 
 ### 1. Start the server in Visual Studio
 
-In Visual Studio, set the run/debug profile to **SSE** before you start debugging. The profile
-name is retained for compatibility; it starts the host HTTP transport:
+In Visual Studio, set the run/debug profile to **Debug** before you start debugging. The profile
+is the recommended local-debug entry point and starts the host HTTP transport:
 
 1. Open the `tools/AzurePipelines.Guidelines.Mcp.Host` project.
 2. In the toolbar, click the run/debug profile dropdown (normally shows the project name).
-3. Select **SSE**.
+3. Select **Debug**.
 4. Press **F5** (or choose **Debug &gt; Start Debugging**).
 
 The server starts on `http://localhost:5050/mcp` by default. The process stays alive as long as
@@ -374,7 +386,7 @@ server again.
 - The development profile binds to `localhost` by default. For a remote deployment, configure
   HTTPS, authentication, authorization, and network access controls before making the endpoint
   reachable by other machines.
-- If port `5050` is in use, change the **SSE** launch profile in
+- If port `5050` is in use, change the **Debug** launch profile in
   `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`, or pass
   `--urls "http://localhost:<port>"` when starting from the command line. If you change the
   port, update the `url` value in VS Code's `mcp.json` to match.

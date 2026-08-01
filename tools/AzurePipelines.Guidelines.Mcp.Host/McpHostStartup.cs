@@ -18,7 +18,8 @@ internal static class McpHostStartup
         LoggerMessage.Define<string, string>(
             LogLevel.Information,
             new EventId(1, "SseServerListening"),
-            "MCP SSE server is listening. Endpoint path: {Endpoint}; URLs: {Urls}");
+            "MCP HTTP server is listening. Endpoint path: {Endpoint}; URLs: {Urls}. " +
+            "Serves Streamable HTTP by default with legacy SSE enabled for backward compatibility.");
 
     private static readonly Action<ILogger, Exception?> _logStdioServerRunning =
         LoggerMessage.Define(
@@ -34,7 +35,23 @@ internal static class McpHostStartup
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         ConfigureLogging(builder.Logging);
 
-        builder.Services.AddGuidelinesMcp().WithHttpTransport();
+        // MCP 2.0 serves the modern Streamable HTTP transport on this endpoint by default.
+        // EnableLegacySse keeps the pre-2.0 SSE transport available on the same endpoint so
+        // existing SSE-only clients (e.g. older IDE integrations) keep working unchanged.
+        // The SDK marks this option obsolete (MCP9004) because legacy SSE has no built-in
+        // request backpressure; that risk is acceptable here because this transport is
+        // documented as local-debugging-only, running as a trusted, isolated local process
+        // (see the "sse" case in Program.cs and the comment on RunSseAsync's caller).
+        // Legacy SSE also requires in-memory session state shared between the GET /sse and
+        // POST /message requests, so MCP 2.0's new stateless-by-default mode must be disabled.
+#pragma warning disable MCP9004 // legacy SSE is intentionally opt-in for trusted local debugging only
+        builder.Services.AddGuidelinesMcp()
+            .WithHttpTransport(options =>
+            {
+                options.Stateless = false;
+                options.EnableLegacySse = true;
+            });
+#pragma warning restore MCP9004
 
         WebApplication app = builder.Build();
         app.MapMcp("/mcp");

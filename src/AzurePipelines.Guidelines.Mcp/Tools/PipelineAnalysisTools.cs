@@ -35,7 +35,7 @@ internal sealed class PipelineAnalysisTools(
     /// Analyses raw Azure Pipelines YAML content against the loaded guidelines
     /// and returns any violations found.
     /// </summary>
-    [McpServerTool(Name = "analyze_pipeline")]
+    [McpServerTool(Name = "analyze_pipeline", Title = "Analyze pipeline YAML", ReadOnly = true)]
     [Description(
         "Analyses Azure Pipelines YAML content against the loaded guidelines and returns " +
         "a JSON array of violations. Each item includes the guideline ID, severity, message, " +
@@ -96,7 +96,7 @@ internal sealed class PipelineAnalysisTools(
     /// <summary>
     /// Analyses one or more Azure Pipelines YAML files or directories and returns any violations found.
     /// </summary>
-    [McpServerTool(Name = "analyze_pipeline_paths")]
+    [McpServerTool(Name = "analyze_pipeline_paths", Title = "Analyze pipeline files", ReadOnly = true)]
     [Description(
         "Analyses one or more Azure Pipelines YAML files or directories against the loaded guidelines " +
         "and returns aggregated violations. Directories are scanned recursively. " +

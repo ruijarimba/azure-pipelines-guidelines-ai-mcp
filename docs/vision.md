@@ -47,7 +47,7 @@ gantt
 
 - Parse Azure Pipelines YAML into a structured AST.
 - Implement rules for all `ADOG-{CATEGORY}-{NNN}` guidelines in the manifest.
-- MCP server (tools: guideline lookup, YAML analysis, fix suggestions; resources: guideline catalogue).
+- MCP server (tools: guideline lookup, YAML analysis, fix suggestions; resources: guideline catalogue with cache-friendly version and category endpoints).
 - CLI tool (`adog analyze`, `adog rules list`, `adog rules show`).
 - Console, compact, JSON, JUnit, SARIF, and Markdown output formats.
 - JSON configuration-file defaults for CLI options.

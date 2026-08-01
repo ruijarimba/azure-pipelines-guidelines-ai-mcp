@@ -14,16 +14,16 @@
 
 	<!-- ── Production dependencies ───────────────────────────────────────────── -->
 	<ItemGroup Label="Production">
-	<PackageVersion Include="Microsoft.Extensions.DependencyInjection"            Version="10.0.7" />
-	<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.7" />
-	<PackageVersion Include="Microsoft.Extensions.Hosting"                        Version="10.0.7" />
-	<PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions"           Version="10.0.7" />
-	<PackageVersion Include="Microsoft.Extensions.Logging"                        Version="10.0.7" />
-	<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions"           Version="10.0.7" />
-	<PackageVersion Include="Microsoft.Extensions.Logging.Console"                Version="10.0.7" />
+	<PackageVersion Include="Microsoft.Extensions.DependencyInjection"            Version="10.0.10" />
+	<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
+	<PackageVersion Include="Microsoft.Extensions.Hosting"                        Version="10.0.10" />
+	<PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions"           Version="10.0.10" />
+	<PackageVersion Include="Microsoft.Extensions.Logging"                        Version="10.0.10" />
+	<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions"           Version="10.0.10" />
+	<PackageVersion Include="Microsoft.Extensions.Logging.Console"                Version="10.0.10" />
 	<!-- MCP .NET SDK — keep the runtime and HTTP server packages aligned. -->
-	<PackageVersion Include="ModelContextProtocol"                                Version="1.4.1" />
-	<PackageVersion Include="ModelContextProtocol.AspNetCore"                     Version="1.4.1" />
+	<PackageVersion Include="ModelContextProtocol"                                Version="2.0.0" />
+	<PackageVersion Include="ModelContextProtocol.AspNetCore"                     Version="2.0.0" />
 	<!-- System.CommandLine — verify latest at https://www.nuget.org/packages/System.CommandLine -->
 	<PackageVersion Include="System.CommandLine"                                  Version="2.0.0-beta4.22272.1" />
 	<PackageVersion Include="YamlDotNet"                                          Version="16.3.0" />

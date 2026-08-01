@@ -17,12 +17,13 @@ connects.
 | Transport | When to use it | How messages travel |
 | --- | --- | --- |
 | **stdio** | A local MCP client launches the process. This includes Docker and editor integrations that start a command. | Over `stdin` and `stdout`. All logs go to `stderr` so they do not corrupt the protocol. |
-| **HTTP transport** | A client connects to an already-running server. This includes local debugging and remote hosting. | HTTP at `/mcp`. Secure remote access with HTTPS, authentication, and authorization. |
+| **HTTP transport** | A client connects to an already-running server. This includes local debugging and remote hosting. | HTTP at `/mcp`. MCP 2.0 serves the modern Streamable HTTP transport here by default, while the legacy HTTP+SSE path remains available for compatibility when the host is used in a trusted local-debugging workflow. |
 
 The executable defaults to **stdio**. This default supports process-launching clients; it is not
-a general preference over HTTP. The **SSE** launch-profile name and `--transport sse` selector
-remain for workflow compatibility. They start the host HTTP transport.
-
+a general preference over HTTP. The **Debug** launch profile is the Visual Studio-friendly
+entry point for the HTTP transport and starts the host on the same `/mcp` endpoint. The older
+**SSE** profile remains available as a compatibility alias for existing workflows.
+},{
 ## Build the host
 
 From the repository root:
@@ -62,8 +63,11 @@ connects to the server over HTTP.
 ### From Visual Studio
 
 1. Set **AzurePipelines.Guidelines.Mcp.Host** as the startup project.
-2. Select the **SSE** launch profile in the toolbar. Its name is retained for compatibility.
+2. Select the **Debug** launch profile in the toolbar.
 3. Press `F5`.
+
+The **Debug** profile is the recommended path for local debugging from Visual Studio. The older
+**SSE** profile remains available as a compatibility alias.
 
 The launch profile binds the server to `http://localhost:5050`. The MCP endpoint is at:
 
@@ -81,7 +85,7 @@ HTTP transport.
 ### From the command line for quick testing
 
 ```powershell
-dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host --launch-profile SSE -- --transport sse
+dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host --launch-profile Debug -- --transport sse
 ```
 
 You can also pass `--urls` explicitly:
@@ -105,7 +109,7 @@ Add a server entry to your user `mcp.json`:
 }
 ```
 
-Then start the host with the **SSE** launch profile. A client version that supports the HTTP
+Then start the host with the **Debug** launch profile. A client version that supports the HTTP
 transport will list the available tools and resources once the server is running.
 
 ## Switch transport with an environment variable
