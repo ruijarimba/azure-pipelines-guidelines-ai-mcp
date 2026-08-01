@@ -7,9 +7,9 @@ Update it before every commit so the next session starts with accurate context.
 
 | Area | Status |
 | --- | --- |
-| Current focus | MCP automation metadata is implemented; the next step is final validation and review |
-| Recent wins | Added cache-friendly catalogue resources, summary-first guideline lookup, capability discovery, and guideline automation metadata through tools and resources |
-| Next up | Run the repository quality gate, review the complete diff, and commit the automation metadata feature as one reviewable item |
+| Current focus | MCP token-conscious capabilities are implemented through automation metadata; the repository is ready for the next feature |
+| Recent wins | Added cache-friendly catalogue resources, summary-first guideline lookup, capability discovery, automation metadata, and an at-a-glance MCP reference |
+| Next up | Choose the next MCP capability: concise prompts, server-side analysis summaries, or the dedicated token-usage guide |
 
 ---
 
@@ -28,7 +28,7 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
-| `local` | feat: expose guideline automation metadata through MCP tools and resources |
+| `1c5aa2e` | feat: expose guideline automation metadata through MCP tools and resources |
 | `local` | feat: add cache-friendly MCP guideline resources and summary-first guideline lookup for lower token use |
 | `local` | feat: upgrade ModelContextProtocol/ModelContextProtocol.AspNetCore to stable 2.0.0; bump Microsoft.Extensions.* to 10.0.10; keep legacy SSE (Stateless=false, suppressed obsolete MCP9004) alongside default Streamable HTTP; add Title/ReadOnly tool hints; document the compatibility decision in ADR-015 |
 | `local` | docs/comments: add inline comments, host README, and AGENTS updates to the MCP project so contributors without deep .NET knowledge can follow transport modes, launch profiles, and startup choices |
@@ -142,16 +142,20 @@ Validation completed:
 
 ## Next up
 
-1. **Surface automation status** in CLI and MCP guideline lookup output.
-2. **Prioritize MCP capabilities and token usage documentation** from `docs/TODO.md`.
-3. **Address documentation and inline-comment debt** in the CLI project
-   (`tools/AzurePipelines.Guidelines.Cli`), so command options, formatters, and exit codes are
-   clear to contributors without deep .NET knowledge.
-4. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the
-   rule template workflow when they appear.
+1. **Add concise MCP prompts** for reviewing a pipeline, explaining a guideline, and preparing a
+   remediation plan.
+2. **Consider server-side analysis summaries** grouped by file, category, severity, and rule.
+3. **Create the MCP token-usage guide** described in `docs/TODO.md`.
+4. **Address remaining CLI documentation debt** in
+   `tools/AzurePipelines.Guidelines.Cli` (`AnalyzeCommand`, `RulesCommand`, option resolvers,
+   formatters, and exit codes).
+5. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the rule
+   template workflow when they appear.
 
 ---
 
 ## Open questions / blockers
 
+- The next MCP capability should be selected from the ordered backlog above at the start of the
+  next session.
 - NuGet publication is deferred. Package metadata and local packing remain for a future release.
