@@ -33,7 +33,7 @@ surface so clients and contributors can see the full capability plan in one plac
 - [Choose a transport](#choose-a-transport)
 - [Installation](#installation)
   - [Option 1 — Local clone](#option-1--local-clone)
-  - [Option 2 — Local Docker image](#option-2--local-docker-image)
+  - [Option 2 — Docker Compose](#option-2--docker-compose)
 - [Configuration](#configuration)
   - [Claude Desktop](#claude-desktop)
   - [GitHub Copilot (VS Code)](#github-copilot-vs-code)
@@ -136,22 +136,43 @@ pwsh ./scripts/run-mcp-local.ps1
 The script starts the server over standard input/output. It waits for an MCP client request;
 that is expected. You can also run `dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host`.
 
-### Option 2 — Local Docker image
+### Option 2 — Docker Compose
 
 **Prerequisites:** [Docker Desktop](https://docs.docker.com/get-docker/)
 
-Build the local image from the repository root:
+Start the published HTTP container from the repository root:
 
-```bash
-pwsh ./scripts/build-mcp-image.ps1
+```powershell
+pwsh ./scripts/run-mcp-compose.ps1
 ```
 
-The script creates `adog-mcp:local` without using Docker Hub. To use a different tag, pass
-`-ImageTag <tag>`. A manually started container waits for MCP input:
+The default endpoint is `http://localhost:8080/mcp`. Compose does not use `.env` when running the
+MCP server. Stop the service with:
 
-```bash
-docker run -i --rm adog-mcp:local
+```powershell
+docker compose down
 ```
+
+The image uses Streamable HTTP by default and listens on port `8080` inside the container. If an
+MCP client launches Docker as a child process, use stdio explicitly instead:
+
+```powershell
+docker run -i --rm -e MCP_TRANSPORT=stdio ruijarimba/azure-pipelines-guidelines-mcp:latest
+```
+
+To publish a multi-architecture `latest` image to Docker Hub, copy `.env.example` to `.env`, set the
+Docker Hub values, and run:
+
+```powershell
+pwsh ./scripts/publish-mcp-image.ps1
+```
+
+The publishing script uses the token only for Docker Hub login. It does not pass credentials into
+the MCP container.
+
+For hosted deployments, terminate HTTPS at the reverse proxy, ingress controller, load balancer,
+or managed container platform. Add authentication and authorization before exposing `/mcp` outside
+a trusted network. The container does not manage public TLS certificates.
 
 ## Configuration
 
@@ -192,20 +213,21 @@ Edit your Claude Desktop configuration file:
 }
 ```
 
-#### Using a local Docker image:
+#### Using Docker Compose:
 
 ```json
 {
   "mcpServers": {
     "azure-pipelines-guidelines": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "adog-mcp:local"]
+      "type": "http",
+      "url": "http://localhost:8080/mcp"
     }
   }
 }
 ```
 
-The `-i` flag keeps stdin open, which is required for the stdio transport.
+Start the service with `pwsh ./scripts/run-mcp-compose.ps1` before connecting. For a client that only supports
+stdio, configure it to run `docker run -i --rm -e MCP_TRANSPORT=stdio` instead.
 
 ### GitHub Copilot (VS Code)
 

@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
 
+# Build the MCP host image for containerized HTTP transport. The default runtime
+# is Streamable HTTP on port 8080 so the container is usable without extra flags.
 # ── Stage 1: build ────────────────────────────────────────────────────────────
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
@@ -39,7 +41,11 @@ COPY --from=build /app/publish .
 
 USER mcpuser
 
-# MCP servers communicate over stdin/stdout; there is no HTTP port to expose.
-# The container must be started with -i (keep stdin open), e.g.:
-#   docker run -i --rm adog-mcp:local
+# Use Streamable HTTP for independently hosted containers. Set MCP_TRANSPORT=stdio
+# and keep stdin open when an MCP client launches the container as a child process.
+ENV MCP_TRANSPORT=http \
+    ASPNETCORE_URLS=http://+:8080
+
+EXPOSE 8080
+
 ENTRYPOINT ["dotnet", "AzurePipelines.Guidelines.Mcp.Host.dll"]

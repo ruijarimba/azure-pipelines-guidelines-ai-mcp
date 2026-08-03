@@ -98,6 +98,65 @@ function Wait-ForMcpSse {
     throw "MCP SSE profile did not listen on port $Port within $TimeoutSeconds seconds."
 }
 
+function Wait-ForComposeContainer {
+    param(
+        [int]$TimeoutSeconds = 45
+    )
+
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
+    while ([DateTime]::UtcNow -lt $deadline) {
+        $client = [System.Net.Sockets.TcpClient]::new()
+        try {
+            $connectTask = $client.ConnectAsync("127.0.0.1", 8080)
+            $connected = $connectTask.Wait(500)
+            if ($connected -and $client.Connected) {
+                return
+            }
+        }
+        finally {
+            $client.Dispose()
+        }
+
+        Start-Sleep -Milliseconds 500
+    }
+
+    throw "Docker Compose service did not become reachable on port 8080 within $TimeoutSeconds seconds."
+}
+
+function Test-ComposeRuntime {
+    if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+        throw "Docker was not found on PATH. Install Docker Desktop and try again."
+    }
+
+    & docker compose config --quiet
+    if ($LASTEXITCODE -ne 0) {
+        throw "docker compose config failed."
+    }
+
+    # Build the image locally so the quality gate validates the repository runtime
+    # without requiring a published Docker Hub image to exist in the current environment.
+    & docker compose build --no-cache
+    if ($LASTEXITCODE -ne 0) {
+        throw "docker compose build failed."
+    }
+
+    & docker compose up --detach
+    if ($LASTEXITCODE -ne 0) {
+        throw "docker compose up failed."
+    }
+
+    try {
+        Wait-ForComposeContainer
+        Write-Host "Docker Compose runtime started successfully." -ForegroundColor Green
+    }
+    finally {
+        & docker compose down --remove-orphans
+        if ($LASTEXITCODE -ne 0) {
+            throw "docker compose down failed."
+        }
+    }
+}
+
 function Test-McpProfile {
     param(
         [Parameter(Mandatory)]
@@ -153,6 +212,10 @@ Invoke-Step -Name "Test" -ScriptBlock {
 Invoke-Step -Name "MCP startup" -ScriptBlock {
     Test-McpProfile -Profile "stdio"
     Test-McpProfile -Profile "SSE"
+}
+
+Invoke-Step -Name "Docker Compose runtime" -ScriptBlock {
+    Test-ComposeRuntime
 }
 
 Write-Host "`nQuality checks completed successfully." -ForegroundColor Green

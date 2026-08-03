@@ -43,6 +43,9 @@ coverage/
 Thumbs.db
 Desktop.ini
 
+## Local environment
+.env
+
 
 temp/
 .temp/

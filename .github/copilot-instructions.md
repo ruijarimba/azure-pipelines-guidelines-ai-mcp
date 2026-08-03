@@ -9,6 +9,7 @@ This is the root entry point for Copilot and agent behaviour in this repository.
 - `.github/instructions/code-style.instructions.md` — C# language features, naming, and XML documentation rules.
 - `.github/instructions/csharp-patterns.instructions.md` — codebase-specific C# patterns: `IGuidelineRule`, logging, `FrozenSet`, regex, diagnostic messages.
 - `.github/instructions/maintainability.instructions.md` — file size, method size, comment discipline, and change scope rules.
+- `.github/instructions/automation-files.instructions.md` — documentation expectations for Dockerfiles, Compose files, scripts, and other automation files.
 - `.github/instructions/documentation.instructions.md` — documentation writing rules for Markdown files; plain English for non-native readers.
 - `.github/instructions/markdown.instructions.md` — Markdown-specific structure, formatting, and readability rules.
 - `.github/instructions/testing.instructions.md` — unit testing conventions and coverage expectations.

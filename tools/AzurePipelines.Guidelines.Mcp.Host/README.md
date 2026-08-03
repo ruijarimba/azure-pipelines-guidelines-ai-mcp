@@ -23,7 +23,7 @@ The executable defaults to **stdio**. This default supports process-launching cl
 a general preference over HTTP. The **Debug** launch profile is the Visual Studio-friendly
 entry point for the HTTP transport and starts the host on the same `/mcp` endpoint. The older
 **SSE** profile remains available as a compatibility alias for existing workflows.
-},{
+
 ## Build the host
 
 From the repository root:
@@ -130,3 +130,16 @@ The command line flag `--transport` takes priority over the environment variable
   debug output.
 
 If you see no startup logs, check that the log level is set to `Information` or lower.
+
+## Run with Docker Compose
+
+The Docker image uses Streamable HTTP by default and listens on port `8080` inside the container.
+From the repository root, start the published service with the Compose wrapper:
+
+```powershell
+pwsh ./scripts/run-mcp-compose.ps1
+```
+
+The MCP endpoint is `http://localhost:8080/mcp`. The Compose wrapper does not read `.env` when it
+runs the MCP server. Docker Hub credentials are used only by `scripts/publish-mcp-image.ps1`; they
+are not passed to the running container.

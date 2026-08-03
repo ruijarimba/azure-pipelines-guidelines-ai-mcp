@@ -1,0 +1,15 @@
+# Default Compose runtime for the MCP image. The service exposes the HTTP
+# endpoint on localhost:8080, and the build block allows the quality gate to
+# validate the repository image locally before any Docker Hub publish step.
+services:
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ruijarimba/azure-pipelines-guidelines-mcp:latest
+    environment:
+      MCP_TRANSPORT: http
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "8080:8080"
+    restart: unless-stopped

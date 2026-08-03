@@ -100,23 +100,39 @@ example):
 
 ### Option 3 — MCP Server (Docker)
 
-No .NET SDK required — use the Docker image:
+No .NET SDK is required. Start the published HTTP container with the Compose wrapper:
 
-```bash
-docker pull ruijarimba/azure-pipelines-guidelines-mcp:latest
+```powershell
+pwsh ./scripts/run-mcp-compose.ps1
 ```
 
-Configure your AI client to use Docker:
+The MCP endpoint is available at `http://localhost:8080/mcp` by default. Compose does not use `.env` when running the MCP server.
+
+Configure an HTTP-capable AI client to use the endpoint:
 
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "azure-pipelines-guidelines": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "ruijarimba/azure-pipelines-guidelines-mcp:latest"]
+      "type": "http",
+      "url": "http://localhost:8080/mcp"
     }
   }
 }
+```
+
+The container uses Streamable HTTP by default. If an MCP client must launch Docker as a child process over stdio, override the transport explicitly:
+
+```powershell
+docker run -i --rm -e MCP_TRANSPORT=stdio ruijarimba/azure-pipelines-guidelines-mcp:latest
+```
+
+For a hosted deployment, terminate HTTPS at your reverse proxy, ingress controller, load balancer, or managed container platform. Add authentication and authorization before exposing the endpoint outside a trusted network.
+
+To publish a multi-architecture `latest` image to Docker Hub, copy `.env.example` to `.env`, set `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, and `DOCKERHUB_IMAGE`, then run:
+
+```powershell
+pwsh ./scripts/publish-mcp-image.ps1
 ```
 
 **→ See [MCP Server Reference](docs/mcp-reference.md) for detailed configuration and troubleshooting.**

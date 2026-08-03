@@ -62,10 +62,13 @@
   <Folder Name="/scripts/">
     <File Path="scripts/run-mcp-local.ps1" />
     <File Path="scripts/build-mcp-image.ps1" />
+    <File Path="scripts/publish-mcp-image.ps1" />
+    <File Path="scripts/run-mcp-compose.ps1" />
   </Folder>
-  <Folder Name="/.github/instructions/">
+    <Folder Name="/.github/instructions/">
     <File Path=".github/instructions/agent-behaviour.instructions.md" />
     <File Path=".github/instructions/architecture.instructions.md" />
+    <File Path=".github/instructions/automation-files.instructions.md" />
     <File Path=".github/instructions/code-style.instructions.md" />
     <File Path=".github/instructions/csharp-patterns.instructions.md" />
     <File Path=".github/instructions/documentation.instructions.md" />
@@ -82,6 +85,7 @@
     <File Path=".github/workflows/release.yml" />
   </Folder>
   <Folder Name="/.solution/">
+    <File Path=".env.example" />
     <File Path=".dockerignore" />
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
@@ -91,6 +95,8 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="Dockerfile" />
+    <File Path="compose.yaml" />
+    <File Path="global.json" />
     <File Path="global.json" />
     <File Path="LICENSE" />
     <File Path="README.md" />
@@ -109,16 +115,17 @@
   </Folder>
   <Folder Name="/.github/">
     <File Path=".github/copilot-instructions.md" />
-    <Folder Name="/.github/instructions/">
-      <File Path=".github/instructions/agent-behaviour.instructions.md" />
-      <File Path=".github/instructions/architecture.instructions.md" />
-      <File Path=".github/instructions/code-style.instructions.md" />
-      <File Path=".github/instructions/csharp-patterns.instructions.md" />
-      <File Path=".github/instructions/documentation.instructions.md" />
-      <File Path=".github/instructions/maintainability.instructions.md" />
-      <File Path=".github/instructions/markdown.instructions.md" />
-        <File Path=".github/instructions/testing.instructions.md" />
-    </Folder>
+      <Folder Name="/.github/instructions/">
+    <File Path=".github/instructions/agent-behaviour.instructions.md" />
+    <File Path=".github/instructions/architecture.instructions.md" />
+    <File Path=".github/instructions/automation-files.instructions.md" />
+    <File Path=".github/instructions/code-style.instructions.md" />
+    <File Path=".github/instructions/csharp-patterns.instructions.md" />
+    <File Path=".github/instructions/documentation.instructions.md" />
+    <File Path=".github/instructions/maintainability.instructions.md" />
+    <File Path=".github/instructions/markdown.instructions.md" />
+    <File Path=".github/instructions/testing.instructions.md" />
+  </Folder>
     <Folder Name="/.github/prompts/">
       <File Path=".github/prompts/add-mcp-tool.prompt.md" />
       <File Path=".github/prompts/implement-rule.prompt.md" />
