@@ -322,7 +322,7 @@ The `--format` option controls how analysis results are presented. All formats c
 | `console` | Human-readable output with file grouping, severity icons, and summary statistics. Includes ANSI colors when terminal supports them. | Developer workstation, interactive terminal sessions |
 | `compact` | One line per violation in format: `file:line:col: severity: [ruleId] message`. Parseable by `grep`, `awk`, and other text tools. | CI logs, Unix pipelines, scripts |
 | `json` | Structured JSON with summary metrics and per-file diagnostics (camelCase properties, indented). | CI scripts, downstream tooling, programmatic consumption |
-| `junit` | JUnit XML format with test cases per file. Violations appear as `<failure>` (warnings/info) or `<error>` (errors). | CI test results publication (Azure Pipelines, GitHub Actions, Jenkins) |
+| `junit` | JUnit XML format with test cases per file. Violations appear as `<failure>` (warnings/info) or `<error>` (errors). | CI test results publication (Azure Pipelines, Jenkins, and similar systems) |
 | `sarif` | [SARIF 2.1.0](https://sarifweb.azurewebsites.net/) with tool metadata, rules, locations, and severity levels. | GitHub Code Scanning, Azure DevOps PR annotations, VS Code SARIF Viewer |
 | `markdown` | Markdown tables with summary metrics and per-file violations. Rule IDs link to guideline documentation. | Pull request comments, wiki pages, HTML reports |
 

@@ -62,6 +62,7 @@ Every automation file must include enough comments to answer the following quest
 - Comments that merely restate the command in plain English.
 - Placeholder comments that do not add meaning.
 - Large comment blocks that duplicate the script contents.
+- GitHub Actions workflow files, GitHub-specific CI/CD automation, or other GitHub-hosted pipeline definitions unless the human explicitly asks for them.
 
 ## When to update comments
 

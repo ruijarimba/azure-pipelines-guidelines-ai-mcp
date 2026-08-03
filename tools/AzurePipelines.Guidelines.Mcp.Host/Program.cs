@@ -5,14 +5,18 @@ using AzurePipelines.Guidelines.Mcp.Host;
 // (web host for SSE, generic host for stdio) can be kept separate and tested.
 string transport = GetTransport(args);
 
-if (string.Equals(transport, "sse", StringComparison.OrdinalIgnoreCase))
+if (string.Equals(transport, "sse", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(transport, "http", StringComparison.OrdinalIgnoreCase))
 {
+    // HTTP mode serves the MCP endpoint over ASP.NET Core. The container runtime
+    // and hosted deployments use this path, while stdio remains the default for
+    // local child-process integrations.
     await McpHostStartup.RunSseAsync(args).ConfigureAwait(false);
 }
 else
 {
-    // stdio is the default and the only supported mode for Docker / CI usage.
-    // SSE is provided only for local debugging from an IDE.
+    // stdio is the default and the only supported mode for local child-process
+    // clients that need stdin/stdout transport.
     await McpHostStartup.RunStdioAsync(args).ConfigureAwait(false);
 }
 

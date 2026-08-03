@@ -502,7 +502,7 @@ server again.
 
 ### Server starts but doesn't return results
 
-- Verify you're passing valid Azure Pipelines YAML (not GitHub Actions or GitLab CI syntax)
+- Verify you're passing valid Azure Pipelines YAML (not alternative CI syntaxes)
 - Check if the YAML file is well-formed — run `adog analyze <file>` from the CLI to see detailed errors
 
 ## See also

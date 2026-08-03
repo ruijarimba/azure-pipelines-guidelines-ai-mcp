@@ -1,3 +1,5 @@
+# Keep the Docker build context small by excluding local build outputs,
+# test projects, and repository metadata that are not needed inside the image.
 # Build outputs — excluded to keep the context small and prevent stale
 # local binaries from leaking into the Docker build cache.
 **/bin/
@@ -17,7 +19,7 @@ tests/
 *.user
 *.suo
 
-# CI and GitHub-specific files — not needed inside the image.
+# CI and repository automation files — not needed inside the image.
 .github/
 
 # Documentation — not needed inside the image.

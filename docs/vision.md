@@ -61,7 +61,7 @@ gantt
 
 - Autofixable rules (deterministic text transformations).
 - IDE extensions (VS Code, Visual Studio) using the analysis engine.
-- CI/CD integrations (Azure Pipelines task, GitHub Action).
+- CI/CD integrations (Azure Pipelines task and other native automation hooks).
 - LLM-assisted analysis for `heuristic` detection rules.
 - Manifest updates: consume new rules from the companion repository automatically.
 
@@ -70,7 +70,7 @@ gantt
 ### Permanently out of scope
 
 - Authoring the guidelines — they live in the companion repository.
-- Linting for GitHub Actions, GitLab CI, Jenkins, or other CI/CD systems.
+- Linting for other CI/CD systems.
 - Runtime analysis or monitoring — this is a static analyser only.
 - Pipeline execution simulation or validation.
 

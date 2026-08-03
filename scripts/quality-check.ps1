@@ -1,3 +1,6 @@
+# Run the repository quality gate for the MCP host and container runtime.
+# The script validates restore/build/test, starts both MCP launch profiles,
+# and then exercises Docker Compose from build through shutdown.
 [CmdletBinding()]
 param(
     [string]$Configuration = "Release"

@@ -152,7 +152,7 @@ tools/     Executable entry points
            Cli (adog) · Mcp.Host (adog-mcp)
 tests/     Unit test projects, one per src/ library
 docs/      Architecture, decisions, glossary, and vision documents
-.github/   AI agent instructions, prompt files, and CI workflows
+.github/   AI agent instructions and prompt files
 ```
 
 ## Disclaimer

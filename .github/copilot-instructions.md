@@ -77,6 +77,8 @@ committed. If the file is stale, update it before continuing.
 
 Full rules are in [`.github/instructions/agent-behaviour.instructions.md`](instructions/agent-behaviour.instructions.md) (grounded in published human-AI collaboration frameworks — see [ADR-010](../docs/decisions.md)). That file is the single source of truth; the reminders below are the highest-signal points only.
 
+- Do not add GitHub Actions workflow files, GitHub-specific CI/CD automation, or other GitHub-hosted deployment or pipeline definitions unless the human explicitly requests them.
+
 - **Never** perform irreversible actions (delete branches, force-push, publish packages, run destructive cloud commands, expose secrets) without explicit human approval.
 - **Agents propose; humans decide.** Present a plan before multi-file or breaking changes. Silence is not consent.
 - **Say "I don't know"** when uncertain rather than guessing.
