@@ -32,8 +32,9 @@ surface so clients and contributors can see the full capability plan in one plac
 - [How it works](#how-it-works)
 - [Choose a transport](#choose-a-transport)
 - [Installation](#installation)
-  - [Option 1 — Local clone](#option-1--local-clone)
-  - [Option 2 — Docker Compose](#option-2--docker-compose)
+  - [Option 1 — Docker Hub image](#option-1--docker-hub-image)
+  - [Option 2 — Local clone](#option-2--local-clone)
+  - [Option 3 — Docker Compose](#option-3--docker-compose)
 - [Configuration](#configuration)
   - [Claude Desktop](#claude-desktop)
   - [GitHub Copilot (VS Code)](#github-copilot-vs-code)
@@ -123,7 +124,41 @@ must support the selected transport and connect to the running server endpoint.
 
 ## Installation
 
-### Option 1 — Local clone
+### Option 1 — Docker Hub image
+
+**Prerequisites:** [Docker Desktop](https://docs.docker.com/get-docker/) and an MCP client that
+supports stdio servers. This is the fastest way to try the server: it does not require a repository
+clone, the .NET SDK, or a local build.
+
+The published image uses HTTP by default, so set `MCP_TRANSPORT=stdio` when an MCP client starts
+the container as a child process. For GitHub Copilot in VS Code, create or edit `.vscode/mcp.json`
+in the workspace you want to use:
+
+```json
+{
+  "servers": {
+    "azure-pipelines-guidelines": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "MCP_TRANSPORT=stdio",
+        "ruijarimba/azure-pipelines-guidelines-mcp:latest"
+      ]
+    }
+  }
+}
+```
+
+Restart or reload the MCP server from VS Code after saving the file. The container can analyze
+inline YAML immediately. To analyze files with `analyze_pipeline_paths`, mount only the intended
+workspace directory as read-only and pass the corresponding container path; see the [file-access
+boundary](#file-access-boundary) guidance below.
+
+### Option 2 — Local clone
 
 **Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) and a local clone of this repository.
 
@@ -136,7 +171,7 @@ pwsh ./scripts/run-mcp-local.ps1
 The script starts the server over standard input/output. It waits for an MCP client request;
 that is expected. You can also run `dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host`.
 
-### Option 2 — Docker Compose
+### Option 3 — Docker Compose
 
 **Prerequisites:** [Docker Desktop](https://docs.docker.com/get-docker/)
 
@@ -167,8 +202,16 @@ Docker Hub values, and run:
 pwsh ./scripts/publish-mcp-image.ps1
 ```
 
-The publishing script uses the token only for Docker Hub login. It does not pass credentials into
-the MCP container.
+The publishing script performs these checks before login or build:
+
+- `.env` exists and contains `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, and `DOCKERHUB_IMAGE`.
+- `DOCKERHUB_TOKEN` starts with `dckr_pat_`.
+- `DOCKERHUB_IMAGE` uses the `username/repository` form without a tag.
+- Docker Desktop's Linux engine is running.
+- Docker and Buildx are installed, initialized, and support `linux/amd64` and `linux/arm64`.
+
+The token is used only for Docker Hub login through stdin. It is not printed, passed into the MCP
+container, or included in the image.
 
 For hosted deployments, terminate HTTPS at the reverse proxy, ingress controller, load balancer,
 or managed container platform. Add authentication and authorization before exposing `/mcp` outside
@@ -232,6 +275,33 @@ stdio, configure it to run `docker run -i --rm -e MCP_TRANSPORT=stdio` instead.
 ### GitHub Copilot (VS Code)
 
 Create or edit `.vscode/mcp.json` in your project:
+
+#### Using the Docker Hub image (quickest setup)
+
+This configuration pulls the published image directly from Docker Hub. It does not require a
+repository checkout or the .NET SDK:
+
+```json
+{
+  "servers": {
+    "azure-pipelines-guidelines": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "MCP_TRANSPORT=stdio",
+        "ruijarimba/azure-pipelines-guidelines-mcp:latest"
+      ]
+    }
+  }
+}
+```
+
+Docker Desktop must be running. After saving `.vscode/mcp.json`, restart or reload the MCP server
+from VS Code.
 
 #### Using a local clone:
 

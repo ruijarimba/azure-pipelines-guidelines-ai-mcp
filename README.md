@@ -129,7 +129,7 @@ docker run -i --rm -e MCP_TRANSPORT=stdio ruijarimba/azure-pipelines-guidelines-
 
 For a hosted deployment, terminate HTTPS at your reverse proxy, ingress controller, load balancer, or managed container platform. Add authentication and authorization before exposing the endpoint outside a trusted network.
 
-To publish a multi-architecture `latest` image to Docker Hub, copy `.env.example` to `.env`, set `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, and `DOCKERHUB_IMAGE`, then run:
+To publish a multi-architecture `latest` image to Docker Hub, copy `.env.example` to `.env`, set `DOCKERHUB_USERNAME`, set `DOCKERHUB_IMAGE` to the `username/repository` form, and set `DOCKERHUB_TOKEN` to a Docker Hub personal access token beginning with `dckr_pat_`. The publish script checks that `.env`, Docker Desktop, Docker, and Buildx are ready before it logs in or starts the build:
 
 ```powershell
 pwsh ./scripts/publish-mcp-image.ps1

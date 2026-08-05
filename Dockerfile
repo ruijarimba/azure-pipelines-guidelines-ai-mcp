@@ -23,14 +23,14 @@ COPY tools/Directory.Build.props                        tools/Directory.Build.pr
 RUN dotnet restore tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj
 
 # Publish a self-contained-trimmed binary is explicitly NOT used here because
-# the .NET runtime image is already lean and avoids trimming compatibility risks.
+# the ASP.NET runtime image supplies the required shared framework and avoids trimming risks.
 RUN dotnet publish tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj \
     --no-restore \
     --configuration Release \
     --output /app/publish
 
 # ── Stage 2: final image ──────────────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/runtime:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 
 # Run as a non-root user for security best practice.
 RUN groupadd --system --gid 1001 mcpgroup \
