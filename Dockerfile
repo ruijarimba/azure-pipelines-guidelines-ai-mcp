@@ -30,6 +30,10 @@ RUN dotnet publish tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guide
     --output /app/publish
 
 # ── Stage 2: final image ──────────────────────────────────────────────────────
+# Use aspnet instead of runtime: Mcp.Host references ModelContextProtocol.AspNetCore,
+# which requires the Microsoft.AspNetCore.App shared framework at process startup.
+# One aspnet image supports both stdio and HTTP. Using runtime would require separately built,
+# tested, published, and documented stdio-only and HTTP images.
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 
 # Run as a non-root user for security best practice.

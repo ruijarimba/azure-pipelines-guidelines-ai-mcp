@@ -127,6 +127,23 @@ The executable defaults to `stdio` for process-launching clients. Use the HTTP t
 local debugging or a hosted deployment. The existing `SSE` launch-profile and selector names
 start the HTTP transport for compatibility with the existing local workflow.
 
+### Container runtime decision
+
+The Docker image uses `mcr.microsoft.com/dotnet/aspnet:10.0`. `Mcp.Host` references
+`ModelContextProtocol.AspNetCore` to provide the HTTP transport, which requires the
+`Microsoft.AspNetCore.App` shared framework. The smaller `mcr.microsoft.com/dotnet/runtime:10.0`
+image does not include that framework.
+
+.NET resolves shared-framework requirements when the executable starts. Therefore, the host needs
+the ASP.NET runtime even when it runs with the `stdio` transport. A single image keeps Docker,
+editor integrations, Docker Compose, local HTTP debugging, and hosted deployments on the same
+tested executable.
+
+Using `runtime` would require two images: a stdio-only image without the ASP.NET Core dependency
+and an HTTP image with it. Each image would need its own build, tests, tags, publishing, version
+checks, support guidance, and user documentation. The project accepts the larger ASP.NET image to
+keep one release artifact and one supported runtime path.
+
 ## Extension points
 
 | Goal | Where to add |

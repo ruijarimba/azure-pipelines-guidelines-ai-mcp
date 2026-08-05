@@ -7,8 +7,8 @@ Update it before every commit so the next session starts with accurate context.
 
 | Area | Status |
 | --- | --- |
-| Current focus | MCP token-conscious capabilities are implemented through automation metadata; the repository is ready for the next feature |
-| Recent wins | Added cache-friendly catalogue resources, summary-first guideline lookup, capability discovery, automation metadata, and an at-a-glance MCP reference |
+| Current focus | The Docker Hub MCP image is published and documented; the repository is ready for the next MCP capability |
+| Recent wins | Published the multi-architecture Docker Hub image, added fail-fast publishing checks, fixed the ASP.NET runtime dependency, and documented the one-image runtime decision |
 | Next up | Choose the next MCP capability: concise prompts, server-side analysis summaries, or the dedicated token-usage guide |
 
 ---
@@ -28,6 +28,8 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `local` | docs: explain why the Docker image uses the ASP.NET runtime — one image supports stdio and HTTP; using the base runtime would require separately built, tested, published, and documented images |
+| `383d7a7` | fix: use the ASP.NET runtime required by the MCP host; harden Docker Hub publishing checks; document Docker Hub and VS Code MCP setup; publish corrected multi-architecture `latest` image |
 | `1c5aa2e` | feat: expose guideline automation metadata through MCP tools and resources |
 | `local` | feat: add cache-friendly MCP guideline resources and summary-first guideline lookup for lower token use |
 | `local` | feat: upgrade ModelContextProtocol/ModelContextProtocol.AspNetCore to stable 2.0.0; bump Microsoft.Extensions.* to 10.0.10; keep legacy SSE (Stateless=false, suppressed obsolete MCP9004) alongside default Streamable HTTP; add Title/ReadOnly tool hints; document the compatibility decision in ADR-015 |

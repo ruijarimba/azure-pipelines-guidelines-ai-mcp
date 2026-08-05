@@ -96,3 +96,7 @@ For multi-item remediation work in this repository, commit and push each indepen
 - Raw-text guideline rules must ignore YAML comments and comment-only lines inside script block scalars.
 - Preserve original `PipelineDocument.RawContent` for documentation rules and diagnostics.
 - Use a centralized, source-length-preserving comment-free analysis view for other raw-text rules.
+
+## Container Runtime Decision
+
+- When documenting the container runtime decision, emphasize the deployment trade-off: using the ASP.NET Core runtime keeps one image for both stdio and HTTP, while using the base .NET runtime would require two separately built and maintained images.

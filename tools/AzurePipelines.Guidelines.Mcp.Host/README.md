@@ -24,6 +24,27 @@ a general preference over HTTP. The **Debug** launch profile is the Visual Studi
 entry point for the HTTP transport and starts the host on the same `/mcp` endpoint. The older
 **SSE** profile remains available as a compatibility alias for existing workflows.
 
+## Container runtime
+
+The Docker image uses `mcr.microsoft.com/dotnet/aspnet:10.0`, not
+`mcr.microsoft.com/dotnet/runtime:10.0`. This is required because the host references
+`ModelContextProtocol.AspNetCore` for the HTTP transport. That package requires the
+`Microsoft.AspNetCore.App` shared framework.
+
+.NET checks required shared frameworks when the process starts. It does this even when you run
+the host in `stdio` mode. The smaller `runtime` image does not include
+`Microsoft.AspNetCore.App`, so the process would exit before it could start the stdio server.
+
+The project intentionally publishes **one ASP.NET runtime image** for both `stdio` and HTTP.
+
+| Image approach | Result | Maintenance cost |
+| --- | --- | --- |
+| One `aspnet` image | Supports `stdio`, HTTP, Streamable HTTP, legacy SSE compatibility, Docker Compose, and hosted deployments. | One build, test path, image tag, publish step, and set of user instructions. |
+| Two images based on `runtime` and `aspnet` | A smaller stdio-only image plus a separate HTTP image. | Two builds, test paths, image tags, publish steps, version checks, and sets of user instructions. |
+
+Using the base `runtime` image would require removing or splitting the HTTP features. The project
+keeps one image so every supported transport runs from the same tested executable.
+
 ## Build the host
 
 From the repository root:
