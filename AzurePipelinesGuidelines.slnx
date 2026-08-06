@@ -45,10 +45,6 @@
     </Folder>
     <Project Path="tests/AzurePipelines.Guidelines.Integration.Tests/AzurePipelines.Guidelines.Integration.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
-    <Project Path="tests/AzurePipelines.Guidelines.Cli.Tests/AzurePipelines.Guidelines.Cli.Tests.csproj" />
-    <File Path="tests/AzurePipelines.Guidelines.Cli.Tests/AnalyzeCommandOptionResolverTests.cs" />
-    <File Path="tests/AzurePipelines.Guidelines.Cli.Tests/AssemblyInfo.cs" />
-    <File Path="tests/AzurePipelines.Guidelines.Cli.Tests/RulesCommandTests.cs" />
     <Project Path="tests/AzurePipelines.Guidelines.Core.Tests/AzurePipelines.Guidelines.Core.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AzurePipelines.Guidelines.Mcp.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />
@@ -56,7 +52,6 @@
   </Folder>
   <Folder Name="/tools/">
     <File Path="tools/Directory.Build.props" />
-    <Project Path="tools/AzurePipelines.Guidelines.Cli/AzurePipelines.Guidelines.Cli.csproj" />
     <Project Path="tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj" />
   </Folder>
   <Folder Name="/scripts/">
