@@ -3,7 +3,7 @@
 This file tracks upcoming work and enhancements for the next development session.
 
 The backlog below reflects the current state of the repository after the latest validation pass:
-- CLI severity terminology and multi-value filter support are implemented.
+- The MCP server and shared analysis stack are implemented.
 - MCP documentation and solution registration are complete.
 - Folder-based integration tests for the real analysis stack are implemented and validated.
 - Local tests, packaging, and documentation validation passed.
@@ -12,24 +12,21 @@ The backlog below reflects the current state of the repository after the latest 
 
 | Priority | Item | Why it matters |
 | --- | --- | --- |
-| Now | Improve executable and runnable-project docs | The MCP host and CLI need clearer guidance for transport, profiles, and options |
+| Now | Improve MCP host docs and comments | The MCP host needs clear guidance for transport, profiles, and options |
 | Next | Expand MCP capabilities with token-conscious defaults | This improves client experience without overloading the context window |
-| Later | Improve CLI examples and revisit rule coverage | These are useful follow-ups once the main path is stable |
+| Later | Revisit rule coverage | New manifest rules need matching implementations |
 
 ---
 
 ## High Priority
 
-### 1. Improve comments and documentation for executable/runnable projects
+### 1. Improve comments and documentation for the MCP host
 
-Many classes, methods, and options lack comments. This is especially problematic for
-executable/runnable projects like the MCP host and CLI, where options, profiles, launch
-settings, and transport choices control how the program runs.
+Many classes, methods, and options lack comments. This is especially problematic for the MCP host,
+where options, profiles, launch settings, and transport choices control how the program runs.
 
 - [x] Add inline comments explaining non-obvious code in the MCP host (`Program.cs`,
       `McpHostStartup.cs`, launch profiles, transport selection).
-- [ ] Add inline comments explaining non-obvious code in the CLI (`AnalyzeCommand`,
-      `RulesCommand`, option resolvers, formatters, exit codes).
 - [x] Add or update README/AGENTS files that explain:
   - The available launch profiles and when to use each one.
   - The difference between stdio and SSE transports.
@@ -43,10 +40,7 @@ Related files:
 - `tools/AzurePipelines.Guidelines.Mcp.Host/McpHostStartup.cs`
 - `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`
 - `tools/AzurePipelines.Guidelines.Mcp.Host/README.md`
-- `tools/AzurePipelines.Guidelines.Cli/AnalyzeCommand.cs`
-- `tools/AzurePipelines.Guidelines.Cli/RulesCommand.cs`
 - `docs/mcp-reference.md`
-- `docs/cli-reference.md`
 
 ---
 
@@ -56,14 +50,9 @@ Related files:
 
 These are optional follow-ups that are not blocked by the current implementation.
 
-- [x] Add `--output` support for multiple formats when `--format` contains more than one value
-- [x] Add a dedicated "Environment Variables" section to `docs/cli-reference.md`
-- [x] Consider config-file support for CLI defaults
 - [x] Review and commit the current handoff notes in `docs/TODO.md` and `docs/progress.md` before the next session
 
 Related files:
-- `tools/AzurePipelines.Guidelines.Cli/AnalyzeCommand.cs`
-- `docs/cli-reference.md`
 - `docs/mcp-reference.md`
 
 ---
@@ -130,19 +119,7 @@ Related files:
 
 ---
 
-## Low Priority / Future Enhancements
-
-### 6. Improve CLI documentation examples
-
-Add more end-to-end examples for CI/CD, scripting, and mixed-format output scenarios.
-
-Related files:
-- `docs/cli-reference.md`
-- `docs/mcp-reference.md`
-
----
-
-## Recent Session Summary
+## Recent session summary
 
 **Date:** 2026-07-13
 
@@ -160,12 +137,7 @@ Related files:
 
 **Files changed:**
 - `docs/mcp-reference.md`
-- `docs/cli-reference.md`
-- `tools/AzurePipelines.Guidelines.Cli/AnalyzeCommand.cs`
-- `tools/AzurePipelines.Guidelines.Cli/AnalyzeCommandOptionResolver.cs`
-- `tools/AzurePipelines.Guidelines.Cli/RulesCommand.cs`
 - `tools/AzurePipelines.Guidelines.Mcp/Tools/PipelineAnalysisTools.cs`
-- `tests/AzurePipelines.Guidelines.Cli.Tests/AnalyzeCommandTests.cs`
 
 ---
 

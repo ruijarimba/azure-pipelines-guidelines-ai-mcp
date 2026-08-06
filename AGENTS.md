@@ -5,16 +5,13 @@ Read this file **and the `AGENTS.md` in each subdirectory** before making any ch
 
 ## What this repository does
 
-Provides a .NET 10 implementation of two tools built on top of the
+Provides a .NET 10 MCP server built on top of the
 [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
 machine-readable manifest:
 
-1. **MCP server** — exposes guideline lookup and Azure Pipelines YAML analysis as
-   [Model Context Protocol](https://modelcontextprotocol.io) tools and resources that
-   AI assistants can call.
-2. **CLI static analyser** (`adog`) — analyses Azure YAML pipeline files against the
-   guidelines and reports violations with fix suggestions. Configured for a future .NET
-   global-tool release.
+The **MCP server** exposes guideline lookup and Azure Pipelines YAML analysis as
+[Model Context Protocol](https://modelcontextprotocol.io) tools and resources that
+AI assistants can call.
 
 The guidelines themselves live in the companion repository. Their machine-readable
 manifest is at `data/guidelines.json` and uses stable rule IDs of the form
@@ -131,16 +128,14 @@ graph TB
         Mcp["Mcp<br/><i>MCP protocol handlers</i>"]
     end
 
-    subgraph "tools/ executables"
+    subgraph "tools/ executable"
         McpHost["Mcp.Host<br/><b>[exe]</b><br/><i>adog-mcp</i>"]
-        Cli["Cli<br/><b>[exe]</b><br/><i>adog</i>"]
     end
 
     subgraph "External NuGet"
         YamlDotNet["YamlDotNet"]
         MEDI["M.E.DI.Abstractions"]
         MCP["ModelContextProtocol"]
-        SCL["System.CommandLine"]
         MEH["M.E.Hosting"]
     end
 
@@ -156,9 +151,6 @@ graph TB
     Mcp -.-> MCP
     McpHost --> Mcp
     McpHost -.-> MEH
-    Cli --> Analysis
-    Cli -.-> SCL
-    Cli -.-> MEH
 
     classDef coreLayer fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
     classDef infraLayer fill:#f1f8e9,stroke:#689f38,stroke-width:2px
@@ -167,8 +159,8 @@ graph TB
 
     class Core coreLayer
     class Parsing,Rules,Analysis,Mcp infraLayer
-    class McpHost,Cli toolLayer
-    class YamlDotNet,MEDI,MCP,SCL,MEH externalLayer
+    class McpHost toolLayer
+    class YamlDotNet,MEDI,MCP,MEH externalLayer
 ```
 
 **Legend:**

@@ -56,7 +56,7 @@ The following guidelines require information unavailable in one YAML document:
 - `ADOG-STEPS-005`, `ADOG-STEPS-008`, and `ADOG-STEPS-009`
 - `ADOG-VARIABLES-002` and `ADOG-VARIABLES-004`
 
-These guidelines remain available through the guideline catalogue and can be reviewed with `adog rules show <rule-id>` or the corresponding MCP lookup tools.
+These guidelines remain available through the guideline catalogue and the corresponding MCP lookup tools.
 
 ## Limitations
 

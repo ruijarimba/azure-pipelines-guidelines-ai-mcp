@@ -3,8 +3,8 @@
 ## Purpose
 
 Orchestrates the full analysis pipeline: parse YAML → filter applicable rules → run rules →
-aggregate diagnostics into an `AnalysisResult`. This is the primary entry point for both
-the MCP server and the CLI tool.
+aggregate diagnostics into an `AnalysisResult`. This is the reusable entry point for hosts such
+as the MCP server and future analysis tools.
 
 ## What belongs here
 
@@ -56,16 +56,14 @@ mindmap
       MCP tool handlers → Mcp
       Request/response format
     Presentation
-      Console output → Cli
-      File I/O → Cli
-      Exit code mapping → Cli
+      Host-specific output and transport concerns
 ```
 
 **Keep Analysis focused:**
 - ❌ No YAML parsing details — use injected `IPipelineParser`
 - ❌ No rule implementations — inject `IEnumerable<IGuidelineRule>`
 - ❌ No MCP protocol concerns → `Mcp` project
-- ❌ No console or file I/O — that's presentation layer (`Cli`)
+- ❌ No host-specific output, file I/O, or transport concerns
 
 ## Dependencies (internal)
 
@@ -80,7 +78,7 @@ mindmap
 
 ## Key patterns
 
-- `IAnalysisEngine` is the **single public seam** for all callers (`Mcp`, `Cli`).
+- `IAnalysisEngine` is the **single public seam** for all hosts, including `Mcp`.
 - Rules are resolved at runtime via `IEnumerable<IGuidelineRule>` — adding a new rule to the DI
   container automatically makes it available to the engine.
 - The engine never modifies pipeline files; it produces read-only results only.

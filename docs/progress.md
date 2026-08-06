@@ -28,7 +28,9 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
-| `local` | docs: explain why the Docker image uses the ASP.NET runtime — one image supports stdio and HTTP; using the base runtime would require separately built, tested, published, and documented images |
+| `local` | docs: align shared documentation and architecture guidance with the MCP-only product and host-neutral Analysis boundary |
+| `45b6b5c` | docs: remove CLI reference |
+| `e3f8970` | refactor: remove CLI host |
 | `383d7a7` | fix: use the ASP.NET runtime required by the MCP host; harden Docker Hub publishing checks; document Docker Hub and VS Code MCP setup; publish corrected multi-architecture `latest` image |
 | `1c5aa2e` | feat: expose guideline automation metadata through MCP tools and resources |
 | `local` | feat: add cache-friendly MCP guideline resources and summary-first guideline lookup for lower token use |
@@ -36,7 +38,6 @@ Before committing, edit the sections below:
 | `local` | docs/comments: add inline comments, host README, and AGENTS updates to the MCP project so contributors without deep .NET knowledge can follow transport modes, launch profiles, and startup choices |
 | `local` | feat: add optional SSE debug transport to MCP host so it can run under Visual Studio while VS Code connects over HTTP |
 | `local` | feat: add source-mode and local Docker MCP launch scripts with local-client configuration guidance |
-| `local` | feat: add config-file support for CLI defaults for `analyze` and `rules list` with CLI > environment > config > built-in default precedence |
 | `3a8eb87` | test: add folder-based integration tests for the real analysis stack and validate the full solution quality gate |
 | `8c3b576` | chore: mirror filesystem structure in Solution Explorer — rule 8 in agent-behaviour, slnx hierarchy fixes |
 | `572af54` | chore: add non-code files to Solution Explorer (AGENTS.md per project, docs, .github) |
@@ -133,7 +134,7 @@ provider maps guideline IDs to enforceable, heuristic, or not-automatable local 
 The quality gate now starts the MCP host with both the `stdio` and `SSE` launch profiles.
 
 Current focus:
-1. Review whether automation status should appear in CLI and MCP guideline lookup output.
+1. Review whether automation status should appear in MCP guideline lookup output.
 2. Prioritize the token-conscious MCP capability work recorded in `docs/TODO.md`.
 
 Validation completed:
@@ -148,10 +149,7 @@ Validation completed:
    remediation plan.
 2. **Consider server-side analysis summaries** grouped by file, category, severity, and rule.
 3. **Create the MCP token-usage guide** described in `docs/TODO.md`.
-4. **Address remaining CLI documentation debt** in
-   `tools/AzurePipelines.Guidelines.Cli` (`AnalyzeCommand`, `RulesCommand`, option resolvers,
-   formatters, and exit codes).
-5. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the rule
+4. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the rule
    template workflow when they appear.
 
 ---

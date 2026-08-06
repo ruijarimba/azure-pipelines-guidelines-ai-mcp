@@ -6,7 +6,7 @@ In-process integration tests for committed, multi-file Azure Pipelines fixture r
 
 ## Boundaries
 
-- Run the real parser, path resolver, registered rules, and analyser through DI; never invoke the CLI from a test.
+- Run the real parser, path resolver, registered rules, and analyser through DI; test the shared analysis stack directly.
 - Keep compact, purpose-built fixtures under `Fixtures/PipelineRepositories`. Each repository must contain multiple readable YAML files and repeated violations.
 - Maintain one derived test class per fixture repository (`DockerPipelineRepositoryTests`, `HelmPipelineRepositoryTests`, and `TerraformPipelineRepositoryTests`) over `PipelineRepositoryIntegrationTestsBase`.
 - Each repository class owns its expected guideline IDs and uses analysis filtering to avoid brittle assertions caused by intentionally overlapping rule triggers.
@@ -17,4 +17,3 @@ In-process integration tests for committed, multi-file Azure Pipelines fixture r
 ## Manual debugging
 
 Run the test project with `dotnet test tests/AzurePipelines.Guidelines.Integration.Tests`.
-Use `scripts/smoke-integration-fixtures.ps1` only for manual fixture diagnostics, not as part of test execution.

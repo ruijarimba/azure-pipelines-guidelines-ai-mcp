@@ -19,7 +19,7 @@ rebuilding the tools.
 
 ## The analysis pipeline
 
-Every analysis request — whether from the CLI or the MCP server — runs through the same engine.
+Every MCP analysis request runs through the shared analysis engine.
 
 ```mermaid
 graph TD
@@ -82,24 +82,8 @@ resource endpoints for the guideline catalogue.
   `adog://guidelines/category/{category}` let clients cache the catalogue and fetch narrower
   slices of data.
 
-Both tools accept an optional `guidelineIds` parameter. Pass a comma-separated list such as
+Both analysis tools accept an optional `guidelineIds` parameter. Pass a comma-separated list such as
 `ADOG-STEPS-001,ADOG-JOBS-006` to restrict analysis to specific rules. Omit it to run all rules.
-
-Both tools use the same analysis engine as the CLI.
-
-## How the CLI works
-
-The CLI (`adog`) uses the same analysis engine. The difference is the entry point and output
-format.
-
-| | CLI (`adog`) | MCP server (`adog-mcp`) |
-| --- | --- | --- |
-| Caller | Human or CI pipeline | AI assistant (MCP client) |
-| Input | One or more file or directory paths | YAML text (`analyze_pipeline`) or file paths (`analyze_pipeline_paths`) |
-| Output | Console text or JSON | Structured MCP response (JSON) |
-| Transport | Standard file I/O | stdio JSON-RPC |
-
-The CLI expands each directory recursively and analyzes every `.yml` and `.yaml` file it finds.
 
 ## Detection kinds
 
@@ -127,7 +111,7 @@ Examples: `ADOG-STEPS-001`, `ADOG-VARIABLES-003`, `ADOG-GENERAL-002`.
 
 Rule IDs appear in:
 
-- `Diagnostic` output from the CLI and MCP server
+- `Diagnostic` output from MCP tools
 - The manifest (`data/guidelines.json` in the companion repository)
 - The `IGuidelineRule.GuidelineId` property of each rule implementation
 

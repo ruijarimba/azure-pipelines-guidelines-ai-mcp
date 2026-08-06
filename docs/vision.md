@@ -1,14 +1,12 @@
-# Vision & Roadmap
+# Vision and roadmap
 
 ## North star
 
-Build **two tools** on top of the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
-machine-readable manifest that make the guidelines **actionable** for humans and AI assistants:
+Build an MCP server on top of the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
+machine-readable manifest. The server makes the guidelines actionable for AI assistants by
+providing guideline lookup, pipeline analysis, and fix guidance.
 
-1. **MCP server** — AI assistants call it to look up guidelines and analyse pipeline YAML.
-2. **CLI static analyser** (`adog`) — runs in CI or locally; flags violations with fix suggestions.
-
-Both tools consume the same `data/guidelines.json` manifest from the companion repository.
+The server consumes the `data/guidelines.json` manifest from the companion repository.
 
 ## At a glance
 
@@ -29,10 +27,8 @@ gantt
     YAML parsing & AST                :done, p1-parse, 2024-11-01, 30d
     Rule implementations              :done, p1-rules, after p1-parse, 45d
     MCP server                        :done, p1-mcp, after p1-parse, 30d
-    CLI tool (adog)                   :done, p1-cli, after p1-parse, 30d
-    Output formatters                 :done, p1-fmt, after p1-cli, 14d
     Package and distribution assets   :done, p1-dist, after p1-rules, 7d
-    Documentation                     :done, p1-docs, after p1-cli, 21d
+    Documentation                     :done, p1-docs, after p1-mcp, 21d
     Unit test coverage (≥90%)         :done, p1-tests, 2024-11-01, 90d
 
     section Phase 2 - Future Enhancements
@@ -48,11 +44,8 @@ gantt
 - Parse Azure Pipelines YAML into a structured AST.
 - Implement rules for all `ADOG-{CATEGORY}-{NNN}` guidelines in the manifest.
 - MCP server (tools: guideline lookup, YAML analysis, fix suggestions; resources: guideline catalogue with cache-friendly version and category endpoints).
-- CLI tool (`adog analyze`, `adog rules list`, `adog rules show`).
-- Console, compact, JSON, JUnit, SARIF, and Markdown output formats.
-- JSON configuration-file defaults for CLI options.
 - NuGet package metadata and local packing for all `src/` libraries.
-- Global-tool packaging configuration for `adog` and `adog-mcp`.
+- Global-tool packaging configuration for `adog-mcp`.
 - Docker-image distribution assets and Docker Hub publication for `adog-mcp`.
 - NuGet publication is deferred. The package configuration remains for a future release.
 - Comprehensive unit test coverage (xUnit + FluentAssertions + NSubstitute) with repository-wide line coverage above 90% and explicit tests for success, failure, and edge-case scenarios.
@@ -62,7 +55,7 @@ gantt
 - Autofixable rules (deterministic text transformations).
 - IDE extensions (VS Code, Visual Studio) using the analysis engine.
 - CI/CD integrations (Azure Pipelines task and other native automation hooks).
-- LLM-assisted analysis for `heuristic` detection rules.
+- LLM-assisted analysis for `heuristic` detection rules (excluded from current MCP planning).
 - Manifest updates: consume new rules from the companion repository automatically.
 
 ## Out of scope
@@ -86,7 +79,6 @@ gantt
 
 - All `ADOG-…` rules from `guidelines.json` are implemented.
 - MCP server responds correctly to all defined tools and resources.
-- CLI produces accurate diagnostics and exits with correct codes.
 - Package metadata and local packing remain valid for a future NuGet release.
 - Docker image distribution remains available for the MCP server.
 - Repository-wide line coverage above 90% (measured via `dotnet test --collect:"XPlat Code Coverage"`).
@@ -95,6 +87,6 @@ gantt
 
 ### Long-term success
 
-- Community adoption: ≥ 100 downloads/week for `adog` global tool within 6 months.
-- Integration: used in at least one production CI pipeline.
+- Community adoption: MCP integrations use the server in real development workflows.
+- Integration: used in at least one production AI-assisted pipeline review workflow.
 - Contribution: external contributor submits a rule implementation or bug fix.

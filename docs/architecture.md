@@ -2,20 +2,19 @@
 
 ## Overview
 
-This project is a layered .NET 10 solution that builds two tools on top of
+This project is a layered .NET 10 solution that builds an MCP server on top of
 the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
 machine-readable definitions:
 
-1. **MCP server** — AI assistants call it to look up guidelines and analyze pipeline YAML files.
-2. **CLI static analyzer** (`adog`) — runs in CI or locally to flag violations.
+The **MCP server** lets AI assistants look up guidelines and analyze pipeline YAML files.
 
 ## At a glance
 
 | Area | Summary |
 | --- | --- |
 | Solution shape | Layered .NET 10 solution with strict dependency direction |
-| Main outputs | MCP server for AI assistants and CLI analyzer for CI or local runs |
-| Runtime boundary | `Mcp.Host` manages transport selection; `Cli` stays command-line focused |
+| Main output | MCP server for AI assistants |
+| Runtime boundary | `Mcp.Host` manages transport selection |
 
 ## Dependency graph
 
@@ -38,10 +37,6 @@ tools/AzurePipelines.Guidelines.Mcp.Host  [exe]
      └── AzurePipelines.Guidelines.Mcp
      └── [NuGet] Microsoft.Extensions.Hosting
 
-tools/AzurePipelines.Guidelines.Cli  [exe]
-     └── AzurePipelines.Guidelines.Analysis
-     └── [NuGet] System.CommandLine
-     └── [NuGet] Microsoft.Extensions.Hosting
 ```
 
 ```mermaid
@@ -55,7 +50,6 @@ graph TD
     end
     subgraph tools["tools/"]
         McpHost["Mcp.Host [exe]"]
-        Cli["Cli [exe]"]
     end
     Parsing --> Core
     Rules --> Core
@@ -65,7 +59,6 @@ graph TD
     Mcp --> Core
     Mcp --> Analysis
     McpHost --> Mcp
-    Cli --> Analysis
 ```
 
 **Rule:** arrows point from dependent → dependency. Cycles are forbidden.
@@ -81,7 +74,6 @@ graph TD
 | `Analysis` | Orchestration: parse → filter → run → aggregate | YAML details, protocol code, console I/O |
 | `Mcp` | MCP tool/resource handlers, DI extension methods | Rule logic, direct YAML parsing, host lifecycle |
 | `Mcp.Host` | Host wiring, DI registration, config | All business logic |
-| `Cli` | Commands, output formatters, exit-code mapping | All business logic |
 
 ## Key interfaces (defined in Core)
 
@@ -151,8 +143,7 @@ keep one release artifact and one supported runtime path.
 | New lint rule | Implement `IGuidelineRule` in `Rules` and register in `GuidelineRulesServiceCollectionExtensions` |
 | New MCP tool | Add handler class in `Mcp/Tools/` — `WithToolsFromAssembly` discovers it automatically |
 | New MCP resource | Add handler class in `Mcp/Resources/` — `WithResourcesFromAssembly` discovers it automatically |
-| New CLI command | Add a `Command` subclass in `Cli` and wire it in `Program.cs` |
-| New output format | Add a formatter in `Cli` (for example, SARIF) |
+| New host or tool | Compose on the `Analysis` interfaces and register adapters in a new host project |
 | Alternative YAML parser | Replace `IPipelineParser` implementation in `Parsing` |
 
 ## Guideline manifest
@@ -178,20 +169,6 @@ see [`glossary.md`](glossary.md).
 | `Directory.Packages.props` | Central NuGet version management |
 | `.editorconfig` | C# code style rules |
 
-## CLI surface
-
-```
-adog analyze <path> [<path> ...] [--format console|compact|json|junit|sarif|markdown] [--severity error|warning|info]
-adog rules list [--category <category>] [--format console|json]
-adog rules show <rule-id> [--format console|json]
-```
-
-Each `path` can point to a `.yml` or `.yaml` file, or to a directory. Directories are expanded
-recursively to find pipeline YAML files. The `adog analyze` command supports multiple comma-separated
-formats in a single run; the `adog rules` subcommands currently support `console` and `json`.
-
-Exit codes: `0` = no violations at threshold, `1` = violations found, `2` = analysis error.
-
 ## Packaging and distribution
 
 All `src/` projects are configured as independent NuGet packages
@@ -200,7 +177,6 @@ packing remain in place for a future release.
 
 | Artefact | Package ID | Distribution |
 | --- | --- | --- |
-| CLI analyser | `adog` | Local build; future NuGet global tool |
 | MCP server | `adog-mcp` | Local build; future NuGet global tool |
 | MCP server | — | Docker Hub (`ruijarimba/azure-pipelines-guidelines-mcp`) |
 

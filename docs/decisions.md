@@ -319,7 +319,7 @@ Phase 2."
   class exists. Record its local automation status and rationale in the metadata provider.
 - The `IGuidelineRepository` and `IGuidelineLoader` already load all 36 rules
   from the manifest at runtime, so heuristic rules are available for lookup via
-  `list_guidelines`, `get_guideline`, and `adog rules show` even without a
+  `list_guidelines` and `get_guideline` even without a
   corresponding `IGuidelineRule` implementation.
 - When Phase 2 begins, re-read this ADR to understand the design boundary.
 

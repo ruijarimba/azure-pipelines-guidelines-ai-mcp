@@ -15,7 +15,6 @@ Rules    → Core
 Analysis → Core, Parsing, Rules
 Mcp      → Core, Analysis
 Mcp.Host → Mcp                   [executable — not a NuGet package]
-Cli      → Analysis               [executable — not a NuGet package]
 ```
 
 `Core` imports **no other `src/` project**.
@@ -30,13 +29,12 @@ Cli      → Analysis               [executable — not a NuGet package]
 | `Analysis` | Orchestration, DI extension methods | YAML details, protocol code, console I/O |
 | `Mcp` | MCP tool/resource handlers, DI extension methods | Rule logic, direct YAML parsing, host lifecycle |
 | `Mcp.Host` | Host wiring only | All business logic |
-| `Cli` | Commands, output formatters, exit-code mapping | All business logic |
 
 ## Dependency inversion
 
 - `Analysis` and `Mcp` depend on `Core` interfaces (`IGuidelineRule`, `IPipelineParser`, etc.),
   not on concrete types from `Parsing` or `Rules` directly.
-- Concrete implementations are registered via DI in `Mcp.Host` and `Cli`.
+- Concrete implementations are registered via DI in `Mcp.Host`.
 
 ## No static mutable state
 

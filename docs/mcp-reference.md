@@ -573,11 +573,10 @@ server again.
 ### Server starts but doesn't return results
 
 - Verify you're passing valid Azure Pipelines YAML (not alternative CI syntaxes)
-- Check if the YAML file is well-formed — run `adog analyze <file>` from the CLI to see detailed errors
+- Check that the YAML file is well-formed. Call `analyze_pipeline` with the file content to inspect parsing errors.
 
 ## See also
 
-- [CLI Reference](cli-reference.md) — command-line tool usage
 - [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines) — rule definitions
 - [Model Context Protocol specification](https://modelcontextprotocol.io) — MCP standard documentation
 - [Architecture guide](architecture.md) — how the analysis engine works

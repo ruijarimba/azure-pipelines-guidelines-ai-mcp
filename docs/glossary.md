@@ -29,7 +29,7 @@
 | `Avoid` | `Warning` | Generally not a good idea, but there are exceptions. |
 | `Consider` | `Info` | Should generally be followed, but legitimate exceptions exist. |
 
-This mapping is used by the analysis engine to translate manifest severities into CLI/MCP diagnostic levels.
+This mapping is used by the analysis engine to translate manifest severities into diagnostic levels.
 
 ### Two notations for the same severity
 
@@ -71,21 +71,12 @@ they are the same value. Parsing code maps between the two forms.
 
 ---
 
-## CLI (Command Line Interface)
-
-| Term | Definition |
-| --- | --- |
-| **adog** | The command-line tool name (short for "Azure DevOps Guidelines"). Configured for a future .NET global-tool release. |
-| **Exit code** | `0` = no violations at threshold; `1` = violations found; `2` = analysis error (invalid YAML or file not found). |
-
----
-
 ## Packaging & distribution
 
 | Term | Definition |
 | --- | --- |
 | **NuGet package** | Each `src/` project is configured as an independent `AzurePipelines.Guidelines.*` package for a future release. |
-| **.NET global tool** | A package that provides a command-line tool. This project configures `adog` and `adog-mcp` for future global-tool releases. |
+| **.NET global tool** | A package that provides a command-line executable. This project configures `adog-mcp` for a future global-tool release. |
 | **SemVer** | Semantic Versioning 2.0. Breaking changes require a major version bump. |
 
 ---
