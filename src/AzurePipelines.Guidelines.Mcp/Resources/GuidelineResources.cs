@@ -65,8 +65,16 @@ internal sealed class GuidelineResources(
                 "adog://guidelines/{id}",
                 "adog://guidelines/{id}/automation"
             ],
-            [],
-            new CapabilitiesSupportDto(AutomationMetadata: true, Prompts: false));
+            [
+                "review",
+                "review-category",
+                "review-guideline",
+                "explain-guideline",
+                "find-guidelines",
+                "list-guidelines",
+                "list-categories"
+            ],
+            new CapabilitiesSupportDto(AutomationMetadata: true, Prompts: true));
 
         return Task.FromResult(JsonSerializer.Serialize(capabilities, _jsonOptions));
     }

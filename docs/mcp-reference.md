@@ -4,26 +4,41 @@ The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines cod
 
 ## Capability summary
 
-The table below shows the complete MCP surface. Use the linked sections for details and examples.
+The tables below show the complete MCP surface. Use the linked sections for details and examples.
 
-| Type | Name or URI | Purpose | Cacheable | Status |
-| --- | --- | --- | --- | --- |
-| Tool | `analyze_pipeline` | Analyze inline YAML content | No | Available |
-| Tool | `analyze_pipeline_paths` | Analyze files or directories on disk | No | Available |
-| Tool | `list_guidelines` | List guideline summaries | No | Available |
-| Tool | `get_guideline` | Get one guideline by ID | No | Available |
-| Tool | `search_guidelines` | Search guidelines by text | No | Available |
-| Tool | `list_categories` | List guideline categories | No | Available |
-| Resource | `adog://capabilities` | Discover server and MCP capabilities | Yes | Available |
-| Resource | `adog://guidelines` | Read the full guideline catalogue | Yes | Available |
-| Resource | `adog://guidelines/version` | Check the catalogue version | Yes | Available |
-| Resource | `adog://guidelines/category/{category}` | Read one catalogue category | Yes | Available |
-| Resource | `adog://guidelines/{id}` | Read one guideline in full | Yes | Available |
-| Resource | `adog://guidelines/{id}/automation` | Read guideline automation metadata | Yes | Available |
-| Prompt | — | Guided MCP prompt templates | — | Not implemented |
+### Tools
 
-The server currently exposes tools and resources only. The prompt row records the planned MCP
-surface so clients and contributors can see the full capability plan in one place.
+| Tool | Purpose | Status |
+| --- | --- | --- |
+| `analyze_pipeline` | Analyze inline YAML content | Available |
+| `analyze_pipeline_paths` | Analyze files or directories on disk | Available |
+| `list_guidelines` | List guideline summaries | Available |
+| `get_guideline` | Get one guideline by ID | Available |
+| `search_guidelines` | Search guidelines by text | Available |
+| `list_categories` | List guideline categories | Available |
+
+### Resources
+
+| Resource | Purpose | Cacheable | Status |
+| --- | --- | --- | --- |
+| `adog://capabilities` | Discover server and MCP capabilities | Yes | Available |
+| `adog://guidelines` | Read the full guideline catalogue | Yes | Available |
+| `adog://guidelines/version` | Check the catalogue version | Yes | Available |
+| `adog://guidelines/category/{category}` | Read one catalogue category | Yes | Available |
+| `adog://guidelines/{id}` | Read one guideline in full | Yes | Available |
+| `adog://guidelines/{id}/automation` | Read guideline automation metadata | Yes | Available |
+
+### Prompts
+
+| Prompt | Inputs | Purpose | Status |
+| --- | --- | --- | --- |
+| `review` | `fileOrPath` | Review inline YAML, a file, or a directory | Available |
+| `review-category` | `fileOrPath`, `category` | Review one guideline category | Available |
+| `review-guideline` | `fileOrPath`, `guidelineIds` | Review selected rules | Available |
+| `explain-guideline` | `guidelineId`, `detail` (optional) | Explain one guideline | Available |
+| `find-guidelines` | `query`, `category` (optional) | Search the guideline catalogue | Available |
+| `list-guidelines` | `category` (optional) | List guideline summaries | Available |
+| `list-categories` | None | List supported categories | Available |
 
 ## Table of Contents
 
@@ -144,6 +159,8 @@ in the workspace you want to use:
         "run",
         "-i",
         "--rm",
+        "--pull",
+        "always",
         "-e",
         "MCP_TRANSPORT=stdio",
         "ruijarimba/azure-pipelines-guidelines-mcp:latest"
@@ -192,7 +209,7 @@ The image uses Streamable HTTP by default and listens on port `8080` inside the 
 MCP client launches Docker as a child process, use stdio explicitly instead:
 
 ```powershell
-docker run -i --rm -e MCP_TRANSPORT=stdio ruijarimba/azure-pipelines-guidelines-mcp:latest
+docker run -i --rm --pull always -e MCP_TRANSPORT=stdio ruijarimba/azure-pipelines-guidelines-mcp:latest
 ```
 
 To publish a multi-architecture `latest` image to Docker Hub, copy `.env.example` to `.env`, set the
@@ -270,7 +287,7 @@ Edit your Claude Desktop configuration file:
 ```
 
 Start the service with `pwsh ./scripts/run-mcp-compose.ps1` before connecting. For a client that only supports
-stdio, configure it to run `docker run -i --rm -e MCP_TRANSPORT=stdio` instead.
+stdio, configure it to run `docker run -i --rm --pull always -e MCP_TRANSPORT=stdio` instead.
 
 ### GitHub Copilot (VS Code)
 
@@ -291,6 +308,8 @@ repository checkout or the .NET SDK:
         "run",
         "-i",
         "--rm",
+        "--pull",
+        "always",
         "-e",
         "MCP_TRANSPORT=stdio",
         "ruijarimba/azure-pipelines-guidelines-mcp:latest"
@@ -330,7 +349,7 @@ from VS Code.
     "azure-pipelines-guidelines": {
       "type": "stdio",
       "command": "docker",
-      "args": ["run", "-i", "--rm", "adog-mcp:local"]
+      "args": ["run", "-i", "--rm", "--pull", "always", "adog-mcp:local"]
     }
   }
 }
@@ -418,7 +437,7 @@ Resource endpoints are useful when a client wants to cache the catalogue or fetc
 The capabilities resource is intended for client discovery rather than analysis. Its `tools`,
 `resources`, and `prompts` arrays describe the currently exposed MCP surface. The `supports`
 object reports optional features that clients should not assume are available. Automation metadata
-is supported. Prompts remain unsupported.
+and prompts are supported.
 
 Example capability fields:
 
@@ -430,7 +449,7 @@ Example capability fields:
   "transports": ["stdio", "streamable-http"],
   "supports": {
      "automationMetadata": true,
-    "prompts": false
+     "prompts": true
   }
 }
 ```
@@ -444,8 +463,23 @@ include `automationStatus` and `automationReason`. The status is `enforceable`, 
 
 ## Prompts
 
-The server does not currently expose MCP prompts. Prompt support is reserved for a future
-increment and is shown as **Not implemented** in the [capability summary](#capability-summary).
+The server exposes read-only MCP prompts. In VS Code, restart or reload the MCP connection and
+type `/` in GitHub Copilot Chat to find them. Prompt names are registered without the leading
+slash; the client displays them as slash commands.
+
+| Prompt | Inputs | Purpose |
+| --- | --- | --- |
+| `review` | `fileOrPath` | Selects inline or path-based analysis for YAML, a file, or a directory. |
+| `review-category` | `fileOrPath`, `category` | Reviews a target for one guideline category. |
+| `review-guideline` | `fileOrPath`, `guidelineIds` | Reviews a target against selected rule IDs. |
+| `explain-guideline` | `guidelineId`, `detail` (optional) | Explains one guideline from the catalogue. |
+| `find-guidelines` | `query`, `category` (optional) | Searches the guideline catalogue. |
+| `list-guidelines` | `category` (optional) | Lists guideline summaries. |
+| `list-categories` | None | Lists supported guideline categories. |
+
+Prompts return instructions to the MCP client. The client invokes the existing analysis or
+catalogue tool named by the prompt. These prompts do not modify files, generate patches, or apply
+fixes.
 
 ## Usage examples
 

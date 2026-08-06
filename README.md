@@ -93,7 +93,7 @@ Configure an HTTP-capable AI client to use the endpoint:
 The container uses Streamable HTTP by default. If an MCP client must launch Docker as a child process over stdio, override the transport explicitly:
 
 ```powershell
-docker run -i --rm -e MCP_TRANSPORT=stdio ruijarimba/azure-pipelines-guidelines-mcp:latest
+docker run -i --rm --pull always -e MCP_TRANSPORT=stdio ruijarimba/azure-pipelines-guidelines-mcp:latest
 ```
 
 For a hosted deployment, terminate HTTPS at your reverse proxy, ingress controller, load balancer, or managed container platform. Add authentication and authorization before exposing the endpoint outside a trusted network.

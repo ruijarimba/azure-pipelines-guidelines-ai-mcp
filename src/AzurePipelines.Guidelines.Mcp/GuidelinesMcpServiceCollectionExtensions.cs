@@ -89,7 +89,8 @@ public static class GuidelinesMcpServiceCollectionExtensions
                 };
             })
             .WithToolsFromAssembly(typeof(GuidelinesMcpServiceCollectionExtensions).Assembly)
-            .WithResourcesFromAssembly(typeof(GuidelinesMcpServiceCollectionExtensions).Assembly);
+            .WithResourcesFromAssembly(typeof(GuidelinesMcpServiceCollectionExtensions).Assembly)
+            .WithPromptsFromAssembly(typeof(GuidelinesMcpServiceCollectionExtensions).Assembly);
 
         return builder;
     }

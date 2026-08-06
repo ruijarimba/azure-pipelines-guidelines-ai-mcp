@@ -12,6 +12,9 @@
       <Folder Name="/src/AzurePipelines.Guidelines.Mcp/Tools/">
         <File Path="src/AzurePipelines.Guidelines.Mcp/Tools/GuidelineAutomationMetadataDto.cs" />
       </Folder>
+      <Folder Name="/src/AzurePipelines.Guidelines.Mcp/Prompts/">
+        <File Path="src/AzurePipelines.Guidelines.Mcp/Prompts/GuidelinePrompts.cs" />
+      </Folder>
     </Folder>
     <Project Path="src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj" />
     <Project Path="src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj" />
@@ -47,6 +50,11 @@
     <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Core.Tests/AzurePipelines.Guidelines.Core.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AzurePipelines.Guidelines.Mcp.Tests.csproj" />
+    <Folder Name="/tests/AzurePipelines.Guidelines.Mcp.Tests/">
+      <Folder Name="/tests/AzurePipelines.Guidelines.Mcp.Tests/Prompts/">
+        <File Path="tests/AzurePipelines.Guidelines.Mcp.Tests/Prompts/GuidelinePromptsTests.cs" />
+      </Folder>
+    </Folder>
     <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Rules.Tests/AzurePipelines.Guidelines.Rules.Tests.csproj" />
   </Folder>

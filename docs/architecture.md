@@ -105,6 +105,10 @@ Guideline lookup is also exposed through MCP tools and resources:
 Tool handlers live in `src/AzurePipelines.Guidelines.Mcp/Tools/` and are discovered automatically
 by the MCP host via `WithToolsFromAssembly`.
 
+Read-only prompt handlers live in `src/AzurePipelines.Guidelines.Mcp/Prompts/` and are discovered
+via `WithPromptsFromAssembly`. Prompt handlers guide the MCP client toward the existing tools and
+resources; they do not modify pipeline files.
+
 ## MCP host and transports
 
 `Mcp.Host` selects a transport before it registers the MCP server. The application services and
@@ -143,6 +147,7 @@ keep one release artifact and one supported runtime path.
 | New lint rule | Implement `IGuidelineRule` in `Rules` and register in `GuidelineRulesServiceCollectionExtensions` |
 | New MCP tool | Add handler class in `Mcp/Tools/` — `WithToolsFromAssembly` discovers it automatically |
 | New MCP resource | Add handler class in `Mcp/Resources/` — `WithResourcesFromAssembly` discovers it automatically |
+| New MCP prompt | Add handler class in `Mcp/Prompts/` — `WithPromptsFromAssembly` discovers it automatically |
 | New host or tool | Compose on the `Analysis` interfaces and register adapters in a new host project |
 | Alternative YAML parser | Replace `IPipelineParser` implementation in `Parsing` |
 
