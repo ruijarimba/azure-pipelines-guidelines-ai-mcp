@@ -97,7 +97,6 @@
   </Folder>
   <Folder Name="/docs/">
     <File Path="docs/architecture.md" />
-    <File Path="docs/cli-reference.md" />
     <File Path="docs/decisions.md" />
     <File Path="docs/glossary.md" />
     <File Path="docs/guideline-automation.md" />
