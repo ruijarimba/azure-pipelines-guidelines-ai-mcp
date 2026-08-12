@@ -110,6 +110,7 @@
     <File Path="docs/guideline-automation.md" />
     <File Path="docs/how-it-works.md" />
     <File Path="docs/mcp-reference.md" />
+    <File Path="docs/mcp-token-usage.md" />
     <File Path="docs/progress.md" />
     <File Path="docs/TODO.md" />
     <File Path="docs/vision.md" />

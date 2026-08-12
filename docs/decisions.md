@@ -419,6 +419,18 @@ justification comment rather than being ignored silently; if the host is ever ex
 trusted, isolated local-process use case, the legacy SSE option should be removed and only
 Streamable HTTP served.
 
+### Update 2026-08-06: SDK roll-forward for container builds
+The repository still targets `net10.0`, but the SDK pin in `global.json` now allows roll-forward
+to the newest installed SDK instead of staying on the same patch band. The `dotnet/sdk:10.0`
+container image currently provides SDK `10.0.400`, while the repository pin was `10.0.301` with
+`latestPatch`, which caused Docker builds to fail during `dotnet restore`. The updated policy keeps
+the pinned baseline while allowing newer .NET 10 SDK bands in local and container environments.
+
+**Consequences:**
+- Docker builds remain aligned with the current `dotnet/sdk:10.0` image.
+- Local developer machines can use newer .NET 10 SDKs without waiting for a patch-band match.
+- The target framework remains unchanged at `net10.0`.
+
 ---
 
 Copy this block when recording a new decision:

@@ -26,7 +26,7 @@ For every handler:
 
 `ListGuidelines_GivenEmptyRepository_ShouldReturnEmptyArray`
 `GetGuidelineAsync_GivenUnknownId_ShouldReturnErrorResponse`
-`AnalyzePipelineAsync_GivenValidYaml_ShouldReturnDiagnostics`
+`AnalyzeTemplateAsync_GivenValidYaml_ShouldReturnDiagnostics`
 
 ## Coverage expectations
 

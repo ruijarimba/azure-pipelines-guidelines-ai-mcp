@@ -15,6 +15,7 @@
 | **DetectionHint** | Machine-readable guidance for detecting a violation. Includes `kind`, `pattern`, `appliesTo`, and `message`. |
 | **DetectionKind** | Type of detection hint: `Regex` (match raw YAML text), `YamlPath` (parsed YAML path or key condition), or `Heuristic` (LLM or custom logic). |
 | **Diagnostic** | A violation found in a pipeline file. References a `GuidelineId`, includes severity, message, and location (line and column). |
+| **Guideline recommendation label** | User-facing label used by MCP prompts: `DO`, `DO-NOT`, `AVOID`, or `CONSIDER`. |
 | **FixGuidance** | Remediation instructions for a detected violation. Includes `summary`, `autofixable` flag, ordered `steps`, and `exampleRef`. |
 | **PipelineDocument** | Parsed AST representation of an Azure Pipelines YAML file. Root of the domain model for pipeline structure. |
 
@@ -30,6 +31,8 @@
 | `Consider` | `Info` | Should generally be followed, but legitimate exceptions exist. |
 
 This mapping is used by the analysis engine to translate manifest severities into diagnostic levels.
+MCP prompts use the recommendation labels for user-facing output, while raw analysis payloads may
+still expose diagnostic severities for machine consumers.
 
 ### Two notations for the same severity
 

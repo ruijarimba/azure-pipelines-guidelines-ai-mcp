@@ -4,7 +4,7 @@ using ModelContextProtocol.Server;
 namespace AzurePipelines.Guidelines.Mcp.Prompts;
 
 /// <summary>
-/// Read-only prompt templates for reviewing pipelines and exploring the guideline catalogue.
+/// Read-only prompt templates for reviewing pipelines and templates and exploring the guideline catalogue.
 /// </summary>
 [McpServerPromptType]
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -13,17 +13,18 @@ namespace AzurePipelines.Guidelines.Mcp.Prompts;
 internal sealed class GuidelinePrompts
 {
     [McpServerPrompt(Name = "review")]
-    [Description("Reviews inline YAML, a file, or a directory using the appropriate analysis tool.")]
+    [Description("Reviews inline YAML, a file, or a directory with the template analysis tool.")]
     internal static string Review(
         [Description("Inline Azure Pipelines YAML, or a file or directory path.")] string fileOrPath) =>
         $"""
-        Perform a read-only Azure Pipelines guideline review for this target:
+        Perform a read-only Azure Pipelines pipeline or template guideline review for this target:
 
         {fileOrPath}
 
-        If the target is a file or directory path, call the analyze_pipeline_paths tool.
-        Otherwise, treat it as inline YAML and call the analyze_pipeline tool.
-        Report diagnostics grouped by file and severity, including rule IDs, locations, and explanations.
+        Call analyze_template with exactly one of yaml or fileOrPath. Use yaml for inline content
+        and fileOrPath for a file or directory path.
+        Report findings grouped by file and recommendation label, including rule IDs, locations, and explanations.
+        Present recommendations using DO, DO-NOT, AVOID, and CONSIDER only.
         Do not modify files or generate patches.
         """;
 
@@ -33,14 +34,14 @@ internal sealed class GuidelinePrompts
         [Description("Inline Azure Pipelines YAML, or a file or directory path.")] string fileOrPath,
         [Description("Guideline category, such as jobs, steps, stages, or variables.")] string category) =>
         $"""
-        Perform a read-only Azure Pipelines guideline review for this target and category:
+        Perform a read-only Azure Pipelines pipeline or template guideline review for this target and category:
 
         Target: {fileOrPath}
         Category: {category}
 
-        If the target is a file or directory path, call analyze_pipeline_paths.
-        Otherwise, call analyze_pipeline with inline YAML.
-        Use only guideline IDs from the requested category and report the resulting diagnostics.
+        Call analyze_template with exactly one of yaml or fileOrPath.
+        Use only guideline IDs from the requested category and report the resulting recommendations.
+        Present recommendations using DO, DO-NOT, AVOID, and CONSIDER only.
         Do not modify files or generate patches.
         """;
 
@@ -50,14 +51,14 @@ internal sealed class GuidelinePrompts
         [Description("Inline Azure Pipelines YAML, or a file or directory path.")] string fileOrPath,
         [Description("Comma-separated guideline IDs, such as ADOG-STEPS-001,ADOG-JOBS-006.")] string guidelineIds) =>
         $"""
-        Perform a read-only Azure Pipelines guideline review for this target:
+        Perform a read-only Azure Pipelines pipeline or template guideline review for this target:
 
         Target: {fileOrPath}
         Guideline IDs: {guidelineIds}
 
-        If the target is a file or directory path, call analyze_pipeline_paths.
-        Otherwise, call analyze_pipeline with inline YAML.
-        Restrict the analysis to the supplied guideline IDs and report the diagnostics.
+        Call analyze_template with exactly one of yaml or fileOrPath.
+        Restrict the analysis to the supplied guideline IDs and report the recommendations.
+        Present recommendations using DO, DO-NOT, AVOID, and CONSIDER only.
         Do not modify files or generate patches.
         """;
 
@@ -72,8 +73,9 @@ internal sealed class GuidelinePrompts
         Guideline ID: {guidelineId}
         Detail level: {detail ?? "full"}
 
-        Call get_guideline and include the guideline intent, severity, detection guidance,
-        automation metadata, and references when available. Do not propose file changes.
+        Call get_guideline and include the guideline intent, recommendation label, detection guidance,
+        automation metadata, and references when available. Present the recommendation label using
+        DO, DO-NOT, AVOID, and CONSIDER only. Do not propose file changes.
         """;
 
     [McpServerPrompt(Name = "find-guidelines")]
@@ -88,7 +90,8 @@ internal sealed class GuidelinePrompts
         Category: {category ?? "all"}
 
         Call search_guidelines, applying the category filter when supplied.
-        Return the most relevant guideline IDs, titles, severities, and concise summaries.
+        Return the most relevant guideline IDs, titles, recommendation labels, and concise summaries.
+        Present recommendation labels using DO, DO-NOT, AVOID, and CONSIDER only.
         """;
 
     [McpServerPrompt(Name = "list-guidelines")]
@@ -101,7 +104,8 @@ internal sealed class GuidelinePrompts
         Category: {category ?? "all"}
 
         Call list_guidelines, applying the category filter when supplied.
-        Return each guideline ID, title, category, and severity.
+        Return each guideline ID, title, category, and recommendation label.
+        Present recommendation labels using DO, DO-NOT, AVOID, and CONSIDER only.
         """;
 
     [McpServerPrompt(Name = "list-categories")]

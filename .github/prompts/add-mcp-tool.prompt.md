@@ -11,7 +11,7 @@ This checklist keeps the handler, registration, tests, and transport constraints
 
 Before starting, confirm the following:
 
-1. **Tool name** — the MCP tool name as it will appear to AI clients (e.g., `analyze_pipeline`).
+1. **Tool name** — the MCP tool name as it will appear to AI clients (e.g., `analyze_template`).
 2. **Description** — one-sentence description shown to the AI client.
 3. **Input parameters** — name, type, and description of each parameter.
 4. **Return value** — shape of the response (text, structured JSON, etc.).

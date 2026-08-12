@@ -7,9 +7,9 @@ Update it before every commit so the next session starts with accurate context.
 
 | Area | Status |
 | --- | --- |
-| Current focus | The Docker Hub MCP image is published and documented; the repository is ready for the next MCP capability |
-| Recent wins | Published the multi-architecture Docker Hub image, added fail-fast publishing checks, fixed the ASP.NET runtime dependency, and documented the one-image runtime decision |
-| Next up | Choose the next MCP capability: concise prompts, server-side analysis summaries, or the dedicated token-usage guide |
+| Current focus | Unified pipeline and template analysis MCP contract is implemented and validated |
+| Recent wins | Replaced `analyze_pipeline` and `analyze_pipeline_paths` with `analyze_template`; added the `yaml`/`fileOrPath` contract; updated prompts, capabilities, tests, README, and MCP documentation |
+| Next up | Monitor the companion manifest for new `ADOG-*` rules and add any new ones with the rule template workflow |
 
 ---
 
@@ -28,7 +28,12 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `local` | docs: audit `docs/` for staleness, refresh `docs/progress.md` and `docs/TODO.md`, and add `docs/mcp-token-usage.md` describing token-conscious MCP usage patterns |
+| `local` | feat: validate recommendation-based MCP prompt output (DO, DO-NOT, AVOID, CONSIDER) with targeted MCP prompt tests (10 passed, 0 failed), a full repository quality gate after updating `global.json` to roll-forward to newer installed .NET 10 SDKs, and a successful Docker Compose runtime check |
+| `local` | feat: update predefined MCP prompts to render guideline recommendations as DO, DO-NOT, AVOID, and CONSIDER instead of diagnostic severity labels |
 | `local` | docs: align shared documentation and architecture guidance with the MCP-only product and host-neutral Analysis boundary |
+| `local` | feat: add deterministic MCP analysis summaries grouped by file, category, severity, and rule |
+| `local` | refactor: merge pipeline and path analysis into the template-oriented `analyze_template` MCP tool; validate with 78 MCP tests and the full quality gate |
 | `45b6b5c` | docs: remove CLI reference |
 | `e3f8970` | refactor: remove CLI host |
 | `383d7a7` | fix: use the ASP.NET runtime required by the MCP host; harden Docker Hub publishing checks; document Docker Hub and VS Code MCP setup; publish corrected multi-architecture `latest` image |
@@ -127,29 +132,13 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-**Guideline automation status recovery and MCP capability planning**
-
-The automation-status documentation and metadata provider were manually reconstructed. The
-provider maps guideline IDs to enforceable, heuristic, or not-automatable local capabilities.
-The quality gate now starts the MCP host with both the `stdio` and `SSE` launch profiles.
-
-Current focus:
-1. Review whether automation status should appear in MCP guideline lookup output.
-2. Prioritize the token-conscious MCP capability work recorded in `docs/TODO.md`.
-
-Validation completed:
-- Full solution quality gate passed (`510` passed, `0` failed).
-- The MCP `stdio` and `SSE` launch profiles both started successfully.
+Nothing is currently in progress.
 
 ---
 
 ## Next up
 
-1. **Add concise MCP prompts** for reviewing a pipeline, explaining a guideline, and preparing a
-   remediation plan.
-2. **Consider server-side analysis summaries** grouped by file, category, severity, and rule.
-3. **Create the MCP token-usage guide** described in `docs/TODO.md`.
-4. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the rule
+1. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the rule
    template workflow when they appear.
 
 ---

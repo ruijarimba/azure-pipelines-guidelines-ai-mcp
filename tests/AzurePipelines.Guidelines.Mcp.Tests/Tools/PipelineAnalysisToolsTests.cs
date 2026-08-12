@@ -15,11 +15,13 @@ public sealed class PipelineAnalysisToolsTests
     private static PipelineAnalysisTools MakeSut(
         IPipelineParser? parser = null,
         IPipelineAnalyser? analyser = null,
-        PipelinePathResolver? pathResolver = null) =>
+        PipelinePathResolver? pathResolver = null,
+        IGuidelineRepository? guidelineRepository = null) =>
         new(
             parser ?? Substitute.For<IPipelineParser>(),
             analyser ?? Substitute.For<IPipelineAnalyser>(),
-            pathResolver ?? new PipelinePathResolver());
+            pathResolver ?? new PipelinePathResolver(),
+            guidelineRepository ?? Substitute.For<IGuidelineRepository>());
 
     private static T Deserialize<T>(string json) =>
         JsonSerializer.Deserialize<T>(json)!;
@@ -57,40 +59,40 @@ public sealed class PipelineAnalysisToolsTests
             Line: line,
             Column: null);
 
-    // ── Null / empty yaml ─────────────────────────────────────────────────────
+    // ── Target validation ──────────────────────────────────────────────────────
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenNullYaml_ShouldReturnErrorResponse()
+    public async Task AnalyzeTemplateAsync_GivenNoTarget_ShouldReturnErrorResponse()
     {
         // Arrange
         PipelineAnalysisTools sut = MakeSut();
 
         // Act
-        string result = await sut.AnalyzePipelineAsync(null!);
+        string result = await sut.AnalyzeTemplateAsync();
 
         // Assert
         JsonElement obj = Deserialize<JsonElement>(result);
-        obj.GetProperty("error").GetString().Should().Contain("yaml");
+        obj.GetProperty("error").GetString().Should().Contain("exactly one");
     }
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenEmptyYaml_ShouldReturnErrorResponse()
+    public async Task AnalyzeTemplateAsync_GivenBothTargets_ShouldReturnErrorResponse()
     {
         // Arrange
         PipelineAnalysisTools sut = MakeSut();
 
         // Act
-        string result = await sut.AnalyzePipelineAsync("   ");
+        string result = await sut.AnalyzeTemplateAsync("steps: []", "pipeline.yml");
 
         // Assert
         JsonElement obj = Deserialize<JsonElement>(result);
-        obj.GetProperty("error").GetString().Should().Contain("yaml");
+        obj.GetProperty("error").GetString().Should().Contain("exactly one");
     }
 
     // ── Parsing failure ───────────────────────────────────────────────────────
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenInvalidYaml_ShouldReturnParsingErrorResponse()
+    public async Task AnalyzeTemplateAsync_GivenInvalidYaml_ShouldReturnParsingErrorResponse()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -99,7 +101,7 @@ public sealed class PipelineAnalysisToolsTests
         PipelineAnalysisTools sut = MakeSut(parser: parser);
 
         // Act
-        string result = await sut.AnalyzePipelineAsync("not: valid: yaml: !!!");
+        string result = await sut.AnalyzeTemplateAsync(yaml: "not: valid: yaml: !!!");
 
         // Assert
         JsonElement obj = Deserialize<JsonElement>(result);
@@ -109,7 +111,7 @@ public sealed class PipelineAnalysisToolsTests
     // ── Clean pipeline (no violations) ────────────────────────────────────────
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenCleanPipeline_ShouldReturnEmptyArray()
+    public async Task AnalyzeTemplateAsync_GivenCleanPipeline_ShouldReturnEmptySummary()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -122,17 +124,20 @@ public sealed class PipelineAnalysisToolsTests
         PipelineAnalysisTools sut = MakeSut(parser, analyser);
 
         // Act
-        string result = await sut.AnalyzePipelineAsync("steps: []");
+        string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
 
         // Assert
-        JsonElement[] items = Deserialize<JsonElement[]>(result);
-        items.Should().BeEmpty();
+        JsonElement summary = Deserialize<JsonElement>(result).GetProperty("summary");
+        summary.GetProperty("filesAnalyzed").GetInt32().Should().Be(1);
+        summary.GetProperty("filesWithFindings").GetInt32().Should().Be(0);
+        summary.GetProperty("totalFindings").GetInt32().Should().Be(0);
+        summary.TryGetProperty("bySeverity", out _).Should().BeFalse();
     }
 
     // ── Pipeline with violations ──────────────────────────────────────────────
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenViolation_ShouldReturnDiagnosticInResult()
+    public async Task AnalyzeTemplateAsync_GivenViolation_ShouldReturnDiagnosticInResult()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -143,16 +148,25 @@ public sealed class PipelineAnalysisToolsTests
         analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
                 .Returns(MakeResult([diag]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+        IGuidelineRepository guidelineRepository = Substitute.For<IGuidelineRepository>();
+        guidelineRepository.FindById(new GuidelineId("ADOG-STEPS-001"))
+            .Returns(new GuidelineDefinition(
+                new GuidelineId("ADOG-STEPS-001"), GuidelineCategory.Steps, GuidelineSeverity.Do,
+                "Test", "Test", null, [], [], null, []));
+        PipelineAnalysisTools sut = MakeSut(parser, analyser, guidelineRepository: guidelineRepository);
 
         // Act
-        string result = await sut.AnalyzePipelineAsync("steps: []");
+        string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
 
         // Assert
-        JsonElement[] items = Deserialize<JsonElement[]>(result);
-        items.Should().HaveCount(1);
+        JsonElement obj = Deserialize<JsonElement>(result);
+        JsonElement summary = obj.GetProperty("summary");
+        summary.GetProperty("totalFindings").GetInt32().Should().Be(1);
+        summary.GetProperty("bySeverity").GetProperty("error").GetInt32().Should().Be(1);
+        summary.GetProperty("byCategory").GetProperty("steps").GetInt32().Should().Be(1);
+        summary.GetProperty("byRule").GetProperty("ADOG-STEPS-001").GetInt32().Should().Be(1);
 
-        JsonElement item = items[0];
+        JsonElement item = obj.GetProperty("diagnostics")[0];
         item.GetProperty("ruleId").GetString().Should().Be("ADOG-STEPS-001");
         item.GetProperty("severity").GetString().Should().Be("error");
         item.GetProperty("message").GetString().Should().Be("Use templates.");
@@ -160,7 +174,7 @@ public sealed class PipelineAnalysisToolsTests
     }
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenMultipleViolations_ShouldReturnAllDiagnostics()
+    public async Task AnalyzeTemplateAsync_GivenMultipleViolations_ShouldReturnAllDiagnostics()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -176,10 +190,12 @@ public sealed class PipelineAnalysisToolsTests
         PipelineAnalysisTools sut = MakeSut(parser, analyser);
 
         // Act
-        string result = await sut.AnalyzePipelineAsync("steps: []");
+        string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
 
         // Assert
-        JsonElement[] items = Deserialize<JsonElement[]>(result);
+        JsonElement obj = Deserialize<JsonElement>(result);
+        obj.GetProperty("summary").GetProperty("totalFindings").GetInt32().Should().Be(2);
+        JsonElement[] items = obj.GetProperty("diagnostics").EnumerateArray().ToArray();
         items.Should().HaveCount(2);
         items[0].GetProperty("ruleId").GetString().Should().Be("ADOG-STEPS-001");
         items[1].GetProperty("ruleId").GetString().Should().Be("ADOG-JOBS-006");
@@ -188,7 +204,7 @@ public sealed class PipelineAnalysisToolsTests
     // ── guidelineIds filter ───────────────────────────────────────────────────
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenGuidelineIdFilter_ShouldPassOptionsToAnalyser()
+    public async Task AnalyzeTemplateAsync_GivenGuidelineIdFilter_ShouldPassOptionsToAnalyser()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -201,7 +217,7 @@ public sealed class PipelineAnalysisToolsTests
         PipelineAnalysisTools sut = MakeSut(parser, analyser);
 
         // Act
-        await sut.AnalyzePipelineAsync("steps: []", guidelineIds: "ADOG-STEPS-001,ADOG-JOBS-006");
+        await sut.AnalyzeTemplateAsync(yaml: "steps: []", guidelineIds: "ADOG-STEPS-001,ADOG-JOBS-006");
 
         // Assert
         await analyser.Received(1).AnalyseAsync(
@@ -213,7 +229,7 @@ public sealed class PipelineAnalysisToolsTests
     }
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenNullGuidelineIds_ShouldPassDefaultOptions()
+    public async Task AnalyzeTemplateAsync_GivenNullGuidelineIds_ShouldPassDefaultOptions()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -226,7 +242,7 @@ public sealed class PipelineAnalysisToolsTests
         PipelineAnalysisTools sut = MakeSut(parser, analyser);
 
         // Act
-        await sut.AnalyzePipelineAsync("steps: []", guidelineIds: null);
+        await sut.AnalyzeTemplateAsync(yaml: "steps: []", guidelineIds: null);
 
         // Assert
         await analyser.Received(1).AnalyseAsync(
@@ -241,7 +257,7 @@ public sealed class PipelineAnalysisToolsTests
     [InlineData(DiagnosticSeverity.Error, "error")]
     [InlineData(DiagnosticSeverity.Warning, "warning")]
     [InlineData(DiagnosticSeverity.Info, "info")]
-    public async Task AnalyzePipelineAsync_SeverityValues_ShouldBeLowercaseInOutput(
+    public async Task AnalyzeTemplateAsync_SeverityValues_ShouldBeLowercaseInOutput(
         DiagnosticSeverity severity, string expectedJsonValue)
     {
         // Arrange
@@ -255,17 +271,17 @@ public sealed class PipelineAnalysisToolsTests
         PipelineAnalysisTools sut = MakeSut(parser, analyser);
 
         // Act
-        string result = await sut.AnalyzePipelineAsync("steps: []");
+        string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
 
         // Assert
-        JsonElement[] items = Deserialize<JsonElement[]>(result);
-        items[0].GetProperty("severity").GetString().Should().Be(expectedJsonValue);
+        JsonElement item = Deserialize<JsonElement>(result).GetProperty("diagnostics")[0];
+        item.GetProperty("severity").GetString().Should().Be(expectedJsonValue);
     }
 
     // ── Null line number ──────────────────────────────────────────────────────
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenNullLine_ShouldOmitLineFromJson()
+    public async Task AnalyzeTemplateAsync_GivenNullLine_ShouldOmitLineFromJson()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -279,17 +295,17 @@ public sealed class PipelineAnalysisToolsTests
         PipelineAnalysisTools sut = MakeSut(parser, analyser);
 
         // Act
-        string result = await sut.AnalyzePipelineAsync("steps: []");
+        string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
 
         // Assert
-        JsonElement[] items = Deserialize<JsonElement[]>(result);
-        items[0].TryGetProperty("line", out _).Should().BeFalse();
+        JsonElement item = Deserialize<JsonElement>(result).GetProperty("diagnostics")[0];
+        item.TryGetProperty("line", out _).Should().BeFalse();
     }
 
     // ── GuidelineId filter: malformed IDs are silently skipped ───────────────
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenOneMalformedAndOneValidGuidelineId_ShouldFilterOnlyValidId()
+    public async Task AnalyzeTemplateAsync_GivenOneMalformedAndOneValidGuidelineId_ShouldFilterOnlyValidId()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -309,16 +325,16 @@ public sealed class PipelineAnalysisToolsTests
         PipelineAnalysisTools sut = MakeSut(parser, analyser);
 
         // Act — "NOTVALID" is malformed and should be skipped; only ADOG-STEPS-001 survives
-        string result = await sut.AnalyzePipelineAsync("steps: []", guidelineIds: "ADOG-STEPS-001, NOTVALID");
+        string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []", guidelineIds: "ADOG-STEPS-001, NOTVALID");
 
         // Assert
-        JsonElement[] items = Deserialize<JsonElement[]>(result);
-        items.Should().ContainSingle();
-        items[0].GetProperty("ruleId").GetString().Should().Be("ADOG-STEPS-001");
+        JsonElement obj = Deserialize<JsonElement>(result);
+        obj.GetProperty("diagnostics").GetArrayLength().Should().Be(1);
+        obj.GetProperty("diagnostics")[0].GetProperty("ruleId").GetString().Should().Be("ADOG-STEPS-001");
     }
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenAllMalformedGuidelineIds_ShouldUseDefaultOptions()
+    public async Task AnalyzeTemplateAsync_GivenAllMalformedGuidelineIds_ShouldUseDefaultOptions()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -335,15 +351,15 @@ public sealed class PipelineAnalysisToolsTests
         PipelineAnalysisTools sut = MakeSut(parser, analyser);
 
         // Act — all IDs are malformed; parser should fall back to AnalysisOptions.Default
-        string result = await sut.AnalyzePipelineAsync("steps: []", guidelineIds: "NOTVALID, ALSOBAD");
+        string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []", guidelineIds: "NOTVALID, ALSOBAD");
 
         // Assert
-        JsonElement[] items = Deserialize<JsonElement[]>(result);
-        items.Should().ContainSingle();
+        JsonElement obj = Deserialize<JsonElement>(result);
+        obj.GetProperty("diagnostics").GetArrayLength().Should().Be(1);
     }
 
     [Fact]
-    public async Task AnalyzePipelinePathsAsync_GivenDirectoryInput_ShouldReturnFileResults()
+    public async Task AnalyzeTemplateAsync_GivenDirectoryInput_ShouldReturnFileResults()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -363,10 +379,13 @@ public sealed class PipelineAnalysisToolsTests
         try
         {
             // Act
-            string result = await sut.AnalyzePipelinePathsAsync([tempDirectory]);
+            string result = await sut.AnalyzeTemplateAsync(fileOrPath: tempDirectory);
 
             // Assert
-            JsonElement[] items = Deserialize<JsonElement[]>(result);
+            JsonElement obj = Deserialize<JsonElement>(result);
+            obj.GetProperty("summary").GetProperty("filesAnalyzed").GetInt32().Should().Be(2);
+            obj.GetProperty("summary").GetProperty("filesWithFindings").GetInt32().Should().Be(2);
+            JsonElement[] items = obj.GetProperty("files").EnumerateArray().ToArray();
             items.Should().HaveCount(2);
             items[0].GetProperty("filePath").GetString().Should().NotBeNull();
             items[1].GetProperty("filePath").GetString().Should().NotBeNull();
@@ -380,7 +399,7 @@ public sealed class PipelineAnalysisToolsTests
     // ── category filter ─────────────────────────────────────────────────────
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenValidCategory_ShouldPassIncludedCategoriesToAnalyser()
+    public async Task AnalyzeTemplateAsync_GivenValidCategory_ShouldPassIncludedCategoriesToAnalyser()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -393,7 +412,7 @@ public sealed class PipelineAnalysisToolsTests
         PipelineAnalysisTools sut = MakeSut(parser, analyser);
 
         // Act
-        await sut.AnalyzePipelineAsync("steps: []", category: "steps");
+        await sut.AnalyzeTemplateAsync(yaml: "steps: []", category: "steps");
 
         // Assert
         await analyser.Received(1).AnalyseAsync(
@@ -405,13 +424,13 @@ public sealed class PipelineAnalysisToolsTests
     }
 
     [Fact]
-    public async Task AnalyzePipelineAsync_GivenUnknownCategory_ShouldReturnErrorResponse()
+    public async Task AnalyzeTemplateAsync_GivenUnknownCategory_ShouldReturnErrorResponse()
     {
         // Arrange
         PipelineAnalysisTools sut = MakeSut();
 
         // Act
-        string result = await sut.AnalyzePipelineAsync("steps: []", category: "not-a-category");
+        string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []", category: "not-a-category");
 
         // Assert
         JsonElement obj = Deserialize<JsonElement>(result);
@@ -419,7 +438,7 @@ public sealed class PipelineAnalysisToolsTests
     }
 
     [Fact]
-    public async Task AnalyzePipelinePathsAsync_GivenValidCategory_ShouldPassIncludedCategoriesToAnalyser()
+    public async Task AnalyzeTemplateAsync_GivenValidCategoryOnDirectory_ShouldPassIncludedCategoriesToAnalyser()
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
@@ -437,7 +456,7 @@ public sealed class PipelineAnalysisToolsTests
             PipelineAnalysisTools sut = MakeSut(parser, analyser, new PipelinePathResolver());
 
             // Act
-            await sut.AnalyzePipelinePathsAsync([tempDirectory], category: "jobs");
+            await sut.AnalyzeTemplateAsync(fileOrPath: tempDirectory, category: "jobs");
 
             // Assert
             await analyser.Received(1).AnalyseAsync(
@@ -454,7 +473,7 @@ public sealed class PipelineAnalysisToolsTests
     }
 
     [Fact]
-    public async Task AnalyzePipelinePathsAsync_GivenUnknownCategory_ShouldReturnErrorResponse()
+    public async Task AnalyzeTemplateAsync_GivenUnknownCategoryOnDirectory_ShouldReturnErrorResponse()
     {
         // Arrange
         string tempDirectory = CreateTempDirectory();
@@ -465,7 +484,7 @@ public sealed class PipelineAnalysisToolsTests
             PipelineAnalysisTools sut = MakeSut(pathResolver: new PipelinePathResolver());
 
             // Act
-            string result = await sut.AnalyzePipelinePathsAsync([tempDirectory], category: "not-a-category");
+            string result = await sut.AnalyzeTemplateAsync(fileOrPath: tempDirectory, category: "not-a-category");
 
             // Assert
             JsonElement obj = Deserialize<JsonElement>(result);

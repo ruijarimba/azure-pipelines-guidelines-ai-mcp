@@ -12,9 +12,8 @@ The backlog below reflects the current state of the repository after the latest 
 
 | Priority | Item | Why it matters |
 | --- | --- | --- |
-| Now | Improve MCP host docs and comments | The MCP host needs clear guidance for transport, profiles, and options |
-| Next | Expand MCP capabilities with token-conscious defaults | This improves client experience without overloading the context window |
-| Later | Revisit rule coverage | New manifest rules need matching implementations |
+| Now | Revisit rule coverage | New manifest rules need matching implementations |
+| Later | Consider `explain_diagnostic` and `analyze_changed_pipelines` tools | Optional follow-ups not blocked by the current implementation |
 
 ---
 
@@ -81,12 +80,14 @@ content by default.
 - [x] Add cache-friendly guideline catalogue version and category resources
 - [x] Make `get_guideline` return summaries by default and require explicit full detail for the
       detailed payload
-- [ ] Add concise MCP prompts for reviewing a pipeline, explaining a guideline, and preparing a
+- [x] Add concise MCP prompts for reviewing a pipeline, explaining a guideline, and preparing a
       remediation plan
 - [x] Add a cacheable `adog://capabilities` resource for server, catalogue, transport, and MCP
       surface discovery
-- [ ] Add server-side analysis summaries that group diagnostics by file, category, severity, and
+- [x] Add server-side analysis summaries that group diagnostics by file, category, severity, and
       rule
+- [x] Update predefined prompts to present guideline recommendations as DO, DO-NOT, AVOID, and
+      CONSIDER instead of diagnostic severity labels
 - [ ] Consider an `explain_diagnostic` tool when the raw diagnostic and fix guidance are not
       sufficient for AI clients
 - [ ] Consider `analyze_changed_pipelines` for pull-request review workflows, with strict
@@ -113,31 +114,43 @@ return summaries by default, make detailed results opt-in, limit and page list r
 fields, and keep prompts procedural. Explain that full-catalogue resources and large analysis
 results are the main token risks.
 
+- [x] Create `docs/mcp-token-usage.md` and register it in `AzurePipelinesGuidelines.slnx`
+
 Related files:
 - `docs/mcp-reference.md`
-- `docs/` token-usage document to be created and registered in `AzurePipelinesGuidelines.slnx`
+- `docs/mcp-token-usage.md`
 
 ---
 
 ## Recent session summary
 
-**Date:** 2026-07-13
+**Date:** 2026-08-06
 
 **Completed:**
-- ✅ Added inline comments to the MCP host (`Program.cs`, `McpHostStartup.cs`, `launchSettings.json`) explaining transport selection, stderr-only logging, and launch profile URL injection.
-- ✅ Created `tools/AzurePipelines.Guidelines.Mcp.Host/README.md` with build/run/debug instructions for stdio and SSE modes, registered in the host `.csproj`.
-- ✅ Updated host and MCP library `AGENTS.md` files with transport and handler guidance.
-- ✅ Added inline comments to MCP library source (`GuidelinesMcpServiceCollectionExtensions.cs`, `GuidelineResources.cs`, `GuidelineTools.cs`, `PipelineAnalysisTools.cs`) for non-obvious choices.
-- ✅ Verified the solution with the full quality gate (`491` tests passed).
+- ✅ Updated predefined MCP prompts to render guideline recommendations as `DO`, `DO-NOT`, `AVOID`,
+  and `CONSIDER` instead of diagnostic severity labels.
+- ✅ Validated the change with targeted MCP prompt tests (`10` passed, `0` failed) and the full
+  repository quality gate.
+- ✅ Fixed `global.json` to roll forward to newer installed .NET 10 SDK bands so Docker builds
+  (`dotnet/sdk:10.0`) and local builds both resolve successfully.
+- ✅ Validated Docker Compose runtime with Docker Desktop available.
+- ✅ Audited `docs/` for staleness and consistency; updated `docs/progress.md` and this file.
+- ✅ Created `docs/mcp-token-usage.md` and registered it in `AzurePipelinesGuidelines.slnx`.
 
 **Status:**
 - NuGet publication is deferred; package configuration remains for a future release
-- Docker Hub publication for the MCP server remains in scope
-- Docker-based container validation remains environment-dependent and is not required for the current backlog
+- Docker Hub publication for the MCP server is complete
+- Docker-based container validation passed via Docker Compose
 
 **Files changed:**
 - `docs/mcp-reference.md`
-- `tools/AzurePipelines.Guidelines.Mcp/Tools/PipelineAnalysisTools.cs`
+- `docs/progress.md`
+- `docs/TODO.md`
+- `docs/mcp-token-usage.md`
+- `AzurePipelinesGuidelines.slnx`
+- `global.json`
+- `src/AzurePipelines.Guidelines.Mcp/Prompts/GuidelinePrompts.cs`
+- `src/AzurePipelines.Guidelines.Mcp/Tools/PipelineAnalysisTools.cs`
 
 ---
 

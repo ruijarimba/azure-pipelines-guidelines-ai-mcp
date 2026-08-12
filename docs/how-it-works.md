@@ -23,7 +23,7 @@ Every MCP analysis request runs through the shared analysis engine.
 
 ```mermaid
 graph TD
-    A["YAML text"]
+    A["Pipeline or template YAML"]
     B["IPipelineParser\nparse into PipelineDocument AST"]
     C["IGuidelineRepository\nload GuidelineDefinitions from manifest"]
     D["IGuidelineRule × N\nrun each rule against the AST"]
@@ -53,7 +53,7 @@ sequenceDiagram
     participant Mnf as guidelines.json
 
     Dev->>AI: "Check my pipeline for issues"
-    AI->>Srv: MCP tool call: analyze_pipeline(yaml)
+    AI->>Srv: MCP tool call: analyze_template(yaml or fileOrPath)
     Srv->>Eng: IPipelineAnalyser.AnalyseAsync(yaml)
     Eng->>Eng: parse YAML → PipelineDocument
     Eng->>Mnf: load GuidelineDefinitions
@@ -69,11 +69,11 @@ debugging or hosted connections. The stdio mode launches `adog-mcp` as a child p
 `stdin`/`stdout`; the HTTP mode exposes the `/mcp` endpoint and also supports the legacy SSE
 compatibility path for local debugging workflows.
 
-The MCP server exposes six tools: two analysis tools and four guideline lookup tools, plus
+The MCP server exposes five tools: one analysis tool and four guideline lookup tools, plus
 resource endpoints for the guideline catalogue.
 
-- `analyze_pipeline` accepts YAML text and returns a flat list of diagnostics.
-- `analyze_pipeline_paths` accepts one or more file or directory paths and returns per-file results.
+- `analyze_template` accepts exactly one of inline `yaml` or a `fileOrPath` file or directory
+  target. It covers full pipelines and steps, jobs, stages, and variables templates.
 - `list_guidelines`, `get_guideline`, `search_guidelines`, and `list_categories` browse the
   loaded guideline catalogue.
 - `get_guideline` returns a compact summary by default and only returns the full detail payload
@@ -82,7 +82,7 @@ resource endpoints for the guideline catalogue.
   `adog://guidelines/category/{category}` let clients cache the catalogue and fetch narrower
   slices of data.
 
-Both analysis tools accept an optional `guidelineIds` parameter. Pass a comma-separated list such as
+The analysis tool accepts an optional `guidelineIds` parameter. Pass a comma-separated list such as
 `ADOG-STEPS-001,ADOG-JOBS-006` to restrict analysis to specific rules. Omit it to run all rules.
 
 ## Detection kinds

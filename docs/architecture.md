@@ -6,7 +6,7 @@ This project is a layered .NET 10 solution that builds an MCP server on top of
 the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
 machine-readable definitions:
 
-The **MCP server** lets AI assistants look up guidelines and analyze pipeline YAML files.
+The **MCP server** lets AI assistants look up guidelines and analyze pipelines and templates.
 
 ## At a glance
 
@@ -86,15 +86,19 @@ graph TD
 
 ## MCP tool surface
 
-The server provides two analysis tools:
+The server provides one analysis tool:
 
 | Tool | Parameters | Returns |
 | --- | --- | --- |
-| `analyze_pipeline` | `yaml` (required), `guidelineIds` (optional) | Flat diagnostic list |
-| `analyze_pipeline_paths` | `paths` (required), `guidelineIds` (optional) | Per-file diagnostic list |
+| `analyze_template` | Exactly one of `yaml` or `fileOrPath`, plus optional filters | Summary plus diagnostics or per-file diagnostic lists |
 
 `guidelineIds` is a comma-separated list of rule IDs (for example, `ADOG-STEPS-001,ADOG-JOBS-006`).
 Omit it to run all rules.
+
+The analysis tool returns a structured response with a `summary` containing the number of files
+analysed, files with findings, total findings, and optional counts grouped by severity, category,
+and rule. Inline `yaml` places detailed findings in `diagnostics`; `fileOrPath` places them in
+`files`, grouped by path. Empty grouping fields are omitted to keep responses compact.
 
 Guideline lookup is also exposed through MCP tools and resources:
 
@@ -107,7 +111,8 @@ by the MCP host via `WithToolsFromAssembly`.
 
 Read-only prompt handlers live in `src/AzurePipelines.Guidelines.Mcp/Prompts/` and are discovered
 via `WithPromptsFromAssembly`. Prompt handlers guide the MCP client toward the existing tools and
-resources; they do not modify pipeline files.
+resources; they do not modify pipeline files. Their user-facing output uses guideline recommendation
+labels (`DO`, `DO-NOT`, `AVOID`, `CONSIDER`) instead of diagnostic severity labels.
 
 ## MCP host and transports
 

@@ -19,6 +19,7 @@ internal sealed class PipelineAnalysisTools(
     IPipelineParser parser,
     IPipelineAnalyser analyser,
     PipelinePathResolver pathResolver,
+    IGuidelineRepository repository,
     ILogger<PipelineAnalysisTools>? logger = null)
 {
     // Compact JSON with camel-case property names. Null values are omitted so AI clients
@@ -29,22 +30,23 @@ internal sealed class PipelineAnalysisTools(
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    // ── analyze_pipeline ─────────────────────────────────────────────────────
+    // ── analyze_template ──────────────────────────────────────────────────────
 
     /// <summary>
-    /// Analyses raw Azure Pipelines YAML content against the loaded guidelines
-    /// and returns any violations found.
+    /// Analyses an inline pipeline or template, or files discovered from a path,
+    /// against the loaded guidelines.
     /// </summary>
-    [McpServerTool(Name = "analyze_pipeline", Title = "Analyze pipeline YAML", ReadOnly = true)]
+    [McpServerTool(Name = "analyze_template", Title = "Analyze pipeline or template", ReadOnly = true)]
     [Description(
-        "Analyses Azure Pipelines YAML content against the loaded guidelines and returns " +
-        "a JSON array of violations. Each item includes the guideline ID, severity, message, " +
-        "and the line number where the violation was detected. " +
-        "Pass an optional category to restrict analysis to one guideline category, or an " +
-        "optional comma-separated list of guideline IDs to restrict to specific rules.")]
-    internal async Task<string> AnalyzePipelineAsync(
-        [Description("The raw YAML content of the Azure Pipelines file to analyse.")]
-        string yaml,
+        "Analyses one Azure Pipelines pipeline or template, or all supported YAML files in a " +
+        "file or directory path, against the loaded guidelines. Templates can define steps, " +
+        "jobs, stages, or variables. Pass exactly one of yaml or fileOrPath. Directories are " +
+        "scanned recursively. Optional category and guideline ID filters restrict the rules checked.")]
+    internal async Task<string> AnalyzeTemplateAsync(
+        [Description("Inline YAML for one pipeline or template. Pass this or fileOrPath, not both.")]
+        string? yaml = null,
+        [Description("One file or directory path containing a pipeline or templates. Pass this or yaml, not both.")]
+        string? fileOrPath = null,
         [Description(
             "Optional comma-separated list of guideline IDs to check " +
             "(e.g. \"ADOG-STEPS-001,ADOG-JOBS-006\"). " +
@@ -58,14 +60,42 @@ internal sealed class PipelineAnalysisTools(
     {
         ILogger<PipelineAnalysisTools> invocationLogger =
             logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<PipelineAnalysisTools>.Instance;
-        McpToolInvocationLog.Log(invocationLogger, "analyze_pipeline", category, guidelineIds);
 
-        if (string.IsNullOrWhiteSpace(yaml))
+        bool hasYaml = !string.IsNullOrWhiteSpace(yaml);
+        bool hasPath = !string.IsNullOrWhiteSpace(fileOrPath);
+        if (hasYaml == hasPath)
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse("Parameter 'yaml' is required."), _jsonOptions);
+                new ErrorResponse("Pass exactly one of 'yaml' or 'fileOrPath'."), _jsonOptions);
         }
 
+        if (!TryBuildOptions(guidelineIds, category, out AnalysisOptions options, out string? optionsError))
+        {
+            return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
+        }
+
+        McpToolInvocationLog.Log(invocationLogger, "analyze_template", category, guidelineIds, options);
+
+        if (hasYaml)
+        {
+            return await AnalyzeInlineAsync(yaml!, options).ConfigureAwait(false);
+        }
+
+        IReadOnlyList<string> discoveredPaths;
+        try
+        {
+            discoveredPaths = pathResolver.Resolve([fileOrPath!]);
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or InvalidOperationException or ArgumentException)
+        {
+            return JsonSerializer.Serialize(new ErrorResponse(ex.Message), _jsonOptions);
+        }
+
+        return await AnalyzeFilesAsync(discoveredPaths, options).ConfigureAwait(false);
+    }
+
+    private async Task<string> AnalyzeInlineAsync(string yaml, AnalysisOptions options)
+    {
         PipelineDocument document;
         try
         {
@@ -73,76 +103,21 @@ internal sealed class PipelineAnalysisTools(
         }
         catch (PipelineParsingException ex)
         {
-            return JsonSerializer.Serialize(
-                new ErrorResponse($"Failed to parse YAML: {ex.Message}"), _jsonOptions);
+            return JsonSerializer.Serialize(new ErrorResponse($"Failed to parse YAML: {ex.Message}"), _jsonOptions);
         }
 
-        if (!TryBuildOptions(guidelineIds, category, out AnalysisOptions options, out string? optionsError))
-        {
-            return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
-        }
-
-        McpToolInvocationLog.Log(invocationLogger, "analyze_pipeline", category, guidelineIds, options);
-
-        AnalysisResult result = await analyser
-            .AnalyseAsync(document, options)
-            .ConfigureAwait(false);
-
-        return JsonSerializer.Serialize(BuildDiagnosticDtos(result.Diagnostics), _jsonOptions);
+        AnalysisResult result = await analyser.AnalyseAsync(document, options).ConfigureAwait(false);
+        DiagnosticDto[] diagnostics = BuildDiagnosticDtos(result.Diagnostics);
+        return JsonSerializer.Serialize(
+            new AnalysisResponse(BuildSummary([result]), diagnostics, null), _jsonOptions);
     }
 
-    // ── analyze_pipeline_paths ───────────────────────────────────────────────
-
-    /// <summary>
-    /// Analyses one or more Azure Pipelines YAML files or directories and returns any violations found.
-    /// </summary>
-    [McpServerTool(Name = "analyze_pipeline_paths", Title = "Analyze pipeline files", ReadOnly = true)]
-    [Description(
-        "Analyses one or more Azure Pipelines YAML files or directories against the loaded guidelines " +
-        "and returns aggregated violations. Directories are scanned recursively. " +
-        "Pass an optional category to restrict analysis to one guideline category, or an " +
-        "optional comma-separated list of guideline IDs to restrict to specific rules.")]
-    internal async Task<string> AnalyzePipelinePathsAsync(
-        [Description("One or more file or directory paths to analyse. Directories are scanned recursively.")]
-        string[] paths,
-        [Description(
-            "Optional comma-separated list of guideline IDs to check " +
-            "(e.g. \"ADOG-STEPS-001,ADOG-JOBS-006\"). Omit or pass null to run all rules.")]
-        string? guidelineIds = null,
-        [Description(
-            "Optional category filter. " +
-            "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables. " +
-            "Omit or pass null to include all categories.")]
-        string? category = null)
+    private async Task<string> AnalyzeFilesAsync(
+        IReadOnlyList<string> discoveredPaths,
+        AnalysisOptions options)
     {
-        ILogger<PipelineAnalysisTools> invocationLogger =
-            logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<PipelineAnalysisTools>.Instance;
-        McpToolInvocationLog.Log(invocationLogger, "analyze_pipeline_paths", category, guidelineIds);
-
-        if (paths is null || paths.Length == 0 || paths.All(string.IsNullOrWhiteSpace))
-        {
-            return JsonSerializer.Serialize(
-                new ErrorResponse("Parameter 'paths' is required."), _jsonOptions);
-        }
-
-        IReadOnlyList<string> discoveredPaths;
-        try
-        {
-            discoveredPaths = pathResolver.Resolve(paths);
-        }
-        catch (Exception ex) when (ex is FileNotFoundException or InvalidOperationException or ArgumentException)
-        {
-            return JsonSerializer.Serialize(new ErrorResponse(ex.Message), _jsonOptions);
-        }
-
-        if (!TryBuildOptions(guidelineIds, category, out AnalysisOptions options, out string? optionsError))
-        {
-            return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
-        }
-
-        McpToolInvocationLog.Log(invocationLogger, "analyze_pipeline_paths", category, guidelineIds, options);
-
         List<FileAnalysisResultDto> fileResults = [];
+        List<AnalysisResult> results = [];
 
         foreach (string discoveredPath in discoveredPaths)
         {
@@ -168,14 +143,13 @@ internal sealed class PipelineAnalysisTools(
                     new ErrorResponse($"Failed to parse YAML in {discoveredPath}: {ex.Message}"), _jsonOptions);
             }
 
-            AnalysisResult result = await analyser
-                .AnalyseAsync(document, options)
-                .ConfigureAwait(false);
-
+            AnalysisResult result = await analyser.AnalyseAsync(document, options).ConfigureAwait(false);
+            results.Add(result);
             fileResults.Add(new FileAnalysisResultDto(discoveredPath, BuildDiagnosticDtos(result.Diagnostics)));
         }
 
-        return JsonSerializer.Serialize(fileResults, _jsonOptions);
+        return JsonSerializer.Serialize(
+            new AnalysisResponse(BuildSummary(results), null, fileResults), _jsonOptions);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -274,6 +248,49 @@ internal sealed class PipelineAnalysisTools(
         return dtos;
     }
 
+    private AnalysisSummaryDto BuildSummary(List<AnalysisResult> results)
+    {
+        Dictionary<string, int> bySeverity = [];
+        Dictionary<string, int> byCategory = [];
+        Dictionary<string, int> byRule = [];
+        int filesWithFindings = 0;
+        int totalFindings = 0;
+
+        foreach (AnalysisResult result in results)
+        {
+            if (result.Diagnostics.Count > 0)
+            {
+                filesWithFindings++;
+            }
+
+            totalFindings += result.Diagnostics.Count;
+            foreach (Diagnostic diagnostic in result.Diagnostics)
+            {
+                Increment(bySeverity, EnumToJsonString(diagnostic.Severity));
+                Increment(byRule, diagnostic.GuidelineId.Value);
+
+                GuidelineDefinition? guideline = repository.FindById(diagnostic.GuidelineId);
+                if (guideline is not null)
+                {
+                    Increment(byCategory, EnumToJsonString(guideline.Category));
+                }
+            }
+        }
+
+        return new AnalysisSummaryDto(
+            results.Count,
+            filesWithFindings,
+            totalFindings,
+            bySeverity.Count == 0 ? null : new SortedDictionary<string, int>(bySeverity),
+            byCategory.Count == 0 ? null : new SortedDictionary<string, int>(byCategory),
+            byRule.Count == 0 ? null : new SortedDictionary<string, int>(byRule));
+    }
+
+    private static void Increment(Dictionary<string, int> counts, string key)
+    {
+        counts[key] = counts.TryGetValue(key, out int count) ? count + 1 : 1;
+    }
+
     // ── Internal DTOs ─────────────────────────────────────────────────────────
 
     // Converts an enum value to a lowercase ASCII string for JSON output.
@@ -301,6 +318,19 @@ internal sealed class PipelineAnalysisTools(
     private sealed record FileAnalysisResultDto(
         [property: JsonPropertyName("filePath")] string FilePath,
         [property: JsonPropertyName("diagnostics")] DiagnosticDto[] Diagnostics);
+
+    private sealed record AnalysisResponse(
+        [property: JsonPropertyName("summary")] AnalysisSummaryDto Summary,
+        [property: JsonPropertyName("diagnostics")] DiagnosticDto[]? Diagnostics,
+        [property: JsonPropertyName("files")] List<FileAnalysisResultDto>? Files);
+
+    private sealed record AnalysisSummaryDto(
+        [property: JsonPropertyName("filesAnalyzed")] int FilesAnalyzed,
+        [property: JsonPropertyName("filesWithFindings")] int FilesWithFindings,
+        [property: JsonPropertyName("totalFindings")] int TotalFindings,
+        [property: JsonPropertyName("bySeverity")] SortedDictionary<string, int>? BySeverity,
+        [property: JsonPropertyName("byCategory")] SortedDictionary<string, int>? ByCategory,
+        [property: JsonPropertyName("byRule")] SortedDictionary<string, int>? ByRule);
 
     private sealed record ErrorResponse(
         [property: JsonPropertyName("error")] string Error);

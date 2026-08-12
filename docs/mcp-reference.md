@@ -10,8 +10,7 @@ The tables below show the complete MCP surface. Use the linked sections for deta
 
 | Tool | Purpose | Status |
 | --- | --- | --- |
-| `analyze_pipeline` | Analyze inline YAML content | Available |
-| `analyze_pipeline_paths` | Analyze files or directories on disk | Available |
+| `analyze_template` | Analyze a pipeline or template from YAML, a file, or a directory | Available |
 | `list_guidelines` | List guideline summaries | Available |
 | `get_guideline` | Get one guideline by ID | Available |
 | `search_guidelines` | Search guidelines by text | Available |
@@ -171,7 +170,7 @@ in the workspace you want to use:
 ```
 
 Restart or reload the MCP server from VS Code after saving the file. The container can analyze
-inline YAML immediately. To analyze files with `analyze_pipeline_paths`, mount only the intended
+inline YAML immediately. To analyze files with `analyze_template`, mount only the intended
 workspace directory as read-only and pass the corresponding container path; see the [file-access
 boundary](#file-access-boundary) guidance below.
 
@@ -361,40 +360,63 @@ Cline follows the Claude Desktop configuration format. Edit your Cline MCP setti
 
 ## Available tools
 
-The MCP server exposes six tools plus resource-based catalogue endpoints in the current implementation:
+The MCP server exposes five tools plus resource-based catalogue endpoints in the current implementation:
 
 | Tool | Purpose |
 | --- | --- |
-| `analyze_pipeline` | Analyze inline YAML content |
-| `analyze_pipeline_paths` | Analyze files or directories on disk |
+| `analyze_template` | Analyze a pipeline or template from YAML, a file, or a directory |
 | `list_guidelines` | List guidelines from the manifest |
 | `get_guideline` | Show a single guideline by ID |
 | `search_guidelines` | Search guidelines by text |
 | `list_categories` | List the supported categories |
 
-### `analyze_pipeline`
+### `analyze_template`
 
-Analyzes inline Azure Pipelines YAML content.
+Analyzes one Azure Pipelines pipeline or template. Use inline `yaml` content or one `fileOrPath`
+value. A directory is scanned recursively for supported YAML files. Templates can define steps,
+jobs, stages, or variables.
 
 **Input:**
-- `yaml` (string, required) — The pipeline YAML to analyze
+- `yaml` (string, optional) — Inline pipeline or template YAML. Pass this or `fileOrPath`, not both.
+- `fileOrPath` (string, optional) — One file or directory path. Pass this or `yaml`, not both.
 - `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check. If omitted, all rules are checked.
 - `category` (string, optional) — Category filter for analysis options
 
 **Returns:**
-- Structured analysis result with diagnostics and rule metadata
+- An object containing `summary` and `diagnostics`.
 
-### `analyze_pipeline_paths`
+`summary` includes `filesAnalyzed`, `filesWithFindings`, and `totalFindings`. When findings exist,
+it also includes `bySeverity`, `byCategory`, and `byRule` count maps. The detailed `diagnostics`
+array contains `ruleId`, `severity`, `message`, and optional `line` and `column` values. These raw
+fields describe the diagnostic contract returned by the tool.
 
-Analyzes one or more pipeline files or directories on disk.
+Example:
 
-**Input:**
-- `paths` (array of strings, required) — File paths or directory paths to analyze
-- `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check
-- `category` (string, optional) — Category filter for analysis options
+```json
+{
+  "summary": {
+    "filesAnalyzed": 1,
+    "filesWithFindings": 1,
+    "totalFindings": 2,
+    "bySeverity": { "error": 1, "warning": 1 },
+    "byCategory": { "jobs": 1, "steps": 1 },
+    "byRule": { "ADOG-JOBS-006": 1, "ADOG-STEPS-001": 1 }
+  },
+  "diagnostics": [
+    {
+      "ruleId": "ADOG-JOBS-006",
+      "severity": "error",
+      "message": "...",
+      "line": 24,
+      "column": 5
+    }
+  ]
+}
+```
 
-**Returns:**
-- Per-file analysis results with any found diagnostics
+The summary is calculated server-side so clients can first identify the number, diagnostic severity,
+category, and rule concentration of findings before processing every diagnostic. Count maps are
+sorted deterministically, and empty maps are omitted.
 
 #### File-access boundary
 
@@ -404,7 +426,7 @@ server with access to directories that contain secrets, credentials, or unrelate
 
 When using Docker, the container cannot read host files unless you explicitly mount a directory.
 Mount only the workspace or pipeline directory you want to analyze as read-only, then pass paths
-inside that container mount to `analyze_pipeline_paths`. For example, add these arguments before
+inside that container mount to `analyze_template`. For example, add these arguments before
 the `adog-mcp:local` image tag in the MCP client configuration:
 
 ```json
@@ -414,7 +436,7 @@ the `adog-mcp:local` image tag in the MCP client configuration:
 ]
 ```
 
-Use `/workspace/azure-pipelines.yml` when calling the file-path analysis tool. Replace the
+Use `/workspace/azure-pipelines.yml` as the `fileOrPath` value when calling the file-path analysis tool. Replace the
 example source path with the absolute host path that Docker Desktop can access.
 
 ### Guideline lookup tools
@@ -481,6 +503,11 @@ Prompts return instructions to the MCP client. The client invokes the existing a
 catalogue tool named by the prompt. These prompts do not modify files, generate patches, or apply
 fixes.
 
+User-facing prompt output uses guideline recommendation labels: `DO`, `DO-NOT`, `AVOID`, and
+`CONSIDER`. The prompts do not ask the client to present diagnostic severity labels such as
+`Error`, `Warning`, or `Info`. Raw analysis responses may still contain `severity` fields for
+machine consumers, but the predefined prompts present recommendations to users.
+
 ## Usage examples
 
 ### Ask about a specific guideline
@@ -497,13 +524,13 @@ The AI will use the MCP server to look up the rule details and explain it.
 >   - script: echo $(DEPLOY_ENV)
 > ```"
 
-The AI will call `analyze_pipeline` with your YAML snippet and report any violations.
+The AI will call `analyze_template` with your YAML snippet and report any violations.
 
 ### Analyze files in your workspace
 
 > "Check all pipeline files in the `.azuredevops` directory"
 
-The AI will call `analyze_pipeline_paths` with the directory path and summarize findings.
+The AI will call `analyze_template` with the directory as `fileOrPath` and summarize findings.
 
 ### Filter by specific rules
 
@@ -607,10 +634,11 @@ server again.
 ### Server starts but doesn't return results
 
 - Verify you're passing valid Azure Pipelines YAML (not alternative CI syntaxes)
-- Check that the YAML file is well-formed. Call `analyze_pipeline` with the file content to inspect parsing errors.
+- Check that the YAML file is well-formed. Call `analyze_template` with the file content as `yaml` to inspect parsing errors.
 
 ## See also
 
+- [MCP token usage guide](mcp-token-usage.md) — how to keep client token usage low
 - [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines) — rule definitions
 - [Model Context Protocol specification](https://modelcontextprotocol.io) — MCP standard documentation
 - [Architecture guide](architecture.md) — how the analysis engine works

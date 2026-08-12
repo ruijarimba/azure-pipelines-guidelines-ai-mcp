@@ -3,7 +3,8 @@
 ![Status: proof of concept](https://img.shields.io/badge/status-proof--of--concept-orange)
 
 The `adog-mcp` server gives AI assistants access to the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
-It returns rule-backed diagnostics for pipeline YAML with stable rule IDs and fix suggestions.
+It returns rule-backed diagnostics for pipelines and steps, jobs, stages, and variables templates
+with stable rule IDs and fix suggestions.
 
 ---
 
@@ -11,7 +12,8 @@ It returns rule-backed diagnostics for pipeline YAML with stable rule IDs and fi
 
 [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that gives AI assistants live access to guideline analysis.
 
-Your AI can analyze pipeline YAML against current guidelines and return precise, rule-keyed diagnostics instead of relying only on training data.
+Your AI can analyze pipeline or template YAML against current guidelines and return precise,
+rule-keyed diagnostics instead of relying only on training data.
 
 **→ See [MCP Server Reference](docs/mcp-reference.md) for installation, configuration, and usage.**
 
@@ -110,6 +112,7 @@ pwsh ./scripts/publish-mcp-image.ps1
 
 - **[Architecture guide](docs/architecture.md)** — dependency graph, layer responsibilities, and extension points
 - **[How it works](docs/how-it-works.md)** — analysis pipeline and two-repository model
+- **[MCP token usage guide](docs/mcp-token-usage.md)** — how to keep client token usage low
 - **[Contributing guide](CONTRIBUTING.md)** — build instructions and how to add rules
 
 ## Repository structure
