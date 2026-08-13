@@ -114,6 +114,17 @@ flowchart TD
     (`pwsh ./scripts/quality-check.ps1`) and confirm the solution builds and tests pass. Fix
     failures before pushing; do not leave a broken state for CI to find.
 
+## Product scope boundaries
+
+Do not add or plan features for:
+
+- CI/CD integrations, pipeline tasks, build or release hooks, or similar automation.
+- Pull-request review, changed-file analysis, repository-event, or code-review workflows.
+
+Keep this repository focused on MCP guideline lookup, pipeline and template analysis, diagnostics,
+fix guidance, and the documented roadmap. If a request implies one of these integrations, ask for
+clarification instead of implementing it.
+
 ## Architecture — dependency graph
 
 Strict layered flow. **No cycles. No upward references.**

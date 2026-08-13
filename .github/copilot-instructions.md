@@ -54,6 +54,14 @@ Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` →
 - Exclude Sampling / LLM heuristics from planning.
 - Track recommended MCP additions and token-usage guidance in the repository TODO list, including a future comprehensive token-usage document.
 
+## Product scope boundaries
+
+- Do not add CI/CD integrations, pipeline tasks, build or release hooks, or similar automation.
+- Do not add pull-request review, changed-file analysis, repository-event, or code-review workflows.
+- Keep the product focused on MCP guideline lookup, pipeline and template analysis, diagnostics,
+  fix guidance, and the documented roadmap.
+- If a request implies one of these integrations, ask for clarification instead of implementing it.
+
 ## Prompt files
 
 - `.github/prompts/implement-rule.prompt.md` — guided workflow for implementing a new `IGuidelineRule`.
