@@ -7,8 +7,8 @@ Update it before every commit so the next session starts with accurate context.
 
 | Area | Status |
 | --- | --- |
-| Current focus | Unified pipeline and template analysis MCP contract is implemented and validated |
-| Recent wins | Replaced `analyze_pipeline` and `analyze_pipeline_paths` with `analyze_template`; added the `yaml`/`fileOrPath` contract; updated prompts, capabilities, tests, README, and MCP documentation |
+| Current focus | Unified pipeline and template analysis MCP contract is implemented, published, and validated |
+| Recent wins | Commit `631bce4` replaced `analyze_pipeline` and `analyze_pipeline_paths` with `analyze_template`; added the `yaml`/`fileOrPath` contract; updated prompts, capabilities, tests, README, and MCP documentation; the quality gate passed and `origin/init` matches the commit |
 | Next up | Monitor the companion manifest for new `ADOG-*` rules and add any new ones with the rule template workflow |
 
 ---
@@ -33,7 +33,7 @@ Before committing, edit the sections below:
 | `local` | feat: update predefined MCP prompts to render guideline recommendations as DO, DO-NOT, AVOID, and CONSIDER instead of diagnostic severity labels |
 | `local` | docs: align shared documentation and architecture guidance with the MCP-only product and host-neutral Analysis boundary |
 | `local` | feat: add deterministic MCP analysis summaries grouped by file, category, severity, and rule |
-| `local` | refactor: merge pipeline and path analysis into the template-oriented `analyze_template` MCP tool; validate with 78 MCP tests and the full quality gate |
+| `631bce4` | refactor: merge pipeline and path analysis into the template-oriented `analyze_template` MCP tool; validate with 78 MCP tests and the full quality gate; push to `origin/init` succeeded |
 | `45b6b5c` | docs: remove CLI reference |
 | `e3f8970` | refactor: remove CLI host |
 | `383d7a7` | fix: use the ASP.NET runtime required by the MCP host; harden Docker Hub publishing checks; document Docker Hub and VS Code MCP setup; publish corrected multi-architecture `latest` image |
