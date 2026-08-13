@@ -69,7 +69,7 @@ debugging or hosted connections. The stdio mode launches `adog-mcp` as a child p
 `stdin`/`stdout`; the HTTP mode exposes the `/mcp` endpoint and also supports the legacy SSE
 compatibility path for local debugging workflows.
 
-The MCP server exposes five tools: one analysis tool and four guideline lookup tools, plus
+The MCP server exposes six tools: one analysis tool and five guideline lookup tools, plus
 resource endpoints for the guideline catalogue.
 
 - `analyze_template` accepts exactly one of inline `yaml` or a `fileOrPath` file or directory
@@ -78,6 +78,8 @@ resource endpoints for the guideline catalogue.
   loaded guideline catalogue.
 - `get_guideline` returns a compact summary by default and only returns the full detail payload
   when `detail=full` is requested.
+- `explain_diagnostic` returns one guideline's full detail by ID, optionally echoing back the
+  diagnostic message, file path, line, and column that raised it.
 - Resource endpoints such as `adog://guidelines/version` and
   `adog://guidelines/category/{category}` let clients cache the catalogue and fetch narrower
   slices of data.

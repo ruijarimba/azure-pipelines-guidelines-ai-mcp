@@ -15,6 +15,7 @@ The tables below show the complete MCP surface. Use the linked sections for deta
 | `get_guideline` | Get one guideline by ID | Available |
 | `search_guidelines` | Search guidelines by text | Available |
 | `list_categories` | List guideline categories | Available |
+| `explain_diagnostic` | Explain one guideline diagnostic in focused detail | Available |
 
 ### Resources
 
@@ -360,7 +361,7 @@ Cline follows the Claude Desktop configuration format. Edit your Cline MCP setti
 
 ## Available tools
 
-The MCP server exposes five tools plus resource-based catalogue endpoints in the current implementation:
+The MCP server exposes six tools plus resource-based catalogue endpoints in the current implementation:
 
 | Tool | Purpose |
 | --- | --- |
@@ -369,6 +370,7 @@ The MCP server exposes five tools plus resource-based catalogue endpoints in the
 | `get_guideline` | Show a single guideline by ID |
 | `search_guidelines` | Search guidelines by text |
 | `list_categories` | List the supported categories |
+| `explain_diagnostic` | Explain one guideline diagnostic in focused detail |
 
 ### `analyze_template`
 
@@ -439,6 +441,26 @@ the `adog-mcp:local` image tag in the MCP client configuration:
 Use `/workspace/azure-pipelines.yml` as the `fileOrPath` value when calling the file-path analysis tool. Replace the
 example source path with the absolute host path that Docker Desktop can access.
 
+### `explain_diagnostic`
+
+Explains a single Azure Pipelines guideline diagnostic in focused detail. Pass the `guidelineId`
+from a diagnostic (for example, from an `analyze_template` result) to get its full detail payload,
+without fetching the whole catalogue. Optionally echo back the diagnostic's `message`, `filePath`,
+`line`, and `column` so the response stays paired with the original finding.
+
+**Input:**
+- `guidelineId` (string, required) — The stable guideline identifier, e.g. `ADOG-STEPS-001`.
+- `message` (string, optional) — Diagnostic message text to echo back for context.
+- `filePath` (string, optional) — File path where the diagnostic was found, to echo back for context.
+- `line` (integer, optional) — One-based line number where the diagnostic was found.
+- `column` (integer, optional) — One-based column number where the diagnostic was found.
+
+**Returns:**
+- An object with `guideline` (the full guideline detail payload: id, title, category, severity,
+  description, rationale, tags, detection hints, fix guidance, references, and automation status)
+  and an optional `diagnostic` object echoing back any supplied context. `diagnostic` is omitted
+  when no context parameters are supplied.
+
 ### Guideline lookup tools
 
 The server also exposes lookup helpers for the guideline catalogue:
@@ -447,6 +469,7 @@ The server also exposes lookup helpers for the guideline catalogue:
 - `get_guideline` returns a compact summary by default. Pass `detail=full` when you need the full description, detection hints, fix advice, and references.
 - `search_guidelines` searches by text.
 - `list_categories` lists the supported categories.
+- `explain_diagnostic` returns one guideline's full detail, optionally paired with the diagnostic context that raised it.
 
 ## Resources
 

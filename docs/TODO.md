@@ -88,8 +88,8 @@ content by default.
       rule
 - [x] Update predefined prompts to present guideline recommendations as DO, DO-NOT, AVOID, and
       CONSIDER instead of diagnostic severity labels
-- [ ] Consider an `explain_diagnostic` tool when the raw diagnostic and fix guidance are not
-      sufficient for AI clients
+- [x] Add an `explain_diagnostic` tool that returns one guideline's full detail by ID, optionally
+      echoing back the diagnostic message, file path, line, and column that raised it
 - [ ] Consider `analyze_changed_pipelines` for pull-request review workflows, with strict
       workspace-path boundaries
 - [ ] Do not add Sampling or LLM-assisted heuristic analysis as part of this work

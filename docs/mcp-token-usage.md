@@ -25,6 +25,10 @@ still controls which operation it calls and with which parameters.
   detail payload, so browsing and filtering stay lightweight even across the full catalogue.
 - Prefer `get_guideline` with a known rule ID over browsing the full catalogue when the client
   already knows which guideline it needs (for example, from a diagnostic's `ruleId` field).
+- `explain_diagnostic` is the most token-efficient way to explain a single diagnostic: it returns
+  one guideline's full detail plus an optional echo of the diagnostic context, never the full
+  catalogue. Prefer it over `get_guideline` with `detail=full` when you also want to pair the
+  explanation with the original diagnostic's message, file path, line, and column.
 
 ## Server-side analysis summaries
 

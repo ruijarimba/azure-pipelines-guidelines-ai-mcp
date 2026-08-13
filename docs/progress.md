@@ -7,9 +7,9 @@ Update it before every commit so the next session starts with accurate context.
 
 | Area | Status |
 | --- | --- |
-| Current focus | Unified pipeline and template analysis MCP contract is implemented, published, and validated |
-| Recent wins | Commit `631bce4` replaced `analyze_pipeline` and `analyze_pipeline_paths` with `analyze_template`; added the `yaml`/`fileOrPath` contract; updated prompts, capabilities, tests, README, and MCP documentation; the quality gate passed and `origin/init` matches the commit |
-| Next up | Monitor the companion manifest for new `ADOG-*` rules and add any new ones with the rule template workflow |
+| Current focus | `explain_diagnostic` MCP tool is implemented and documented; ready for the quality gate and push |
+| Recent wins | Added `explain_diagnostic` (new `Tools/ExplainDiagnosticTool.cs`) returning one guideline's full detail by ID with an optional echoed diagnostic context (message, filePath, line, column); added `DiagnosticContextDto`/`DiagnosticExplanationDto`; reused `GuidelineTools.ToDetailDto`; added `explain_diagnostic` to `adog://capabilities`; added `ExplainDiagnosticToolTests.cs` and updated `GuidelineResourcesTests.cs`; updated `docs/mcp-reference.md`, `docs/architecture.md`, `docs/how-it-works.md`, and `docs/mcp-token-usage.md` |
+| Next up | Run the full quality gate, commit, and push; then monitor the companion manifest for new `ADOG-*` rules and consider `analyze_changed_pipelines` next |
 
 ---
 
@@ -28,6 +28,7 @@ Before committing, edit the sections below:
 
 | Commit | Summary |
 | --- | --- |
+| `local` | feat: add `explain_diagnostic` MCP tool returning one guideline's full detail with an optional echoed diagnostic context; update capabilities, tests, and documentation |
 | `local` | docs: audit `docs/` for staleness, refresh `docs/progress.md` and `docs/TODO.md`, and add `docs/mcp-token-usage.md` describing token-conscious MCP usage patterns |
 | `local` | feat: validate recommendation-based MCP prompt output (DO, DO-NOT, AVOID, CONSIDER) with targeted MCP prompt tests (10 passed, 0 failed), a full repository quality gate after updating `global.json` to roll-forward to newer installed .NET 10 SDKs, and a successful Docker Compose runtime check |
 | `local` | feat: update predefined MCP prompts to render guideline recommendations as DO, DO-NOT, AVOID, and CONSIDER instead of diagnostic severity labels |

@@ -97,6 +97,8 @@ public sealed class GuidelineResourcesTests
         payload.GetProperty("catalogueVersion").GetString().Should().Be("abc123");
         payload.GetProperty("tools").EnumerateArray().Select(item => item.GetString())
             .Should().Contain("analyze_template");
+        payload.GetProperty("tools").EnumerateArray().Select(item => item.GetString())
+            .Should().Contain("explain_diagnostic");
         payload.GetProperty("resources").EnumerateArray().Select(item => item.GetString())
             .Should().Contain("adog://capabilities");
         payload.GetProperty("resources").EnumerateArray().Select(item => item.GetString())

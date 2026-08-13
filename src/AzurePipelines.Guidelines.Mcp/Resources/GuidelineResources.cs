@@ -54,7 +54,8 @@ internal sealed class GuidelineResources(
                 "list_guidelines",
                 "get_guideline",
                 "search_guidelines",
-                "list_categories"
+                "list_categories",
+                "explain_diagnostic"
             ],
             [
                 "adog://capabilities",

@@ -239,7 +239,7 @@ internal sealed class GuidelineTools(
         return (int)result >= 0;
     }
 
-    private static GuidelineDetailDto ToDetailDto(
+    internal static GuidelineDetailDto ToDetailDto(
         GuidelineDefinition g,
         IGuidelineAutomationMetadataProvider? automationMetadataProvider)
     {
@@ -279,7 +279,7 @@ internal sealed class GuidelineTools(
     // Converts an enum value to a lowercase ASCII string for JSON output.
     // We avoid string.ToLowerInvariant because the codebase treats enum names as stable
     // ASCII identifiers, and CA1308 warns against ToLowerInvariant in invariant contexts.
-    private static string EnumToJsonString<T>(T value) where T : struct, Enum
+    internal static string EnumToJsonString<T>(T value) where T : struct, Enum
     {
         string name = value.ToString();
         return string.Create(name.Length, name, static (span, src) =>
