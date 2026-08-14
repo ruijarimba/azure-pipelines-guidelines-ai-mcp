@@ -2,11 +2,9 @@
 
 ## Overview
 
-This project is a layered .NET 10 solution that builds an MCP server on top of
-the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
-machine-readable definitions:
-
-The **MCP server** lets AI assistants look up guidelines and analyze pipelines and templates.
+This project is a layered .NET 10 solution that builds an MCP server on top of the machine-readable
+definitions in the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
+The server lets AI assistants look up guidelines and analyze pipelines and templates.
 
 ## At a glance
 
@@ -52,10 +50,11 @@ External package dependencies are kept in a table so the project graph remains r
 
 | Project | External packages |
 | --- | --- |
-| `Mcp.Host` | `Microsoft.Extensions.Hosting` |
-| `Mcp` | `ModelContextProtocol`, `Microsoft.Extensions.Hosting.Abstractions` |
-| `Analysis` | `Microsoft.Extensions.DependencyInjection.Abstractions` |
-| `Parsing` | `YamlDotNet` |
+| `Mcp.Host` | `Microsoft.Extensions.Hosting`, `Microsoft.Extensions.Logging.Console`, `ModelContextProtocol.AspNetCore` |
+| `Mcp` | `ModelContextProtocol`, `Microsoft.Extensions.Hosting.Abstractions`, `Microsoft.Extensions.Logging.Abstractions` |
+| `Analysis` | `Microsoft.Extensions.DependencyInjection.Abstractions`, `Microsoft.Extensions.Logging.Abstractions` |
+| `Parsing` | `YamlDotNet`, `Microsoft.Extensions.DependencyInjection.Abstractions` |
+| `Rules` | `Microsoft.Extensions.DependencyInjection.Abstractions` |
 
 ## Layer responsibilities
 
@@ -77,38 +76,25 @@ External package dependencies are kept in a table so the project graph remains r
 | `IGuidelineRepository` | Loads and queries `GuidelineDefinition` records from the manifest |
 | `IPipelineAnalyser` | Orchestrates parsing and rules to produce `AnalysisResult` |
 
-## MCP tool surface
+## MCP boundary
 
-The server provides one analysis tool:
+The `Mcp` layer exposes analysis, guideline lookup, resources, and read-only prompts through the
+Model Context Protocol. It maps application services and domain results to protocol contracts.
+It does not own parsing, rule logic, or host lifecycle.
 
-| Tool | Parameters | Returns |
-| --- | --- | --- |
-| `analyze_template` | Exactly one of `yaml` or `fileOrPath`, plus optional filters | Summary plus diagnostics or per-file diagnostic lists |
+See the [MCP Server Reference](mcp-reference.md) for the complete tool, resource, prompt, and
+parameter catalogue. See [MCP token usage](mcp-token-usage.md) for response-size guidance.
 
-`guidelineIds` is a comma-separated list of rule IDs (for example, `ADOG-STEPS-001,ADOG-JOBS-006`).
-By default only rules with automation status `Enforceable` are evaluated. Pass
-`includeNonEnforceable: true` to also include heuristic and non-automatable rules. When
-`guidelineIds` is provided, the enforceable-only filter is bypassed.
+## Extension points
 
-The analysis tool returns a structured response with a `summary` containing the number of files
-analysed, files with findings, total findings, and optional counts grouped by recommendation,
-category, and rule. Inline `yaml` places detailed findings in `diagnostics`; `fileOrPath` places
-them in `files`, grouped by path. Empty grouping fields are omitted to keep responses compact.
-
-Guideline lookup is also exposed through MCP tools and resources:
-
-- `list_guidelines`, `get_guideline`, `search_guidelines`, and `list_categories` browse the loaded catalogue.
-- `get_guideline` returns a compact summary by default and switches to the full detail payload only when `detail=full` is requested.
-- `explain_diagnostic` returns one guideline's full detail by ID, optionally echoing back the diagnostic message, file path, line, and column that raised it. It never returns the full catalogue.
-- Resource endpoints such as `adog://guidelines/version` and `adog://guidelines/category/{category}` let clients cache the catalogue and fetch narrower slices of data.
-
-Tool handlers live in `src/AzurePipelines.Guidelines.Mcp/Tools/` and are discovered automatically
-by the MCP host via `WithToolsFromAssembly`.
-
-Read-only prompt handlers live in `src/AzurePipelines.Guidelines.Mcp/Prompts/` and are discovered
-via `WithPromptsFromAssembly`. Prompt handlers guide the MCP client toward the existing tools and
-resources; they do not modify pipeline files. Their user-facing output uses guideline recommendation
-labels (`DO`, `DO-NOT`, `AVOID`, `CONSIDER`) instead of diagnostic severity labels.
+| Goal | Where to add |
+| --- | --- |
+| New lint rule | Implement `IGuidelineRule` in `Rules` and register in `GuidelineRulesServiceCollectionExtensions` |
+| New MCP tool | Add a handler in `Mcp/Tools/`; `WithToolsFromAssembly` discovers it automatically |
+| New MCP resource | Add a handler in `Mcp/Resources/`; `WithResourcesFromAssembly` discovers it automatically |
+| New MCP prompt | Add a handler in `Mcp/Prompts/`; `WithPromptsFromAssembly` discovers it automatically |
+| New host or tool | Compose on the `Analysis` interfaces and register adapters in a new host project |
+| Alternative YAML parser | Replace the `IPipelineParser` implementation in `Parsing` |
 
 ## MCP host and transports
 
@@ -126,30 +112,14 @@ start the HTTP transport for compatibility with the existing local workflow.
 
 ### Container runtime decision
 
-The Docker image uses `mcr.microsoft.com/dotnet/aspnet:10.0`. `Mcp.Host` references
-`ModelContextProtocol.AspNetCore` to provide the HTTP transport, which requires the
-`Microsoft.AspNetCore.App` shared framework. The smaller `mcr.microsoft.com/dotnet/runtime:10.0`
-image does not include that framework.
+The Docker image uses `mcr.microsoft.com/dotnet/aspnet:10.0` because
+`ModelContextProtocol.AspNetCore` requires the `Microsoft.AspNetCore.App` shared framework.
+The same ASP.NET runtime image supports both `stdio` and HTTP, so Docker, editor integrations,
+local debugging, and hosted deployments use one tested executable and runtime path.
 
-.NET resolves shared-framework requirements when the executable starts. Therefore, the host needs
-the ASP.NET runtime even when it runs with the `stdio` transport. A single image keeps Docker,
-editor integrations, local HTTP debugging, and hosted deployments on the same tested executable.
-
-Using `runtime` would require two images: a stdio-only image without the ASP.NET Core dependency
-and an HTTP image with it. Each image would need its own build, tests, tags, publishing, version
-checks, support guidance, and user documentation. The project accepts the larger ASP.NET image to
-keep one release artifact and one supported runtime path.
-
-## Extension points
-
-| Goal | Where to add |
-| --- | --- |
-| New lint rule | Implement `IGuidelineRule` in `Rules` and register in `GuidelineRulesServiceCollectionExtensions` |
-| New MCP tool | Add handler class in `Mcp/Tools/` — `WithToolsFromAssembly` discovers it automatically |
-| New MCP resource | Add handler class in `Mcp/Resources/` — `WithResourcesFromAssembly` discovers it automatically |
-| New MCP prompt | Add handler class in `Mcp/Prompts/` — `WithPromptsFromAssembly` discovers it automatically |
-| New host or tool | Compose on the `Analysis` interfaces and register adapters in a new host project |
-| Alternative YAML parser | Replace `IPipelineParser` implementation in `Parsing` |
+Using the smaller `mcr.microsoft.com/dotnet/runtime:10.0` image would require separate stdio and
+HTTP images. The full rationale is recorded in
+[the MCP host README](../tools/AzurePipelines.Guidelines.Mcp.Host/README.md#container-runtime).
 
 ## Guideline manifest
 
