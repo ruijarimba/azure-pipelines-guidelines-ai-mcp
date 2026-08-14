@@ -111,8 +111,10 @@ flowchart TD
    `<File Path="..." />` in `AzurePipelinesGuidelines.slnx` under the matching nested
    solution folder. Never flatten a subdirectory into a parent folder.
 10. **Pre-push validation** — before pushing, run the canonical quality gate
-    (`pwsh ./scripts/quality-check.ps1`) and confirm the solution builds and tests pass. Fix
-    failures before pushing; do not leave a broken state for CI to find.
+    (`pwsh ./scripts/quality-check.ps1`) when the change affects .NET code, Docker,
+    packaging, or solution/build configuration. Documentation-only or non-runtime changes
+    may skip the quality gate. Fix any failures before pushing; do not leave a broken state
+    for CI to find.
 
 ## Product scope boundaries
 

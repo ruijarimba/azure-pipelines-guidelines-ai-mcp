@@ -195,9 +195,11 @@ reviewers can see and oversee all agent-generated content.*
 
 **Do not push changes until the repository is in a known-good state.**
 
-- Before committing or pushing, run the canonical quality gate from the repository root:
-  `pwsh ./scripts/quality-check.ps1`. It restores, builds, and tests the solution in Release
-  mode.
+- Before committing or pushing, run the canonical quality gate from the repository root when the
+  change affects .NET code, Docker configuration, packaging, or solution/build state:
+  `pwsh ./scripts/quality-check.ps1`. It restores, builds, and tests the solution in Release mode.
+- Documentation-only or non-runtime changes may skip the full gate when they do not touch .NET,
+  Docker, NuGet, build, or solution configuration.
 - If the script reports a build or test failure, fix it or stop and report the issue rather
   than pushing a failing state.
 - For changes that touch shared contracts, multiple projects, or broad behaviour, always run
