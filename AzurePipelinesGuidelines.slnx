@@ -95,7 +95,6 @@
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
     <File Path="AGENTS.md" />
-    <File Path="CONTRIBUTING.md" />
     <File Path="coverlet.runsettings" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
@@ -115,6 +114,5 @@
     <File Path="docs/mcp-token-usage.md" />
     <File Path="docs/progress.md" />
     <File Path="docs/TODO.md" />
-    <File Path="docs/vision.md" />
   </Folder>
 </Solution>

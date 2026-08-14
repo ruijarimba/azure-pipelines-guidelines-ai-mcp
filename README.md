@@ -6,7 +6,7 @@
 
 This is a **static, deterministic MCP server**. It parses Azure Pipelines YAML, loads the guideline manifest, applies the implemented rules, and returns structured diagnostics. It does not use retrieval-augmented generation (RAG), vector search, an LLM, or model-generated analysis.
 
-The connected AI client may explain these diagnostics in natural language. The following example shows how VS Code Copilot presents results from this server:
+The connected AI client may explain these diagnostics in natural language, but that explanation does not come from this server. The following example shows how VS Code Copilot presents results from this server:
 
 ![VS Code Copilot displays an Azure Pipelines violation summary table with severity, rule, finding, evidence, and recommendation columns.](/docs/images/vscode-copilot-violations-summary.png)
 
@@ -116,10 +116,7 @@ Once the MCP server is connected, try:
 - **[MCP token usage guide](docs/mcp-token-usage.md)** — how to keep client token usage low
 - **[Glossary](docs/glossary.md)** — project and MCP terminology
 - **[Architecture decisions](docs/decisions.md)** — important design decisions and their rationale
-- **[Project vision](docs/vision.md)** — project goals and planned direction
-- **[Contributing guide](CONTRIBUTING.md)** — build instructions and how to add rules
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
