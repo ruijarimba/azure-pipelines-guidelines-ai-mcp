@@ -187,14 +187,10 @@ that is expected. You can also run `dotnet run --project tools/AzurePipelines.Gu
 
 ## Configuration
 
-### GitHub Copilot (VS Code)
+For details about adding and managing MCP servers in VS Code, see the official
+[MCP server documentation](https://code.visualstudio.com/docs/agent-customization/mcp-servers).
 
-Create or edit `.vscode/mcp.json` in your project:
-
-#### Using the Docker Hub image (quickest setup)
-
-This configuration pulls the published image directly from Docker Hub. It does not require a
-repository checkout or the .NET SDK:
+### Docker Hub image
 
 ```json
 {
@@ -217,10 +213,7 @@ repository checkout or the .NET SDK:
 }
 ```
 
-Docker Desktop must be running. After saving `.vscode/mcp.json`, restart or reload the MCP server
-from VS Code.
-
-#### Using a local clone:
+### Local clone
 
 ```json
 {
