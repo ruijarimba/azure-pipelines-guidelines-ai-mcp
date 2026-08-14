@@ -4,9 +4,7 @@ applyTo: "**/*.md"
 
 # Markdown writing rules
 
-These rules apply to all Markdown files in this repository — `AGENTS.md`, `docs/`, instruction
-files, prompt files, and `README.md`. The target audience includes non-native English speakers,
-so clarity always takes priority over elegance.
+These rules apply to all Markdown files in this repository — `AGENTS.md`, `docs/`, instruction files, prompt files, and `README.md`. The target audience includes non-native English speakers, so clarity always takes priority over elegance.
 
 > **Before changing any rule in this file:** re-read the reference sources recorded in
 > [`docs/decisions.md` — ADR-011](../../docs/decisions.md) and update that ADR if the
@@ -16,8 +14,7 @@ so clarity always takes priority over elegance.
 
 ## 1. Plain English first
 
-Write so that a non-native English speaker with intermediate proficiency can understand the
-text without a dictionary.
+Write so that a non-native English speaker with intermediate proficiency can understand the text without a dictionary.
 
 - Use common, everyday words. Write "use" not "utilise". Write "show" not "demonstrate".
 - Use short sentences. Aim for 25 words or fewer per sentence.
@@ -30,8 +27,7 @@ text without a dictionary.
   in technical writing. Prefer the plain-English form ("for example", "that is", "and so on")
   when it reads more clearly, but neither form is wrong.
 
-*Inspiration: Microsoft Writing Style Guide, GOV.UK Content Design guide,
-plainlanguage.gov guidelines.*
+*Inspiration: Microsoft Writing Style Guide, GOV.UK Content Design guide, plainlanguage.gov guidelines.*
 
 ---
 
@@ -89,7 +85,19 @@ plainlanguage.gov guidelines.*
 
 ---
 
-## 7. Links
+## 7. Source line wrapping
+
+- Do not hard-wrap normal prose at an editor width. GitHub and Azure DevOps render source line
+  breaks as spaces, which makes the rendered paragraph look poorly formatted.
+- Keep each normal prose paragraph on one source line when practical.
+- Use a blank line to separate paragraphs. Use list items, tables, or headings for structure
+  instead of inserting line breaks inside a sentence.
+- Wrap code blocks, tables, long links, and other structures when needed for readability or
+  valid Markdown syntax.
+
+---
+
+## 8. Links
 
 - Use descriptive link text. Write `[docs/glossary.md](../../docs/glossary.md)` or
   `[ADR-011](../../docs/decisions.md)` instead of generic text such as "click here".
@@ -98,7 +106,7 @@ plainlanguage.gov guidelines.*
 
 ---
 
-## 8. Document structure
+## 9. Document structure
 
 - Start every document with a single `#` heading that matches the file's purpose.
 - Follow the heading with one or two sentences that tell the reader what the document
@@ -109,7 +117,7 @@ plainlanguage.gov guidelines.*
 
 ---
 
-## 9. Tone and length
+## 10. Tone and length
 
 - Be direct. Say what you mean in the fewest words that are still clear.
 - Do not pad text with phrases like "it is worth noting that", "as mentioned above", or
@@ -121,7 +129,7 @@ plainlanguage.gov guidelines.*
 
 ---
 
-## 10. What to avoid
+## 11. What to avoid
 
 - Passive voice when active voice is possible.
 - Long paragraphs (more than 5 sentences). Break them into shorter paragraphs or a list.

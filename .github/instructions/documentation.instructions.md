@@ -121,16 +121,11 @@ Show concrete examples in Markdown or YAML code blocks. Always explain what the 
 
 Use simple diagrams when a process is hard to explain in text. Use Mermaid when needed.
 
-**Direction:** prefer `graph TD` (top-down) over `graph LR` (left-right). Top-down diagrams
-fit narrow screens better and match the vertical reading direction of the page. Use `graph LR`
-only when the content is a left-to-right pipeline where the horizontal direction carries
-meaning that top-down would lose.
+**Direction:** prefer `graph TD` (top-down) over `graph LR` (left-right). Top-down diagrams fit narrow screens better and match the vertical reading direction of the page. Use `graph LR` only when the content is a left-to-right pipeline where the horizontal direction carries meaning that top-down would lose.
 
-**Sequence interactions:** use `sequenceDiagram` for ordered message exchanges between
-participants. Sequence diagrams are top-down by nature.
+**Sequence interactions:** use `sequenceDiagram` for ordered message exchanges between participants. Sequence diagrams are top-down by nature.
 
-**Renderer compatibility:** use `graph` syntax instead of `flowchart` syntax when the target
-renderer is Azure DevOps, as `flowchart` rendering is less reliable there.
+**Renderer compatibility:** use `graph` syntax instead of `flowchart` syntax when the target renderer is Azure DevOps, as `flowchart` rendering is less reliable there.
 
 ```mermaid
 graph TD

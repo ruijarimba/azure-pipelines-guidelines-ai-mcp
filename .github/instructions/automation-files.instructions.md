@@ -4,15 +4,11 @@ applyTo: "{Dockerfile,compose.yaml,compose.yml,**/*.ps1,**/*.sh,**/*.cmd,**/*.ba
 
 # Automation file documentation
 
-These rules apply to imperative and declarative automation files that configure, package,
-run, or validate the repository. They cover shell scripts, PowerShell scripts, Dockerfiles,
-Compose files, build configuration files, and similar workflow definitions.
+These rules apply to imperative and declarative automation files that configure, package, run, or validate the repository. They cover shell scripts, PowerShell scripts, Dockerfiles, Compose files, build configuration files, and similar workflow definitions.
 
 ## Purpose
 
-Automation files are often the first place a maintainer looks when something breaks. Good
-comments make the intent obvious, reduce the chance of accidental edits, and help contributors
-understand why a command, flag, or configuration exists.
+Automation files are often the first place a maintainer looks when something breaks. Good comments make the intent obvious, reduce the chance of accidental edits, and help contributors understand why a command, flag, or configuration exists.
 
 ## Required documentation
 
@@ -66,5 +62,4 @@ Every automation file must include enough comments to answer the following quest
 
 ## When to update comments
 
-Update comments whenever you change the behaviour, prerequisites, default values, transport mode,
-ports, or automation flow of a file.
+Update comments whenever you change the behaviour, prerequisites, default values, transport mode, ports, or automation flow of a file.

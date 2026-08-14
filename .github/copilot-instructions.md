@@ -69,14 +69,11 @@ Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` →
 
 **Every file must be visible in Visual Studio Solution Explorer** in the correct folder hierarchy.
 
-Full rules and registration examples are in
-[`.github/instructions/solution-files.instructions.md`](instructions/solution-files.instructions.md) — Rule 10.
+Full rules and registration examples are in [`.github/instructions/solution-files.instructions.md`](instructions/solution-files.instructions.md) — Rule 10.
 
 ## Durable project context — validation note
 
-`docs/progress.md` records the session state. Before treating it as authoritative, cross-check
-its "recently completed" entries against `git log --oneline -10` to confirm they were actually
-committed. If the file is stale, update it before continuing.
+`docs/progress.md` records the session state. Before treating it as authoritative, cross-check its "recently completed" entries against `git log --oneline -10` to confirm they were actually committed. If the file is stale, update it before continuing.
 
 ## Safety
 

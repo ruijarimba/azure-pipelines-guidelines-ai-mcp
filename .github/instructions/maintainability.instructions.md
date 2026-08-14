@@ -4,9 +4,7 @@ applyTo: "**/*.cs"
 
 # Maintainability rules
 
-These rules apply to all C# code in this repository — agent-generated and human-written alike.
-The goal is a codebase that any contributor can read, understand, and modify without needing
-AI assistance or prior context.
+These rules apply to all C# code in this repository — agent-generated and human-written alike. The goal is a codebase that any contributor can read, understand, and modify without needing AI assistance or prior context.
 
 > **Before changing any rule in this file:** re-read the reference sources recorded in
 > [`docs/decisions.md` — ADR-011](../../docs/decisions.md) and update that ADR if the
@@ -23,11 +21,9 @@ Keep files small enough that a reviewer can hold the whole file in their head.
 | Production (`.cs` under `src/`) | 200 lines | 300 lines |
 | Test (`.cs` under `tests/`) | 300 lines | 500 lines |
 
-When a file approaches its soft limit, split it by responsibility **before** adding more code.
-Do not ask whether to split — split first, then continue.
+When a file approaches its soft limit, split it by responsibility **before** adding more code. Do not ask whether to split — split first, then continue.
 
-*Inspiration: Google C# Style Guide (one top-level type per file), Oracle Java Code
-Conventions (classes over 500 lines are a review trigger).*
+*Inspiration: Google C# Style Guide (one top-level type per file), Oracle Java Code Conventions (classes over 500 lines are a review trigger).*
 
 ---
 
@@ -80,11 +76,9 @@ Each file, class, and method must have exactly one reason to change.
   acceptable only when the codebase already uses them and the file is otherwise not being
   refactored; otherwise extract the type into a dedicated file.
 
-The rule is intentionally strict: it makes the code easier to navigate, easier to review, and
-less likely to accumulate unrelated helpers inside a single implementation file.
+The rule is intentionally strict: it makes the code easier to navigate, easier to review, and less likely to accumulate unrelated helpers inside a single implementation file.
 
-*Inspiration: Google C# Style Guide (one top-level type per file), Microsoft C# conventions,
-Oracle Java Code Conventions.*
+*Inspiration: Google C# Style Guide (one top-level type per file), Microsoft C# conventions, Oracle Java Code Conventions.*
 
 ---
 
@@ -102,8 +96,7 @@ Oracle Java Code Conventions.*
 
 ## 5. Comment discipline
 
-Comments must explain **why**, never **what**. The code itself says what it does.
-A comment that restates the code in plain English is noise — remove it.
+Comments must explain **why**, never **what**. The code itself says what it does. A comment that restates the code in plain English is noise — remove it.
 
 ```csharp
 // Bad — restates the code.
@@ -115,8 +108,7 @@ _count++;
 var lineNumber = startLine + 1;
 ```
 
-**XML doc comments** on `public` and `protected` members are the exception: they document
-the *contract* for consumers who cannot see the implementation.
+**XML doc comments** on `public` and `protected` members are the exception: they document the *contract* for consumers who cannot see the implementation.
 
 Additional rules:
 
@@ -145,8 +137,7 @@ Only commit code that is reachable, tested, and used.
 
 ## 7. No "clever" code
 
-Prefer the obvious implementation over a terse or sophisticated one.
-The next reader may not have your current context.
+Prefer the obvious implementation over a terse or sophisticated one. The next reader may not have your current context.
 
 - Avoid LINQ chains longer than 3 operations on a single expression. Assign intermediate
   results to named local variables.
@@ -173,8 +164,7 @@ var regexHints = errorGuidelines.SelectMany(g => g.DetectionHints)
 var distinctPatterns = regexHints.Select(h => h.Pattern).Distinct().OrderBy(p => p).ToList();
 ```
 
-*Inspiration: Google C# Style Guide (column limit 100; adapted to 120 for modern monitors),
-Microsoft C# coding conventions.*
+*Inspiration: Google C# Style Guide (column limit 100; adapted to 120 for modern monitors), Microsoft C# coding conventions.*
 
 ---
 

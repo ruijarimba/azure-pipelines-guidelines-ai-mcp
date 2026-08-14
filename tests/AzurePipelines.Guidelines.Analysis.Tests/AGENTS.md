@@ -13,9 +13,9 @@ Unit tests for `AzurePipelines.Guidelines.Analysis` — the orchestration layer.
 
 ## Test naming
 
-`AnalysisEngine_GivenValidYaml_ShouldReturnDiagnostics`
-`AnalysisEngine_GivenFilterBySeverity_ShouldReturnOnlyMatchingDiagnostics`
-`AnalysisEngine_GivenParsingFailure_ShouldReturnErrorResult`
+- `AnalysisEngine_GivenValidYaml_ShouldReturnDiagnostics`
+- `AnalysisEngine_GivenFilterBySeverity_ShouldReturnOnlyMatchingDiagnostics`
+- `AnalysisEngine_GivenParsingFailure_ShouldReturnErrorResult`
 
 ## Coverage expectations
 
@@ -30,5 +30,4 @@ Unit tests for `AzurePipelines.Guidelines.Analysis` — the orchestration layer.
 
 ## No end-to-end tests here
 
-This tests the **orchestration**. Full end-to-end integration tests (real YAML files → real
-rules → real diagnostics) belong in a separate integration test project if needed.
+This tests the **orchestration**. Full end-to-end integration tests (real YAML files → real rules → real diagnostics) belong in a separate integration test project if needed.

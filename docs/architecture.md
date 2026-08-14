@@ -2,9 +2,7 @@
 
 ## Overview
 
-This project is a layered .NET 10 solution that builds an MCP server on top of the machine-readable
-definitions in the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
-The server lets AI assistants look up guidelines and analyze pipelines and templates.
+This project is a layered .NET 10 solution that builds an MCP server on top of the machine-readable definitions in the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines). The server lets AI assistants look up guidelines and analyze pipelines and templates.
 
 ## At a glance
 
@@ -43,8 +41,7 @@ flowchart TB
     class Host executable
 ```
 
-**Rule:** arrows point from dependent → dependency. Cycles are forbidden.
-`Core` has no internal project dependencies.
+**Rule:** arrows point from dependent → dependency. Cycles are forbidden. `Core` has no internal project dependencies.
 
 External package dependencies are kept in a table so the project graph remains readable:
 
@@ -78,12 +75,9 @@ External package dependencies are kept in a table so the project graph remains r
 
 ## MCP boundary
 
-The `Mcp` layer exposes analysis, guideline lookup, resources, and read-only prompts through the
-Model Context Protocol. It maps application services and domain results to protocol contracts.
-It does not own parsing, rule logic, or host lifecycle.
+The `Mcp` layer exposes analysis, guideline lookup, resources, and read-only prompts through the Model Context Protocol. It maps application services and domain results to protocol contracts. It does not own parsing, rule logic, or host lifecycle.
 
-See the [MCP Server Reference](mcp-reference.md) for the complete tool, resource, prompt, and
-parameter catalogue. See [MCP token usage](mcp-token-usage.md) for response-size guidance.
+See the [MCP Server Reference](mcp-reference.md) for the complete tool, resource, prompt, and parameter catalogue. See [MCP token usage](mcp-token-usage.md) for response-size guidance.
 
 ## Extension points
 
@@ -98,28 +92,20 @@ parameter catalogue. See [MCP token usage](mcp-token-usage.md) for response-size
 
 ## MCP host and transports
 
-`Mcp.Host` selects a transport before it registers the MCP server. The application services and
-tool surface are the same for both transport modes.
+`Mcp.Host` selects a transport before it registers the MCP server. The application services and tool surface are the same for both transport modes.
 
 | Transport | Host type | Use it when |
 | --- | --- | --- |
 | `stdio` | Generic host | The MCP client starts the server as a local child process. |
 | HTTP transport | ASP.NET Core web host | The MCP client connects to an already-running server. |
 
-The executable defaults to `stdio` for process-launching clients. Use the HTTP transport for
-local debugging or a hosted deployment. The existing `SSE` launch-profile and selector names
-start the HTTP transport for compatibility with the existing local workflow.
+The executable defaults to `stdio` for process-launching clients. Use the HTTP transport for local debugging or a hosted deployment. The existing `SSE` launch-profile and selector names start the HTTP transport for compatibility with the existing local workflow.
 
 ### Container runtime decision
 
-The Docker image uses `mcr.microsoft.com/dotnet/aspnet:10.0` because
-`ModelContextProtocol.AspNetCore` requires the `Microsoft.AspNetCore.App` shared framework.
-The same ASP.NET runtime image supports both `stdio` and HTTP, so Docker, editor integrations,
-local debugging, and hosted deployments use one tested executable and runtime path.
+The Docker image uses `mcr.microsoft.com/dotnet/aspnet:10.0` because `ModelContextProtocol.AspNetCore` requires the `Microsoft.AspNetCore.App` shared framework. The same ASP.NET runtime image supports both `stdio` and HTTP, so Docker, editor integrations, local debugging, and hosted deployments use one tested executable and runtime path.
 
-Using the smaller `mcr.microsoft.com/dotnet/runtime:10.0` image would require separate stdio and
-HTTP images. The full rationale is recorded in
-[the MCP host README](../tools/AzurePipelines.Guidelines.Mcp.Host/README.md#container-runtime).
+Using the smaller `mcr.microsoft.com/dotnet/runtime:10.0` image would require separate stdio and HTTP images. The full rationale is recorded in [the MCP host README](../tools/AzurePipelines.Guidelines.Mcp.Host/README.md#container-runtime).
 
 ## Guideline manifest
 
@@ -129,8 +115,7 @@ Rule ID pattern:
 ADOG-(GENERAL|JOBS|PARAMETERS|PIPELINES|STAGES|STEPS|VARIABLES)-[0-9]{3}
 ```
 
-For severity mapping to diagnostic level, detection kinds, and all domain terms,
-see [`glossary.md`](glossary.md).
+For severity mapping to diagnostic level, detection kinds, and all domain terms, see [`glossary.md`](glossary.md).
 
 ## Build infrastructure
 
@@ -146,14 +131,11 @@ see [`glossary.md`](glossary.md).
 
 ## Packaging and distribution
 
-The `src/` projects retain independent package metadata (`AzurePipelines.Guidelines.*`) and the
-MCP host retains its global-tool packaging configuration for local builds. This repository does
-not publish NuGet packages.
+The `src/` projects retain independent package metadata (`AzurePipelines.Guidelines.*`) and the MCP host retains its global-tool packaging configuration for local builds. This repository does not publish NuGet packages.
 
 | Artefact | Package ID | Distribution |
 | --- | --- | --- |
 | MCP server | `adog-mcp` | Local build or Docker image |
 | MCP server | — | Docker Hub (`ruijarimba/azure-pipelines-guidelines-mcp`) |
 
-`Mcp.Host` is the executable entry point for local runs and the Docker image. No application code
-changes are needed between the two distribution forms — the same binary runs in both contexts.
+`Mcp.Host` is the executable entry point for local runs and the Docker image. No application code changes are needed between the two distribution forms — the same binary runs in both contexts.

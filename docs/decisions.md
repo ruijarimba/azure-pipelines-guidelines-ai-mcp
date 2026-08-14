@@ -1,7 +1,6 @@
 # Architecture Decision Records
 
-Lightweight log of significant decisions and rationale. When an agent considers changing one of
-these, it must re-read the rationale first; if the context has changed, document the reversal here.
+Lightweight log of significant decisions and rationale. When an agent considers changing one of these, it must re-read the rationale first; if the context has changed, document the reversal here.
 
 ## ADR index
 
@@ -96,10 +95,7 @@ these, it must re-read the rationale first; if the context has changed, document
 **Date:** 2026-07-06 (revised 2026-07-08)  
 **Context:** MSBuild 17.11+ supports `.slnx` (XML solution format), but not all tooling does.  
 **Original decision:** Use traditional `.sln` format for broadest toolchain compatibility.  
-**Reversal (2025-06-14):** The repository uses `.slnx` in practice. The original compatibility
-concern no longer applies — Visual Studio 2022 17.11+, Visual Studio 2026, and the .NET CLI
-all support `.slnx` fully. The XML format is human-readable, produces clean diffs, and is the
-preferred format for new projects going forward.
+**Reversal (2025-06-14):** The repository uses `.slnx` in practice. The original compatibility concern no longer applies — Visual Studio 2022 17.11+, Visual Studio 2026, and the .NET CLI all support `.slnx` fully. The XML format is human-readable, produces clean diffs, and is the preferred format for new projects going forward.
 
 **Consequences:**  
 - The solution file is `AzurePipelinesGuidelines.slnx` (XML format, not the legacy binary-text hybrid).
@@ -146,9 +142,7 @@ preferred format for new projects going forward.
 
 **Date:** 2026-07-06  
 **Context:** Want reusable libraries that consumers can compose as needed.  
-**Decision:** Every project under `src/` sets `<IsPackable>true</IsPackable>` and retains
-independent package metadata. This preserves local packing and library boundaries; the repository
-does not publish NuGet packages.
+**Decision:** Every project under `src/` sets `<IsPackable>true</IsPackable>` and retains independent package metadata. This preserves local packing and library boundaries; the repository does not publish NuGet packages.
 **Rationale:**  
 - Consumers may want only parsing, or only rules, or only the analysis engine.
 - Separate packages enable independent versioning per component.
@@ -181,12 +175,9 @@ does not publish NuGet packages.
 ## ADR-010: Agent behaviour governed by published human-AI collaboration frameworks
 
 **Date:** 2026-07-06  
-**Context:** AI agents working in this repository need clear, principled guardrails covering
-destructive actions, human authority, epistemic honesty, and other safety-relevant behaviours.
+**Context:** AI agents working in this repository need clear, principled guardrails covering destructive actions, human authority, epistemic honesty, and other safety-relevant behaviours.
 Ad-hoc or informal safety notes drift and conflict across sessions.  
-**Decision:** Adopt a coherent set of agent behaviour principles grounded in the following
-publicly available frameworks. Record them as the canonical reference so any future change to
-the guardrails must re-consult these sources and update this ADR.
+**Decision:** Adopt a coherent set of agent behaviour principles grounded in the following publicly available frameworks. Record them as the canonical reference so any future change to the guardrails must re-consult these sources and update this ADR.
 
 | Source | Key principles used |
 | --- | --- |
@@ -224,14 +215,9 @@ the guardrails must re-consult these sources and update this ADR.
 ## ADR-011: Human readability as a first-class requirement
 
 **Date:** 2026-07-06  
-**Context:** AI agents can generate large volumes of code quickly. Without explicit constraints,
-this leads to oversized files, long methods, speculative scaffolding, and "clever" constructs
-that are hard to follow without the original context. The codebase must remain maintainable
-by humans who do not have access to an AI assistant, including contributors who are not native
+**Context:** AI agents can generate large volumes of code quickly. Without explicit constraints, this leads to oversized files, long methods, speculative scaffolding, and "clever" constructs that are hard to follow without the original context. The codebase must remain maintainable by humans who do not have access to an AI assistant, including contributors who are not native
 English speakers.  
-**Decision:** Adopt explicit, measurable maintainability rules for code and documentation,
-grounded in the following public style guides. These apply to agent-generated and human-written
-code equally.
+**Decision:** Adopt explicit, measurable maintainability rules for code and documentation, grounded in the following public style guides. These apply to agent-generated and human-written code equally.
 
 | Source | Key principles used |
 | --- | --- |
@@ -264,12 +250,7 @@ code equally.
 ## ADR-012: C# implementation patterns for `IGuidelineRule`, logging, and static sets
 
 **Date:** 2026-07-07  
-**Context:** Agents implementing new `IGuidelineRule` classes repeatedly introduced the same
-quality issues: a redundant `await Task.CompletedTask` no-op, `HashSet<string>` used in place
-of `FrozenSet<T>` for static lookup sets, `[LoggerMessage]` attribute on partial methods
-(which requires the full `Microsoft.Extensions.Logging` package that `src/` libraries must not
-reference), overly complex regex alternations, and diagnostic messages that repeated
-information already available in structured fields. These issues were not covered by the
+**Context:** Agents implementing new `IGuidelineRule` classes repeatedly introduced the same quality issues: a redundant `await Task.CompletedTask` no-op, `HashSet<string>` used in place of `FrozenSet<T>` for static lookup sets, `[LoggerMessage]` attribute on partial methods (which requires the full `Microsoft.Extensions.Logging` package that `src/` libraries must not reference), overly complex regex alternations, and diagnostic messages that repeated information already available in structured fields. These issues were not covered by the
 existing instruction files.  
 **Decision:** Add `.github/instructions/csharp-patterns.instructions.md` that documents the
 correct pattern for each concern, with before/after examples drawn from real code.  
@@ -297,18 +278,9 @@ correct pattern for each concern, with before/after examples drawn from real cod
 ## ADR-013: Heuristic detection rules are deferred to Phase 2
 
 **Date:** 2026-07-07  
-**Context:** The former phase-one roadmap said "Implement rules for all
-`ADOG-{CATEGORY}-{NNN}` guidelines in the manifest." After auditing the live
-`guidelines.json` manifest, 36 guideline IDs exist. 9 have `detection.kind` of
-`regex` or `yamlPath` — these are statically detectable and were implemented in
-Phase 1. The remaining 27 all have `detection.kind = heuristic`, meaning they
-require reasoning about intent, architecture, or context that a regex or YAML
-path expression cannot express. Phase 2 explicitly lists "LLM-assisted analysis
+**Context:** The former phase-one roadmap said "Implement rules for all `ADOG-{CATEGORY}-{NNN}` guidelines in the manifest." After auditing the live `guidelines.json` manifest, 36 guideline IDs exist. 9 have `detection.kind` of `regex` or `yamlPath` — these are statically detectable and were implemented in Phase 1. The remaining 27 all have `detection.kind = heuristic`, meaning they require reasoning about intent, architecture, or context that a regex or YAML path expression cannot express. Phase 2 explicitly lists "LLM-assisted analysis
 for `heuristic` detection rules" as a future enhancement.  
-**Decision:** The Phase 1 "all rules implemented" criterion applies only to rules
-with `detection.kind` of `regex` or `yamlPath`. Rules with `detection.kind =
-heuristic` are deferred to Phase 2. This interpretation resolves the apparent
-contradiction between "implement all rules" and "LLM-assisted heuristics are
+**Decision:** The Phase 1 "all rules implemented" criterion applies only to rules with `detection.kind` of `regex` or `yamlPath`. Rules with `detection.kind = heuristic` are deferred to Phase 2. This interpretation resolves the apparent contradiction between "implement all rules" and "LLM-assisted heuristics are
 Phase 2."  
 **Rationale:**  
 - A static analyser cannot reliably detect heuristic patterns without producing
@@ -332,15 +304,9 @@ Phase 2."
 ## ADR-014: Debuggability as a first-class concern
 
 **Date:** 2026-07-08  
-**Context:** Domain model types (`PipelineDocument`, node records, `Diagnostic`, etc.) had no
-`ToString()` overrides. The auto-generated positional record `ToString()` dumps every property
-in declaration order, including large nested collections and multi-kilobyte YAML strings. This
-made watch-window inspection slow, hover tooltips unreadable, and test failure messages hard to
+**Context:** Domain model types (`PipelineDocument`, node records, `Diagnostic`, etc.) had no `ToString()` overrides. The auto-generated positional record `ToString()` dumps every property in declaration order, including large nested collections and multi-kilobyte YAML strings. This made watch-window inspection slow, hover tooltips unreadable, and test failure messages hard to
 diagnose without expanding each object manually.  
-**Decision:** Treat debuggability as a first-class quality concern, on par with testability.
-All domain types in `Core/` must implement `ToString()`, `[DebuggerDisplay]`, and
-`[property: DebuggerBrowsable(Never)]` where applicable, following the four rules in
-`csharp-patterns.instructions.md` section 9.
+**Decision:** Treat debuggability as a first-class quality concern, on par with testability. All domain types in `Core/` must implement `ToString()`, `[DebuggerDisplay]`, and `[property: DebuggerBrowsable(Never)]` where applicable, following the four rules in `csharp-patterns.instructions.md` section 9.
 
 **Rationale:**
 
@@ -381,15 +347,9 @@ Additional reasoning:
 ## ADR-015: Support both local and HTTP MCP transports
 
 **Date:** 2026-07-29  
-**Context:** The MCP server must run in more than one context. A local AI client can start the
-server as a child process, while an IDE debugger or a separately hosted service needs an HTTP
-endpoint. Earlier documentation called `stdio` the primary transport and described the HTTP
-endpoint as SSE-only. That wording incorrectly treated an executable default as a product
+**Context:** The MCP server must run in more than one context. A local AI client can start the server as a child process, while an IDE debugger or a separately hosted service needs an HTTP endpoint. Earlier documentation called `stdio` the primary transport and described the HTTP endpoint as SSE-only. That wording incorrectly treated an executable default as a product
 preference and did not reflect the current MCP transport direction.  
-**Decision:** Support both `stdio` and HTTP transports. Keep `stdio` as the executable's
-default because it works with process-launching clients and the existing Docker command. Use the
-HTTP transport when the client connects to an already-running server, including Visual Studio
-debugging and future remote hosting. The host exposes the HTTP endpoint at `/mcp`. The existing
+**Decision:** Support both `stdio` and HTTP transports. Keep `stdio` as the executable's default because it works with process-launching clients and the existing Docker command. Use the HTTP transport when the client connects to an already-running server, including Visual Studio debugging and future remote hosting. The host exposes the HTTP endpoint at `/mcp`. The existing
 `SSE` profile names remain as compatibility selectors for the HTTP transport.  
 **Rationale:**
 - `stdio` uses the standard input and output streams of a locally started process. It avoids a
@@ -412,23 +372,10 @@ debugging and future remote hosting. The host exposes the HTTP endpoint at `/mcp
   must not expose the endpoint publicly without those controls.
 
 ### Update 2026-08-05: MCP 2.0 transport compatibility
-The repository upgraded the MCP .NET SDK to `ModelContextProtocol 2.0.0` and kept the existing
-HTTP transport path for local debugging while enabling the newer Streamable HTTP behaviour. In
-2.0, `HttpServerTransportOptions.EnableLegacySse` is marked obsolete (diagnostic `MCP9004`) because
-legacy SSE has no built-in request backpressure and is only recommended for trusted, isolated
-clients. This repository keeps the legacy SSE path only for the local-debugging workflow already
-covered by ADR-015, and the host disables stateless mode (`Stateless = false`) so the legacy SSE
-session state can be maintained. The obsolete warning is suppressed with a local-debugging
-justification comment rather than being ignored silently; if the host is ever exposed beyond that
-trusted, isolated local-process use case, the legacy SSE option should be removed and only
-Streamable HTTP served.
+The repository upgraded the MCP .NET SDK to `ModelContextProtocol 2.0.0` and kept the existing HTTP transport path for local debugging while enabling the newer Streamable HTTP behaviour. In 2.0, `HttpServerTransportOptions.EnableLegacySse` is marked obsolete (diagnostic `MCP9004`) because legacy SSE has no built-in request backpressure and is only recommended for trusted, isolated clients. This repository keeps the legacy SSE path only for the local-debugging workflow already covered by ADR-015, and the host disables stateless mode (`Stateless = false`) so the legacy SSE session state can be maintained. The obsolete warning is suppressed with a local-debugging justification comment rather than being ignored silently; if the host is ever exposed beyond that trusted, isolated local-process use case, the legacy SSE option should be removed and only Streamable HTTP served.
 
 ### Update 2026-08-06: SDK roll-forward for container builds
-The repository still targets `net10.0`, but the SDK pin in `global.json` now allows roll-forward
-to the newest installed SDK instead of staying on the same patch band. The `dotnet/sdk:10.0`
-container image currently provides SDK `10.0.400`, while the repository pin was `10.0.301` with
-`latestPatch`, which caused Docker builds to fail during `dotnet restore`. The updated policy keeps
-the pinned baseline while allowing newer .NET 10 SDK bands in local and container environments.
+The repository still targets `net10.0`, but the SDK pin in `global.json` now allows roll-forward to the newest installed SDK instead of staying on the same patch band. The `dotnet/sdk:10.0` container image currently provides SDK `10.0.400`, while the repository pin was `10.0.301` with `latestPatch`, which caused Docker builds to fail during `dotnet restore`. The updated policy keeps the pinned baseline while allowing newer .NET 10 SDK bands in local and container environments.
 
 **Consequences:**
 - Docker builds remain aligned with the current `dotnet/sdk:10.0` image.

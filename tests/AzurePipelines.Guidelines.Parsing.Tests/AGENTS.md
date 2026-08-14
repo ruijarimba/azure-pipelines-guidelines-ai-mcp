@@ -13,9 +13,9 @@ Unit tests for `AzurePipelines.Guidelines.Parsing` — YAML → AST transformati
 
 ## Test naming
 
-`Parse_GivenValidPipeline_ShouldReturnPipelineDocument`
-`Parse_GivenMalformedYaml_ShouldThrowPipelineParsingException`
-`Parse_GivenEmptyDocument_ShouldReturnEmptyPipeline`
+- `Parse_GivenValidPipeline_ShouldReturnPipelineDocument`
+- `Parse_GivenMalformedYaml_ShouldThrowPipelineParsingException`
+- `Parse_GivenEmptyDocument_ShouldReturnEmptyPipeline`
 
 ## Coverage expectations
 
@@ -25,5 +25,4 @@ Unit tests for `AzurePipelines.Guidelines.Parsing` — YAML → AST transformati
 
 ## Test data
 
-Store sample YAML strings inline or use embedded resources for complex fixtures.
-Never load YAML from the file system at test runtime — tests must be hermetic.
+Store sample YAML strings inline or use embedded resources for complex fixtures. Never load YAML from the file system at test runtime — tests must be hermetic.

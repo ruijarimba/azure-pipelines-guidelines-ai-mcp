@@ -2,8 +2,7 @@
 
 ## Purpose
 
-Contains one class per guideline rule. Each class implements `IGuidelineRule` from `Core` and
-corresponds to a specific `ADOG-{CATEGORY}-{NNN}` identifier from the companion manifest.
+Contains one class per guideline rule. Each class implements `IGuidelineRule` from `Core` and corresponds to a specific `ADOG-{CATEGORY}-{NNN}` identifier from the companion manifest.
 
 ## What belongs here
 

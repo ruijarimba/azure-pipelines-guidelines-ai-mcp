@@ -12,8 +12,7 @@ applyTo: "tests/**/*.cs"
 | Assertions | FluentAssertions |
 | Mocking / substitution | NSubstitute |
 
-Never use other assertion or mocking libraries in this repository.
-Never use xUnit's built-in `Assert` class; always use FluentAssertions.
+Never use other assertion or mocking libraries in this repository. Never use xUnit's built-in `Assert` class; always use FluentAssertions.
 
 ## Test method naming
 
@@ -85,9 +84,7 @@ reportgenerator `
   -reporttypes:Html
 ```
 
-The generated `./.artifacts/coverage/report/index.html` shows
-line, branch, and method coverage per file.
-Before committing, confirm the repository-wide line coverage is at or above 90%.
+The generated `./.artifacts/coverage/report/index.html` shows line, branch, and method coverage per file. Before committing, confirm the repository-wide line coverage is at or above 90%.
 
 ## What to avoid
 

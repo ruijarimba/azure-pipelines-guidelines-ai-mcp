@@ -77,8 +77,7 @@ No repository clone or .NET SDK is required. Create or edit `.vscode/mcp.json` i
 
 ### Option 2 — MCP server from a local clone
 
-Create or edit `.vscode/mcp.json` in your project to run the MCP host from an absolute repository
-path:
+Create or edit `.vscode/mcp.json` in your project to run the MCP host from an absolute repository path:
 
 ```json
 {

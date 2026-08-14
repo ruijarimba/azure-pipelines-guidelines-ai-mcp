@@ -2,11 +2,9 @@
 
 ## Purpose
 
-The **entry point** for the Model Context Protocol (MCP) server. Wires up dependency injection,
-registers the MCP host, and starts listening for AI assistant requests.
+The **entry point** for the Model Context Protocol (MCP) server. Wires up dependency injection, registers the MCP host, and starts listening for AI assistant requests.
 
-This is a thin shim — **no business logic lives here**. All analysis, rule, and protocol
-logic is in the `src/` class libraries.
+This is a thin shim — **no business logic lives here**. All analysis, rule, and protocol logic is in the `src/` class libraries.
 
 ## What belongs here
 
@@ -69,8 +67,6 @@ The host supports two transport modes. Choose the one that matches how the clien
 
 ## Distribution
 
-Retains local packaging configuration for the `adog-mcp` .NET global tool; this repository does
-not publish NuGet packages. The MCP server is also packaged as a Docker image for Docker Hub
-publication.
+Retains local packaging configuration for the `adog-mcp` .NET global tool; this repository does not publish NuGet packages. The MCP server is also packaged as a Docker image for Docker Hub publication.
 
 See `README.md` in this folder for day-to-day build, run, and debug instructions.

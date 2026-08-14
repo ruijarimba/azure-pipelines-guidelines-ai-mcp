@@ -57,9 +57,7 @@ public IReadOnlyList<Diagnostic> Analyze(PipelineDocument document) { … }
 
 ## Agent behaviour (code-style scope)
 
-Two rules from
-[`agent-behaviour.instructions.md`](agent-behaviour.instructions.md)
-are especially relevant when making code changes:
+Two rules from [`agent-behaviour.instructions.md`](agent-behaviour.instructions.md) are especially relevant when making code changes:
 
 - **Dependency hygiene** — never add or upgrade a NuGet package silently. Flag the package
   name, version, license, and reason to the human before adding it. All versions must be

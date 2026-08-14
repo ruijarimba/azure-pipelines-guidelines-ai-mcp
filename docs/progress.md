@@ -1,7 +1,6 @@
 # Work in Progress
 
-This file is the **session handoff note** for AI agents and human contributors.
-Update it before every commit so the next session starts with accurate context.
+This file is the **session handoff note** for AI agents and human contributors. Update it before every commit so the next session starts with accurate context.
 
 ## Current snapshot
 
@@ -82,8 +81,7 @@ Before committing, edit the sections below:
 
 ## Implemented rules
 
-All current `ADOG-*` guideline IDs from the companion manifest are already implemented in this
-repository.
+All current `ADOG-*` guideline IDs from the companion manifest are already implemented in this repository.
 
 | Rule ID | Class |
 | --- | --- |

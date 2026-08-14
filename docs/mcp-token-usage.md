@@ -1,20 +1,12 @@
 # MCP token usage guide
 
-This guide explains how each MCP capability affects the number of tokens an AI client spends
-when it uses the `azure-pipelines-guidelines` server. Use it to choose the operation that answers
-a question with the least amount of returned content.
+This guide explains how each MCP capability affects the number of tokens an AI client spends when it uses the `azure-pipelines-guidelines` server. Use it to choose the operation that answers a question with the least amount of returned content.
 
-For the full tool, resource, and prompt catalogue, see the
-[MCP server reference](mcp-reference.md). For the underlying analysis pipeline, see
-[the architecture guide](architecture.md#mcp-tool-surface).
+For the full tool, resource, and prompt catalogue, see the [MCP server reference](mcp-reference.md). For the underlying analysis pipeline, see [the architecture guide](architecture.md#mcp-tool-surface).
 
 ## Why this matters
 
-Every MCP tool, resource, or prompt result becomes part of the client's context. A response that
-returns the full guideline catalogue or every diagnostic from a large repository costs far more
-tokens than a response scoped to exactly what the client needs. The server is designed to return
-compact results by default and require an explicit opt-in for larger payloads, but the client
-still controls which operation it calls and with which parameters.
+Every MCP tool, resource, or prompt result becomes part of the client's context. A response that returns the full guideline catalogue or every diagnostic from a large repository costs far more tokens than a response scoped to exactly what the client needs. The server is designed to return compact results by default and require an explicit opt-in for larger payloads, but the client still controls which operation it calls and with which parameters.
 
 ## Summaries by default, detail on request
 
@@ -61,16 +53,11 @@ Resource endpoints are smaller and more predictable than repeatedly requesting t
 - `adog://guidelines/{id}` and `adog://guidelines/{id}/automation` return one guideline's full
   detail or automation status respectively, scoped to a single rule ID.
 
-Prefer these narrower resources over `adog://guidelines` (the full catalogue) whenever the client
-only needs a version check, a capability check, one category, or one guideline.
+Prefer these narrower resources over `adog://guidelines` (the full catalogue) whenever the client only needs a version check, a capability check, one category, or one guideline.
 
 ## Prompts are procedural, not data-heavy
 
-The predefined prompts (`review`, `review-category`, `review-guideline`, `explain-guideline`,
-`find-guidelines`, `list-guidelines`, `list-categories`) return instructions that tell the client
-which existing tool to call and how to present the result. They do not embed the full guideline
-catalogue or duplicate tool output, so invoking a prompt does not by itself add significant token
-cost beyond the tool call it triggers.
+The predefined prompts (`review`, `review-category`, `review-guideline`, `explain-guideline`, `find-guidelines`, `list-guidelines`, `list-categories`) return instructions that tell the client which existing tool to call and how to present the result. They do not embed the full guideline catalogue or duplicate tool output, so invoking a prompt does not by itself add significant token cost beyond the tool call it triggers.
 
 ## Practical guidance for AI clients
 

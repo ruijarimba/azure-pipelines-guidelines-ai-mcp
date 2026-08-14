@@ -4,10 +4,7 @@ applyTo: "**/*.cs"
 
 # C# implementation patterns
 
-These patterns apply to all C# code in this repository. They complement the rules in
-[`maintainability.instructions.md`](maintainability.instructions.md) and
-[`architecture.instructions.md`](architecture.instructions.md) with concrete,
-codebase-specific guidance.
+These patterns apply to all C# code in this repository. They complement the rules in [`maintainability.instructions.md`](maintainability.instructions.md) and [`architecture.instructions.md`](architecture.instructions.md) with concrete, codebase-specific guidance.
 
 > **Before changing any rule in this file:** re-read the reference sources recorded in
 > [`docs/decisions.md` — ADR-012](../../docs/decisions.md) and update that ADR if the
@@ -63,8 +60,7 @@ internal sealed class MyRule : IGuidelineRule
 
 ## 2. Static lookup sets
 
-Use `FrozenSet<T>` for any `static readonly` set that is written once and read many times.
-`FrozenSet<T>` is optimised for read-heavy workloads and is available from .NET 8.
+Use `FrozenSet<T>` for any `static readonly` set that is written once and read many times. `FrozenSet<T>` is optimised for read-heavy workloads and is available from .NET 8.
 
 ```csharp
 // Bad — mutable HashSet used as a constant lookup table.
@@ -76,19 +72,15 @@ private static readonly FrozenSet<string> _types =
     new[] { "string", "boolean" }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 ```
 
-Use the `System.Collections.Frozen` namespace. No `PackageReference` is needed — the type
-is part of the .NET 8+ BCL.
+Use the `System.Collections.Frozen` namespace. No `PackageReference` is needed — the type is part of the .NET 8+ BCL.
 
 ---
 
 ## 3. Logging in `src/` libraries
 
-`src/` projects reference `Microsoft.Extensions.Logging.Abstractions` only (see
-[architecture rules](architecture.instructions.md)). The `[LoggerMessage]` source generator
-requires the full `Microsoft.Extensions.Logging` package and must **not** be used in `src/`.
+`src/` projects reference `Microsoft.Extensions.Logging.Abstractions` only (see [architecture rules](architecture.instructions.md)). The `[LoggerMessage]` source generator requires the full `Microsoft.Extensions.Logging` package and must **not** be used in `src/`.
 
-Use `LoggerMessage.Define` static delegates instead, and wrap each one in a small private
-`static void` helper so call sites read cleanly.
+Use `LoggerMessage.Define` static delegates instead, and wrap each one in a small private `static void` helper so call sites read cleanly.
 
 ```csharp
 // Declaration — place near the top of the class, grouped together.
@@ -124,8 +116,7 @@ LogEvaluating(_logger, rule.GuidelineId.Value, document.RawContent);
 LogEvaluating(_logger, rule.GuidelineId.Value, document.FilePath);
 ```
 
-Treat any value sourced from external input (YAML, environment variables, config files)
-as untrusted. Log identifiers and counts; never log raw values.
+Treat any value sourced from external input (YAML, environment variables, config files) as untrusted. Log identifiers and counts; never log raw values.
 
 ---
 
@@ -229,8 +220,7 @@ private static partial Regex MappingStyleSecretPattern();
 
 ## 6. No empty conditional branches
 
-Never commit an `if` block whose body is empty or contains only a comment describing
-future work.
+Never commit an `if` block whose body is empty or contains only a comment describing future work.
 
 ```csharp
 // Bad — empty branch with a comment deferring the implementation.
@@ -242,15 +232,13 @@ if (options.IncludedCategories is { Count: > 0 })
 // Good — either implement it or remove the branch entirely.
 ```
 
-If the feature is not yet implemented, remove the branch and record it as a
-`// TODO #<issue>:` on the options property or in a separate issue.
+If the feature is not yet implemented, remove the branch and record it as a `// TODO #<issue>:` on the options property or in a separate issue.
 
 ---
 
 ## 7. Prefer `sealed` for concrete types
 
-Mark every concrete class `sealed` unless inheritance is explicitly required by a
-framework or test infrastructure.
+Mark every concrete class `sealed` unless inheritance is explicitly required by a framework or test infrastructure.
 
 - `sealed` communicates intent and enables JIT devirtualisation.
 - If a class is unsealed, add an XML comment explaining why.
@@ -259,8 +247,7 @@ framework or test infrastructure.
 
 ## 8. `ConfigureAwait` in library code
 
-All `await` expressions in `src/` library code must use `.ConfigureAwait(false)` to avoid
-capturing the synchronisation context.
+All `await` expressions in `src/` library code must use `.ConfigureAwait(false)` to avoid capturing the synchronisation context.
 
 ```csharp
 // Bad — captures context unnecessarily in a library.
@@ -276,9 +263,7 @@ This rule does not apply to test code under `tests/`.
 
 ## 9. Debuggability
 
-Debuggability is a first-class quality concern, on par with testability. Every type that
-appears in a watch window, test failure message, or log output must represent itself clearly
-without requiring a developer to expand every nested field.
+Debuggability is a first-class quality concern, on par with testability. Every type that appears in a watch window, test failure message, or log output must represent itself clearly without requiring a developer to expand every nested field.
 
 > **ADR reference:** ADR-014 in [`docs/decisions.md`](../../docs/decisions.md) records
 > the decision, the external sources that ground these rules, and the consequences.
@@ -287,8 +272,7 @@ without requiring a developer to expand every nested field.
 
 ### Rule 1: Override `ToString()` on every domain type
 
-**DO override `ToString()`** on every `record` and `class` in `src/` whose instances are
-inspected during debugging or appear in test output or log messages.
+**DO override `ToString()`** on every `record` and `class` in `src/` whose instances are inspected during debugging or appear in test output or log messages.
 
 ```csharp
 // Bad — auto-generated record dump: every field including large nested collections.
@@ -318,9 +302,7 @@ Rules for the body:
 
 ### Rule 2: Apply `[DebuggerDisplay]` to every type with a `ToString()` override
 
-**DO add `[DebuggerDisplay("{ToString(),nq}")]`** to every type that has a `ToString()`
-override. This controls the primary display in the debugger locals, watch, and autos panels
-and in hover tooltips, using `ToString()` as the single source of truth.
+**DO add `[DebuggerDisplay("{ToString(),nq}")]`** to every type that has a `ToString()` override. This controls the primary display in the debugger locals, watch, and autos panels and in hover tooltips, using `ToString()` as the single source of truth.
 
 ```csharp
 // Bad — debugger shows the verbose auto-generated record representation.
@@ -334,8 +316,7 @@ public sealed record StageNode(string? Name, ...)
 }
 ```
 
-For types that are not records and whose `ToString()` already returns a single property
-value, reference that property directly to avoid an unnecessary method call:
+For types that are not records and whose `ToString()` already returns a single property value, reference that property directly to avoid an unnecessary method call:
 
 ```csharp
 // GuidelineId.ToString() returns Value — use the property directly.
@@ -347,8 +328,7 @@ public sealed class GuidelineId : IEquatable<GuidelineId> { ... }
 
 ### Rule 3: Suppress large or redundant properties with `[DebuggerBrowsable]`
 
-**DO apply `[property: DebuggerBrowsable(DebuggerBrowsableState.Never)]`** to positional
-record parameters whose generated properties would clutter the watch window.
+**DO apply `[property: DebuggerBrowsable(DebuggerBrowsableState.Never)]`** to positional record parameters whose generated properties would clutter the watch window.
 
 ```csharp
 // Bad — RawContent expands to a multi-kilobyte YAML blob in the watch window.
@@ -371,8 +351,7 @@ Apply to properties that are:
 
 ### Rule 4: Test every `ToString()` override
 
-Every `ToString()` override must have dedicated tests in the corresponding `*Tests.cs` file
-(see [`testing.instructions.md`](testing.instructions.md)). Tests must cover:
+Every `ToString()` override must have dedicated tests in the corresponding `*Tests.cs` file (see [`testing.instructions.md`](testing.instructions.md)). Tests must cover:
 
 - The expected output for a well-populated instance.
 - Every logical branch in the formatting expression (named vs. unnamed, line known vs. unknown).

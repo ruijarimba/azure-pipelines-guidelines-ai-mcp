@@ -2,8 +2,7 @@
 
 This document describes which Azure Pipelines guidelines the local analyzer can evaluate from one YAML document. It separates deterministic local checks from recommendations that require repository context or human judgment.
 
-MCP clients can read this information from `adog://guidelines/{id}/automation`. Full guideline
-responses also include `automationStatus` and `automationReason`.
+MCP clients can read this information from `adog://guidelines/{id}/automation`. Full guideline responses also include `automationStatus` and `automationReason`.
 
 ## Status definitions
 

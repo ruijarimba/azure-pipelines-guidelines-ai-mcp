@@ -30,14 +30,11 @@
 | `Avoid` | `Warning` | Generally not a good idea, but there are exceptions. |
 | `Consider` | `Info` | Should generally be followed, but legitimate exceptions exist. |
 
-This mapping is used internally by the analysis engine to translate manifest severities into
-diagnostic levels. MCP tool output uses the recommendation labels (`do`, `donot`, `avoid`,
-`consider`) for all user-facing payloads.
+This mapping is used internally by the analysis engine to translate manifest severities into diagnostic levels. MCP tool output uses the recommendation labels (`do`, `donot`, `avoid`, `consider`) for all user-facing payloads.
 
 ### Two notations for the same severity
 
-The companion manifest (`guidelines.json`) uses lowercase, hyphenated strings.
-The C# `GuidelineSeverity` enum uses PascalCase. They mean the same thing:
+The companion manifest (`guidelines.json`) uses lowercase, hyphenated strings. The C# `GuidelineSeverity` enum uses PascalCase. They mean the same thing:
 
 | Manifest form | C# enum form |
 | --- | --- |
@@ -46,8 +43,7 @@ The C# `GuidelineSeverity` enum uses PascalCase. They mean the same thing:
 | `avoid` | `Avoid` |
 | `consider` | `Consider` |
 
-When you see `do-not` in a manifest or a prompt file, and `DoNot` in C# code or this glossary,
-they are the same value. Parsing code maps between the two forms.
+When you see `do-not` in a manifest or a prompt file, and `DoNot` in C# code or this glossary, they are the same value. Parsing code maps between the two forms.
 
 ---
 

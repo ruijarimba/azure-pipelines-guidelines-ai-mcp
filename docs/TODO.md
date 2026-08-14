@@ -20,8 +20,7 @@ The backlog below reflects the current state of the repository after the latest 
 
 ### 1. Improve comments and documentation for the MCP host
 
-Many classes, methods, and options lack comments. This is especially problematic for the MCP host,
-where options, profiles, launch settings, and transport choices control how the program runs.
+Many classes, methods, and options lack comments. This is especially problematic for the MCP host, where options, profiles, launch settings, and transport choices control how the program runs.
 
 - [x] Add inline comments explaining non-obvious code in the MCP host (`Program.cs`,
       `McpHostStartup.cs`, launch profiles, transport selection).
@@ -70,8 +69,7 @@ Related files:
 
 ### 4. Expand MCP capabilities with token-conscious defaults
 
-Improve MCP support without making clients load the full guideline catalogue or detailed rule
-content by default.
+Improve MCP support without making clients load the full guideline catalogue or detailed rule content by default.
 
 - [x] Surface `automationStatus` and its reason in single-guideline tools and resources by using
       `IGuidelineAutomationMetadataProvider`
@@ -105,11 +103,7 @@ Related files:
 
 ### 5. Document MCP token usage
 
-Create a user-facing document that explains how each MCP capability affects client token usage.
-Include practical guidance for keeping usage low: use focused lookups instead of full catalogues,
-return summaries by default, make detailed results opt-in, limit and page list results, omit empty
-fields, and keep prompts procedural. Explain that full-catalogue resources and large analysis
-results are the main token risks.
+Create a user-facing document that explains how each MCP capability affects client token usage. Include practical guidance for keeping usage low: use focused lookups instead of full catalogues, return summaries by default, make detailed results opt-in, limit and page list results, omit empty fields, and keep prompts procedural. Explain that full-catalogue resources and large analysis results are the main token risks.
 
 - [x] Create `docs/mcp-token-usage.md` and register it in `AzurePipelinesGuidelines.slnx`
 
@@ -121,9 +115,7 @@ Related files:
 
 ## Recent validation summary
 
-The current branch contains the completed MCP server, shared analysis stack, documentation, and
-Solution Explorer registration. The latest feature commit is `36a34a3`; the branch handoff and
-agent guidance were updated in `eab7f24`, `7201554`, and `55f428f`.
+The current branch contains the completed MCP server, shared analysis stack, documentation, and Solution Explorer registration. The latest feature commit is `36a34a3`; the branch handoff and agent guidance were updated in `eab7f24`, `7201554`, and `55f428f`.
 
 **Completed:**
 - ✅ Updated predefined MCP prompts to render guideline recommendations as `DO`, `DO-NOT`, `AVOID`,

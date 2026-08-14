@@ -4,8 +4,7 @@ applyTo: "**"
 
 # Solution file management
 
-This file explains how to add new files to the Visual Studio solution so they appear in
-Solution Explorer with the correct folder hierarchy.
+This file explains how to add new files to the Visual Studio solution so they appear in Solution Explorer with the correct folder hierarchy.
 
 ---
 
@@ -13,8 +12,7 @@ Solution Explorer with the correct folder hierarchy.
 
 **Every file that belongs to this repository must be visible in Visual Studio Solution Explorer.**
 
-Non-code files (`.md`, `.yml`, `.json`, `.props`, configuration files, etc.) are not
-automatically picked up by the .NET SDK build system. You must register them explicitly.
+Non-code files (`.md`, `.yml`, `.json`, `.props`, configuration files, etc.) are not automatically picked up by the .NET SDK build system. You must register them explicitly.
 
 ---
 
@@ -43,8 +41,7 @@ If you create `src/Core/AGENTS.md`, add this to `src/Core/AzurePipelines.Guideli
 
 ### Example 2: Solution-level file registration
 
-If you create `.github/instructions/new-instruction.instructions.md`, add this to
-`AzurePipelinesGuidelines.slnx`:
+If you create `.github/instructions/new-instruction.instructions.md`, add this to `AzurePipelinesGuidelines.slnx`:
 
 ```xml
 <Folder Name="/.github/">
@@ -123,9 +120,7 @@ If the answer to **any** question is "no", the registration is incorrect — fix
 
 ## Why this matters
 
-Files invisible to the IDE are invisible to human reviewers. This rule supports the
-**Human authority** principle ([agent-behaviour.instructions.md](agent-behaviour.instructions.md),
-Rule 2) by ensuring reviewers can see and oversee all agent-generated content.
+Files invisible to the IDE are invisible to human reviewers. This rule supports the **Human authority** principle ([agent-behaviour.instructions.md](agent-behaviour.instructions.md), Rule 2) by ensuring reviewers can see and oversee all agent-generated content.
 
 ---
 
@@ -142,6 +137,4 @@ Never defer registration to a later commit or "cleanup" step.
 
 ## Reference
 
-This is a summary of Rule 9 from
-[`.github/instructions/agent-behaviour.instructions.md`](agent-behaviour.instructions.md).
-If there is a conflict, the agent-behaviour file takes precedence.
+This is a summary of Rule 9 from [`.github/instructions/agent-behaviour.instructions.md`](agent-behaviour.instructions.md). If there is a conflict, the agent-behaviour file takes precedence.

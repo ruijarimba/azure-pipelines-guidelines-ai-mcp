@@ -2,9 +2,7 @@
 
 ## Purpose
 
-Orchestrates the full analysis pipeline: parse YAML → filter applicable rules → run rules →
-aggregate diagnostics into an `AnalysisResult`. This is the reusable entry point for hosts such
-as the MCP server and future analysis tools.
+Orchestrates the full analysis pipeline: parse YAML → filter applicable rules → run rules → aggregate diagnostics into an `AnalysisResult`. This is the reusable entry point for hosts such as the MCP server and future analysis tools.
 
 ## What belongs here
 

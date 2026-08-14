@@ -13,8 +13,7 @@ Unit tests for `AzurePipelines.Guidelines.Mcp` — MCP tool and resource handler
 
 ## What gets tested here
 
-Each MCP tool handler gets its own test class in `Tools/`: `{HandlerName}Tests.cs`.
-Each MCP resource handler gets its own test class in `Resources/`: `{HandlerName}Tests.cs`.
+Each MCP tool handler gets its own test class in `Tools/`: `{HandlerName}Tests.cs`. Each MCP resource handler gets its own test class in `Resources/`: `{HandlerName}Tests.cs`.
 
 For every handler:
 
@@ -24,9 +23,9 @@ For every handler:
 
 ## Test naming
 
-`ListGuidelines_GivenEmptyRepository_ShouldReturnEmptyArray`
-`GetGuidelineAsync_GivenUnknownId_ShouldReturnErrorResponse`
-`AnalyzeTemplateAsync_GivenValidYaml_ShouldReturnDiagnostics`
+- `ListGuidelines_GivenEmptyRepository_ShouldReturnEmptyArray`
+- `GetGuidelineAsync_GivenUnknownId_ShouldReturnErrorResponse`
+- `AnalyzeTemplateAsync_GivenValidYaml_ShouldReturnDiagnostics`
 
 ## Coverage expectations
 

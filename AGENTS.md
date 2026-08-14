@@ -1,21 +1,14 @@
 # AGENTS.md
 
-This file guides AI coding agents working in this repository.
-Read this file **and the `AGENTS.md` in each subdirectory** before making any changes.
+This file guides AI coding agents working in this repository. Read this file **and the `AGENTS.md` in each subdirectory** before making any changes.
 
 ## What this repository does
 
-Provides a .NET 10 MCP server built on top of the
-[Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
-machine-readable [manifest](https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/data/guidelines.json):
+Provides a .NET 10 MCP server built on top of the [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines) machine-readable [manifest](https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/data/guidelines.json):
 
-The **MCP server** exposes guideline lookup and Azure Pipelines YAML analysis as
-[Model Context Protocol](https://modelcontextprotocol.io) tools and resources that
-AI assistants can call.
+The **MCP server** exposes guideline lookup and Azure Pipelines YAML analysis as [Model Context Protocol](https://modelcontextprotocol.io) tools and resources that AI assistants can call.
 
-The guidelines themselves live in the companion repository. Their machine-readable
-manifest is at `data/guidelines.json` and uses stable rule IDs of the form
-`ADOG-{CATEGORY}-{NNN}` (for example, `ADOG-STEPS-001`).
+The guidelines themselves live in the companion repository. Their machine-readable manifest is at `data/guidelines.json` and uses stable rule IDs of the form `ADOG-{CATEGORY}-{NNN}` (for example, `ADOG-STEPS-001`).
 
 ## Repository layout
 
@@ -29,8 +22,7 @@ manifest is at `data/guidelines.json` and uses stable rule IDs of the form
 
 ## Start here — key documents
 
-Read these first when starting a session. They carry the durable context so goals stay
-consistent across sessions:
+Read these first when starting a session. They carry the durable context so goals stay consistent across sessions:
 
 | Document | Purpose |
 | --- | --- |
@@ -41,10 +33,7 @@ consistent across sessions:
 
 ## Agent behaviour
 
-The canonical rules are in
-[.github/instructions/agent-behaviour.instructions.md](.github/instructions/agent-behaviour.instructions.md) and
-[ADR-010 in docs/decisions.md](docs/decisions.md).
-They apply to every task in this repository.
+The canonical rules are in [.github/instructions/agent-behaviour.instructions.md](.github/instructions/agent-behaviour.instructions.md) and [ADR-010 in docs/decisions.md](docs/decisions.md). They apply to every task in this repository.
 
 ### Quick decision guide
 
@@ -123,9 +112,7 @@ Do not add or plan features for:
 - CI/CD integrations, pipeline tasks, build or release hooks, or similar automation.
 - Pull-request review, changed-file analysis, repository-event, or code-review workflows.
 
-Keep this repository focused on MCP guideline lookup, pipeline and template analysis, diagnostics,
-fix guidance, and the documented roadmap. If a request implies one of these integrations, ask for
-clarification instead of implementing it.
+Keep this repository focused on MCP guideline lookup, pipeline and template analysis, diagnostics, fix guidance, and the documented roadmap. If a request implies one of these integrations, ask for clarification instead of implementing it.
 
 ## Architecture — dependency graph
 
@@ -133,8 +120,7 @@ Strict layered flow. **No cycles. No upward references.**
 
 The detailed dependency graph lives in [the architecture guide](docs/architecture.md).
 
-The dependency flow is `Mcp.Host → Mcp → Analysis → Parsing/Rules → Core`. Arrows point from
-dependent to dependency. `Core` imports **no other `src/` project**.
+The dependency flow is `Mcp.Host → Mcp → Analysis → Parsing/Rules → Core`. Arrows point from dependent to dependency. `Core` imports **no other `src/` project**.
 
 ## Quality standards
 
@@ -161,12 +147,9 @@ dependent to dependency. `Core` imports **no other `src/` project**.
 
 ## Packaging scope
 
-NuGet packaging and publishing are currently out of scope for this repository. Do not change
-package metadata, packaging settings, or release workflows unless a human explicitly asks for
-that work.
+NuGet packaging and publishing are currently out of scope for this repository. Do not change package metadata, packaging settings, or release workflows unless a human explicitly asks for that work.
 
-When you do touch package-related files, keep the changes minimal and avoid introducing new
-packaging conventions or publish steps.
+When you do touch package-related files, keep the changes minimal and avoid introducing new packaging conventions or publish steps.
 
 ## Key domain vocabulary
 

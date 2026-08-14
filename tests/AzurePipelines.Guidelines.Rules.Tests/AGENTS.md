@@ -16,9 +16,9 @@ For every rule:
 
 ## Test naming
 
-`RuleName_GivenCompliantDocument_ShouldReturnNoDiagnostics`
-`RuleName_GivenViolation_ShouldReturnDiagnosticWithCorrectGuidelineId`
-`RuleName_GivenNullInput_ShouldReturnNoDiagnostics`
+- `RuleName_GivenCompliantDocument_ShouldReturnNoDiagnostics`
+- `RuleName_GivenViolation_ShouldReturnDiagnosticWithCorrectGuidelineId`
+- `RuleName_GivenNullInput_ShouldReturnNoDiagnostics`
 
 ## Coverage expectations
 
@@ -28,5 +28,4 @@ For every rule:
 
 ## Test data
 
-Use in-memory `PipelineDocument` instances built via object initializers.
-For complex ASTs, consider a fluent builder or helper methods in a shared test utilities class.
+Use in-memory `PipelineDocument` instances built via object initializers. For complex ASTs, consider a fluent builder or helper methods in a shared test utilities class.

@@ -2,11 +2,9 @@
 
 ## Purpose
 
-The innermost layer of the solution. Owns all **domain contracts**: models, interfaces, enums,
-and value objects that every other project depends on.
+The innermost layer of the solution. Owns all **domain contracts**: models, interfaces, enums, and value objects that every other project depends on.
 
-This project must remain dependency-free with respect to other `src/` projects and must
-introduce no NuGet dependencies beyond the .NET BCL.
+This project must remain dependency-free with respect to other `src/` projects and must introduce no NuGet dependencies beyond the .NET BCL.
 
 ## What belongs here
 
@@ -90,8 +88,7 @@ mindmap
 
 ## Enumerations
 
-The canonical definitions live in [`docs/glossary.md`](../../docs/glossary.md).
-This project implements them as C# enums:
+The canonical definitions live in [`docs/glossary.md`](../../docs/glossary.md). This project implements them as C# enums:
 
 | Enum | Values |
 | --- | --- |
@@ -99,5 +96,4 @@ This project implements them as C# enums:
 | `GuidelineSeverity` | `Do`, `DoNot`, `Avoid`, `Consider` |
 | `DetectionKind` | `Regex`, `YamlPath`, `Heuristic` |
 
-Severity → diagnostic level mapping is defined in the glossary; implement it as a pure
-mapping method or a switch expression on `GuidelineSeverity`.
+Severity → diagnostic level mapping is defined in the glossary; implement it as a pure mapping method or a switch expression on `GuidelineSeverity`.

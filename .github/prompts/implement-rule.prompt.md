@@ -4,8 +4,7 @@ mode: agent
 
 # Implement a new `IGuidelineRule`
 
-Use this prompt when adding a rule that maps to a specific `ADOG-{CATEGORY}-{NNN}` guideline.
-This checklist keeps the rule implementation, registration, tests, and diagnostics aligned with the repository conventions.
+Use this prompt when adding a rule that maps to a specific `ADOG-{CATEGORY}-{NNN}` guideline. This checklist keeps the rule implementation, registration, tests, and diagnostics aligned with the repository conventions.
 
 ## Inputs required
 

@@ -6,8 +6,7 @@ applyTo: "**/*.cs"
 
 ## Allowed dependency graph
 
-The only permitted internal project references are listed below.
-Any reference outside this graph is a build or architecture error.
+The only permitted internal project references are listed below. Any reference outside this graph is a build or architecture error.
 
 ```
 Parsing  → Core
@@ -38,19 +37,15 @@ Mcp.Host → Mcp                   [executable — not a NuGet package]
 
 ## No static mutable state
 
-All dependencies are injected through constructors. No `static` mutable fields on
-production classes. No service locator pattern.
+All dependencies are injected through constructors. No `static` mutable fields on production classes. No service locator pattern.
 
 ## NuGet dependency hygiene for `src/` projects
 
-Prefer `*.Abstractions` packages over their full counterparts in `src/` libraries.
-Full runtime packages (`Microsoft.Extensions.Hosting`, etc.) belong in `tools/` only.
+Prefer `*.Abstractions` packages over their full counterparts in `src/` libraries. Full runtime packages (`Microsoft.Extensions.Hosting`, etc.) belong in `tools/` only.
 
 ## Agent behaviour (architecture scope)
 
-Two rules from
-[`agent-behaviour.instructions.md`](agent-behaviour.instructions.md)
-are especially relevant when changing architecture or project references:
+Two rules from [`agent-behaviour.instructions.md`](agent-behaviour.instructions.md) are especially relevant when changing architecture or project references:
 
 - **No scope creep** — do not refactor, rename, or restructure layers beyond what the
   stated task requires. Architectural changes affect all consumers; flag them and get

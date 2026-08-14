@@ -64,9 +64,7 @@ The tables below show the complete MCP surface. Use the linked sections for deta
 
 [Model Context Protocol (MCP)](https://modelcontextprotocol.io) is an open standard that lets AI assistants connect to external tools and data sources. Think of it as a plugin system for AI: instead of relying only on training data, the assistant calls a running server to get live, structured results.
 
-`adog-mcp` supports two ways for a client to connect: a locally started process that uses
-standard input/output (`stdio`), and an HTTP endpoint. Choose the transport that matches where
-the client and server run. The server does not require one transport to be primary.
+`adog-mcp` supports two ways for a client to connect: a locally started process that uses standard input/output (`stdio`), and an HTTP endpoint. Choose the transport that matches where the client and server run. The server does not require one transport to be primary.
 
 Without the MCP server, the AI can only advise based on training data. With it running, the AI analyzes your actual pipeline file against the current guidelines and returns precise, rule-keyed diagnostics.
 
@@ -104,49 +102,34 @@ The server can run as a child process of the AI client or as a separately runnin
 
 ## Choose a transport
 
-Choose the transport based on the deployment boundary and your MCP client support. Both
-transports expose the same tools and resources.
+Choose the transport based on the deployment boundary and your MCP client support. Both transports expose the same tools and resources.
 
 | Transport | Use it when | Connection and lifecycle | Key considerations |
 | --- | --- | --- | --- |
 | `stdio` | The client starts the server on the same machine. | The client communicates with its child process through `stdin` and `stdout`. | No listening port. The client owns the process lifetime. |
 | HTTP transport | The client connects to an already-running server. | The client sends MCP requests to the `/mcp` HTTP endpoint. | Supports local debugging and remote hosting. Secure remote access with HTTPS, authentication, and authorization. |
 
-`stdio` is the current executable default. It is not a general recommendation over HTTP. It is
-the practical default for clients that launch a local command, including the Docker command in
-this repository.
+`stdio` is the current executable default. It is not a general recommendation over HTTP. It is the practical default for clients that launch a local command, including the Docker command in this repository.
 
-Use the HTTP transport when the client must connect to a server that is already running, such as a
-local debugging setup or a hosted deployment. The host uses the HTTP endpoint at `/mcp` for this
-mode. As of the MCP 2.0 SDK, this endpoint serves the modern **Streamable HTTP** transport by
-default and additionally accepts the legacy HTTP+SSE transport for backward compatibility with
-older SSE-only clients. The `Debug` launch profile is the recommended Visual Studio entry point
-for local debugging; the existing `SSE` launch-profile and `--transport sse` selector names remain
-for compatibility and start the same HTTP host with both transports enabled.
+Use the HTTP transport when the client must connect to a server that is already running, such as a local debugging setup or a hosted deployment. The host uses the HTTP endpoint at `/mcp` for this mode. As of the MCP 2.0 SDK, this endpoint serves the modern **Streamable HTTP** transport by default and additionally accepts the legacy HTTP+SSE transport for backward compatibility with older SSE-only clients. The `Debug` launch profile is the recommended Visual Studio entry point for local debugging; the existing `SSE` launch-profile and `--transport sse` selector names remain for compatibility and start the same HTTP host with both transports enabled.
 
 ### HTTP endpoint
 
-Use an MCP client that supports the HTTP transport when you want the client to connect to an
-already-running host. Configure the client with this endpoint:
+Use an MCP client that supports the HTTP transport when you want the client to connect to an already-running host. Configure the client with this endpoint:
 
 ```text
 http://localhost:5050/mcp
 ```
 
-The exact startup method depends on the host environment. The important point is that the client
-must support the selected transport and connect to the running server endpoint.
+The exact startup method depends on the host environment. The important point is that the client must support the selected transport and connect to the running server endpoint.
 
 ## Installation
 
 ### Option 1 — Docker Hub image
 
-**Prerequisites:** [Docker Desktop](https://docs.docker.com/get-docker/) and an MCP client that
-supports stdio servers. This is the fastest way to try the server: it does not require a repository
-clone, the .NET SDK, or a local build.
+**Prerequisites:** [Docker Desktop](https://docs.docker.com/get-docker/) and an MCP client that supports stdio servers. This is the fastest way to try the server: it does not require a repository clone, the .NET SDK, or a local build.
 
-The published image uses HTTP by default, so set `MCP_TRANSPORT=stdio` when an MCP client starts
-the container as a child process. For GitHub Copilot in VS Code, create or edit `.vscode/mcp.json`
-in the workspace you want to use:
+The published image uses HTTP by default, so set `MCP_TRANSPORT=stdio` when an MCP client starts the container as a child process. For GitHub Copilot in VS Code, create or edit `.vscode/mcp.json` in the workspace you want to use:
 
 ```json
 {
@@ -169,10 +152,7 @@ in the workspace you want to use:
 }
 ```
 
-Restart or reload the MCP server from VS Code after saving the file. The container can analyze
-inline YAML immediately. To analyze files with `analyze_template`, mount only the intended
-workspace directory as read-only and pass the corresponding container path; see the [file-access
-boundary](#file-access-boundary) guidance below.
+Restart or reload the MCP server from VS Code after saving the file. The container can analyze inline YAML immediately. To analyze files with `analyze_template`, mount only the intended workspace directory as read-only and pass the corresponding container path; see the [file-access boundary](#file-access-boundary) guidance below.
 
 ### Option 2 — Local clone
 
@@ -184,13 +164,11 @@ Run the MCP server from the repository root:
 pwsh ./scripts/run-mcp-local.ps1
 ```
 
-The script starts the server over standard input/output. It waits for an MCP client request;
-that is expected. You can also run `dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host`.
+The script starts the server over standard input/output. It waits for an MCP client request; that is expected. You can also run `dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host`.
 
 ## Configuration
 
-For details about adding and managing MCP servers in VS Code, see the official
-[MCP server documentation](https://code.visualstudio.com/docs/agent-customization/mcp-servers).
+For details about adding and managing MCP servers in VS Code, see the official [MCP server documentation](https://code.visualstudio.com/docs/agent-customization/mcp-servers).
 
 ### Docker Hub image
 
@@ -249,9 +227,7 @@ The MCP server exposes six tools plus resource-based catalogue endpoints in the 
 
 ### `analyze_template`
 
-Analyzes one Azure Pipelines pipeline or template. Use inline `yaml` content or one `fileOrPath`
-value. A directory is scanned recursively for supported YAML files. Templates can define steps,
-jobs, stages, or variables.
+Analyzes one Azure Pipelines pipeline or template. Use inline `yaml` content or one `fileOrPath` value. A directory is scanned recursively for supported YAML files. Templates can define steps, jobs, stages, or variables.
 
 **Input:**
 - `yaml` (string, optional) — Inline pipeline or template YAML. Pass this or `fileOrPath`, not both.
@@ -265,9 +241,7 @@ jobs, stages, or variables.
 **Returns:**
 - An object containing `summary` and `diagnostics`.
 
-`summary` includes `filesAnalyzed`, `filesWithFindings`, and `totalFindings`. When findings exist,
-it also includes `byRecommendation`, `byCategory`, and `byRule` count maps. The detailed `diagnostics`
-array contains `ruleId`, `recommendation`, `message`, and optional `line` and `column` values.
+`summary` includes `filesAnalyzed`, `filesWithFindings`, and `totalFindings`. When findings exist, it also includes `byRecommendation`, `byCategory`, and `byRule` count maps. The detailed `diagnostics` array contains `ruleId`, `recommendation`, `message`, and optional `line` and `column` values.
 
 Example:
 
@@ -293,20 +267,13 @@ Example:
 }
 ```
 
-The summary is calculated server-side so clients can first identify the number, recommendation type,
-category, and rule concentration of findings before processing every diagnostic. Count maps are
-sorted deterministically, and empty maps are omitted.
+The summary is calculated server-side so clients can first identify the number, recommendation type, category, and rule concentration of findings before processing every diagnostic. Count maps are sorted deterministically, and empty maps are omitted.
 
 #### File-access boundary
 
-The server reads files with the permissions of the process started by your AI client. Use only
-workspace paths that you intend the server to analyze. Do not configure the client to run the
-server with access to directories that contain secrets, credentials, or unrelated sensitive files.
+The server reads files with the permissions of the process started by your AI client. Use only workspace paths that you intend the server to analyze. Do not configure the client to run the server with access to directories that contain secrets, credentials, or unrelated sensitive files.
 
-When using Docker, the container cannot read host files unless you explicitly mount a directory.
-Mount only the workspace or pipeline directory you want to analyze as read-only, then pass paths
-inside that container mount to `analyze_template`. For example, add these arguments before
-the `adog-mcp:local` image tag in the MCP client configuration:
+When using Docker, the container cannot read host files unless you explicitly mount a directory. Mount only the workspace or pipeline directory you want to analyze as read-only, then pass paths inside that container mount to `analyze_template`. For example, add these arguments before the `adog-mcp:local` image tag in the MCP client configuration:
 
 ```json
 [
@@ -315,15 +282,11 @@ the `adog-mcp:local` image tag in the MCP client configuration:
 ]
 ```
 
-Use `/workspace/azure-pipelines.yml` as the `fileOrPath` value when calling the file-path analysis tool. Replace the
-example source path with the absolute host path that Docker Desktop can access.
+Use `/workspace/azure-pipelines.yml` as the `fileOrPath` value when calling the file-path analysis tool. Replace the example source path with the absolute host path that Docker Desktop can access.
 
 ### `explain_diagnostic`
 
-Explains a single Azure Pipelines guideline diagnostic in focused detail. Pass the `guidelineId`
-from a diagnostic (for example, from an `analyze_template` result) to get its full detail payload,
-without fetching the whole catalogue. Optionally echo back the diagnostic's `message`, `filePath`,
-`line`, and `column` so the response stays paired with the original finding.
+Explains a single Azure Pipelines guideline diagnostic in focused detail. Pass the `guidelineId` from a diagnostic (for example, from an `analyze_template` result) to get its full detail payload, without fetching the whole catalogue. Optionally echo back the diagnostic's `message`, `filePath`, `line`, and `column` so the response stays paired with the original finding.
 
 **Input:**
 - `guidelineId` (string, required) — The stable guideline identifier, e.g. `ADOG-STEPS-001`.
@@ -356,10 +319,7 @@ Resource endpoints are useful when a client wants to cache the catalogue or fetc
 - `adog://guidelines/version` returns a small JSON object with the current catalogue version, for example `{"version":"..."}`. Clients can cache this and skip reloading the catalogue when it is unchanged.
 - `adog://capabilities` returns a compact, cacheable description of the server version, catalogue version, supported transports, available tools, resources, and future capability flags.
 
-The capabilities resource is intended for client discovery rather than analysis. Its `tools`,
-`resources`, and `prompts` arrays describe the currently exposed MCP surface. The `supports`
-object reports optional features that clients should not assume are available. Automation metadata
-and prompts are supported.
+The capabilities resource is intended for client discovery rather than analysis. Its `tools`, `resources`, and `prompts` arrays describe the currently exposed MCP surface. The `supports` object reports optional features that clients should not assume are available. Automation metadata and prompts are supported.
 
 Example capability fields:
 
@@ -379,15 +339,11 @@ Example capability fields:
 - `adog://guidelines/{id}` returns the full detail for one guideline, such as `adog://guidelines/ADOG-STEPS-001`.
 - `adog://guidelines/{id}/automation` returns the local automation status and reason for one guideline.
 
-Full guideline responses from `get_guideline` with `detail=full` and `adog://guidelines/{id}` also
-include `automationStatus` and `automationReason`. The status is `enforceable`, `heuristic`, or
-`notAutomatable`.
+Full guideline responses from `get_guideline` with `detail=full` and `adog://guidelines/{id}` also include `automationStatus` and `automationReason`. The status is `enforceable`, `heuristic`, or `notAutomatable`.
 
 ## Prompts
 
-The server exposes read-only MCP prompts. In VS Code, restart or reload the MCP connection and
-type `/` in GitHub Copilot Chat to find them. Prompt names are registered without the leading
-slash; the client displays them as slash commands.
+The server exposes read-only MCP prompts. In VS Code, restart or reload the MCP connection and type `/` in GitHub Copilot Chat to find them. Prompt names are registered without the leading slash; the client displays them as slash commands.
 
 | Prompt | Inputs | Purpose |
 | --- | --- | --- |
@@ -399,14 +355,9 @@ slash; the client displays them as slash commands.
 | `list-guidelines` | `category` (optional) | Lists guideline summaries. |
 | `list-categories` | None | Lists supported guideline categories. |
 
-Prompts return instructions to the MCP client. The client invokes the existing analysis or
-catalogue tool named by the prompt. These prompts do not modify files, generate patches, or apply
-fixes.
+Prompts return instructions to the MCP client. The client invokes the existing analysis or catalogue tool named by the prompt. These prompts do not modify files, generate patches, or apply fixes.
 
-User-facing prompt output uses guideline recommendation labels: `DO`, `DO-NOT`, `AVOID`, and
-`CONSIDER`. The prompts do not ask the client to present diagnostic severity labels such as
-`Error`, `Warning`, or `Info`. Raw analysis responses may still contain `severity` fields for
-machine consumers, but the predefined prompts present recommendations to users.
+User-facing prompt output uses guideline recommendation labels: `DO`, `DO-NOT`, `AVOID`, and `CONSIDER`. The prompts do not ask the client to present diagnostic severity labels such as `Error`, `Warning`, or `Info`. Raw analysis responses may still contain `severity` fields for machine consumers, but the predefined prompts present recommendations to users.
 
 ## Usage examples
 
@@ -440,24 +391,20 @@ The AI can filter by category (e.g., `ADOG-JOBS-*`, `ADOG-STEPS-*`) or specific 
 
 ## Debug through HTTP with Visual Studio
 
-`stdio` keeps the protocol stream tied to the client process. That makes it hard to debug the
-server inside Visual Studio while a separate MCP client sends requests.
+`stdio` keeps the protocol stream tied to the client process. That makes it hard to debug the server inside Visual Studio while a separate MCP client sends requests.
 
-For that workflow, start the host HTTP transport. The server listens on a local HTTP port, so
-you can start it in Visual Studio and connect a supported client to the running instance.
+For that workflow, start the host HTTP transport. The server listens on a local HTTP port, so you can start it in Visual Studio and connect a supported client to the running instance.
 
 ### 1. Start the server in Visual Studio
 
-In Visual Studio, set the run/debug profile to **Debug** before you start debugging. The profile
-is the recommended local-debug entry point and starts the host HTTP transport:
+In Visual Studio, set the run/debug profile to **Debug** before you start debugging. The profile is the recommended local-debug entry point and starts the host HTTP transport:
 
 1. Open the `tools/AzurePipelines.Guidelines.Mcp.Host` project.
 2. In the toolbar, click the run/debug profile dropdown (normally shows the project name).
 3. Select **Debug**.
 4. Press **F5** (or choose **Debug &gt; Start Debugging**).
 
-The server starts on `http://localhost:5050/mcp` by default. The process stays alive as long as
-the debugger is attached, and breakpoints in the host and library projects will be hit.
+The server starts on `http://localhost:5050/mcp` by default. The process stays alive as long as the debugger is attached, and breakpoints in the host and library projects will be hit.
 
 To start from the command line instead of Visual Studio:
 
@@ -480,14 +427,11 @@ Edit `.vscode/mcp.json` in the workspace you want the AI to analyze:
 }
 ```
 
-Save the file. VS Code will connect to the running server. You do not need to restart the
-server when you change the client configuration.
+Save the file. VS Code will connect to the running server. You do not need to restart the server when you change the client configuration.
 
 ### 3. Stop the debug session
 
-The server runs only while the Visual Studio debugger is attached. To stop it, detach or stop
-debugging in Visual Studio. The VS Code client will lose its connection until you start the
-server again.
+The server runs only while the Visual Studio debugger is attached. To stop it, detach or stop debugging in Visual Studio. The VS Code client will lose its connection until you start the server again.
 
 ### Debug and hosting notes
 

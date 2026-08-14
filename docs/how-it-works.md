@@ -1,8 +1,6 @@
 # How it works
 
-This document explains the two-repository model, the MCP request lifecycle, and the internal
-analysis pipeline. For the dependency graph and layer responsibilities, see
-[the architecture guide](architecture.md).
+This document explains the two-repository model, the MCP request lifecycle, and the internal analysis pipeline. For the dependency graph and layer responsibilities, see [the architecture guide](architecture.md).
 
 ## The two-repository model
 
@@ -13,12 +11,9 @@ This project is one half of a two-repository system.
 | [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines) | Defines the rules. Each rule has an ID, severity, detection hints, and fix guidance, stored in `data/guidelines.json`. |
 | [this repository](https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp) | Implements the tooling that reads the manifest and enforces the rules. |
 
-Keeping rule definitions and tool implementation in separate repositories means either can evolve
-independently. The tooling loads the manifest at startup; updating rules does not require
-rebuilding the tools.
+Keeping rule definitions and tool implementation in separate repositories means either can evolve independently. The tooling loads the manifest at startup; updating rules does not require rebuilding the tools.
 
-The analysis pipeline is static, deterministic, and rule-based. The connected AI client may explain
-the returned results, but that explanation does not come from the server.
+The analysis pipeline is static, deterministic, and rule-based. The connected AI client may explain the returned results, but that explanation does not come from the server.
 
 ## The analysis pipeline
 
@@ -40,8 +35,7 @@ graph TD
     E -->|"no"| G --> H
 ```
 
-Each `IGuidelineRule` implementation maps to one `ADOG-{CATEGORY}-{NNN}` rule from the manifest.
-The rule examines the parsed AST and returns `Diagnostic` instances for each violation it finds.
+Each `IGuidelineRule` implementation maps to one `ADOG-{CATEGORY}-{NNN}` rule from the manifest. The rule examines the parsed AST and returns `Diagnostic` instances for each violation it finds.
 
 ## How the MCP server handles a request
 
@@ -67,13 +61,9 @@ sequenceDiagram
     AI->>Dev: explains violations and fix suggestions
 ```
 
-The MCP server supports both a local **stdio** transport and an **HTTP transport** for local
-debugging or hosted connections. The stdio mode launches `adog-mcp` as a child process and uses
-`stdin`/`stdout`; the HTTP mode exposes the `/mcp` endpoint and also supports the legacy SSE
-compatibility path for local debugging workflows.
+The MCP server supports both a local **stdio** transport and an **HTTP transport** for local debugging or hosted connections. The stdio mode launches `adog-mcp` as a child process and uses `stdin`/`stdout`; the HTTP mode exposes the `/mcp` endpoint and also supports the legacy SSE compatibility path for local debugging workflows.
 
-The MCP server exposes six tools: one analysis tool and five guideline lookup tools, plus
-resource endpoints for the guideline catalogue.
+The MCP server exposes six tools: one analysis tool and five guideline lookup tools, plus resource endpoints for the guideline catalogue.
 
 - `analyze_template` accepts exactly one of inline `yaml` or a `fileOrPath` file or directory
   target. It covers full pipelines and steps, jobs, stages, and variables templates.
@@ -87,11 +77,7 @@ resource endpoints for the guideline catalogue.
   `adog://guidelines/category/{category}` let clients cache the catalogue and fetch narrower
   slices of data.
 
-The analysis tool accepts an optional `guidelineIds` parameter. Pass a comma-separated list such as
-`ADOG-STEPS-001,ADOG-JOBS-006` to restrict analysis to specific rules. By default, only rules with
-automation status `Enforceable` are checked. Set `includeNonEnforceable: true` to also run
-heuristic and non-automatable rules. When `guidelineIds` is provided, the enforceable-only filter
-is bypassed — the explicit list already expresses the caller's intent.
+The analysis tool accepts an optional `guidelineIds` parameter. Pass a comma-separated list such as `ADOG-STEPS-001,ADOG-JOBS-006` to restrict analysis to specific rules. By default, only rules with automation status `Enforceable` are checked. Set `includeNonEnforceable: true` to also run heuristic and non-automatable rules. When `guidelineIds` is provided, the enforceable-only filter is bypassed — the explicit list already expresses the caller's intent.
 
 ## Detection kinds
 
@@ -103,9 +89,7 @@ Each guideline in the manifest specifies how a violation should be detected.
 | `YamlPath` | Queries specific nodes in the parsed AST | Phase 1 ✓ |
 | `Heuristic` | Requires reasoning about intent or architecture | Phase 2 (LLM-assisted) |
 
-Phase 1 implements all `Regex` and `YamlPath` rules. `Heuristic` rules are deferred to Phase 2
-because they require contextual reasoning that static analysis cannot reliably provide. See
-[ADR-013 in the architecture decisions record](decisions.md) for the rationale.
+Phase 1 implements all `Regex` and `YamlPath` rules. `Heuristic` rules are deferred to Phase 2 because they require contextual reasoning that static analysis cannot reliably provide. See [ADR-013 in the architecture decisions record](decisions.md) for the rationale.
 
 ## Guideline rule IDs
 
@@ -123,5 +107,4 @@ Rule IDs appear in:
 - The manifest (`data/guidelines.json` in the companion repository)
 - The `IGuidelineRule.GuidelineId` property of each rule implementation
 
-For the full severity mapping (`Do`/`DoNot` → Error, `Avoid` → Warning, `Consider` → Info), see
-[the glossary reference](glossary.md).
+For the full severity mapping (`Do`/`DoNot` → Error, `Avoid` → Warning, `Consider` → Info), see [the glossary reference](glossary.md).

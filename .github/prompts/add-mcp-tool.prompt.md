@@ -4,8 +4,7 @@ mode: agent
 
 # Add a new MCP tool handler
 
-Use this prompt when exposing a new capability via the Model Context Protocol server.
-This checklist keeps the handler, registration, tests, and transport constraints aligned with the repository standards.
+Use this prompt when exposing a new capability via the Model Context Protocol server. This checklist keeps the handler, registration, tests, and transport constraints aligned with the repository standards.
 
 ## Inputs required
 

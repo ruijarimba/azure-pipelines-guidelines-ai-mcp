@@ -2,8 +2,7 @@
 
 ## Purpose
 
-Implements the Model Context Protocol (MCP) server logic. Exposes guideline lookup and
-Azure Pipelines YAML analysis as MCP **tools** and **resources** that AI assistants can call.
+Implements the Model Context Protocol (MCP) server logic. Exposes guideline lookup and Azure Pipelines YAML analysis as MCP **tools** and **resources** that AI assistants can call.
 
 ## What belongs here
 

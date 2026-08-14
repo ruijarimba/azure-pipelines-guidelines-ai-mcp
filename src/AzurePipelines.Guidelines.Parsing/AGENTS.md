@@ -2,8 +2,7 @@
 
 ## Purpose
 
-Transforms raw Azure Pipelines YAML text into the `PipelineDocument` AST defined in `Core`.
-**This is the only project in the solution that knows about YamlDotNet.**
+Transforms raw Azure Pipelines YAML text into the `PipelineDocument` AST defined in `Core`. **This is the only project in the solution that knows about YamlDotNet.**
 
 ## What belongs here
 
