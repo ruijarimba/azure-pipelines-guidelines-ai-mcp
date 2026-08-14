@@ -2,24 +2,17 @@
 
 ![Status: proof of concept](https://img.shields.io/badge/status-proof--of--concept-orange)
 
-This is a PoC MCP server that can be used by AI assistants to analyze Azure Pipelines YAML against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
+**TL;DR:** This is a proof-of-concept MCP server that AI assistants can use to analyze Azure Pipelines YAML against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
 
-It returns rule-backed diagnostics for pipelines and steps, jobs, stages, and variables templates with stable rule IDs and fix suggestions.
+It returns rule-backed diagnostics for pipelines and templates covering steps, jobs, stages, and variables, with stable rule IDs and fix suggestions.
 
-Please note this is not production-ready software. See the [project status](#project-status) section for details.
+## Project status
 
----
+This project is a **proof of concept**. It is not production-ready software.
 
-## MCP server — `adog-mcp`
+Guideline implementation may be incomplete or contain bugs, and some guidelines may not be enforceable.
 
-[Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that gives AI assistants live access to guideline analysis.
 
-Your AI can analyze pipeline or template YAML against current guidelines and return precise,
-rule-keyed diagnostics instead of relying only on training data.
-
-**→ See [MCP Server Reference](docs/mcp-reference.md) for installation, configuration, and usage.**
-
----
 
 ## What does it analyze?
 
@@ -35,9 +28,6 @@ form `ADOG-{CATEGORY}-{NNN}`.
 | `STAGES` | Stage structure and ordering |
 | `STEPS` | Step and task guidelines |
 | `VARIABLES` | Variable declarations and scoping |
-
-For the full rule list and definitions, see the
-[Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
 
 ## Technology at a glance
 
@@ -55,15 +45,17 @@ For the full rule list and definitions, see the
 
 ## Getting started
 
+For more details regarding installation, configuration, and usage, see the [MCP Server Reference](docs/mcp-reference.md).
+
 ### Option 1 — MCP server from Docker Hub
 
-No repository clone or .NET SDK is required. Configure your AI client to launch the published
-container over standard input/output (Claude Desktop example):
+No repository clone or .NET SDK is required. Create or edit `.vscode/mcp.json` in your project:
 
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "azure-pipelines-guidelines": {
+      "type": "stdio",
       "command": "docker",
       "args": [
         "run",
@@ -82,13 +74,14 @@ container over standard input/output (Claude Desktop example):
 
 ### Option 2 — MCP server from a local clone
 
-Configure your AI client to run the MCP host from an absolute repository path (Claude Desktop
-example):
+Create or edit `.vscode/mcp.json` in your project to run the MCP host from an absolute repository
+path:
 
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "azure-pipelines-guidelines": {
+      "type": "stdio",
       "command": "dotnet",
       "args": [
         "run",
@@ -103,17 +96,32 @@ example):
 
 **→ See [MCP Server Reference](docs/mcp-reference.md) for detailed configuration and troubleshooting.**
 
+## Example prompts
+
+Once the MCP server is connected, try:
+
+- “Review this Azure Pipelines YAML for guideline violations and suggest fixes.”
+- “Analyze all pipeline and template files in this workspace and summarize findings by rule.”
+- “Explain guideline `ADOG-STEPS-001` and show how to fix the violation.”
+- “List the Azure Pipelines guidelines related to variables and summarize the most relevant ones.”
+
 ## Project documentation
 
 - **[Architecture guide](docs/architecture.md)** — dependency graph, layer responsibilities, and extension points
 - **[How it works](docs/how-it-works.md)** — analysis pipeline and two-repository model
+- **[MCP Server Reference](docs/mcp-reference.md)** — installation, configuration, tools, resources, prompts, and troubleshooting
 - **[MCP token usage guide](docs/mcp-token-usage.md)** — how to keep client token usage low
+- **[Glossary](docs/glossary.md)** — project and MCP terminology
+- **[Architecture decisions](docs/decisions.md)** — important design decisions and their rationale
+- **[Project vision](docs/vision.md)** — project goals and planned direction
 - **[Contributing guide](CONTRIBUTING.md)** — build instructions and how to add rules
 
 ## Repository structure
 
 ```
 .github/   AI agent instructions and prompt files
+Dockerfile Container image definition
+compose.yaml Local container orchestration
 docs/      Architecture, decisions, glossary, and vision documents
 scripts/   Local run, publish, and validation scripts
 src/       Production class libraries
@@ -122,13 +130,6 @@ tests/     Unit and integration test projects
 tools/     MCP server executable host
            Mcp.Host (adog-mcp)
 ```
-
-## Project status
-
-This project is a **proof of concept**. It is not production-ready software.
-
-The idea is to provide a live MCP server that can be used by AI assistants to analyze Azure Pipelines YAML against the current guidelines.
-Guidelines implementation might be incomplete and/or contain bugs, and some guidelines might not be enforceable. 
 
 ## Companion repository
 

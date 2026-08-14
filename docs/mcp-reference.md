@@ -51,9 +51,7 @@ The tables below show the complete MCP surface. Use the linked sections for deta
   - [Option 2 — Local clone](#option-2--local-clone)
   - [Option 3 — Docker Compose](#option-3--docker-compose)
 - [Configuration](#configuration)
-  - [Claude Desktop](#claude-desktop)
   - [GitHub Copilot (VS Code)](#github-copilot-vs-code)
-  - [Cline](#cline)
 - [Available tools](#available-tools)
 - [Resources](#resources)
 - [Prompts](#prompts)
@@ -87,7 +85,7 @@ Here is how the MCP server fits into your workflow:
 ```mermaid
 graph TD
     dev(["Developer"])
-    ai["AI assistant\nCopilot · Claude · Cursor"]
+    ai["AI assistant\nGitHub Copilot · VS Code"]
     srv["MCP server\nadog-mcp"]
     eng["Analysis engine"]
     mnf["guidelines.json\ncompanion repo"]
@@ -236,59 +234,6 @@ a trusted network. The container does not manage public TLS certificates.
 
 ## Configuration
 
-### Claude Desktop
-
-Edit your Claude Desktop configuration file:
-
-**Windows:**
-```
-%APPDATA%\Claude\claude_desktop_config.json
-```
-
-**macOS:**
-```
-~/Library/Application Support/Claude/claude_desktop_config.json
-```
-
-**Linux:**
-```
-~/.config/Claude/claude_desktop_config.json
-```
-
-#### Using a local clone:
-
-```json
-{
-  "mcpServers": {
-    "azure-pipelines-guidelines": {
-      "command": "dotnet",
-      "args": [
-        "run",
-        "--project",
-        "/absolute/path/to/azure-pipelines-guidelines-ai-mcp/tools/AzurePipelines.Guidelines.Mcp.Host",
-        "--"
-      ]
-    }
-  }
-}
-```
-
-#### Using Docker Compose:
-
-```json
-{
-  "mcpServers": {
-    "azure-pipelines-guidelines": {
-      "type": "http",
-      "url": "http://localhost:8080/mcp"
-    }
-  }
-}
-```
-
-Start the service with `pwsh ./scripts/run-mcp-compose.ps1` before connecting. For a client that only supports
-stdio, configure it to run `docker run -i --rm --pull always -e MCP_TRANSPORT=stdio` instead.
-
 ### GitHub Copilot (VS Code)
 
 Create or edit `.vscode/mcp.json` in your project:
@@ -340,24 +285,6 @@ from VS Code.
   }
 }
 ```
-
-#### Using a local Docker image:
-
-```json
-{
-  "servers": {
-    "azure-pipelines-guidelines": {
-      "type": "stdio",
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "--pull", "always", "adog-mcp:local"]
-    }
-  }
-}
-```
-
-### Cline
-
-Cline follows the Claude Desktop configuration format. Edit your Cline MCP settings file and use the same JSON structure as shown in the [Claude Desktop](#claude-desktop) section above.
 
 ## Available tools
 
