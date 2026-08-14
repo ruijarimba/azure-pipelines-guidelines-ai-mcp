@@ -20,8 +20,7 @@ Guideline implementation may be incomplete or contain bugs, and some guidelines 
 
 ## What does it analyze?
 
-The guidelines cover seven categories of Azure Pipelines YAML. Each rule has a stable ID in the
-form `ADOG-{CATEGORY}-{NNN}`.
+The server analyzes Azure Pipelines YAML files against guidelines organized into seven categories. Each guideline has a stable ID in the form `ADOG-{CATEGORY}-{NNN}`:
 
 | Category | Covers |
 | --- | --- |
@@ -32,6 +31,8 @@ form `ADOG-{CATEGORY}-{NNN}`.
 | `STAGES` | Stage structure and ordering |
 | `STEPS` | Step and task guidelines |
 | `VARIABLES` | Variable declarations and scoping |
+
+The [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines) owns the manifest and metadata and defines the rules and guidelines.
 
 ## Technology at a glance
 
@@ -119,28 +120,6 @@ Once the MCP server is connected, try:
 - **[Architecture decisions](docs/decisions.md)** — important design decisions and their rationale
 - **[Project vision](docs/vision.md)** — project goals and planned direction
 - **[Contributing guide](CONTRIBUTING.md)** — build instructions and how to add rules
-
-## Repository structure
-
-```
-.github/   AI agent instructions and prompt files
-Dockerfile Container image definition
-docs/      Architecture, decisions, glossary, and vision documents
-scripts/   Local run, publish, and validation scripts
-src/       Production class libraries
-           Core · Parsing · Rules · Analysis · Mcp
-tests/     Unit and integration test projects
-tools/     MCP server executable host
-           Mcp.Host (adog-mcp)
-```
-
-## Companion repository
-
-The rule definitions live in the
-[Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
-That repository owns the `data/guidelines.json` manifest and assigns rule IDs.
-
-This repository only **implements** the tooling. It does not define or own the rules.
 
 ## License
 
