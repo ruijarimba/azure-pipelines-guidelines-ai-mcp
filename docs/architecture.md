@@ -140,8 +140,7 @@ image does not include that framework.
 
 .NET resolves shared-framework requirements when the executable starts. Therefore, the host needs
 the ASP.NET runtime even when it runs with the `stdio` transport. A single image keeps Docker,
-editor integrations, Docker Compose, local HTTP debugging, and hosted deployments on the same
-tested executable.
+editor integrations, local HTTP debugging, and hosted deployments on the same tested executable.
 
 Using `runtime` would require two images: a stdio-only image without the ASP.NET Core dependency
 and an HTTP image with it. Each image would need its own build, tests, tags, publishing, version

@@ -45,7 +45,7 @@ form `ADOG-{CATEGORY}-{NNN}`.
 
 ## Getting started
 
-For more details regarding installation, configuration, and usage, see the [MCP Server Reference](docs/mcp-reference.md).
+For more options and details regarding installation, configuration, and usage, see the [MCP Server Reference](docs/mcp-reference.md).
 
 ### Option 1 — MCP server from Docker Hub
 
@@ -121,7 +121,6 @@ Once the MCP server is connected, try:
 ```
 .github/   AI agent instructions and prompt files
 Dockerfile Container image definition
-compose.yaml Local container orchestration
 docs/      Architecture, decisions, glossary, and vision documents
 scripts/   Local run, publish, and validation scripts
 src/       Production class libraries

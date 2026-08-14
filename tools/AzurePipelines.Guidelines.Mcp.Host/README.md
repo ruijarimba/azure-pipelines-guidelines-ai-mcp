@@ -39,7 +39,7 @@ The project intentionally publishes **one ASP.NET runtime image** for both `stdi
 
 | Image approach | Result | Maintenance cost |
 | --- | --- | --- |
-| One `aspnet` image | Supports `stdio`, HTTP, Streamable HTTP, legacy SSE compatibility, Docker Compose, and hosted deployments. | One build, test path, image tag, publish step, and set of user instructions. |
+| One `aspnet` image | Supports `stdio`, HTTP, Streamable HTTP, legacy SSE compatibility, and hosted deployments. | One build, test path, image tag, publish step, and set of user instructions. |
 | Two images based on `runtime` and `aspnet` | A smaller stdio-only image plus a separate HTTP image. | Two builds, test paths, image tags, publish steps, version checks, and sets of user instructions. |
 
 Using the base `runtime` image would require removing or splitting the HTTP features. The project
@@ -151,16 +151,3 @@ The command line flag `--transport` takes priority over the environment variable
   debug output.
 
 If you see no startup logs, check that the log level is set to `Information` or lower.
-
-## Run with Docker Compose
-
-The Docker image uses Streamable HTTP by default and listens on port `8080` inside the container.
-From the repository root, start the published service with the Compose wrapper:
-
-```powershell
-pwsh ./scripts/run-mcp-compose.ps1
-```
-
-The MCP endpoint is `http://localhost:8080/mcp`. The Compose wrapper does not read `.env` when it
-runs the MCP server. Docker Hub credentials are used only by `scripts/publish-mcp-image.ps1`; they
-are not passed to the running container.

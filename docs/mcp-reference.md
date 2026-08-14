@@ -49,7 +49,6 @@ The tables below show the complete MCP surface. Use the linked sections for deta
 - [Installation](#installation)
   - [Option 1 — Docker Hub image](#option-1--docker-hub-image)
   - [Option 2 — Local clone](#option-2--local-clone)
-  - [Option 3 — Docker Compose](#option-3--docker-compose)
 - [Configuration](#configuration)
   - [GitHub Copilot (VS Code)](#github-copilot-vs-code)
 - [Available tools](#available-tools)
@@ -185,52 +184,6 @@ pwsh ./scripts/run-mcp-local.ps1
 
 The script starts the server over standard input/output. It waits for an MCP client request;
 that is expected. You can also run `dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host`.
-
-### Option 3 — Docker Compose
-
-**Prerequisites:** [Docker Desktop](https://docs.docker.com/get-docker/)
-
-Start the published HTTP container from the repository root:
-
-```powershell
-pwsh ./scripts/run-mcp-compose.ps1
-```
-
-The default endpoint is `http://localhost:8080/mcp`. Compose does not use `.env` when running the
-MCP server. Stop the service with:
-
-```powershell
-docker compose down
-```
-
-The image uses Streamable HTTP by default and listens on port `8080` inside the container. If an
-MCP client launches Docker as a child process, use stdio explicitly instead:
-
-```powershell
-docker run -i --rm --pull always -e MCP_TRANSPORT=stdio ruijarimba/azure-pipelines-guidelines-mcp:latest
-```
-
-To publish a multi-architecture `latest` image to Docker Hub, copy `.env.example` to `.env`, set the
-Docker Hub values, and run:
-
-```powershell
-pwsh ./scripts/publish-mcp-image.ps1
-```
-
-The publishing script performs these checks before login or build:
-
-- `.env` exists and contains `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, and `DOCKERHUB_IMAGE`.
-- `DOCKERHUB_TOKEN` starts with `dckr_pat_`.
-- `DOCKERHUB_IMAGE` uses the `username/repository` form without a tag.
-- Docker Desktop's Linux engine is running.
-- Docker and Buildx are installed, initialized, and support `linux/amd64` and `linux/arm64`.
-
-The token is used only for Docker Hub login through stdin. It is not printed, passed into the MCP
-container, or included in the image.
-
-For hosted deployments, terminate HTTPS at the reverse proxy, ingress controller, load balancer,
-or managed container platform. Add authentication and authorization before exposing `/mcp` outside
-a trusted network. The container does not manage public TLS certificates.
 
 ## Configuration
 

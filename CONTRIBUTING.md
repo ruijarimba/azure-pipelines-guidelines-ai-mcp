@@ -25,16 +25,7 @@ To collect code coverage:
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-## Run the MCP container
-
-The Compose wrapper runs the MCP server over Streamable HTTP on `http://localhost:8080/mcp`:
-
-```powershell
-pwsh ./scripts/run-mcp-compose.ps1
-```
-
-The wrapper does not use `.env` when running the MCP server. The Docker image uses HTTP by default.
-Use `MCP_TRANSPORT=stdio` only when an MCP client launches the container as a child process.
+## Publish the MCP container
 
 To publish the multi-architecture image to Docker Hub, copy `.env.example` to `.env`, set the Docker
 Hub values, and run `pwsh ./scripts/publish-mcp-image.ps1`. The script pushes the `latest` tag.

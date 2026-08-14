@@ -132,14 +132,12 @@ agent guidance were updated in `eab7f24`, `7201554`, and `55f428f`.
   repository quality gate.
 - ✅ Fixed `global.json` to roll forward to newer installed .NET 10 SDK bands so Docker builds
   (`dotnet/sdk:10.0`) and local builds both resolve successfully.
-- ✅ Validated Docker Compose runtime with Docker Desktop available.
 - ✅ Audited `docs/` for staleness and consistency; `docs/mcp-token-usage.md` is registered in
   `AzurePipelinesGuidelines.slnx`.
 
 **Status:**
 - NuGet publication is deferred; package configuration remains for a future release
 - Docker Hub publication for the MCP server is complete
-- Docker-based container validation passed via Docker Compose
 
 ---
 
