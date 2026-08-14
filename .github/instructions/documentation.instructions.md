@@ -83,8 +83,8 @@ Good structure makes documents easier to scan. Use headings, lists, and tables i
 Good examples:
 
 - [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
-- [the architecture guide](docs/architecture.md)
-- [the contribution guide](CONTRIBUTING.md)
+- [the architecture guide](/docs/architecture.md)
+- [MCP Reference](/docs/mcp-reference.md)
 
 Bad examples:
 
