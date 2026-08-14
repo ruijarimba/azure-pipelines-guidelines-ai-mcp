@@ -35,7 +35,6 @@ consistent across sessions:
 | Document | Purpose |
 | --- | --- |
 | [docs/progress.md](docs/progress.md) | the session progress log |
-| [docs/vision.md](docs/vision.md) | the vision and roadmap guide |
 | [docs/decisions.md](docs/decisions.md) | the architecture decisions record |
 | [docs/glossary.md](docs/glossary.md) | the glossary reference |
 | [docs/architecture.md](docs/architecture.md) | the architecture guide |

@@ -18,7 +18,6 @@ This is the root entry point for Copilot and agent behaviour in this repository.
 
 - `docs/progress.md` — **current session state**: recently completed work, what is in progress, and next steps.
 - `AGENTS.md` — root map of the repository and quality standards.
-- `docs/vision.md` — north star, phased roadmap, in-scope / out-of-scope.
 - `docs/decisions.md` — architecture decisions + rationale (ADRs).
 - `docs/glossary.md` — single source of truth for domain terms.
 - `docs/architecture.md` — dependency graph and extension points.

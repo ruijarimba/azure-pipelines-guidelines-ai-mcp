@@ -91,8 +91,8 @@ plainlanguage.gov guidelines.*
 
 ## 7. Links
 
-- Use descriptive link text. Write `[docs/glossary.md](docs/glossary.md)` or
-  `[ADR-011](docs/decisions.md)` not `[click here](docs/decisions.md)`.
+- Use descriptive link text. Write `[docs/glossary.md](../../docs/glossary.md)` or
+  `[ADR-011](../../docs/decisions.md)` instead of generic text such as "click here".
 - Prefer relative links for files within this repository so they work offline and in forks.
 - Check that every link target exists before committing.
 

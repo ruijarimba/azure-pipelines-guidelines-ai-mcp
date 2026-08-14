@@ -297,7 +297,7 @@ correct pattern for each concern, with before/after examples drawn from real cod
 ## ADR-013: Heuristic detection rules are deferred to Phase 2
 
 **Date:** 2026-07-07  
-**Context:** The `docs/vision.md` Phase 1 scope says "Implement rules for all
+**Context:** The former phase-one roadmap said "Implement rules for all
 `ADOG-{CATEGORY}-{NNN}` guidelines in the manifest." After auditing the live
 `guidelines.json` manifest, 36 guideline IDs exist. 9 have `detection.kind` of
 `regex` or `yamlPath` — these are statically detectable and were implemented in

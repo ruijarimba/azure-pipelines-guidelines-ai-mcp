@@ -76,21 +76,20 @@ Good structure makes documents easier to scan. Use headings, lists, and tables i
 
 - Use descriptive link text that explains where the link goes or what the reader will find.
 - Avoid generic link text such as `click here`, `read more`, `see this`, or simply the file name when the file name is not helpful.
-- Prefer natural phrasing: `For more detail, see [Markdown link best practices](link).`
+- Prefer natural phrasing, such as "For more detail, see the Markdown link best practices."
 - Do not put links in headings; put link text in body copy instead.
 - Use relative links for documentation within the repository when possible.
 
 Good examples:
 
 - [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
-- [the architecture guide](/docs/architecture.md)
-- [MCP Reference](/docs/mcp-reference.md)
+- [the architecture guide](../../docs/architecture.md)
+- [MCP Reference](../../docs/mcp-reference.md)
 
 Bad examples:
 
-- [here](link)
-- [read more](link)
-- [docs](docs/architecture.md)
+- Generic link text such as "here" or "read more".
+- A link label that only says "docs".
 
 ### Heading examples
 
