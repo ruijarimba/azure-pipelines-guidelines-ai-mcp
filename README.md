@@ -6,6 +6,10 @@
 
 It returns rule-backed diagnostics for pipelines and templates covering steps, jobs, stages, and variables, with stable rule IDs and fix suggestions.
 
+Example output from the VS Code Copilot extension after this MCP server analyzes Azure Pipelines files:
+
+![VS Code Copilot displays an Azure Pipelines violation summary table with severity, rule, finding, evidence, and recommendation columns.](/docs/images/vscode-copilot-violations-summary.png)
+
 ## Project status
 
 This project is a **proof of concept**. It is not production-ready software.
