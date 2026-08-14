@@ -17,6 +17,9 @@ Keeping rule definitions and tool implementation in separate repositories means 
 independently. The tooling loads the manifest at startup; updating rules does not require
 rebuilding the tools.
 
+The analysis pipeline is static, deterministic, and rule-based. The connected AI client may explain
+the returned results, but that explanation does not come from the server.
+
 ## The analysis pipeline
 
 Every MCP analysis request runs through the shared analysis engine.

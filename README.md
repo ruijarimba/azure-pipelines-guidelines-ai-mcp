@@ -4,9 +4,9 @@
 
 **TL;DR:** This is a proof-of-concept MCP server that AI assistants can use to analyze Azure Pipelines YAML against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
 
-It returns rule-backed diagnostics for pipelines and templates covering steps, jobs, stages, and variables, with stable rule IDs and fix suggestions.
+This is a **static, deterministic MCP server**. It parses Azure Pipelines YAML, loads the guideline manifest, applies the implemented rules, and returns structured diagnostics. It does not use retrieval-augmented generation (RAG), vector search, an LLM, or model-generated analysis.
 
-Example output from the VS Code Copilot extension after this MCP server analyzes Azure Pipelines files:
+The connected AI client may explain these diagnostics in natural language. The following example shows how VS Code Copilot presents results from this server:
 
 ![VS Code Copilot displays an Azure Pipelines violation summary table with severity, rule, finding, evidence, and recommendation columns.](/docs/images/vscode-copilot-violations-summary.png)
 
@@ -15,8 +15,6 @@ Example output from the VS Code Copilot extension after this MCP server analyzes
 This project is a **proof of concept**. It is not production-ready software.
 
 Guideline implementation may be incomplete or contain bugs, and some guidelines may not be enforceable.
-
-
 
 ## What does it analyze?
 

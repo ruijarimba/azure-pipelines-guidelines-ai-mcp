@@ -2,6 +2,8 @@
 
 The `adog-mcp` MCP server gives AI assistants live access to Azure Pipelines coding guideline analysis. Instead of relying only on training data, your AI tool can analyze your actual pipeline files against the current guidelines and return precise, rule-keyed diagnostics.
 
+This is a static, deterministic MCP server. It does not use retrieval-augmented generation (RAG), vector search, an LLM, or model-generated analysis. The server parses YAML, loads the guideline manifest, evaluates the implemented rules, and returns structured results. The connected AI client may add its own explanations, but that behavior is outside this server.
+
 ## Capability summary
 
 The tables below show the complete MCP surface. Use the linked sections for details and examples.
