@@ -119,9 +119,11 @@ Related files:
 
 ---
 
-## Recent session summary
+## Recent validation summary
 
-**Date:** 2026-08-06
+The current branch contains the completed MCP server, shared analysis stack, documentation, and
+Solution Explorer registration. The latest feature commit is `36a34a3`; the branch handoff and
+agent guidance were updated in `eab7f24`, `7201554`, and `55f428f`.
 
 **Completed:**
 - ✅ Updated predefined MCP prompts to render guideline recommendations as `DO`, `DO-NOT`, `AVOID`,
@@ -131,23 +133,13 @@ Related files:
 - ✅ Fixed `global.json` to roll forward to newer installed .NET 10 SDK bands so Docker builds
   (`dotnet/sdk:10.0`) and local builds both resolve successfully.
 - ✅ Validated Docker Compose runtime with Docker Desktop available.
-- ✅ Audited `docs/` for staleness and consistency; updated `docs/progress.md` and this file.
-- ✅ Created `docs/mcp-token-usage.md` and registered it in `AzurePipelinesGuidelines.slnx`.
+- ✅ Audited `docs/` for staleness and consistency; `docs/mcp-token-usage.md` is registered in
+  `AzurePipelinesGuidelines.slnx`.
 
 **Status:**
 - NuGet publication is deferred; package configuration remains for a future release
 - Docker Hub publication for the MCP server is complete
 - Docker-based container validation passed via Docker Compose
-
-**Files changed:**
-- `docs/mcp-reference.md`
-- `docs/progress.md`
-- `docs/TODO.md`
-- `docs/mcp-token-usage.md`
-- `AzurePipelinesGuidelines.slnx`
-- `global.json`
-- `src/AzurePipelines.Guidelines.Mcp/Prompts/GuidelinePrompts.cs`
-- `src/AzurePipelines.Guidelines.Mcp/Tools/PipelineAnalysisTools.cs`
 
 ---
 

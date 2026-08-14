@@ -58,8 +58,7 @@ Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` →
 
 - Do not add CI/CD integrations, pipeline tasks, build or release hooks, or similar automation.
 - Do not add pull-request review, changed-file analysis, repository-event, or code-review workflows.
-- Keep the product focused on MCP guideline lookup, pipeline and template analysis, diagnostics,
-  fix guidance, and the documented roadmap.
+- Keep the product focused on MCP guideline lookup, pipeline and template analysis, diagnostics, fix guidance, and the documented roadmap.
 - If a request implies one of these integrations, ask for clarification instead of implementing it.
 
 ## Prompt files
@@ -109,3 +108,8 @@ For multi-item remediation work in this repository, commit and push each indepen
 ## Container Runtime Decision
 
 - When documenting the container runtime decision, emphasize the deployment trade-off: using the ASP.NET Core runtime keeps one image for both stdio and HTTP, while using the base .NET runtime would require two separately built and maintained images.
+
+## Public Repository Documentation
+
+- Prioritize describing implemented functionality and technologies in public repository documentation.
+- Keep non-implemented scope details brief and primarily in instruction/agent files, with only concise user-relevant boundaries elsewhere.

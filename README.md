@@ -37,6 +37,13 @@ form `ADOG-{CATEGORY}-{NNN}`.
 For the full rule list and definitions, see the
 [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines).
 
+## Technology at a glance
+
+- **.NET 10 and C# 13** provide the layered application and executable MCP host.
+- **Model Context Protocol (MCP)** exposes analysis tools, guideline lookups, resources, and prompts to AI clients.
+- **ASP.NET Core** provides the HTTP transport; `stdio` supports clients that start the server locally.
+- **Docker and Docker Compose** provide a portable runtime and local integration setup.
+
 ## Prerequisites
 
 | Option | Requirement |
@@ -127,19 +134,10 @@ docs/      Architecture, decisions, glossary, and vision documents
 .github/   AI agent instructions and prompt files
 ```
 
-## Disclaimer
+## Project status
 
-This is a **proof of concept** developed in the author's spare time. It is **not production-ready**
-and is provided **as-is**, with no guarantees of support, maintenance, or fitness for any particular
-purpose.
-
-**Use at your own risk.** Bugs and incomplete behavior are expected. The analyzer cannot
-automatically enforce every guideline. See the [rule detection kinds and enforcement scope](docs/how-it-works.md#detection-kinds)
-for the current limitations. Results should not be treated as a complete validation of an Azure
-Pipelines file.
-
-If you find issues or have suggestions, contributions are welcome, but there is no commitment to
-addressing them within any particular timeframe.
+This is a proof-of-concept project developed in the author's spare time. Contributions and issue
+reports are welcome.
 
 ## Companion repository
 

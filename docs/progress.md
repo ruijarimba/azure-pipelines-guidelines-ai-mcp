@@ -7,8 +7,8 @@ Update it before every commit so the next session starts with accurate context.
 
 | Area | Status |
 | --- | --- |
-| Current focus | `explain_diagnostic` MCP tool is implemented, tested, documented, and published |
-| Recent wins | Commit `36a34a3` added `explain_diagnostic` (new `Tools/ExplainDiagnosticTool.cs`) returning one guideline's full detail by ID with an optional echoed diagnostic context (message, filePath, line, column); added `DiagnosticContextDto`/`DiagnosticExplanationDto`; reused `GuidelineTools.ToDetailDto`; added `explain_diagnostic` to `adog://capabilities`; added `ExplainDiagnosticToolTests.cs` and updated `GuidelineResourcesTests.cs`; updated `docs/mcp-reference.md`, `docs/architecture.md`, `docs/how-it-works.md`, and `docs/mcp-token-usage.md`; 412 tests passed and `origin/init` matches the commit |
+| Current focus | Documentation cleanup for the completed MCP server |
+| Recent wins | Commit `36a34a3` added `explain_diagnostic` (new `Tools/ExplainDiagnosticTool.cs`) returning one guideline's full detail by ID with an optional echoed diagnostic context (message, filePath, line, column); added `DiagnosticContextDto`/`DiagnosticExplanationDto`; reused `GuidelineTools.ToDetailDto`; added `explain_diagnostic` to `adog://capabilities`; added `ExplainDiagnosticToolTests.cs` and updated `GuidelineResourcesTests.cs`; updated `docs/mcp-reference.md`, `docs/architecture.md`, `docs/how-it-works.md`, and `docs/mcp-token-usage.md`; 412 tests passed. Later commits `eab7f24`, `7201554`, and `55f428f` reconciled the handoff, clarified product scope, and documented the documentation-only quality-gate exception. |
 | Next up | Monitor the companion manifest for new `ADOG-*` rules |
 
 ---
@@ -29,21 +29,19 @@ Before committing, edit the sections below:
 | Commit | Summary |
 | --- | --- |
 | `36a34a3` | feat: add `explain_diagnostic` MCP tool returning one guideline's full detail with an optional echoed diagnostic context; update capabilities, tests, and documentation |
-| `local` | docs: audit `docs/` for staleness, refresh `docs/progress.md` and `docs/TODO.md`, and add `docs/mcp-token-usage.md` describing token-conscious MCP usage patterns |
-| `local` | feat: validate recommendation-based MCP prompt output (DO, DO-NOT, AVOID, CONSIDER) with targeted MCP prompt tests (10 passed, 0 failed), a full repository quality gate after updating `global.json` to roll-forward to newer installed .NET 10 SDKs, and a successful Docker Compose runtime check |
-| `local` | feat: update predefined MCP prompts to render guideline recommendations as DO, DO-NOT, AVOID, and CONSIDER instead of diagnostic severity labels |
-| `local` | docs: align shared documentation and architecture guidance with the MCP-only product and host-neutral Analysis boundary |
-| `local` | feat: add deterministic MCP analysis summaries grouped by file, category, severity, and rule |
+| `55f428f` | docs: allow documentation-only skip of quality gate |
+| `7201554` | docs: enforce MCP product scope boundaries in agent guidance |
+| `eab7f24` | docs: record the `explain_diagnostic` commit hash in the handoff |
+| `5c1fa16` | feat: add MCP prompts and update documentation |
+| `d8de31d` | feat: add cache-friendly MCP catalogue access and summary-first guideline lookup |
+| `99e639a` | feat: expose guideline automation status and metadata |
 | `631bce4` | refactor: merge pipeline and path analysis into the template-oriented `analyze_template` MCP tool; validate with 78 MCP tests and the full quality gate; push to `origin/init` succeeded |
 | `45b6b5c` | docs: remove CLI reference |
 | `e3f8970` | refactor: remove CLI host |
 | `383d7a7` | fix: use the ASP.NET runtime required by the MCP host; harden Docker Hub publishing checks; document Docker Hub and VS Code MCP setup; publish corrected multi-architecture `latest` image |
 | `1c5aa2e` | feat: expose guideline automation metadata through MCP tools and resources |
-| `local` | feat: add cache-friendly MCP guideline resources and summary-first guideline lookup for lower token use |
-| `local` | feat: upgrade ModelContextProtocol/ModelContextProtocol.AspNetCore to stable 2.0.0; bump Microsoft.Extensions.* to 10.0.10; keep legacy SSE (Stateless=false, suppressed obsolete MCP9004) alongside default Streamable HTTP; add Title/ReadOnly tool hints; document the compatibility decision in ADR-015 |
-| `local` | docs/comments: add inline comments, host README, and AGENTS updates to the MCP project so contributors without deep .NET knowledge can follow transport modes, launch profiles, and startup choices |
-| `local` | feat: add optional SSE debug transport to MCP host so it can run under Visual Studio while VS Code connects over HTTP |
-| `local` | feat: add source-mode and local Docker MCP launch scripts with local-client configuration guidance |
+| `cec4f9e` | docs: add inline comments, host README, and AGENTS guidance for the MCP host and library |
+| `d435893` | feat: add optional SSE debug transport to MCP host and local MCP scripts |
 | `3a8eb87` | test: add folder-based integration tests for the real analysis stack and validate the full solution quality gate |
 | `8c3b576` | chore: mirror filesystem structure in Solution Explorer — rule 8 in agent-behaviour, slnx hierarchy fixes |
 | `572af54` | chore: add non-code files to Solution Explorer (AGENTS.md per project, docs, .github) |

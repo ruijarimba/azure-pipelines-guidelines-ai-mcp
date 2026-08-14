@@ -56,22 +56,6 @@ gantt
 - LLM-assisted analysis for `heuristic` detection rules (excluded from current MCP planning).
 - Manifest updates: consume new rules from the companion repository automatically.
 
-## Out of scope
-
-### Permanently out of scope
-
-- Authoring the guidelines — they live in the companion repository.
-- CI/CD and pull-request integrations of any kind.
-- Linting for other CI/CD systems.
-- Runtime analysis or monitoring — this is a static analyser only.
-- Pipeline execution simulation or validation.
-
-### Deferred to Phase 2 or later
-
-- Auto-fixing beyond deterministic text replacements.
-- Telemetry or usage analytics.
-- Custom user-defined rules.
-
 ## Success criteria
 
 ### Phase 1 complete when
