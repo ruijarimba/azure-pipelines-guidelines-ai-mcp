@@ -146,4 +146,4 @@ Nothing is currently in progress.
 
 - The next MCP capability should be selected from the ordered backlog above at the start of the
   next session.
-- NuGet publication is deferred. Package metadata and local packing remain for a future release.
+- NuGet publication is out of scope. Package metadata and local packing remain in the project files.

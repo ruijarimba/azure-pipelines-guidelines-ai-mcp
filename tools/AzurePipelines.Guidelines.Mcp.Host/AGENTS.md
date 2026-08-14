@@ -69,7 +69,8 @@ The host supports two transport modes. Choose the one that matches how the clien
 
 ## Distribution
 
-Configured as the future `adog-mcp` .NET global tool; NuGet publication is deferred. The MCP
-server is also packaged as a Docker image for Docker Hub publication.
+Retains local packaging configuration for the `adog-mcp` .NET global tool; this repository does
+not publish NuGet packages. The MCP server is also packaged as a Docker image for Docker Hub
+publication.
 
 See `README.md` in this folder for day-to-day build, run, and debug instructions.

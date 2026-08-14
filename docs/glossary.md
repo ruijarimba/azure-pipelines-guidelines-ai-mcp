@@ -78,8 +78,8 @@ they are the same value. Parsing code maps between the two forms.
 
 | Term | Definition |
 | --- | --- |
-| **NuGet package** | Each `src/` project is configured as an independent `AzurePipelines.Guidelines.*` package for a future release. |
-| **.NET global tool** | A package that provides a command-line executable. This project configures `adog-mcp` for a future global-tool release. |
+| **NuGet package** | A locally packable artifact. This repository does not publish NuGet packages. |
+| **.NET global tool** | A package that provides a command-line executable. This project retains local packaging configuration for `adog-mcp`; it is not published by this repository. |
 | **SemVer** | Semantic Versioning 2.0. Breaking changes require a major version bump. |
 
 ---

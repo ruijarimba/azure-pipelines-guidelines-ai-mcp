@@ -7,7 +7,7 @@ Read this file **and the `AGENTS.md` in each subdirectory** before making any ch
 
 Provides a .NET 10 MCP server built on top of the
 [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines)
-machine-readable manifest:
+machine-readable [manifest](https://github.com/ruijarimba/azure-pipelines-guidelines/blob/main/data/guidelines.json):
 
 The **MCP server** exposes guideline lookup and Azure Pipelines YAML analysis as
 [Model Context Protocol](https://modelcontextprotocol.io) tools and resources that
@@ -21,7 +21,7 @@ manifest is at `data/guidelines.json` and uses stable rule IDs of the form
 
 | Path | Contains |
 | --- | --- |
-| `src/` | Class libraries — intended NuGet packages |
+| `src/` | Class libraries — locally packable NuGet package metadata |
 | `tools/` | Executable entry points (not NuGet packages) |
 | `tests/` | Unit test projects, one per `src/` library |
 | `docs/` | Architecture and developer documentation |

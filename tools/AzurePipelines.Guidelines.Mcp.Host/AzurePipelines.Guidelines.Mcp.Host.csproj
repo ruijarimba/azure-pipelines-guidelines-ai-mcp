@@ -7,12 +7,11 @@
       .NET global tool that runs the AzurePipelines.Guidelines MCP server over stdio.
       AI assistants (GitHub Copilot, Claude, Cursor, etc.) can connect to it to look up
       Azure Pipelines guidelines and analyse YAML pipeline files.
-      Install: dotnet tool install -g adog-mcp
     </Description>
     <PackageReleaseNotes>This proof-of-concept tool is not production-ready. APIs and behavior may change without notice.</PackageReleaseNotes>
     <!--
       Override the tools/Directory.Build.props default of IsPackable=false.
-      This project is published as a .NET global tool via NuGet and must be packable.
+      This project retains local .NET global-tool packaging configuration and must be packable.
     -->
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>

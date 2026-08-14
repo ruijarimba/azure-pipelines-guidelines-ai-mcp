@@ -63,14 +63,7 @@ This is how Docker and editor integrations start the server:
 dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host -- --transport stdio
 ```
 
-Or via the packed tool:
-
-```powershell
-dotnet tool install -g adog-mcp
-adog-mcp
-```
-
-### From Visual Studio
+### From Visual Studio with stdio
 
 1. Set **AzurePipelines.Guidelines.Mcp.Host** as the startup project.
 2. Select the **stdio** launch profile in the toolbar.
@@ -81,7 +74,7 @@ adog-mcp
 The HTTP transport lets you debug live MCP requests from Visual Studio while a supported client
 connects to the server over HTTP.
 
-### From Visual Studio
+### From Visual Studio with HTTP
 
 1. Set **AzurePipelines.Guidelines.Mcp.Host** as the startup project.
 2. Select the **Debug** launch profile in the toolbar.

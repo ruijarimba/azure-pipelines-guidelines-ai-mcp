@@ -136,7 +136,7 @@ agent guidance were updated in `eab7f24`, `7201554`, and `55f428f`.
   `AzurePipelinesGuidelines.slnx`.
 
 **Status:**
-- NuGet publication is deferred; package configuration remains for a future release
+- NuGet publication is out of scope; package configuration remains for local builds only
 - Docker Hub publication for the MCP server is complete
 
 ---

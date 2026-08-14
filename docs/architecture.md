@@ -183,15 +183,14 @@ see [`glossary.md`](glossary.md).
 
 ## Packaging and distribution
 
-All `src/` projects are configured as independent NuGet packages
-(`AzurePipelines.Guidelines.*`). NuGet publication is deferred, but package metadata and local
-packing remain in place for a future release.
+The `src/` projects retain independent package metadata (`AzurePipelines.Guidelines.*`) and the
+MCP host retains its global-tool packaging configuration for local builds. This repository does
+not publish NuGet packages.
 
 | Artefact | Package ID | Distribution |
 | --- | --- | --- |
-| MCP server | `adog-mcp` | Local build; future NuGet global tool |
+| MCP server | `adog-mcp` | Local build or Docker image |
 | MCP server | — | Docker Hub (`ruijarimba/azure-pipelines-guidelines-mcp`) |
 
-`Mcp.Host` is the executable entry point for the future global tool and the Docker image. No
-application code changes are needed between the two distribution forms — the same binary runs
-in both contexts.
+`Mcp.Host` is the executable entry point for local runs and the Docker image. No application code
+changes are needed between the two distribution forms — the same binary runs in both contexts.

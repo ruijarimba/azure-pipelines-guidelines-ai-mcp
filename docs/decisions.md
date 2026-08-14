@@ -146,8 +146,9 @@ preferred format for new projects going forward.
 
 **Date:** 2026-07-06  
 **Context:** Want reusable libraries that consumers can compose as needed.  
-**Decision:** Every project under `src/` sets `<IsPackable>true</IsPackable>` and is configured
-for future NuGet publication.  
+**Decision:** Every project under `src/` sets `<IsPackable>true</IsPackable>` and retains
+independent package metadata. This preserves local packing and library boundaries; the repository
+does not publish NuGet packages.
 **Rationale:**  
 - Consumers may want only parsing, or only rules, or only the analysis engine.
 - Separate packages enable independent versioning per component.
@@ -157,7 +158,7 @@ for future NuGet publication.
 - Every `public` API must be documented via XML comments.
 - Breaking changes require a major version bump (SemVer 2.0 strict).
 - `tools/` projects are not NuGet packages — they are executables only.
-- NuGet publication is deferred until a future release decision.
+- Package configuration remains available for local packing; NuGet publication is out of scope.
 
 ---
 
