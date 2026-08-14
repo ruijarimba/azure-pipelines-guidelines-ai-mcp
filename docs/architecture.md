@@ -43,16 +43,6 @@ flowchart TB
 
 **Rule:** arrows point from dependent → dependency. Cycles are forbidden. `Core` has no internal project dependencies.
 
-External package dependencies are kept in a table so the project graph remains readable:
-
-| Project | External packages |
-| --- | --- |
-| `Mcp.Host` | `Microsoft.Extensions.Hosting`, `Microsoft.Extensions.Logging.Console`, `ModelContextProtocol.AspNetCore` |
-| `Mcp` | `ModelContextProtocol`, `Microsoft.Extensions.Hosting.Abstractions`, `Microsoft.Extensions.Logging.Abstractions` |
-| `Analysis` | `Microsoft.Extensions.DependencyInjection.Abstractions`, `Microsoft.Extensions.Logging.Abstractions` |
-| `Parsing` | `YamlDotNet`, `Microsoft.Extensions.DependencyInjection.Abstractions` |
-| `Rules` | `Microsoft.Extensions.DependencyInjection.Abstractions` |
-
 ## Layer responsibilities
 
 | Layer | Owns | Must not contain |
