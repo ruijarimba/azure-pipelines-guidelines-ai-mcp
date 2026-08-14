@@ -381,16 +381,18 @@ jobs, stages, or variables.
 **Input:**
 - `yaml` (string, optional) — Inline pipeline or template YAML. Pass this or `fileOrPath`, not both.
 - `fileOrPath` (string, optional) — One file or directory path. Pass this or `yaml`, not both.
-- `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check. If omitted, all rules are checked.
-- `category` (string, optional) — Category filter for analysis options
+- `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check. When provided,
+  exactly those rules are evaluated regardless of other filters.
+- `category` (string, optional) — Category filter for analysis options.
+- `includeNonEnforceable` (boolean, optional) — When `true`, also evaluates rules whose automation
+  status is `Heuristic` or `NotAutomatable`. Defaults to `false` (enforceable rules only).
 
 **Returns:**
 - An object containing `summary` and `diagnostics`.
 
 `summary` includes `filesAnalyzed`, `filesWithFindings`, and `totalFindings`. When findings exist,
-it also includes `bySeverity`, `byCategory`, and `byRule` count maps. The detailed `diagnostics`
-array contains `ruleId`, `severity`, `message`, and optional `line` and `column` values. These raw
-fields describe the diagnostic contract returned by the tool.
+it also includes `byRecommendation`, `byCategory`, and `byRule` count maps. The detailed `diagnostics`
+array contains `ruleId`, `recommendation`, `message`, and optional `line` and `column` values.
 
 Example:
 
@@ -400,14 +402,14 @@ Example:
     "filesAnalyzed": 1,
     "filesWithFindings": 1,
     "totalFindings": 2,
-    "bySeverity": { "error": 1, "warning": 1 },
+    "byRecommendation": { "do": 1, "avoid": 1 },
     "byCategory": { "jobs": 1, "steps": 1 },
     "byRule": { "ADOG-JOBS-006": 1, "ADOG-STEPS-001": 1 }
   },
   "diagnostics": [
     {
       "ruleId": "ADOG-JOBS-006",
-      "severity": "error",
+      "recommendation": "do",
       "message": "...",
       "line": 24,
       "column": 5
@@ -416,7 +418,7 @@ Example:
 }
 ```
 
-The summary is calculated server-side so clients can first identify the number, diagnostic severity,
+The summary is calculated server-side so clients can first identify the number, recommendation type,
 category, and rule concentration of findings before processing every diagnostic. Count maps are
 sorted deterministically, and empty maps are omitted.
 

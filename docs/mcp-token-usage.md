@@ -33,15 +33,16 @@ still controls which operation it calls and with which parameters.
 ## Server-side analysis summaries
 
 - `analyze_template` returns a `summary` object
-  (`filesAnalyzed`, `filesWithFindings`, `totalFindings`, and, when findings exist, `bySeverity`,
+  (`filesAnalyzed`, `filesWithFindings`, `totalFindings`, and, when findings exist, `byRecommendation`,
   `byCategory`, and `byRule` count maps) alongside the detailed `diagnostics` array.
 - A client can inspect the summary first to decide whether it needs the full diagnostics list at
-  all, or whether it can answer the user's question (for example, "are there any errors?") from
+  all, or whether it can answer the user's question (for example, "are there any DO violations?") from
   the summary alone.
 - The analysis tool accepts an optional `guidelineIds` parameter (a comma-separated list such as
   `ADOG-STEPS-001,ADOG-JOBS-006`) and a `category` parameter. Passing either narrows the rules
   that run and shrinks the diagnostics returned, instead of analyzing against all rules and
-  filtering client-side.
+  filtering client-side. By default only enforceable rules are checked; pass
+  `includeNonEnforceable: true` to also include heuristic and non-automatable rules.
 - Empty count maps are omitted from the summary, and count maps are sorted deterministically, so
   the response never carries redundant zero-valued fields.
 

@@ -131,7 +131,7 @@ public sealed class PipelineAnalysisToolsTests
         summary.GetProperty("filesAnalyzed").GetInt32().Should().Be(1);
         summary.GetProperty("filesWithFindings").GetInt32().Should().Be(0);
         summary.GetProperty("totalFindings").GetInt32().Should().Be(0);
-        summary.TryGetProperty("bySeverity", out _).Should().BeFalse();
+        summary.TryGetProperty("byRecommendation", out _).Should().BeFalse();
     }
 
     // ── Pipeline with violations ──────────────────────────────────────────────
@@ -162,13 +162,13 @@ public sealed class PipelineAnalysisToolsTests
         JsonElement obj = Deserialize<JsonElement>(result);
         JsonElement summary = obj.GetProperty("summary");
         summary.GetProperty("totalFindings").GetInt32().Should().Be(1);
-        summary.GetProperty("bySeverity").GetProperty("error").GetInt32().Should().Be(1);
+        summary.GetProperty("byRecommendation").GetProperty("do").GetInt32().Should().Be(1);
         summary.GetProperty("byCategory").GetProperty("steps").GetInt32().Should().Be(1);
         summary.GetProperty("byRule").GetProperty("ADOG-STEPS-001").GetInt32().Should().Be(1);
 
         JsonElement item = obj.GetProperty("diagnostics")[0];
         item.GetProperty("ruleId").GetString().Should().Be("ADOG-STEPS-001");
-        item.GetProperty("severity").GetString().Should().Be("error");
+        item.GetProperty("recommendation").GetString().Should().Be("do");
         item.GetProperty("message").GetString().Should().Be("Use templates.");
         item.GetProperty("line").GetInt32().Should().Be(7);
     }
@@ -253,29 +253,38 @@ public sealed class PipelineAnalysisToolsTests
 
     // ── Severity serialisation ────────────────────────────────────────────────
 
+    // ── Recommendation serialisation ──────────────────────────────────────────────────────────────
+
     [Theory]
-    [InlineData(DiagnosticSeverity.Error, "error")]
-    [InlineData(DiagnosticSeverity.Warning, "warning")]
-    [InlineData(DiagnosticSeverity.Info, "info")]
-    public async Task AnalyzeTemplateAsync_SeverityValues_ShouldBeLowercaseInOutput(
-        DiagnosticSeverity severity, string expectedJsonValue)
+    [InlineData(GuidelineSeverity.Do,       "do")]
+    [InlineData(GuidelineSeverity.DoNot,    "donot")]
+    [InlineData(GuidelineSeverity.Avoid,    "avoid")]
+    [InlineData(GuidelineSeverity.Consider, "consider")]
+    public async Task AnalyzeTemplateAsync_RecommendationValues_ShouldBeGuidelineSeverityInOutput(
+        GuidelineSeverity guidelineSeverity, string expectedJsonValue)
     {
         // Arrange
         IPipelineParser parser = Substitute.For<IPipelineParser>();
         parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
 
+        Diagnostic diag = MakeDiagnostic("ADOG-STEPS-001");
         IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
         analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
-                .Returns(MakeResult([MakeDiagnostic(severity: severity)]));
+                .Returns(MakeResult([diag]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+        IGuidelineRepository guidelineRepository = Substitute.For<IGuidelineRepository>();
+        guidelineRepository.FindById(new GuidelineId("ADOG-STEPS-001"))
+            .Returns(new GuidelineDefinition(
+                new GuidelineId("ADOG-STEPS-001"), GuidelineCategory.Steps, guidelineSeverity,
+                "Test", "Test", null, [], [], null, []));
+        PipelineAnalysisTools sut = MakeSut(parser, analyser, guidelineRepository: guidelineRepository);
 
         // Act
         string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
 
         // Assert
         JsonElement item = Deserialize<JsonElement>(result).GetProperty("diagnostics")[0];
-        item.GetProperty("severity").GetString().Should().Be(expectedJsonValue);
+        item.GetProperty("recommendation").GetString().Should().Be(expectedJsonValue);
     }
 
     // ── Null line number ──────────────────────────────────────────────────────

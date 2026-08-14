@@ -22,12 +22,20 @@ namespace AzurePipelines.Guidelines.Core;
 /// An empty list means all severities are included (subject to
 /// <see cref="MinimumSeverity"/> filtering).
 /// </param>
+/// <param name="EnforceableOnly">
+/// When <see langword="true"/> (the default), only rules whose automation status is
+/// <see cref="GuidelineAutomationStatus.Enforceable"/> are evaluated.
+/// Set to <see langword="false"/> to include heuristic and non-automatable rules as well.
+/// Ignored when <see cref="IncludedGuidelineIds"/> is non-empty, as an explicit list
+/// of IDs already expresses the caller's intent.
+/// </param>
 public sealed record AnalysisOptions(
     DiagnosticSeverity MinimumSeverity = DiagnosticSeverity.Info,
     IReadOnlyList<GuidelineCategory>? IncludedCategories = null,
     IReadOnlyList<GuidelineId>? IncludedGuidelineIds = null,
-    IReadOnlyList<DiagnosticSeverity>? IncludedDiagnosticSeverities = null)
+    IReadOnlyList<DiagnosticSeverity>? IncludedDiagnosticSeverities = null,
+    bool EnforceableOnly = true)
 {
-    /// <summary>Gets the default options: include all findings.</summary>
+    /// <summary>Gets the default options: enforceable rules only, all findings included.</summary>
     public static AnalysisOptions Default { get; } = new();
 }

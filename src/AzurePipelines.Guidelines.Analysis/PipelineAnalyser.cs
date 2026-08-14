@@ -30,12 +30,14 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
 
     private readonly IReadOnlyList<IGuidelineRule> _rules;
     private readonly IGuidelineRepository _repository;
+    private readonly IGuidelineAutomationMetadataProvider? _automationMetadataProvider;
     private readonly ILogger<PipelineAnalyser> _logger;
 
     public PipelineAnalyser(
         IEnumerable<IGuidelineRule> rules,
         IGuidelineRepository repository,
-        ILogger<PipelineAnalyser> logger)
+        ILogger<PipelineAnalyser> logger,
+        IGuidelineAutomationMetadataProvider? automationMetadataProvider = null)
     {
         ArgumentNullException.ThrowIfNull(rules);
         ArgumentNullException.ThrowIfNull(repository);
@@ -43,6 +45,7 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
 
         _rules = [.. rules];
         _repository = repository;
+        _automationMetadataProvider = automationMetadataProvider;
         _logger = logger;
     }
 
@@ -56,7 +59,7 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
 
         options ??= AnalysisOptions.Default;
 
-        IEnumerable<IGuidelineRule> applicableRules = FilterRules(_rules, options, _repository);
+        IEnumerable<IGuidelineRule> applicableRules = FilterRules(_rules, options, _repository, _automationMetadataProvider);
 
         List<Diagnostic> diagnostics = [];
 
@@ -88,7 +91,8 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
     private static IEnumerable<IGuidelineRule> FilterRules(
         IReadOnlyList<IGuidelineRule> rules,
         AnalysisOptions options,
-        IGuidelineRepository repository)
+        IGuidelineRepository repository,
+        IGuidelineAutomationMetadataProvider? automationMetadataProvider)
     {
         IEnumerable<IGuidelineRule> filtered = rules;
 
@@ -109,6 +113,14 @@ internal sealed class PipelineAnalyser : IPipelineAnalyser
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             filtered = filtered.Where(r => ids.Contains(r.GuidelineId.Value));
+        }
+        else if (options.EnforceableOnly && automationMetadataProvider is not null)
+        {
+            filtered = filtered.Where(r =>
+            {
+                GuidelineAutomationMetadata? meta = automationMetadataProvider.GetAutomationMetadata(r.GuidelineId);
+                return meta?.Status == GuidelineAutomationStatus.Enforceable;
+            });
         }
 
         return filtered;

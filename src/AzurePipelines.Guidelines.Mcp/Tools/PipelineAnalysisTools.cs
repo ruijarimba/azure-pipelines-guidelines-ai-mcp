@@ -50,13 +50,17 @@ internal sealed class PipelineAnalysisTools(
         [Description(
             "Optional comma-separated list of guideline IDs to check " +
             "(e.g. \"ADOG-STEPS-001,ADOG-JOBS-006\"). " +
-            "Omit or pass null to run all rules.")]
+            "Omit or pass null to run enforceable rules only.")]
         string? guidelineIds = null,
         [Description(
             "Optional category filter. " +
             "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables. " +
             "Omit or pass null to include all categories.")]
-        string? category = null)
+        string? category = null,
+        [Description(
+            "When true, includes heuristic and non-automatable rules in addition to enforceable rules. " +
+            "Defaults to false (enforceable rules only). Ignored when guidelineIds is provided.")]
+        bool includeNonEnforceable = false)
     {
         ILogger<PipelineAnalysisTools> invocationLogger =
             logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<PipelineAnalysisTools>.Instance;
@@ -69,7 +73,7 @@ internal sealed class PipelineAnalysisTools(
                 new ErrorResponse("Pass exactly one of 'yaml' or 'fileOrPath'."), _jsonOptions);
         }
 
-        if (!TryBuildOptions(guidelineIds, category, out AnalysisOptions options, out string? optionsError))
+        if (!TryBuildOptions(guidelineIds, category, includeNonEnforceable, out AnalysisOptions options, out string? optionsError))
         {
             return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
         }
@@ -157,6 +161,7 @@ internal sealed class PipelineAnalysisTools(
     private static bool TryBuildOptions(
         string? guidelineIds,
         string? category,
+        bool includeNonEnforceable,
         out AnalysisOptions options,
         out string? error)
     {
@@ -206,11 +211,10 @@ internal sealed class PipelineAnalysisTools(
             }
         }
 
-        options = includedCategories is null && includedIds is null
-            ? AnalysisOptions.Default
-            : new AnalysisOptions(
-                IncludedCategories: includedCategories,
-                IncludedGuidelineIds: includedIds);
+        options = new AnalysisOptions(
+            IncludedCategories: includedCategories,
+            IncludedGuidelineIds: includedIds,
+            EnforceableOnly: !includeNonEnforceable);
 
         return true;
     }
@@ -232,15 +236,16 @@ internal sealed class PipelineAnalysisTools(
         return (int)result >= 0;
     }
 
-    private static DiagnosticDto[] BuildDiagnosticDtos(IReadOnlyList<Diagnostic> diagnostics)
+    private DiagnosticDto[] BuildDiagnosticDtos(IReadOnlyList<Diagnostic> diagnostics)
     {
         DiagnosticDto[] dtos = new DiagnosticDto[diagnostics.Count];
         for (int i = 0; i < diagnostics.Count; i++)
         {
             Diagnostic d = diagnostics[i];
+            string recommendation = ResolveRecommendation(d);
             dtos[i] = new DiagnosticDto(
                 d.GuidelineId.Value,
-                EnumToJsonString(d.Severity),
+                recommendation,
                 d.Message,
                 d.Line);
         }
@@ -248,9 +253,26 @@ internal sealed class PipelineAnalysisTools(
         return dtos;
     }
 
+    private string ResolveRecommendation(Diagnostic diagnostic)
+    {
+        GuidelineDefinition? def = repository.FindById(diagnostic.GuidelineId);
+        if (def is not null)
+        {
+            return EnumToJsonString(def.Severity);
+        }
+
+        // Fallback: map DiagnosticSeverity to nearest recommendation label.
+        return diagnostic.Severity switch
+        {
+            DiagnosticSeverity.Error   => EnumToJsonString(GuidelineSeverity.Do),
+            DiagnosticSeverity.Warning => EnumToJsonString(GuidelineSeverity.Avoid),
+            _                          => EnumToJsonString(GuidelineSeverity.Consider),
+        };
+    }
+
     private AnalysisSummaryDto BuildSummary(List<AnalysisResult> results)
     {
-        Dictionary<string, int> bySeverity = [];
+        Dictionary<string, int> byRecommendation = [];
         Dictionary<string, int> byCategory = [];
         Dictionary<string, int> byRule = [];
         int filesWithFindings = 0;
@@ -266,10 +288,11 @@ internal sealed class PipelineAnalysisTools(
             totalFindings += result.Diagnostics.Count;
             foreach (Diagnostic diagnostic in result.Diagnostics)
             {
-                Increment(bySeverity, EnumToJsonString(diagnostic.Severity));
+                GuidelineDefinition? guideline = repository.FindById(diagnostic.GuidelineId);
+
+                Increment(byRecommendation, ResolveRecommendation(diagnostic));
                 Increment(byRule, diagnostic.GuidelineId.Value);
 
-                GuidelineDefinition? guideline = repository.FindById(diagnostic.GuidelineId);
                 if (guideline is not null)
                 {
                     Increment(byCategory, EnumToJsonString(guideline.Category));
@@ -281,7 +304,7 @@ internal sealed class PipelineAnalysisTools(
             results.Count,
             filesWithFindings,
             totalFindings,
-            bySeverity.Count == 0 ? null : new SortedDictionary<string, int>(bySeverity),
+            byRecommendation.Count == 0 ? null : new SortedDictionary<string, int>(byRecommendation),
             byCategory.Count == 0 ? null : new SortedDictionary<string, int>(byCategory),
             byRule.Count == 0 ? null : new SortedDictionary<string, int>(byRule));
     }
@@ -311,7 +334,7 @@ internal sealed class PipelineAnalysisTools(
 
     private sealed record DiagnosticDto(
         [property: JsonPropertyName("ruleId")] string RuleId,
-        [property: JsonPropertyName("severity")] string Severity,
+        [property: JsonPropertyName("recommendation")] string Recommendation,
         [property: JsonPropertyName("message")] string Message,
         [property: JsonPropertyName("line")] int? Line);
 
@@ -328,7 +351,7 @@ internal sealed class PipelineAnalysisTools(
         [property: JsonPropertyName("filesAnalyzed")] int FilesAnalyzed,
         [property: JsonPropertyName("filesWithFindings")] int FilesWithFindings,
         [property: JsonPropertyName("totalFindings")] int TotalFindings,
-        [property: JsonPropertyName("bySeverity")] SortedDictionary<string, int>? BySeverity,
+        [property: JsonPropertyName("byRecommendation")] SortedDictionary<string, int>? ByRecommendation,
         [property: JsonPropertyName("byCategory")] SortedDictionary<string, int>? ByCategory,
         [property: JsonPropertyName("byRule")] SortedDictionary<string, int>? ByRule);
 

@@ -17,6 +17,16 @@ public sealed class AnalysisOptionsTests
     }
 
     [Fact]
+    public void Default_ShouldHaveEnforceableOnlyTrue()
+    {
+        // Arrange / Act
+        AnalysisOptions options = AnalysisOptions.Default;
+
+        // Assert
+        options.EnforceableOnly.Should().BeTrue();
+    }
+
+    [Fact]
     public void Default_ShouldHaveNullIncludedCategories()
     {
         // Arrange / Act

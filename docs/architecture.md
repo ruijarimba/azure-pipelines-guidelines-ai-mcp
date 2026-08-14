@@ -93,12 +93,14 @@ The server provides one analysis tool:
 | `analyze_template` | Exactly one of `yaml` or `fileOrPath`, plus optional filters | Summary plus diagnostics or per-file diagnostic lists |
 
 `guidelineIds` is a comma-separated list of rule IDs (for example, `ADOG-STEPS-001,ADOG-JOBS-006`).
-Omit it to run all rules.
+By default only rules with automation status `Enforceable` are evaluated. Pass
+`includeNonEnforceable: true` to also include heuristic and non-automatable rules. When
+`guidelineIds` is provided, the enforceable-only filter is bypassed.
 
 The analysis tool returns a structured response with a `summary` containing the number of files
-analysed, files with findings, total findings, and optional counts grouped by severity, category,
-and rule. Inline `yaml` places detailed findings in `diagnostics`; `fileOrPath` places them in
-`files`, grouped by path. Empty grouping fields are omitted to keep responses compact.
+analysed, files with findings, total findings, and optional counts grouped by recommendation,
+category, and rule. Inline `yaml` places detailed findings in `diagnostics`; `fileOrPath` places
+them in `files`, grouped by path. Empty grouping fields are omitted to keep responses compact.
 
 Guideline lookup is also exposed through MCP tools and resources:
 

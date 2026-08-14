@@ -85,7 +85,10 @@ resource endpoints for the guideline catalogue.
   slices of data.
 
 The analysis tool accepts an optional `guidelineIds` parameter. Pass a comma-separated list such as
-`ADOG-STEPS-001,ADOG-JOBS-006` to restrict analysis to specific rules. Omit it to run all rules.
+`ADOG-STEPS-001,ADOG-JOBS-006` to restrict analysis to specific rules. By default, only rules with
+automation status `Enforceable` are checked. Set `includeNonEnforceable: true` to also run
+heuristic and non-automatable rules. When `guidelineIds` is provided, the enforceable-only filter
+is bypassed — the explicit list already expresses the caller's intent.
 
 ## Detection kinds
 

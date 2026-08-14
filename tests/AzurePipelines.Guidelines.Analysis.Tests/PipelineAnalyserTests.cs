@@ -201,4 +201,105 @@ public sealed class PipelineAnalyserTests
 
         result.Diagnostics.Should().ContainSingle().Which.Should().Be(d1);
     }
+
+    // ── AnalyseAsync: EnforceableOnly filtering ─────────────────────────────────────────────────
+
+    [Fact]
+    public async Task AnalyseAsync_GivenEnforceableOnlyTrueAndMetadataProvider_ShouldSkipNonEnforceableRules()
+    {
+        Diagnostic d1 = MakeDiagnostic("ADOG-STEPS-001");
+        Diagnostic d2 = MakeDiagnostic("ADOG-JOBS-006");
+        IGuidelineRule enforceableRule   = MakeRule("ADOG-STEPS-001", d1);
+        IGuidelineRule nonEnforceable    = MakeRule("ADOG-JOBS-006",  d2);
+
+        IGuidelineAutomationMetadataProvider metaProvider = Substitute.For<IGuidelineAutomationMetadataProvider>();
+        metaProvider.GetAutomationMetadata(new GuidelineId("ADOG-STEPS-001"))
+            .Returns(new GuidelineAutomationMetadata(GuidelineAutomationStatus.Enforceable, "Deterministic."));
+        metaProvider.GetAutomationMetadata(new GuidelineId("ADOG-JOBS-006"))
+            .Returns(new GuidelineAutomationMetadata(GuidelineAutomationStatus.NotAutomatable, "Needs context."));
+
+        PipelineAnalyser sut = new(
+            [enforceableRule, nonEnforceable],
+            NullRepository(),
+            NullLogger<PipelineAnalyser>.Instance,
+            metaProvider);
+
+        AnalysisOptions options = new(EnforceableOnly: true);
+
+        AnalysisResult result = await sut.AnalyseAsync(EmptyDocument(), options);
+
+        result.Diagnostics.Should().ContainSingle().Which.Should().Be(d1);
+    }
+
+    [Fact]
+    public async Task AnalyseAsync_GivenEnforceableOnlyFalse_ShouldRunAllRules()
+    {
+        Diagnostic d1 = MakeDiagnostic("ADOG-STEPS-001");
+        Diagnostic d2 = MakeDiagnostic("ADOG-JOBS-006");
+        IGuidelineRule rule1 = MakeRule("ADOG-STEPS-001", d1);
+        IGuidelineRule rule2 = MakeRule("ADOG-JOBS-006",  d2);
+
+        IGuidelineAutomationMetadataProvider metaProvider = Substitute.For<IGuidelineAutomationMetadataProvider>();
+        metaProvider.GetAutomationMetadata(new GuidelineId("ADOG-STEPS-001"))
+            .Returns(new GuidelineAutomationMetadata(GuidelineAutomationStatus.Enforceable, "Deterministic."));
+        metaProvider.GetAutomationMetadata(new GuidelineId("ADOG-JOBS-006"))
+            .Returns(new GuidelineAutomationMetadata(GuidelineAutomationStatus.NotAutomatable, "Needs context."));
+
+        PipelineAnalyser sut = new(
+            [rule1, rule2],
+            NullRepository(),
+            NullLogger<PipelineAnalyser>.Instance,
+            metaProvider);
+
+        AnalysisOptions options = new(EnforceableOnly: false);
+
+        AnalysisResult result = await sut.AnalyseAsync(EmptyDocument(), options);
+
+        result.Diagnostics.Should().HaveCount(2).And.Contain([d1, d2]);
+    }
+
+    [Fact]
+    public async Task AnalyseAsync_GivenEnforceableOnlyTrueAndExplicitGuidelineIds_ShouldBypassEnforceableFilter()
+    {
+        Diagnostic d = MakeDiagnostic("ADOG-JOBS-006");
+        IGuidelineRule nonEnforceable = MakeRule("ADOG-JOBS-006", d);
+
+        IGuidelineAutomationMetadataProvider metaProvider = Substitute.For<IGuidelineAutomationMetadataProvider>();
+        metaProvider.GetAutomationMetadata(new GuidelineId("ADOG-JOBS-006"))
+            .Returns(new GuidelineAutomationMetadata(GuidelineAutomationStatus.NotAutomatable, "Needs context."));
+
+        PipelineAnalyser sut = new(
+            [nonEnforceable],
+            NullRepository(),
+            NullLogger<PipelineAnalyser>.Instance,
+            metaProvider);
+
+        // Explicit ID provided → enforceable-only filter is bypassed
+        AnalysisOptions options = new(
+            IncludedGuidelineIds: [new GuidelineId("ADOG-JOBS-006")],
+            EnforceableOnly: true);
+
+        AnalysisResult result = await sut.AnalyseAsync(EmptyDocument(), options);
+
+        result.Diagnostics.Should().ContainSingle().Which.Should().Be(d);
+    }
+
+    [Fact]
+    public async Task AnalyseAsync_GivenEnforceableOnlyTrueButNoMetadataProvider_ShouldRunAllRules()
+    {
+        // When no metadata provider is registered, enforceable filtering is not applied.
+        Diagnostic d1 = MakeDiagnostic("ADOG-STEPS-001");
+        Diagnostic d2 = MakeDiagnostic("ADOG-JOBS-006");
+        IGuidelineRule rule1 = MakeRule("ADOG-STEPS-001", d1);
+        IGuidelineRule rule2 = MakeRule("ADOG-JOBS-006",  d2);
+
+        // No metadata provider — fourth parameter omitted.
+        PipelineAnalyser sut = new([rule1, rule2], NullRepository(), NullLogger<PipelineAnalyser>.Instance);
+
+        AnalysisOptions options = new(EnforceableOnly: true);
+
+        AnalysisResult result = await sut.AnalyseAsync(EmptyDocument(), options);
+
+        result.Diagnostics.Should().HaveCount(2);
+    }
 }

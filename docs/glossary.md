@@ -30,9 +30,9 @@
 | `Avoid` | `Warning` | Generally not a good idea, but there are exceptions. |
 | `Consider` | `Info` | Should generally be followed, but legitimate exceptions exist. |
 
-This mapping is used by the analysis engine to translate manifest severities into diagnostic levels.
-MCP prompts use the recommendation labels for user-facing output, while raw analysis payloads may
-still expose diagnostic severities for machine consumers.
+This mapping is used internally by the analysis engine to translate manifest severities into
+diagnostic levels. MCP tool output uses the recommendation labels (`do`, `donot`, `avoid`,
+`consider`) for all user-facing payloads.
 
 ### Two notations for the same severity
 
