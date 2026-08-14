@@ -2,9 +2,11 @@
 
 ![Status: proof of concept](https://img.shields.io/badge/status-proof--of--concept-orange)
 
-The `adog-mcp` server gives AI assistants access to the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
-It returns rule-backed diagnostics for pipelines and steps, jobs, stages, and variables templates
-with stable rule IDs and fix suggestions.
+This is a PoC MCP server that can be used by AI assistants to analyze Azure Pipelines YAML against the [Azure Pipelines coding guidelines](https://github.com/ruijarimba/azure-pipelines-guidelines).
+
+It returns rule-backed diagnostics for pipelines and steps, jobs, stages, and variables templates with stable rule IDs and fix suggestions.
+
+Please note this is not production-ready software. See the [project status](#project-status) section for details.
 
 ---
 
@@ -42,18 +44,43 @@ For the full rule list and definitions, see the
 - **.NET 10 and C# 13** provide the layered application and executable MCP host.
 - **Model Context Protocol (MCP)** exposes analysis tools, guideline lookups, resources, and prompts to AI clients.
 - **ASP.NET Core** provides the HTTP transport; `stdio` supports clients that start the server locally.
-- **Docker and Docker Compose** provide a portable runtime and local integration setup.
+- **Docker Hub** provides a published container for clients that support stdio servers.
 
 ## Prerequisites
 
 | Option | Requirement |
 | --- | --- |
+| MCP server from Docker Hub | [Install Docker Desktop](https://docs.docker.com/get-docker/) — no .NET required |
 | MCP server from a local clone | [Download the .NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) |
-| MCP server as a Docker container | [Install Docker Desktop](https://docs.docker.com/get-docker/) — no .NET required |
 
 ## Getting started
 
-### Option 1 — MCP server from a local clone
+### Option 1 — MCP server from Docker Hub
+
+No repository clone or .NET SDK is required. Configure your AI client to launch the published
+container over standard input/output (Claude Desktop example):
+
+```json
+{
+  "mcpServers": {
+    "azure-pipelines-guidelines": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--pull",
+        "always",
+        "-e",
+        "MCP_TRANSPORT=stdio",
+        "ruijarimba/azure-pipelines-guidelines-mcp:latest"
+      ]
+    }
+  }
+}
+```
+
+### Option 2 — MCP server from a local clone
 
 Configure your AI client to run the MCP host from an absolute repository path (Claude Desktop
 example):
@@ -74,45 +101,6 @@ example):
 }
 ```
 
-**→ See [MCP Server Reference](docs/mcp-reference.md) for configuration, available tools, and usage examples.**
-
-### Option 2 — MCP server (Docker)
-
-No .NET SDK is required. Start the published HTTP container with the Compose wrapper:
-
-```powershell
-pwsh ./scripts/run-mcp-compose.ps1
-```
-
-The MCP endpoint is available at `http://localhost:8080/mcp` by default. Compose does not use `.env` when running the MCP server.
-
-Configure an HTTP-capable AI client to use the endpoint:
-
-```json
-{
-  "servers": {
-    "azure-pipelines-guidelines": {
-      "type": "http",
-      "url": "http://localhost:8080/mcp"
-    }
-  }
-}
-```
-
-The container uses Streamable HTTP by default. If an MCP client must launch Docker as a child process over stdio, override the transport explicitly:
-
-```powershell
-docker run -i --rm --pull always -e MCP_TRANSPORT=stdio ruijarimba/azure-pipelines-guidelines-mcp:latest
-```
-
-For a hosted deployment, terminate HTTPS at your reverse proxy, ingress controller, load balancer, or managed container platform. Add authentication and authorization before exposing the endpoint outside a trusted network.
-
-To publish a multi-architecture `latest` image to Docker Hub, copy `.env.example` to `.env`, set `DOCKERHUB_USERNAME`, set `DOCKERHUB_IMAGE` to the `username/repository` form, and set `DOCKERHUB_TOKEN` to a Docker Hub personal access token beginning with `dckr_pat_`. The publish script checks that `.env`, Docker Desktop, Docker, and Buildx are ready before it logs in or starts the build:
-
-```powershell
-pwsh ./scripts/publish-mcp-image.ps1
-```
-
 **→ See [MCP Server Reference](docs/mcp-reference.md) for detailed configuration and troubleshooting.**
 
 ## Project documentation
@@ -125,19 +113,22 @@ pwsh ./scripts/publish-mcp-image.ps1
 ## Repository structure
 
 ```
-src/       Class libraries configured for future NuGet packages
-           Core · Parsing · Rules · Analysis · Mcp
-tools/     MCP server executable entry point
-            Mcp.Host (adog-mcp)
-tests/     Unit test projects, one per src/ library
-docs/      Architecture, decisions, glossary, and vision documents
 .github/   AI agent instructions and prompt files
+docs/      Architecture, decisions, glossary, and vision documents
+scripts/   Local run, publish, and validation scripts
+src/       Production class libraries
+           Core · Parsing · Rules · Analysis · Mcp
+tests/     Unit and integration test projects
+tools/     MCP server executable host
+           Mcp.Host (adog-mcp)
 ```
 
 ## Project status
 
-This is a proof-of-concept project developed in the author's spare time. Contributions and issue
-reports are welcome.
+This project is a **proof of concept**. It is not production-ready software.
+
+The idea is to provide a live MCP server that can be used by AI assistants to analyze Azure Pipelines YAML against the current guidelines.
+Guidelines implementation might be incomplete and/or contain bugs, and some guidelines might not be enforceable. 
 
 ## Companion repository
 
