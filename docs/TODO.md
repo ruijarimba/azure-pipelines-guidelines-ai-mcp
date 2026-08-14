@@ -13,7 +13,6 @@ The backlog below reflects the current state of the repository after the latest 
 | Priority | Item | Why it matters |
 | --- | --- | --- |
 | Now | Revisit rule coverage | New manifest rules need matching implementations |
-| Later | Consider `explain_diagnostic` and `analyze_changed_pipelines` tools | Optional follow-ups not blocked by the current implementation |
 
 ---
 
@@ -90,8 +89,6 @@ content by default.
       CONSIDER instead of diagnostic severity labels
 - [x] Add an `explain_diagnostic` tool that returns one guideline's full detail by ID, optionally
       echoing back the diagnostic message, file path, line, and column that raised it
-- [ ] Consider `analyze_changed_pipelines` for pull-request review workflows, with strict
-      workspace-path boundaries
 - [ ] Do not add Sampling or LLM-assisted heuristic analysis as part of this work
 
 Related files:

@@ -13,7 +13,7 @@ The server consumes the `data/guidelines.json` manifest from the companion repos
 | Focus | Current position |
 | --- | --- |
 | Phase 1 | The core release is complete and documented |
-| Phase 2 | Future work focuses on automation, IDE integrations, and CI/CD adoption |
+| Phase 2 | Future work focuses on automation and IDE integrations |
 
 ## In scope
 
@@ -34,8 +34,7 @@ gantt
     section Phase 2 - Future Enhancements
     Autofixable rules                 :p2-autofix, 2025-02-01, 30d
     IDE extensions                    :p2-ide, after p2-autofix, 45d
-    CI/CD integrations                :p2-cicd, after p2-ide, 30d
-    LLM-assisted heuristic rules      :p2-llm, after p2-cicd, 60d
+    LLM-assisted heuristic rules      :p2-llm, after p2-ide, 60d
     Automatic manifest updates        :p2-manifest, after p2-llm, 21d
 ```
 
@@ -54,7 +53,6 @@ gantt
 
 - Autofixable rules (deterministic text transformations).
 - IDE extensions (VS Code, Visual Studio) using the analysis engine.
-- CI/CD integrations (Azure Pipelines task and other native automation hooks).
 - LLM-assisted analysis for `heuristic` detection rules (excluded from current MCP planning).
 - Manifest updates: consume new rules from the companion repository automatically.
 
@@ -63,6 +61,7 @@ gantt
 ### Permanently out of scope
 
 - Authoring the guidelines — they live in the companion repository.
+- CI/CD and pull-request integrations of any kind.
 - Linting for other CI/CD systems.
 - Runtime analysis or monitoring — this is a static analyser only.
 - Pipeline execution simulation or validation.
@@ -88,5 +87,4 @@ gantt
 ### Long-term success
 
 - Community adoption: MCP integrations use the server in real development workflows.
-- Integration: used in at least one production AI-assisted pipeline review workflow.
 - Contribution: external contributor submits a rule implementation or bug fix.

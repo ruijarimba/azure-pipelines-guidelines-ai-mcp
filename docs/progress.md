@@ -9,7 +9,7 @@ Update it before every commit so the next session starts with accurate context.
 | --- | --- |
 | Current focus | `explain_diagnostic` MCP tool is implemented, tested, documented, and published |
 | Recent wins | Commit `36a34a3` added `explain_diagnostic` (new `Tools/ExplainDiagnosticTool.cs`) returning one guideline's full detail by ID with an optional echoed diagnostic context (message, filePath, line, column); added `DiagnosticContextDto`/`DiagnosticExplanationDto`; reused `GuidelineTools.ToDetailDto`; added `explain_diagnostic` to `adog://capabilities`; added `ExplainDiagnosticToolTests.cs` and updated `GuidelineResourcesTests.cs`; updated `docs/mcp-reference.md`, `docs/architecture.md`, `docs/how-it-works.md`, and `docs/mcp-token-usage.md`; 412 tests passed and `origin/init` matches the commit |
-| Next up | Monitor the companion manifest for new `ADOG-*` rules and consider `analyze_changed_pipelines` next |
+| Next up | Monitor the companion manifest for new `ADOG-*` rules |
 
 ---
 
