@@ -18,51 +18,44 @@ The **MCP server** lets AI assistants look up guidelines and analyze pipelines a
 
 ## Dependency graph
 
-```
-AzurePipelines.Guidelines.Core
-│
-├── AzurePipelines.Guidelines.Parsing
-│    └── [NuGet] YamlDotNet
-│
-├── AzurePipelines.Guidelines.Rules
-│
-├── AzurePipelines.Guidelines.Analysis
-│    └── [NuGet] Microsoft.Extensions.DependencyInjection.Abstractions
-│
-└── AzurePipelines.Guidelines.Mcp
-     └── [NuGet] ModelContextProtocol
-     └── [NuGet] Microsoft.Extensions.Hosting.Abstractions
-
-tools/AzurePipelines.Guidelines.Mcp.Host  [exe]
-     └── AzurePipelines.Guidelines.Mcp
-     └── [NuGet] Microsoft.Extensions.Hosting
-
-```
-
 ```mermaid
-graph TD
-    subgraph src["src/"]
-        Core["Core"]
-        Parsing["Parsing"]
-        Rules["Rules"]
-        Analysis["Analysis"]
-        Mcp["Mcp"]
+flowchart TB
+    Host["Mcp.Host<br/><b>executable</b><br/><i>transport and startup</i>"]
+
+    subgraph src["src/ libraries"]
+        direction TB
+        Mcp["Mcp<br/><i>protocol handlers</i>"]
+        Analysis["Analysis<br/><i>orchestration</i>"]
+        Parsing["Parsing<br/><i>YAML to AST</i>"]
+        Rules["Rules<br/><i>guideline checks</i>"]
+        Core["Core<br/><i>domain contracts</i>"]
     end
-    subgraph tools["tools/"]
-        McpHost["Mcp.Host [exe]"]
-    end
-    Parsing --> Core
-    Rules --> Core
-    Analysis --> Core
+
+    Host --> Mcp
+    Mcp --> Analysis
     Analysis --> Parsing
     Analysis --> Rules
-    Mcp --> Core
-    Mcp --> Analysis
-    McpHost --> Mcp
+    Parsing --> Core
+    Rules --> Core
+
+    classDef internal fill:#e8f1fb,stroke:#4778a8,stroke-width:1px
+    classDef executable fill:#fff1d6,stroke:#c47b18,stroke-width:1px
+
+    class Mcp,Analysis,Parsing,Rules,Core internal
+    class Host executable
 ```
 
 **Rule:** arrows point from dependent → dependency. Cycles are forbidden.
 `Core` has no internal project dependencies.
+
+External package dependencies are kept in a table so the project graph remains readable:
+
+| Project | External packages |
+| --- | --- |
+| `Mcp.Host` | `Microsoft.Extensions.Hosting` |
+| `Mcp` | `ModelContextProtocol`, `Microsoft.Extensions.Hosting.Abstractions` |
+| `Analysis` | `Microsoft.Extensions.DependencyInjection.Abstractions` |
+| `Parsing` | `YamlDotNet` |
 
 ## Layer responsibilities
 
@@ -162,7 +155,7 @@ keep one release artifact and one supported runtime path.
 
 Rule ID pattern:
 
-```
+```regex
 ADOG-(GENERAL|JOBS|PARAMETERS|PIPELINES|STAGES|STEPS|VARIABLES)-[0-9]{3}
 ```
 

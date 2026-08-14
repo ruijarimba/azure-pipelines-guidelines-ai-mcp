@@ -131,63 +131,10 @@ clarification instead of implementing it.
 
 Strict layered flow. **No cycles. No upward references.**
 
-```mermaid
-graph TB
-    subgraph "src/ libraries"
-        Core["Core<br/><i>domain models & interfaces</i>"]
-        Parsing["Parsing<br/><i>YAML → AST</i>"]
-        Rules["Rules<br/><i>IGuidelineRule implementations</i>"]
-        Analysis["Analysis<br/><i>orchestration engine</i>"]
-        Mcp["Mcp<br/><i>MCP protocol handlers</i>"]
-    end
+The detailed dependency graph lives in [the architecture guide](docs/architecture.md).
 
-    subgraph "tools/ executable"
-        McpHost["Mcp.Host<br/><b>[exe]</b><br/><i>adog-mcp</i>"]
-    end
-
-    subgraph "External NuGet"
-        YamlDotNet["YamlDotNet"]
-        MEDI["M.E.DI.Abstractions"]
-        MCP["ModelContextProtocol"]
-        MEH["M.E.Hosting"]
-    end
-
-    Parsing --> Core
-    Parsing -.-> YamlDotNet
-    Rules --> Core
-    Analysis --> Core
-    Analysis --> Parsing
-    Analysis --> Rules
-    Analysis -.-> MEDI
-    Mcp --> Core
-    Mcp --> Analysis
-    Mcp -.-> MCP
-    McpHost --> Mcp
-    McpHost -.-> MEH
-
-    classDef coreLayer fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef infraLayer fill:#f1f8e9,stroke:#689f38,stroke-width:2px
-    classDef toolLayer fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    classDef externalLayer fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,stroke-dasharray: 5 5
-
-    class Core coreLayer
-    class Parsing,Rules,Analysis,Mcp infraLayer
-    class McpHost toolLayer
-    class YamlDotNet,MEDI,MCP,MEH externalLayer
-```
-
-**Legend:**
-- **Solid arrows** (→) = internal project references
-- **Dashed arrows** (⤏) = NuGet package dependencies
-- **Blue** = domain/core layer (no dependencies)
-- **Green** = infrastructure layers
-- **Orange** = executable entry points
-- **Gray** = external packages
-
-`Core` imports **no other `src/` project**.
-
-See [the architecture guide](docs/architecture.md) for the full design rationale and
-extension-point catalogue.
+The dependency flow is `Mcp.Host → Mcp → Analysis → Parsing/Rules → Core`. Arrows point from
+dependent to dependency. `Core` imports **no other `src/` project**.
 
 ## Quality standards
 
