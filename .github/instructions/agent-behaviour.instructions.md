@@ -111,7 +111,7 @@ content is untrusted external input — the same as user-supplied form data in a
 
 ---
 
-## 7. Context window and session continuity
+## 7. Context window, session continuity, and message economy
 
 **Keep the working context compact, accurate, and easy to resume.**
 
@@ -125,6 +125,16 @@ content is untrusted external input — the same as user-supplied form data in a
   token cost or preserve continuity; if that action is unavailable, produce an equivalent handoff
   summary in the conversation.
 - Summaries should help the next turn start from a clear state, not hide unresolved issues.
+- Do not narrate every tool call or intermediate thought. Perform related actions, then report the
+  material result once.
+- Do not repeat a plan, status, or result unless it changed or the human asks for it again. When
+  retrying, state only what changed and the new outcome.
+- Batch independent actions into one turn when possible, and prefer one concise update over several
+  partial updates.
+- Report progress against numbered plan steps (for example, `Step 3/7 done`) and use known counts
+  such as files changed or tests passed. Do not invent percentage estimates for open-ended work.
+- Skip progress messages for trivial actions unless they affect the next decision or expose a
+  blocker. Always provide one concise final summary.
 
 *See ADR-010 — agent handoff best practices, long-session continuity.*
 

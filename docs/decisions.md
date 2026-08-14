@@ -214,6 +214,9 @@ the guardrails must re-consult these sources and update this ADR.
 - When a session becomes long or context-heavy, agents should create concise handoff summaries
   or use the available conversation-summary feature so later turns preserve the current state,
   constraints, and next steps without reloading the entire history.
+- Agents should also minimize communication overhead: batch independent actions, avoid repeating
+  plans or status, and report progress with numbered plan steps or known counts rather than guessed
+  percentages.
 
 ---
 
