@@ -194,21 +194,26 @@ Ad-hoc or informal safety notes drift and conflict across sessions.
 
 | Source | Key principles used |
 | --- | --- |
-| [MCP spec — Security best practices](https://modelcontextprotocol.io/specification/2025-03-26/basic/security_best_practices) | User consent and control, minimal footprint, trust hierarchy, prompt injection resistance |
+| [MCP spec — Security best practices](https://modelcontextprotocol.io/specification/latest/basic/security_best_practices) | User consent, least privilege, local-server security, prompt injection resistance, token and session boundaries |
 | [Anthropic — Building effective agents](https://www.anthropic.com/research/building-effective-agents) | Minimal agents, human-in-the-loop checkpoints, explicit uncertainty |
 | [Google PAIR — People + AI Guidebook](https://pair.withgoogle.com/guidebook/) | Progressive disclosure of actions, reversibility preference, graceful degradation |
 | [Microsoft Responsible AI principles](https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai) | Accountability, transparency, harm avoidance |
-| [OWASP LLM Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/) | LLM06 Excessive Agency, LLM07 Overreliance, LLM01 Prompt Injection |
+| [OWASP GenAI LLM Top 10 2026](https://genai.owasp.org/resource/owasp-genai-llm-top-10-2026/) | Prompt injection, excessive agency, output handling, least privilege, human approval |
 | [GitHub Copilot — Responsible use](https://docs.github.com/en/copilot/responsible-use-of-github-copilot-features/responsible-use-of-github-copilot-chat-in-your-ide) | Agent confirmation before destructive Git operations |
 
 **Rationale:**
 
-- These sources provide a durable rationale for human oversight, minimal agency, explicit uncertainty, reversibility, and prompt-injection resistance.
-- They are directly relevant because this repository reads untrusted YAML pipeline files and exposes tools to AI clients.
+- These sources provide a durable rationale for human oversight, minimal agency, explicit uncertainty,
+  reversibility, least privilege, output validation, and evolving safety.
+- They are directly relevant because this repository reads untrusted YAML pipeline files and exposes
+  tools to AI clients.
 
 **Consequences:**
 
 - The operational guardrails live in [agent-behaviour.instructions.md](../.github/instructions/agent-behaviour.instructions.md); this ADR records why they exist.
+- The guardrails require explicit approval for high-risk actions, validation of generated output,
+  least-privilege execution, restricted local processes where available, and adversarial testing
+  for security-sensitive workflows.
 
 ---
 
