@@ -1,13 +1,30 @@
-# Build and publish the MCP container image to Docker Hub.
-#
-# Prerequisites:
-#   - Copy .env.example to .env and set the Docker Hub values.
-#   - Use a Docker Hub personal access token beginning with dckr_pat_.
-#   - Start Docker Desktop with its Linux engine enabled.
-#
-# The script validates configuration, Docker, Docker Desktop, Buildx, and the
-# requested platforms before it logs in or starts a build. The token is passed
-# to Docker through stdin and is never written to output or the image.
+<#
+.SYNOPSIS
+Builds and publishes the MCP container image to Docker Hub.
+
+.DESCRIPTION
+Use this script only when an approved Docker image release is ready to publish.
+The script validates configuration and platform support before logging in or starting
+a build, then publishes the multi-architecture latest tag configured by DOCKERHUB_IMAGE.
+For local builds and validation, use build-mcp-image.ps1 instead.
+
+.PARAMETER EnvironmentFile
+The path to the Docker Hub environment file. Defaults to .env at the repository root.
+
+.EXAMPLE
+./publish-mcp-image.ps1
+
+.EXAMPLE
+./publish-mcp-image.ps1 -EnvironmentFile .env.publish
+
+.NOTES
+Requires Docker Desktop with its Linux engine, Docker Buildx, and an environment file
+containing Docker Hub settings. The token is passed to Docker through stdin and is never
+written to output or the image. The publish is this script's only remote side effect.
+Copy .env.example to .env and set DOCKERHUB_USERNAME, DOCKERHUB_TOKEN, and
+DOCKERHUB_IMAGE before running this script. The Docker Hub token grants remote
+registry access and must not be committed or passed as a command-line argument.
+#>
 [CmdletBinding()]
 param(
     [string]$EnvironmentFile = ".env"
@@ -35,19 +52,20 @@ function Read-EnvironmentFile {
         throw "Environment file '$Path' was not found. Copy .env.example to .env and set the Docker Hub values."
     }
 
-    $values = @{}
-    foreach ($line in Get-Content -LiteralPath $Path) {
-        if ($line -match '^\s*(?<key>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?<value>.*)\s*$') {
-            $value = $Matches.value.Trim()
-            if ($value.Length -ge 2 -and $value.StartsWith('"') -and $value.EndsWith('"')) {
-                $value = $value.Substring(1, $value.Length - 2)
-            }
-            elseif ($value.Length -ge 2 -and $value.StartsWith("'") -and $value.EndsWith("'")) {
-                $value = $value.Substring(1, $value.Length - 2)
-            }
-
-            $values[$Matches.key] = $value
+    # ConvertFrom-StringData handles blank lines, comments, whitespace, and the first
+    # equals sign. Normalize optional matching quotes because Docker settings are simple
+    # scalar values rather than shell expressions or multiline dotenv values.
+    $values = ConvertFrom-StringData -StringData (Get-Content -LiteralPath $Path -Raw) -ErrorAction Stop
+    foreach ($key in @($values.Keys)) {
+        $value = ([string]$values[$key]).Trim()
+        if ($value.Length -ge 2 -and $value.StartsWith('"') -and $value.EndsWith('"')) {
+            $value = $value.Substring(1, $value.Length - 2)
         }
+        elseif ($value.Length -ge 2 -and $value.StartsWith("'") -and $value.EndsWith("'")) {
+            $value = $value.Substring(1, $value.Length - 2)
+        }
+
+        $values[$key] = $value
     }
 
     return $values

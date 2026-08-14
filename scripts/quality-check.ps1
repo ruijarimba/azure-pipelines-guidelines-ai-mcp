@@ -1,6 +1,29 @@
-# Run the repository quality gate for the MCP host and container runtime.
-# The script validates restore/build/test, starts both MCP launch profiles,
-# and then exercises Docker Compose from build through shutdown.
+<#
+.SYNOPSIS
+Runs the repository quality gate for the MCP host and container runtime.
+
+.DESCRIPTION
+The script restores, builds, and tests the selected configuration, starts both MCP profiles,
+then starts and stops Docker Compose. Use this script before committing or pushing changes
+that affect code, build settings, Docker behavior, or solution configuration.
+It is intentionally broader than a unit-test run because startup and container integration
+failures can otherwise remain hidden.
+
+.PARAMETER Configuration
+The build configuration to validate. Defaults to Release.
+
+.EXAMPLE
+./quality-check.ps1
+
+.EXAMPLE
+./quality-check.ps1 -Configuration Debug
+
+.NOTES
+Requires the .NET 10 SDK and Docker Desktop. Build outputs and test results are written
+under the ignored .artifacts directory.
+The Docker Compose container and network are removed during cleanup after the runtime check.
+The MCP profile processes are also stopped after their startup checks complete.
+#>
 [CmdletBinding()]
 param(
     [string]$Configuration = "Release"
@@ -11,6 +34,7 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
 $artifactsRoot = Join-Path $repoRoot ".artifacts"
 $testResultsDirectory = Join-Path $artifactsRoot "test-results"
+# Keep test result files with the other generated artifacts instead of the repository root.
 New-Item -ItemType Directory -Path $testResultsDirectory -Force | Out-Null
 
 function Invoke-Step {
@@ -132,6 +156,8 @@ function Wait-ForComposeContainer {
 }
 
 function Test-ComposeRuntime {
+    # Build and run the image locally so this gate validates the current source tree.
+    # The finally block below always removes the temporary Compose container and network.
     if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
         throw "Docker was not found on PATH. Install Docker Desktop and try again."
     }

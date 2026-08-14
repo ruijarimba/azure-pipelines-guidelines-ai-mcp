@@ -1,5 +1,21 @@
-# Start the published MCP container through Docker Compose and report a clear
-# diagnostic when Docker or the WSL integration is unavailable.
+<#
+.SYNOPSIS
+Starts the published MCP container through Docker Compose.
+
+.DESCRIPTION
+Use this script when testing the published container path or the HTTP transport.
+Docker Compose pulls the configured image before starting the container in the background.
+Use run-mcp-local.ps1 when a client needs a directly started stdio process instead.
+
+.EXAMPLE
+./run-mcp-compose.ps1
+
+.NOTES
+Requires Docker Desktop with its Linux engine running. The service uses HTTP transport
+on localhost:8080/mcp. The command changes local Docker state by pulling an image and
+starting a background container.
+Use docker compose down separately when the service is no longer needed.
+#>
 [CmdletBinding()]
 
 $ErrorActionPreference = "Stop"
@@ -37,7 +53,8 @@ if ($LASTEXITCODE -ne 0) {
     throw "Docker Compose is not available. Update Docker Desktop and try again."
 }
 
-# Pull the latest published image and then start the service in the background.
+# Pull the latest configured image before starting the service so local testing uses the
+# current published image rather than a stale local copy.
 & docker compose pull
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
