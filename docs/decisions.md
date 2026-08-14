@@ -1,6 +1,12 @@
 # Architecture Decision Records
 
-Lightweight log of significant decisions and rationale. When an agent considers changing one of these, it must re-read the rationale first; if the context has changed, document the reversal here.
+Use this document to record important technical decisions, why we made them, and what consequences they have. It is not a changelog for every code or documentation change.
+
+When deciding whether to add an ADR, ask:
+
+> Will someone later need to understand why we chose this approach?
+
+When an agent considers changing an existing decision, it must re-read the rationale first. If the context has changed, document the reversal here.
 
 ## ADR index
 
@@ -28,11 +34,11 @@ Lightweight log of significant decisions and rationale. When an agent considers 
 
 **Date:** 2026-07-06  
 **Context:** Need to choose a .NET version that balances latest language features with stability.  
-**Decision:** Target `net10.0` (C# 13) exclusively; no multi-targeting.  
+**Decision:** Target `net10.0` exclusively and use the latest language version supported by the selected .NET SDK; no multi-targeting.  
 **Rationale:**
 
 - Latest stable SDK at project start (10.0.301).
-- C# 13 features (primary constructors, collection expressions) reduce boilerplate.
+- Current C# language features, including primary constructors and collection expressions, reduce boilerplate.
 - Single TFM simplifies build/test/package matrix.
 - NuGet consumers on older runtimes can use older major versions if needed (SemVer).
 
@@ -86,15 +92,11 @@ Lightweight log of significant decisions and rationale. When an agent considers 
 **Decision:** Single stack for all tests; no mixing of assertion or mocking libraries.  
 **Rationale:**
 
-- xUnit: industry-standard for .NET, VS/CLI/Rider integration excellent.
-- FluentAssertions: readable, expressive assertions (`result.Should().NotBeNull()`).
-- NSubstitute: minimal ceremony, natural syntax for substitutes.
+- xUnit, FluentAssertions, and NSubstitute provide a consistent, readable test stack with strong tooling support.
 
 **Consequences:**
 
-- Never use `Assert.*` from xUnit directly — always use FluentAssertions.
-- Never use Moq, FakeItEasy, or other mocking libraries.
-- Test method naming: `MethodName_GivenContext_ShouldOutcome`.
+- Test conventions and coverage expectations are defined in [testing.instructions.md](../.github/instructions/testing.instructions.md).
 
 ---
 
@@ -103,7 +105,7 @@ Lightweight log of significant decisions and rationale. When an agent considers 
 **Date:** 2026-07-06 (revised 2026-07-08)  
 **Context:** MSBuild 17.11+ supports `.slnx` (XML solution format), but not all tooling does.  
 **Original decision:** Use traditional `.sln` format for broadest toolchain compatibility.  
-**Reversal (2025-06-14):** The repository uses `.slnx` in practice. The original compatibility concern no longer applies — Visual Studio 2022 17.11+, Visual Studio 2026, and the .NET CLI all support `.slnx` fully. The XML format is human-readable, produces clean diffs, and is the preferred format for new projects going forward.
+**Reversal (2026-07-08):** The repository uses `.slnx` in practice. The original compatibility concern no longer applies — Visual Studio 2022 17.11+, Visual Studio 2026, and the .NET CLI all support `.slnx` fully. The XML format is human-readable, produces clean diffs, and is the preferred format for new projects going forward.
 
 **Consequences:**
 
@@ -121,15 +123,11 @@ Lightweight log of significant decisions and rationale. When an agent considers 
 **Decision:** Set `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` in root `Directory.Build.props`.  
 **Rationale:**
 
-- Forces resolution of all warnings before commit.
-- Prevents warning accumulation over time.
-- `AnalysisLevel=latest-all` ensures all Roslyn analysers are active.
+- Treating warnings as errors prevents quality issues from accumulating unnoticed.
 
 **Consequences:**
 
-- Every new warning is a build break.
-- Use `#pragma warning disable` only with an inline comment explaining the permanent exception.
-- Suppressions in `.editorconfig` or `.globalconfig` must be justified in this file or in code comments.
+- The build configuration remains the source of truth for enforcement and suppression details.
 
 ---
 
@@ -161,16 +159,11 @@ Lightweight log of significant decisions and rationale. When an agent considers 
 
 **Rationale:**
 
-- Consumers may want only parsing, or only rules, or only the analysis engine.
-- Separate packages enable independent versioning per component.
-- Encourages clean boundaries (NuGet packages are a natural unit of deployment).
+- Separate packages let consumers use only the parsing, rules, or analysis components they need while preserving clear layer boundaries.
 
 **Consequences:**
 
-- Every `public` API must be documented via XML comments.
-- Breaking changes require a major version bump (SemVer 2.0 strict).
-- `tools/` projects are not NuGet packages — they are executables only.
-- Package configuration remains available for local packing; NuGet publication is out of scope.
+- `src/` libraries retain package metadata for local builds, while `tools/` projects remain executables and package publication stays out of scope.
 
 ---
 
@@ -210,27 +203,12 @@ Ad-hoc or informal safety notes drift and conflict across sessions.
 
 **Rationale:**
 
-- These are authoritative, maintained, public documents — not ad-hoc opinions.
-- Grounding guardrails in named sources gives future agents (and humans) a way to resolve
-  ambiguity: "what does the MCP spec say about this?" is answerable; "what did someone mean
-  here?" is not.
-- OWASP LLM06 (Excessive Agency) and LLM01 (Prompt Injection) are directly relevant because
-  this repo reads and analyses untrusted YAML pipeline files and exposes MCP tools to AI clients.
+- These sources provide a durable rationale for human oversight, minimal agency, explicit uncertainty, reversibility, and prompt-injection resistance.
+- They are directly relevant because this repository reads untrusted YAML pipeline files and exposes tools to AI clients.
 
 **Consequences:**
 
-- The current behaviour principles are documented in
-  `.github/instructions/agent-behaviour.instructions.md` with `applyTo: "**"`.
-- Before changing any guardrail, re-read the relevant source(s) above and update this ADR.
-- Before pushing changes, agents must verify that the solution builds successfully and the
-  relevant unit test suite passes.
-- The instruction file links back here so the rationale chain is always traceable.
-- When a session becomes long or context-heavy, agents should create concise handoff summaries
-  or use the available conversation-summary feature so later turns preserve the current state,
-  constraints, and next steps without reloading the entire history.
-- Agents should also minimize communication overhead: batch independent actions, avoid repeating
-  plans or status, and report progress with numbered plan steps or known counts rather than guessed
-  percentages.
+- The operational guardrails live in [agent-behaviour.instructions.md](../.github/instructions/agent-behaviour.instructions.md); this ADR records why they exist.
 
 ---
 
@@ -253,61 +231,37 @@ English speakers.
 
 **Rationale:**
 
-- Code is read far more often than it is written (Fowler, *Refactoring*, 1999).
-- Agents optimise for task completion, not for the next human who opens the file.
-- Non-native English speakers are part of the target audience for both code comments and
-  documentation; plain language reduces ambiguity for everyone.
-- Measurable limits (line counts, parameter counts) are enforceable in reviews and by
-  analysers, unlike vague guidance such as "keep it simple."
+- Explicit limits and plain-language guidance make agent-generated code easier for humans to review and maintain.
 
 **Consequences:**
 
-- Maintainability rules are documented in
-  `.github/instructions/maintainability.instructions.md` with `applyTo: "**/*.cs"`.
-- Markdown writing rules are documented in
-  `.github/instructions/markdown.instructions.md` with `applyTo: "**/*.md"`.
-- Both instruction files link back here so the rationale chain is traceable.
-- Before changing any limit or rule, re-read the relevant source(s) above and update this ADR.
+- Detailed C# and Markdown standards live in [maintainability.instructions.md](../.github/instructions/maintainability.instructions.md) and [markdown.instructions.md](../.github/instructions/markdown.instructions.md).
 
 ---
 
 ## ADR-012 CSharp implementation patterns
 
 **Date:** 2026-07-07  
-**Context:** Agents implementing new `IGuidelineRule` classes repeatedly introduced the same quality issues: a redundant `await Task.CompletedTask` no-op, `HashSet<string>` used in place of `FrozenSet<T>` for static lookup sets, `[LoggerMessage]` attribute on partial methods (which requires the full `Microsoft.Extensions.Logging` package that `src/` libraries must not reference), overly complex regex alternations, and diagnostic messages that repeated information already available in structured fields. These issues were not covered by the
+**Context:** Agents implementing new `IGuidelineRule` classes repeatedly introduced the same quality issues: a redundant `await Task.CompletedTask` no-op, `HashSet<string>` used in place of `FrozenSet<T>` for static lookup sets, logging source-generation patterns that added unnecessary package coupling to library projects, overly complex regex alternations, and diagnostic messages that repeated information already available in structured fields. These issues were not covered by the
 existing instruction files.  
 **Decision:** Add `.github/instructions/csharp-patterns.instructions.md` that documents the
 correct pattern for each concern, with before/after examples drawn from real code.  
 **Rationale:**
 
-- Rules that are written down are repeatable. Rules that live only in a code-review comment
-  are lost after the session ends.
-- `FrozenSet<T>` is the BCL-recommended type for immutable, read-heavy lookup sets (.NET 8+).
-  Using `HashSet<string>` signals mutability that does not exist.
-- `[LoggerMessage]` source-generates partial methods and requires the full Logging package.
-  `LoggerMessage.Define` achieves the same goal with the Abstractions package only.
-- One large regex alternation combining two structurally different YAML patterns violates the
-  "no clever code" rule (maintainability rule 7). Two focused patterns are independently
-  testable and readable.
-- Diagnostic messages that embed `line` or `column` values duplicate structured fields and
-  bloat the message text.
+- These patterns make guideline rules predictable, readable, efficient, and compatible with the dependency boundaries of `src/` libraries.
 
 **Consequences:**
 
-- All new `IGuidelineRule` implementations must follow the patterns in the instruction file.
-- The instruction file is listed in `.github/copilot-instructions.md` under Active instruction
-  files so agents read it before writing code.
-- Before changing any pattern, re-read the relevant source(s) in ADR-011 and update this ADR.
+- Detailed rule implementation patterns live in [csharp-patterns.instructions.md](../.github/instructions/csharp-patterns.instructions.md).
 
 ---
 
 ## ADR-013 Heuristic detection
 
 **Date:** 2026-07-07  
-**Context:** The former phase-one roadmap said "Implement rules for all `ADOG-{CATEGORY}-{NNN}` guidelines in the manifest." After auditing the live `guidelines.json` manifest, 36 guideline IDs exist. 9 have `detection.kind` of `regex` or `yamlPath` — these are statically detectable and were implemented in Phase 1. The remaining 27 all have `detection.kind = heuristic`, meaning they require reasoning about intent, architecture, or context that a regex or YAML path expression cannot express. Phase 2 explicitly lists "LLM-assisted analysis
+**Context:** The former phase-one roadmap said "Implement rules for all `ADOG-{CATEGORY}-{NNN}` guidelines in the manifest." Some guideline entries require reasoning about intent, architecture, repository context, or external policy that a static YAML analyser cannot reliably express. Phase 2 explicitly lists "LLM-assisted analysis
 for `heuristic` detection rules" as a future enhancement.  
-**Decision:** The Phase 1 "all rules implemented" criterion applies only to rules with `detection.kind` of `regex` or `yamlPath`. Rules with `detection.kind = heuristic` are deferred to Phase 2. This interpretation resolves the apparent contradiction between "implement all rules" and "LLM-assisted heuristics are
-Phase 2."  
+**Decision:** The Phase 1 "all rules implemented" criterion applies only to rules with deterministic local detection. Rules classified as `heuristic` or `not automatable` are deferred to later analysis or remain available for lookup without deterministic diagnostics.  
 **Rationale:**
 
 - A static analyser cannot reliably detect heuristic patterns without producing
@@ -321,8 +275,7 @@ Phase 2."
 
 - Do not claim that a `heuristic` rule is deterministically enforced solely because a rule
   class exists. Record its local automation status and rationale in the metadata provider.
-- The `IGuidelineRepository` and `IGuidelineLoader` already load all 36 rules
-  from the manifest at runtime, so heuristic rules are available for lookup via
+- The `IGuidelineRepository` and `IGuidelineLoader` load all manifest rules at runtime, so heuristic rules are available for lookup via
   `list_guidelines` and `get_guideline` even without a
   corresponding `IGuidelineRule` implementation.
 - When Phase 2 begins, re-read this ADR to understand the design boundary.
@@ -332,43 +285,18 @@ Phase 2."
 ## ADR-014 Debuggability
 
 **Date:** 2026-07-08  
-**Context:** Domain model types (`PipelineDocument`, node records, `Diagnostic`, etc.) had no `ToString()` overrides. The auto-generated positional record `ToString()` dumps every property in declaration order, including large nested collections and multi-kilobyte YAML strings. This made watch-window inspection slow, hover tooltips unreadable, and test failure messages hard to
-diagnose without expanding each object manually.  
+**Context:** Domain model types (`PipelineDocument`, node records, `Diagnostic`, etc.) lacked consistent debugger-friendly representations. The auto-generated positional record `ToString()` can dump every property in declaration order, including large nested collections and multi-kilobyte YAML strings. This made watch-window inspection slow, hover tooltips unreadable, and test failure messages hard to diagnose without expanding each object manually.  
 **Decision:** Treat debuggability as a first-class quality concern, on par with testability. All domain types in `Core/` must implement `ToString()`, `[DebuggerDisplay]`, and `[property: DebuggerBrowsable(Never)]` where applicable, following the four rules in `csharp-patterns.instructions.md` section 9.
 
 **Rationale:**
 
-| Source | Key principle used |
-| --- | --- |
-| [Microsoft Framework Design Guidelines — Object.ToString](https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/object-tostring) | "DO override `ToString` to return a human-readable, developer-oriented representation." Also: do not throw, do not return null. |
-| [Visual Studio — Using the DebuggerDisplay attribute](https://learn.microsoft.com/en-us/visualstudio/debugger/using-the-debuggerdisplay-attribute) | Official guidance on `[DebuggerDisplay]`, `[DebuggerBrowsable]`, and `[DebuggerTypeProxy]`. |
-| [.NET BCL source (dotnet/runtime)](https://github.com/dotnet/runtime) | `List<T>`, `Dictionary<TKey,TValue>`, `Span<T>`, `KeyValuePair<TK,TV>` and hundreds of other BCL types carry `[DebuggerDisplay]`. The runtime team applies it consistently — this is the strongest available signal that Microsoft engineers treat it as non-negotiable. |
-| [CA1305 — Specify IFormatProvider](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1305) | Calling `int.ToString()` without a format provider is locale-sensitive. CA1305 is a build error in this project (ADR-006), so `CultureInfo.InvariantCulture` is required in every `ToString()` that formats a number. |
-
-Additional reasoning:
-
-- Poor debugger representations slow down development proportionally to the depth and size of
-  the object graph. For a type like `PipelineDocument` that carries a full YAML string plus
-  collections of stages, jobs, and steps, the default dump is unusable at a glance.
-- Missing `ToString()` overrides produce unhelpful FluentAssertions failure messages such as
-  `Expected "StageNode { Name = ..., Jobs = [...] }" but found ...` — the noise obscures the
-  actual assertion.
-- These are productivity and correctness costs comparable to missing unit test coverage;
-  treating one as mandatory and the other as optional is inconsistent.
+- Concise debugger representations make large domain objects easier to inspect and make test failures easier to understand.
 
 **Consequences:**
 
-- Every new domain type in `Core/` must include `ToString()` and `[DebuggerDisplay]` from
-  day one. A missing override is a code-review defect, not optional polish.
-- `[property: DebuggerBrowsable(DebuggerBrowsableState.Never)]` must be applied to any
-  property whose expanded view in the watch window would obscure more useful adjacent data
-  (e.g. raw YAML strings, flattened projection properties).
-- All numeric values in `ToString()` implementations must use `CultureInfo.InvariantCulture`
-  and `using System.Globalization;`.
-- Every `ToString()` override must have dedicated unit tests covering all logical branches,
-  per the coverage rules in `testing.instructions.md`.
-- The four concrete rules are documented in `csharp-patterns.instructions.md` section 9 with
-  before/after examples. That file links back here so the rationale chain is traceable.
+- Every new domain type in `Core/` must include a concise `ToString()` and `[DebuggerDisplay]`
+  where useful from day one. Existing Core types should be brought to the same standard as they are touched.
+- Detailed debugger-display patterns and test expectations live in [csharp-patterns.instructions.md](../.github/instructions/csharp-patterns.instructions.md).
 
 ---
 
@@ -393,27 +321,9 @@ preference and did not reflect the current MCP transport direction.
 
 **Consequences:**
 
-- Documentation must distinguish the current `stdio` default from a general recommendation.
-- Documentation must call the `/mcp` endpoint HTTP or Streamable HTTP, not SSE-only, unless the
-  implementation explicitly adds the legacy HTTP+SSE transport.
-- The existing `SSE` launch-profile name remains for compatibility with the local debugging
-  workflow. Its documentation must explain that it starts the host HTTP transport.
-- Remote HTTP deployments require HTTPS and appropriate authentication and authorization. They
-  must not expose the endpoint publicly without those controls.
+- Transport setup, endpoint details, compatibility behavior, and remote security requirements live in [mcp-reference.md](mcp-reference.md).
 
-### Update 2026-08-05: MCP 2.0 transport compatibility
-
-The repository upgraded the MCP .NET SDK to `ModelContextProtocol 2.0.0` and kept the existing HTTP transport path for local debugging while enabling the newer Streamable HTTP behaviour. In 2.0, `HttpServerTransportOptions.EnableLegacySse` is marked obsolete (diagnostic `MCP9004`) because legacy SSE has no built-in request backpressure and is only recommended for trusted, isolated clients. This repository keeps the legacy SSE path only for the local-debugging workflow already covered by ADR-015, and the host disables stateless mode (`Stateless = false`) so the legacy SSE session state can be maintained. The obsolete warning is suppressed with a local-debugging justification comment rather than being ignored silently; if the host is ever exposed beyond that trusted, isolated local-process use case, the legacy SSE option should be removed and only Streamable HTTP served.
-
-### Update 2026-08-06: SDK roll-forward for container builds
-
-The repository still targets `net10.0`, but the SDK pin in `global.json` now allows roll-forward to the newest installed SDK instead of staying on the same patch band. The `dotnet/sdk:10.0` container image currently provides SDK `10.0.400`, while the repository pin was `10.0.301` with `latestPatch`, which caused Docker builds to fail during `dotnet restore`. The updated policy keeps the pinned baseline while allowing newer .NET 10 SDK bands in local and container environments.
-
-**Consequences:**
-
-- Docker builds remain aligned with the current `dotnet/sdk:10.0` image.
-- Local developer machines can use newer .NET 10 SDKs without waiting for a patch-band match.
-- The target framework remains unchanged at `net10.0`.
+The current SDK and container compatibility details are maintained in `global.json`, the Docker documentation, and [mcp-reference.md](mcp-reference.md).
 
 ---
 
