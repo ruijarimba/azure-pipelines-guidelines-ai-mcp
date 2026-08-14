@@ -107,18 +107,6 @@ ADOG-(GENERAL|JOBS|PARAMETERS|PIPELINES|STAGES|STEPS|VARIABLES)-[0-9]{3}
 
 For severity mapping to diagnostic level, detection kinds, and all domain terms, see [`glossary.md`](glossary.md).
 
-## Build infrastructure
-
-| File | Purpose |
-| --- | --- |
-| `global.json` | Pins .NET SDK version |
-| `Directory.Build.props` (root) | TFM, nullable, TreatWarningsAsErrors, AnalysisLevel |
-| `src/Directory.Build.props` | NuGet metadata, GenerateDocumentationFile |
-| `tools/Directory.Build.props` | Disables IsPackable, GenerateDocumentationFile |
-| `tests/Directory.Build.props` | Disables IsPackable, suppresses CA1707 |
-| `Directory.Packages.props` | Central NuGet version management |
-| `.editorconfig` | C# code style rules |
-
 ## Packaging and distribution
 
 The `src/` projects retain independent package metadata (`AzurePipelines.Guidelines.*`) and the MCP host retains its global-tool packaging configuration for local builds. This repository does not publish NuGet packages.

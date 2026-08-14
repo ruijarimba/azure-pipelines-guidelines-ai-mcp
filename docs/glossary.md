@@ -67,6 +67,7 @@ When you see `do-not` in a manifest or a prompt file, and `DoNot` in C# code or 
 | **MCP server** | A process that exposes capabilities (tools and resources) to AI assistants via the Model Context Protocol standard. |
 | **MCP tool** | A callable function exposed by the server. For this project: guideline lookup, YAML analysis, fix suggestions. |
 | **MCP resource** | A queryable data source. For this project: guideline catalogue, per-rule metadata. |
+| **MCP prompt** | A reusable instruction template exposed by the server. It guides an AI assistant to use MCP tools and present results without performing analysis itself. |
 
 ---
 
@@ -80,14 +81,3 @@ When you see `do-not` in a manifest or a prompt file, and `DoNot` in C# code or 
 
 ---
 
-## Naming conventions
-
-| Element | Convention | Example |
-| --- | --- | --- |
-| Types, methods, properties | `PascalCase` | `GuidelineDefinition`, `AnalyzeAsync` |
-| Private fields | `_camelCase` | `_analysisEngine` |
-| Parameters, locals | `camelCase` | `guidelineId`, `pipelineDocument` |
-| Async methods | Suffix `Async` | `AnalyzeAsync`, `GetByIdAsync` |
-| Interfaces | Prefix `I` + noun/verb phrase | `IGuidelineRule`, `IGuidelineRepository` |
-| Rule classes | `{Behaviour}Rule` | `AbsoluteTemplatePathRule` |
-| Test methods | `Method_GivenContext_ShouldOutcome` | `Analyze_GivenEmptyDocument_ShouldReturnNoDiagnostics` |
