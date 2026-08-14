@@ -50,7 +50,7 @@ function Invoke-Step {
 function Start-McpProfile {
     param(
         [Parameter(Mandatory)]
-        [string]$Profile,
+        [string]$LaunchProfile,
         [Parameter(Mandatory)]
         [string]$Configuration,
         [Parameter(Mandatory)]
@@ -60,7 +60,7 @@ function Start-McpProfile {
     )
 
     $projectPath = Join-Path $repoRoot "tools/AzurePipelines.Guidelines.Mcp.Host"
-    $arguments = "run --no-build --no-restore --configuration $Configuration --project `"$projectPath`" --launch-profile $Profile"
+    $arguments = "run --no-build --no-restore --configuration $Configuration --project `"$projectPath`" --launch-profile $LaunchProfile"
 
     Start-Process `
         -FilePath "dotnet" `
@@ -195,7 +195,7 @@ function Test-McpProfile {
     param(
         [Parameter(Mandatory)]
         [ValidateSet("stdio", "SSE")]
-        [string]$Profile,
+        [string]$LaunchProfile,
         [Parameter(Mandatory)]
         [string]$Configuration
     )
@@ -208,19 +208,19 @@ function Test-McpProfile {
 
     try {
         $process = Start-McpProfile `
-            -Profile $Profile `
+            -LaunchProfile $LaunchProfile `
             -Configuration $Configuration `
             -StandardOutputPath $standardOutputPath `
             -StandardErrorPath $standardErrorPath
 
-        if ($Profile -eq "stdio") {
+        if ($LaunchProfile -eq "stdio") {
             Wait-ForMcpStdio -Process $process -StandardErrorPath $standardErrorPath
         }
         else {
             Wait-ForMcpSse -Process $process
         }
 
-        Write-Host "MCP $Profile profile started successfully." -ForegroundColor Green
+        Write-Host "MCP $LaunchProfile profile started successfully." -ForegroundColor Green
     }
     finally {
         if ($null -ne $process -and -not $process.HasExited) {
@@ -247,8 +247,8 @@ Invoke-Step -Name "Test" -ScriptBlock {
 }
 
 Invoke-Step -Name "MCP startup" -ScriptBlock {
-    Test-McpProfile -Profile "stdio" -Configuration $Configuration
-    Test-McpProfile -Profile "SSE" -Configuration $Configuration
+    Test-McpProfile -LaunchProfile "stdio" -Configuration $Configuration
+    Test-McpProfile -LaunchProfile "SSE" -Configuration $Configuration
 }
 
 Invoke-Step -Name "Docker Compose runtime" -ScriptBlock {

@@ -230,6 +230,7 @@ The MCP server exposes six tools plus resource-based catalogue endpoints in the 
 Analyzes one Azure Pipelines pipeline or template. Use inline `yaml` content or one `fileOrPath` value. A directory is scanned recursively for supported YAML files. Templates can define steps, jobs, stages, or variables.
 
 **Input:**
+
 - `yaml` (string, optional) — Inline pipeline or template YAML. Pass this or `fileOrPath`, not both.
 - `fileOrPath` (string, optional) — One file or directory path. Pass this or `yaml`, not both.
 - `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check. When provided,
@@ -239,6 +240,7 @@ Analyzes one Azure Pipelines pipeline or template. Use inline `yaml` content or 
   status is `Heuristic` or `NotAutomatable`. Defaults to `false` (enforceable rules only).
 
 **Returns:**
+
 - An object containing `summary` and `diagnostics`.
 
 `summary` includes `filesAnalyzed`, `filesWithFindings`, and `totalFindings`. When findings exist, it also includes `byRecommendation`, `byCategory`, and `byRule` count maps. The detailed `diagnostics` array contains `ruleId`, `recommendation`, `message`, and optional `line` and `column` values.
@@ -289,6 +291,7 @@ Use `/workspace/azure-pipelines.yml` as the `fileOrPath` value when calling the 
 Explains a single Azure Pipelines guideline diagnostic in focused detail. Pass the `guidelineId` from a diagnostic (for example, from an `analyze_template` result) to get its full detail payload, without fetching the whole catalogue. Optionally echo back the diagnostic's `message`, `filePath`, `line`, and `column` so the response stays paired with the original finding.
 
 **Input:**
+
 - `guidelineId` (string, required) — The stable guideline identifier, e.g. `ADOG-STEPS-001`.
 - `message` (string, optional) — Diagnostic message text to echo back for context.
 - `filePath` (string, optional) — File path where the diagnostic was found, to echo back for context.
@@ -296,6 +299,7 @@ Explains a single Azure Pipelines guideline diagnostic in focused detail. Pass t
 - `column` (integer, optional) — One-based column number where the diagnostic was found.
 
 **Returns:**
+
 - An object with `guideline` (the full guideline detail payload: id, title, category, severity,
   description, rationale, tags, detection hints, fix guidance, references, and automation status)
   and an optional `diagnostic` object echoing back any supplied context. `diagnostic` is omitted
@@ -335,6 +339,7 @@ Example capability fields:
   }
 }
 ```
+
 - `adog://guidelines/category/{category}` returns the entries for one category, such as `adog://guidelines/category/steps`.
 - `adog://guidelines/{id}` returns the full detail for one guideline, such as `adog://guidelines/ADOG-STEPS-001`.
 - `adog://guidelines/{id}/automation` returns the local automation status and reason for one guideline.
@@ -453,11 +458,13 @@ The server runs only while the Visual Studio debugger is attached. To stop it, d
 ### "MCP server not found" or "command not found"
 
 **If using a local clone:**
+
 - Verify the .NET SDK is available: `dotnet --version`
 - Run `dotnet run --project tools/AzurePipelines.Guidelines.Mcp.Host` from the repository root
 - Verify the configured project path is absolute and points to the MCP host project
 
 **If using Docker:**
+
 - Build the image: `pwsh ./scripts/build-mcp-image.ps1`
 - Verify the local image: `docker image inspect adog-mcp:local`
 - Ensure Docker Desktop is running

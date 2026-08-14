@@ -32,6 +32,7 @@ mindmap
 ```
 
 **Visual boundary rules:**
+
 - ✅ Orchestration logic — coordinate parse → analyze → aggregate
 - ✅ `IAnalysisEngine` implementation — single seam for all callers
 - ✅ Result aggregation — collect diagnostics from all rules
@@ -58,6 +59,7 @@ mindmap
 ```
 
 **Keep Analysis focused:**
+
 - ❌ No YAML parsing details — use injected `IPipelineParser`
 - ❌ No rule implementations — inject `IEnumerable<IGuidelineRule>`
 - ❌ No MCP protocol concerns → `Mcp` project

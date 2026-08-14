@@ -3,6 +3,7 @@
 This file tracks upcoming work and enhancements for the next development session.
 
 The backlog below reflects the current state of the repository after the latest validation pass:
+
 - The MCP server and shared analysis stack are implemented.
 - MCP documentation and solution registration are complete.
 - Folder-based integration tests for the real analysis stack are implemented and validated.
@@ -33,6 +34,7 @@ Many classes, methods, and options lack comments. This is especially problematic
       rather than restating syntax.
 
 Related files:
+
 - `tools/AzurePipelines.Guidelines.Mcp.Host/Program.cs`
 - `tools/AzurePipelines.Guidelines.Mcp.Host/McpHostStartup.cs`
 - `tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json`
@@ -50,6 +52,7 @@ These are optional follow-ups that are not blocked by the current implementation
 - [x] Review and commit the current handoff notes in `docs/TODO.md` and `docs/progress.md` before the next session
 
 Related files:
+
 - `docs/mcp-reference.md`
 
 ---
@@ -62,6 +65,7 @@ The current manifest scan found no missing `ADOG-*` IDs to implement, so this re
 - [ ] Implement any newly introduced rules with the existing rule-implementation workflow
 
 Related files:
+
 - `docs/progress.md`
 - `.github/prompts/implement-rule.prompt.md`
 
@@ -90,6 +94,7 @@ Improve MCP support without making clients load the full guideline catalogue or 
 - [ ] Do not add Sampling or LLM-assisted heuristic analysis as part of this work
 
 Related files:
+
 - `src/AzurePipelines.Guidelines.Core/IGuidelineAutomationMetadataProvider.cs`
 - `src/AzurePipelines.Guidelines.Rules/GuidelineAutomationMetadataProvider.cs`
 - `src/AzurePipelines.Guidelines.Mcp/Tools/GuidelineTools.cs`
@@ -108,6 +113,7 @@ Create a user-facing document that explains how each MCP capability affects clie
 - [x] Create `docs/mcp-token-usage.md` and register it in `AzurePipelinesGuidelines.slnx`
 
 Related files:
+
 - `docs/mcp-reference.md`
 - `docs/mcp-token-usage.md`
 
@@ -118,6 +124,7 @@ Related files:
 The current branch contains the completed MCP server, shared analysis stack, documentation, and Solution Explorer registration. The latest feature commit is `36a34a3`; the branch handoff and agent guidance were updated in `eab7f24`, `7201554`, and `55f428f`.
 
 **Completed:**
+
 - ✅ Updated predefined MCP prompts to render guideline recommendations as `DO`, `DO-NOT`, `AVOID`,
   and `CONSIDER` instead of diagnostic severity labels.
 - ✅ Validated the change with targeted MCP prompt tests (`10` passed, `0` failed) and the full
@@ -128,6 +135,7 @@ The current branch contains the completed MCP server, shared analysis stack, doc
   `AzurePipelinesGuidelines.slnx`.
 
 **Status:**
+
 - NuGet publication is out of scope; package configuration remains for local builds only
 - Docker Hub publication for the MCP server is complete
 
