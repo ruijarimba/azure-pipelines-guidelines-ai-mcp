@@ -63,11 +63,12 @@
     <File Path="tools/Directory.Build.props" />
     <Project Path="tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj" />
   </Folder>
-  <Folder Name="/scripts/">
-    <File Path="scripts/run-mcp-local.ps1" />
+    <Folder Name="/scripts/">
     <File Path="scripts/build-mcp-image.ps1" />
     <File Path="scripts/publish-mcp-image.ps1" />
+    <File Path="scripts/quality-check.ps1" />
     <File Path="scripts/run-mcp-compose.ps1" />
+    <File Path="scripts/run-mcp-local.ps1" />
   </Folder>
   <Folder Name="/.github/">
     <File Path=".github/copilot-instructions.md" />
