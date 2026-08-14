@@ -7,7 +7,7 @@
   -->
 
   <PropertyGroup>
-	<!-- Keep generated build and package artifacts outside the repository by default. -->
+	<!-- Keep generated build and package artifacts in the ignored .artifacts folder by default. -->
 	<ArtifactsRoot Condition="'$(ArtifactsRoot)' == ''">$(MSBuildThisFileDirectory).artifacts\</ArtifactsRoot>
 	<BaseOutputPath Condition="'$(BaseOutputPath)' == ''">$(ArtifactsRoot)bin\$(MSBuildProjectName)\</BaseOutputPath>
 	<BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)' == ''">$(ArtifactsRoot)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
