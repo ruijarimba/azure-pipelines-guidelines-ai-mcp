@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 ---
 
 # Implement a new `IGuidelineRule`

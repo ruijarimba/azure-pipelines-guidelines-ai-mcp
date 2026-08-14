@@ -1,5 +1,5 @@
 ---
-mode: agent
+agent: agent
 ---
 
 # Add a new MCP tool handler
