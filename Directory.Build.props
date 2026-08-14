@@ -7,6 +7,12 @@
   -->
 
   <PropertyGroup>
+	<!-- Keep generated build and package artifacts outside the repository by default. -->
+	<ArtifactsRoot Condition="'$(ArtifactsRoot)' == ''">$(MSBuildThisFileDirectory).artifacts\</ArtifactsRoot>
+	<BaseOutputPath Condition="'$(BaseOutputPath)' == ''">$(ArtifactsRoot)bin\$(MSBuildProjectName)\</BaseOutputPath>
+	<BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)' == ''">$(ArtifactsRoot)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+	<PackageOutputPath Condition="'$(PackageOutputPath)' == ''">$(ArtifactsRoot)packages\</PackageOutputPath>
+	<DefaultItemExcludes>$(DefaultItemExcludes);$(MSBuildThisFileDirectory)**\bin\**;$(MSBuildThisFileDirectory)**\obj\**</DefaultItemExcludes>
 	<TargetFramework>net10.0</TargetFramework>
 	<LangVersion>latest</LangVersion>
 	<Nullable>enable</Nullable>

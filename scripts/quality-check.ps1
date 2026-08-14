@@ -9,6 +9,9 @@ param(
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
+$artifactsRoot = Join-Path $repoRoot ".artifacts"
+$testResultsDirectory = Join-Path $artifactsRoot "test-results"
+New-Item -ItemType Directory -Path $testResultsDirectory -Force | Out-Null
 
 function Invoke-Step {
     param(
@@ -25,13 +28,15 @@ function Start-McpProfile {
         [Parameter(Mandatory)]
         [string]$Profile,
         [Parameter(Mandatory)]
+        [string]$Configuration,
+        [Parameter(Mandatory)]
         [string]$StandardOutputPath,
         [Parameter(Mandatory)]
         [string]$StandardErrorPath
     )
 
     $projectPath = Join-Path $repoRoot "tools/AzurePipelines.Guidelines.Mcp.Host"
-    $arguments = "run --no-build --no-restore --project `"$projectPath`" --launch-profile $Profile"
+    $arguments = "run --no-build --no-restore --configuration $Configuration --project `"$projectPath`" --launch-profile $Profile"
 
     Start-Process `
         -FilePath "dotnet" `
@@ -164,7 +169,9 @@ function Test-McpProfile {
     param(
         [Parameter(Mandatory)]
         [ValidateSet("stdio", "SSE")]
-        [string]$Profile
+        [string]$Profile,
+        [Parameter(Mandatory)]
+        [string]$Configuration
     )
 
     $temporaryDirectory = Join-Path ([System.IO.Path]::GetTempPath()) "adog-mcp-quality-check-$([Guid]::NewGuid())"
@@ -176,6 +183,7 @@ function Test-McpProfile {
     try {
         $process = Start-McpProfile `
             -Profile $Profile `
+            -Configuration $Configuration `
             -StandardOutputPath $standardOutputPath `
             -StandardErrorPath $standardErrorPath
 
@@ -209,12 +217,12 @@ Invoke-Step -Name "Build" -ScriptBlock {
 }
 
 Invoke-Step -Name "Test" -ScriptBlock {
-    dotnet test --no-build --configuration $Configuration --no-restore
+    dotnet test --no-build --configuration $Configuration --no-restore --results-directory $testResultsDirectory
 }
 
 Invoke-Step -Name "MCP startup" -ScriptBlock {
-    Test-McpProfile -Profile "stdio"
-    Test-McpProfile -Profile "SSE"
+    Test-McpProfile -Profile "stdio" -Configuration $Configuration
+    Test-McpProfile -Profile "SSE" -Configuration $Configuration
 }
 
 Invoke-Step -Name "Docker Compose runtime" -ScriptBlock {

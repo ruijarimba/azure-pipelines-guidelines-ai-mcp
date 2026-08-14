@@ -75,17 +75,18 @@ Run the following command from the repository root to collect coverage and gener
 ```powershell
 dotnet test AzurePipelinesGuidelines.slnx `
   --collect:"XPlat Code Coverage" `
-  --results-directory ./coverage
+  --results-directory ./.artifacts/coverage
 
 # Generate an HTML report (requires reportgenerator global tool).
 # Install once: dotnet tool install -g dotnet-reportgenerator-globaltool
 reportgenerator `
-  -reports:"./coverage/**/coverage.cobertura.xml" `
-  -targetdir:"./coverage/report" `
+  -reports:"./.artifacts/coverage/**/coverage.cobertura.xml" `
+  -targetdir:"./.artifacts/coverage/report" `
   -reporttypes:Html
 ```
 
-The generated `./coverage/report/index.html` shows line, branch, and method coverage per file.
+The generated `./.artifacts/coverage/report/index.html` shows
+line, branch, and method coverage per file.
 Before committing, confirm the repository-wide line coverage is at or above 90%.
 
 ## What to avoid
