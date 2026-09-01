@@ -46,6 +46,10 @@ RUN dotnet publish tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guide
     --no-build \
     --output /app/publish
 
+
+##########################################################################################################
+
+
 # Final runtime image
 # Use aspnet instead of runtime: Mcp.Host references ModelContextProtocol.AspNetCore,
 # which requires the Microsoft.AspNetCore.App shared framework at process startup.
