@@ -31,10 +31,12 @@ internal sealed class ParameterGroupingRule : IGuidelineRule
                 parameter.Name.Contains("token", StringComparison.OrdinalIgnoreCase) ||
                 parameter.Name.Contains("secret", StringComparison.OrdinalIgnoreCase))
             {
+                string parameterName = RuleHelpers.SanitizeForDiagnostic(parameter.Name);
+
                 yield return new Diagnostic(
                     _id,
                     DiagnosticSeverity.Info,
-                    $"Parameter '{parameter.Name}' looks like a sensitive value. " +
+                    $"Parameter '{parameterName}' looks like a sensitive value. " +
                     "Consider grouping related parameters together so the interface is easier to understand.",
                     document.FilePath,
                     Line: null,

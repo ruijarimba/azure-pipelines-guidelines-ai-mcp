@@ -37,10 +37,12 @@ internal sealed class JobLevelVariableRule : IGuidelineRule
                 continue;
             }
 
+            string variableName = RuleHelpers.SanitizeForDiagnostic(variable.Name ?? "(unnamed)");
+
             yield return new Diagnostic(
                 _id,
                 DiagnosticSeverity.Info,
-                $"Variable '{variable.Name ?? "(unnamed)"}' is declared at the pipeline root. " +
+                $"Variable '{variableName}' is declared at the pipeline root. " +
                 "Consider moving it to job scope when it is only relevant to a specific job.",
                 document.FilePath,
                 Line: null,

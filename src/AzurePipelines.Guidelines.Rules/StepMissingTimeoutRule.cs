@@ -31,11 +31,12 @@ internal sealed class StepMissingTimeoutRule : IGuidelineRule
             if (step.Task is not null && step.TimeoutInMinutes is null)
             {
                 string displayName = step.DisplayName ?? step.Task;
+                string safeDisplayName = RuleHelpers.SanitizeForDiagnostic(displayName);
 
                 yield return new Diagnostic(
                     _id,
                     DiagnosticSeverity.Info,
-                    $"Task step '{displayName}' is missing 'timeoutInMinutes'. " +
+                    $"Task step '{safeDisplayName}' is missing 'timeoutInMinutes'. " +
                     "Consider setting a step-level timeout for faster failure detection.",
                     document.FilePath,
                     step.Line,

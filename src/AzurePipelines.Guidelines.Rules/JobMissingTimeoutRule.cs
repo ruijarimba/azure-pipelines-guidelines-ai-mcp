@@ -28,10 +28,11 @@ internal sealed class JobMissingTimeoutRule : IGuidelineRule
 
             if (job.TimeoutInMinutes is null)
             {
+                string jobName = RuleHelpers.SanitizeForDiagnostic(job.Name ?? "(unnamed)");
                 yield return new Diagnostic(
                     _id,
                     DiagnosticSeverity.Error,
-                    $"Job '{job.Name ?? "(unnamed)"}' is missing 'timeoutInMinutes'. " +
+                    $"Job '{jobName}' is missing 'timeoutInMinutes'. " +
                     "Set an explicit timeout to prevent indefinitely hung jobs.",
                     document.FilePath,
                     job.Line,

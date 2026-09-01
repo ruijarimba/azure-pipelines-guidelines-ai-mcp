@@ -32,10 +32,12 @@ internal sealed class ReadonlyVariableRule : IGuidelineRule
                 continue;
             }
 
+            string variableName = RuleHelpers.SanitizeForDiagnostic(variable.Name ?? "(unnamed)");
+
             yield return new Diagnostic(
                 _id,
                 DiagnosticSeverity.Info,
-                $"Variable '{variable.Name ?? "(unnamed)"}' is mutable. " +
+                $"Variable '{variableName}' is mutable. " +
                 "Mark it as readonly when the value should not change after initialization.",
                 document.FilePath,
                 Line: null,

@@ -29,10 +29,12 @@ internal sealed class VariableScopeRule : IGuidelineRule
 
             if (variable.Value is not null && variable.Group is null)
             {
+                string variableName = RuleHelpers.SanitizeForDiagnostic(variable.Name ?? "(unnamed)");
+
                 yield return new Diagnostic(
                     _id,
                     DiagnosticSeverity.Error,
-                    $"Variable '{variable.Name ?? "(unnamed)"}' is declared at pipeline scope. " +
+                    $"Variable '{variableName}' is declared at pipeline scope. " +
                     "Restrict it to the narrowest scope that still satisfies your pipeline needs.",
                     document.FilePath,
                     Line: null,

@@ -40,11 +40,12 @@ internal sealed partial class RelativeTemplatePathRule : IGuidelineRule
             cancellationToken.ThrowIfCancellationRequested();
 
             int line = RuleHelpers.GetLineNumber(document.CommentFreeContent, match.Index);
+            string templateReference = RuleHelpers.SanitizeForDiagnostic(match.Value.Trim());
 
             yield return new Diagnostic(
                 _id,
                 DiagnosticSeverity.Info,
-                $"Template reference '{match.Value.Trim()}' uses a relative path. " +
+                $"Template reference '{templateReference}' uses a relative path. " +
                 "Consider using an absolute path (starting with '/') for clarity.",
                 document.FilePath,
                 line,

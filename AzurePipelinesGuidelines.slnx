@@ -58,6 +58,7 @@
     </Folder>
     <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />
     <Project Path="tests/AzurePipelines.Guidelines.Rules.Tests/AzurePipelines.Guidelines.Rules.Tests.csproj" />
+    <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/RuleHelpersTests.cs" />
   </Folder>
   <Folder Name="/tools/">
     <File Path="tools/Directory.Build.props" />

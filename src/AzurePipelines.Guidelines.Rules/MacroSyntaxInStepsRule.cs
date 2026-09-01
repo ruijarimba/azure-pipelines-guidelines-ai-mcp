@@ -50,11 +50,12 @@ internal sealed partial class MacroSyntaxInStepsRule : IGuidelineRule
             }
 
             int line = RuleHelpers.GetLineNumber(document.CommentFreeContent, match.Index);
+            string macroReference = RuleHelpers.SanitizeForDiagnostic(match.Value);
 
             yield return new Diagnostic(
                 _id,
                 DiagnosticSeverity.Warning,
-                $"Macro-syntax reference '{match.Value}' found. " +
+                $"Macro-syntax reference '{macroReference}' found. " +
                 "Avoid $(VAR) macro syntax; prefer runtime expressions $[variables.VAR] " +
                 "or template expressions ${{ variables.VAR }}.",
                 document.FilePath,

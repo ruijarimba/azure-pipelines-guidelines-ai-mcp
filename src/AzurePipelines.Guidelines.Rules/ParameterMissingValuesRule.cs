@@ -38,10 +38,12 @@ internal sealed class ParameterMissingValuesRule : IGuidelineRule
 
             if (isEnumerableType && param.Values.Count == 0)
             {
+                string parameterName = RuleHelpers.SanitizeForDiagnostic(param.Name);
+
                 yield return new Diagnostic(
                     _id,
                     DiagnosticSeverity.Error,
-                    $"Parameter '{param.Name}' has no 'values:' list. " +
+                    $"Parameter '{parameterName}' has no 'values:' list. " +
                     "Declare an explicit list of allowed values to constrain valid inputs.",
                     document.FilePath,
                     Line: null,

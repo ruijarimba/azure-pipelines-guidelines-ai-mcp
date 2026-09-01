@@ -32,10 +32,12 @@ internal sealed class JobMissingCheckoutRule : IGuidelineRule
 
             if (!hasCheckout)
             {
+                string jobName = RuleHelpers.SanitizeForDiagnostic(job.Name ?? "(unnamed)");
+
                 yield return new Diagnostic(
                     _id,
                     DiagnosticSeverity.Info,
-                    $"Job '{job.Name ?? "(unnamed)"}' has no checkout step. " +
+                    $"Job '{jobName}' has no checkout step. " +
                     "Consider adding '- checkout: self' or '- checkout: none' to be explicit.",
                     document.FilePath,
                     job.Line,

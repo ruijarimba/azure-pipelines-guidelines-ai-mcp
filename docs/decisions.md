@@ -368,10 +368,11 @@ fields where the message remains actionable without it.
   [csharp-patterns.instructions.md §4.3](../.github/instructions/csharp-patterns.instructions.md).
 - The required adversarial test cases are documented in
   [testing.instructions.md](../.github/instructions/testing.instructions.md).
-- Existing rules that embed unbounded pipeline-derived text in diagnostics (at minimum,
-  the relative-template-path rule and the parameter-missing-values rule) need a follow-up
-  code change to adopt the shared sanitizer. That retrofit is tracked as a separate task and
-  is not part of this documentation-only change.
+- A shared `RuleHelpers.SanitizeForDiagnostic` implementation now strips control characters,
+  trims values, caps them at 200 characters, and appends a single ellipsis when truncation is
+  required before pipeline-derived text is included in diagnostic messages.
+- Adversarial tests cover oversized values, control characters, instruction-like text, empty
+  values, and the exact truncation boundary.
 
 ---
 
