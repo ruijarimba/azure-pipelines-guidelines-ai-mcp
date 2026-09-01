@@ -4,7 +4,7 @@ This project is the executable entry point for the Azure Pipelines Guidelines MC
 
 ## What this project is
 
-The host is a thin wrapper. It starts the MCP server, chooses a transport, and then gets out of the way. The actual MCP tools, resources, rules, and parsing live in the `src/` class libraries.
+The host is a thin wrapper built on the [official C# MCP SDK](https://github.com/modelcontextprotocol/csharp-sdk). It starts the MCP server, chooses a transport, and then gets out of the way. The actual MCP tools, resources, rules, and parsing live in the `src/` class libraries.
 
 ## What you need to know before running
 

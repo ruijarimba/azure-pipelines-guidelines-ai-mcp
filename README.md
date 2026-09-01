@@ -35,7 +35,7 @@ The [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-
 ## Technology at a glance
 
 - **.NET 10 and C# 13** provide the layered application and executable MCP host.
-- **Model Context Protocol (MCP)** exposes analysis tools, guideline lookups, resources, and prompts to AI clients.
+- **Model Context Protocol (MCP)** exposes analysis tools, guideline lookups, resources, and prompts to AI clients. Built using the [official C# MCP SDK](https://github.com/modelcontextprotocol/csharp-sdk).
 - **ASP.NET Core** provides the HTTP transport; `stdio` supports clients that start the server locally.
 - **Docker Hub** provides a published container for clients that support stdio servers.
 

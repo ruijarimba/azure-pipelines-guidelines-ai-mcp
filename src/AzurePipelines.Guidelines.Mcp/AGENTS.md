@@ -27,7 +27,7 @@ Implements the Model Context Protocol (MCP) server logic. Exposes guideline look
 
 ## Dependencies (NuGet)
 
-- `ModelContextProtocol`
+- [`ModelContextProtocol`](https://github.com/modelcontextprotocol/csharp-sdk) — Official C# MCP SDK
 - `Microsoft.Extensions.Hosting.Abstractions`
 - `Microsoft.Extensions.Logging.Abstractions`
 

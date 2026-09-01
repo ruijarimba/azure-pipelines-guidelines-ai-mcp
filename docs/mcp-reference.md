@@ -64,6 +64,8 @@ The tables below show the complete MCP surface. Use the linked sections for deta
 
 [Model Context Protocol (MCP)](https://modelcontextprotocol.io) is an open standard that lets AI assistants connect to external tools and data sources. Think of it as a plugin system for AI: instead of relying only on training data, the assistant calls a running server to get live, structured results.
 
+This server is built using the [official C# MCP SDK](https://github.com/modelcontextprotocol/csharp-sdk), which provides the protocol implementation and transport layers.
+
 `adog-mcp` supports two ways for a client to connect: a locally started process that uses standard input/output (`stdio`), and an HTTP endpoint. Choose the transport that matches where the client and server run. The server does not require one transport to be primary.
 
 Without the MCP server, the AI can only advise based on training data. With it running, the AI analyzes your actual pipeline file against the current guidelines and returns precise, rule-keyed diagnostics.
