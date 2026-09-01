@@ -179,6 +179,40 @@ $"Variable name at line {line} looks like a secret."
 
 ---
 
+### 4.3. Untrusted content in diagnostic messages
+
+Pipeline YAML is untrusted external input (see
+[agent-behaviour.instructions.md §6](agent-behaviour.instructions.md)). When a rule
+interpolates matched pipeline text — a template path, a parameter name, a variable name —
+into a diagnostic message, that text becomes part of the MCP server's tool output and is
+read by the calling AI client. An unbounded or unescaped value can carry a prompt-injection
+payload or break the message's structure.
+
+- **Truncate and sanitize matched values before interpolating them.** Cap length (for
+  example, 200 characters) and strip control characters. Prefer a shared helper (for
+  example, `RuleHelpers.SanitizeForDiagnostic(string)`) over ad hoc truncation in each rule.
+- **Prefer omitting the raw value entirely** when the diagnostic is still actionable without
+  it — the `Line`/`Column` fields on `Diagnostic` already let the developer find the exact
+  text in their file.
+- **Quote the value distinctly** (for example, wrap in single quotes) so a downstream reader
+  cannot confuse pipeline-derived text with the surrounding instructional sentence.
+
+```csharp
+// Bad — unbounded pipeline-derived text interpolated directly into the message.
+$"Template reference '{match.Value.Trim()}' should use a relative path."
+
+// Good — sanitized and length-capped before interpolation.
+$"Template reference '{RuleHelpers.SanitizeForDiagnostic(match.Value)}' should use a relative path."
+```
+
+This complements §4.2: the sanitized value still answers "what was detected", but it can no
+longer smuggle unbounded or control-character content into the response.
+
+*See [agent-behaviour.instructions.md §6.1](agent-behaviour.instructions.md) and ADR-016 in
+`docs/decisions.md` for the full rationale.*
+
+---
+
 ## 5. Regex patterns in rules
 
 **Use two small patterns over one large alternation.**

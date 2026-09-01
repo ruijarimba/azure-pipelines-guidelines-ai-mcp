@@ -107,6 +107,29 @@ This repository reads and analyses Azure Pipelines YAML files supplied by end us
 
 *See ADR-010 — MCP spec (trust hierarchy, prompt injection resistance), OWASP LLM01.*
 
+### 6.1 Untrusted content in MCP tool and resource output
+
+Prompt injection risk in this repository is not limited to reading pipeline YAML. The MCP
+server also **returns** pipeline-derived content — diagnostic messages, matched substrings,
+parameter names, template paths — to the calling AI client as tool output. That output is
+consumed by another model and must be treated as untrusted on the way out, not just on the
+way in.
+
+- **Never echo unbounded, attacker-controlled pipeline content verbatim** into a diagnostic
+  message, tool response, or resource payload. Truncate, quote, and/or escape it first.
+- Prefer referencing pipeline content by **position** (file, line, column) over embedding the
+  raw matched text, wherever the diagnostic remains useful without it.
+- When raw text must be included for clarity (for example, echoing a matched template path),
+  cap the length (for example, 200 characters) and strip control characters before
+  interpolating it into a message.
+- Do not let pipeline-derived text be interpreted as Markdown, HTML, or instruction-formatted
+  content by a downstream client. Keep diagnostic messages as plain, quoted text.
+- See `.github/instructions/csharp-patterns.instructions.md` §4.3 for the concrete C# pattern
+  and `.github/instructions/testing.instructions.md` for the required adversarial test
+  coverage.
+
+*See ADR-016 in docs/decisions.md — MCP tool output safety.*
+
 ---
 
 ## 7. Context window, session continuity, and message economy

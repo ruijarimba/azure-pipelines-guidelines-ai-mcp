@@ -82,7 +82,8 @@ The rule is intentionally strict: it makes the code easier to navigate, easier t
 
 ---
 
-## 5. Comment discipline
+## 5. Single concern per class and method
+
 - **One concern per class.** If you need the word "and" to describe what a class does,
   split it.
 - **One concern per method.** A method either queries state or changes state — not both
@@ -94,9 +95,9 @@ The rule is intentionally strict: it makes the code easier to navigate, easier t
 
 ---
 
-## 5. Comment discipline
+## 6. Comment discipline
 
-Comments must explain **why**, never **what**. The code itself says what it does. A comment that restates the code in plain English is noise — remove it.
+Comments must explain **why**, never **what**.
 
 ```csharp
 // Bad — restates the code.
@@ -120,7 +121,7 @@ Additional rules:
 
 ---
 
-## 6. No dead code or speculative scaffolding
+## 7. No dead code or speculative scaffolding
 
 Only commit code that is reachable, tested, and used.
 
@@ -135,9 +136,9 @@ Only commit code that is reachable, tested, and used.
 
 ---
 
-## 7. No "clever" code
+## 8. No "clever" code
 
-Prefer the obvious implementation over a terse or sophisticated one. The next reader may not have your current context.
+Prefer the obvious implementation over a terse or sophisticated one.
 
 - Avoid LINQ chains longer than 3 operations on a single expression. Assign intermediate
   results to named local variables.
@@ -168,7 +169,7 @@ var distinctPatterns = regexHints.Select(h => h.Pattern).Distinct().OrderBy(p =>
 
 ---
 
-## 8. Change scope
+## 9. Change scope
 
 Each pull request or agent task should be reviewable in a single sitting.
 

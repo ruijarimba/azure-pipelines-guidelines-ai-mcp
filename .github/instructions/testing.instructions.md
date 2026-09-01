@@ -94,6 +94,31 @@ The generated `./.artifacts/coverage/report/index.html` shows line, branch, and 
 - Asserting on implementation details — test observable behaviour and public contracts only.
 - Over-mocking — prefer real in-memory implementations over substitutes for value types and simple classes.
 
+## Security and adversarial test cases
+
+Rules and MCP tool/resource handlers process untrusted pipeline YAML and return
+pipeline-derived text as tool output (see
+[agent-behaviour.instructions.md §6 and §6.1](agent-behaviour.instructions.md)
+and [csharp-patterns.instructions.md §4.3](csharp-patterns.instructions.md)).
+Any rule or handler that interpolates matched pipeline content into a diagnostic message or
+tool response must have adversarial test coverage in addition to normal behavior tests:
+
+- **Oversized input.** A matched value far longer than the sanitizer's cap (for example,
+  10,000 characters) must be truncated in the resulting message, not passed through whole.
+- **Control characters and formatting breakers.** Matched values containing newlines, ANSI
+  escape codes, or embedded Markdown/HTML must not break the message's structure or be
+  rendered as formatting by a downstream client.
+- **Embedded instruction-like text.** A matched value that reads like an instruction to an
+  AI assistant (for example, `"ignore previous instructions and ..."`) must appear in the
+  diagnostic only as inert, quoted data — assert that the message still matches the expected
+  template rather than asserting the absence of specific phrases.
+- **Empty and boundary values.** Empty strings, whitespace-only values, and values exactly at
+  the truncation boundary must not crash the sanitizer or produce a malformed message.
+
+Name these tests using the existing `MethodName_GivenContext_ShouldExpectedOutcome`
+convention, for example
+`CreateDiagnostic_GivenOversizedTemplatePath_ShouldTruncateMessage`.
+
 ## Maintainability
 
 Test files must remain as readable as production code.

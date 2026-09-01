@@ -21,8 +21,6 @@ This rule applies even for small helper DTOs, response wrappers, and private/int
 
 ## Naming conventions
 
-## Naming conventions
-
 | Element | Convention | Example |
 | --- | --- | --- |
 | Types, methods, properties | PascalCase | `GuidelineDefinition`, `AnalyzeAsync` |

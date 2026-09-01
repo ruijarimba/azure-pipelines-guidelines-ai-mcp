@@ -27,6 +27,7 @@ When an agent considers changing an existing decision, it must re-read the ratio
 | [ADR-013](#adr-013-heuristic-detection) | 2026-07-07 | Heuristic detection |
 | [ADR-014](#adr-014-debuggability) | 2026-07-08 | Debuggability |
 | [ADR-015](#adr-015-mcp-transports) | 2026-07-29 | MCP transports |
+| [ADR-016](#adr-016-mcp-tool-output-safety) | 2026-09-01 | MCP tool output safety |
 
 ---
 
@@ -327,6 +328,50 @@ preference and did not reflect the current MCP transport direction.
 - Transport setup, endpoint details, compatibility behavior, and remote security requirements live in [mcp-reference.md](mcp-reference.md).
 
 The current SDK and container compatibility details are maintained in `global.json`, the Docker documentation, and [mcp-reference.md](mcp-reference.md).
+
+---
+
+## ADR-016 MCP tool output safety
+
+**Date:** 2026-09-01  
+**Context:** The MCP server reads untrusted Azure Pipelines YAML and returns pipeline-derived
+text — matched template paths, parameter names, variable names — as part of diagnostic
+messages and tool responses. [ADR-010](#adr-010-agent-behaviour-guardrails) and
+[agent-behaviour.instructions.md §6](../.github/instructions/agent-behaviour.instructions.md)
+already treat pipeline YAML as untrusted on the way **in**. A code review of existing rules
+found that some rules (for example, the relative-template-path rule and the
+parameter-missing-values rule) interpolate unbounded, unsanitized matched text directly into
+diagnostic messages, without treating that text as untrusted on the way **out** to the
+calling AI client.  
+**Decision:** Treat pipeline-derived text embedded in MCP tool and resource output as
+untrusted, symmetrically with untrusted input. Rule diagnostics and MCP tool handlers must
+truncate, sanitize, and clearly quote any matched pipeline content before interpolating it
+into a message, and must prefer omitting the raw value in favor of structured `Line`/`Column`
+fields where the message remains actionable without it.  
+**Rationale:**
+
+- MCP tool output is consumed by another AI model on the client side. Unbounded or malformed
+  pipeline-derived text embedded in that output is a plausible indirect prompt-injection
+  vector (OWASP LLM01), even though the immediate output is a diagnostic message rather than
+  a direct instruction.
+- Existing rule code already demonstrates the risk: some rules embed `match.Value` or a
+  parameter name verbatim, with no length cap or sanitization.
+- Fixing this at the diagnostic-construction layer (a shared sanitizer) is lower-risk and
+  more maintainable than asking every current and future rule author to reason about
+  prompt-injection risk independently.
+- The fix must be paired with adversarial test coverage, per
+  [agent-behaviour.instructions.md principle 10](../.github/instructions/agent-behaviour.instructions.md).
+
+**Consequences:**
+
+- The concrete C# sanitization pattern is documented in
+  [csharp-patterns.instructions.md §4.3](../.github/instructions/csharp-patterns.instructions.md).
+- The required adversarial test cases are documented in
+  [testing.instructions.md](../.github/instructions/testing.instructions.md).
+- Existing rules that embed unbounded pipeline-derived text in diagnostics (at minimum,
+  the relative-template-path rule and the parameter-missing-values rule) need a follow-up
+  code change to adopt the shared sanitizer. That retrofit is tracked as a separate task and
+  is not part of this documentation-only change.
 
 ---
 
