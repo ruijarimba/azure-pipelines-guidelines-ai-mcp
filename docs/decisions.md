@@ -264,8 +264,7 @@ correct pattern for each concern, with before/after examples drawn from real cod
 ## ADR-013 Heuristic detection
 
 **Date:** 2026-07-07  
-**Context:** The former phase-one roadmap said "Implement rules for all `ADOG-{CATEGORY}-{NNN}` guidelines in the manifest." Some guideline entries require reasoning about intent, architecture, repository context, or external policy that a static YAML analyser cannot reliably express. Phase 2 explicitly lists "LLM-assisted analysis
-for `heuristic` detection rules" as a future enhancement.  
+**Context:** The former phase-one roadmap said "Implement rules for all `ADOG-{CATEGORY}-{NNN}` guidelines in the manifest." Some guideline entries require reasoning about intent, architecture, repository context, or external policy that a static YAML analyser cannot reliably express. Earlier planning considered LLM-assisted analysis for `heuristic` detection rules, but that work is outside the current product scope.  
 **Decision:** The Phase 1 "all rules implemented" criterion applies only to rules with deterministic local detection. Rules classified as `heuristic` or `not automatable` are deferred to later analysis or remain available for lookup without deterministic diagnostics.  
 **Rationale:**
 
@@ -273,7 +272,6 @@ for `heuristic` detection rules" as a future enhancement.
   excessive false positives or false negatives.
 - Implementing stub rules that always return no diagnostics provides no value and
   misleads users.
-- Phase 2 LLM-assisted analysis is the correct vehicle for heuristic rules.
 - The split aligns with the detection kinds defined in the manifest itself.
 
 **Consequences:**
@@ -283,7 +281,7 @@ for `heuristic` detection rules" as a future enhancement.
 - The `IGuidelineRepository` and `IGuidelineLoader` load all manifest rules at runtime, so heuristic rules are available for lookup via
   `list_guidelines` and `get_guideline` even without a
   corresponding `IGuidelineRule` implementation.
-- When Phase 2 begins, re-read this ADR to understand the design boundary.
+- Any future reconsideration of heuristic analysis should re-read this ADR to understand the design boundary.
 
 ---
 

@@ -2,7 +2,7 @@
 
 This guide explains how each MCP capability affects the number of tokens an AI client spends when it uses the `azure-pipelines-guidelines` server. Use it to choose the operation that answers a question with the least amount of returned content.
 
-For the full tool, resource, and prompt catalogue, see the [MCP server reference](mcp-reference.md). For the underlying analysis pipeline, see [the architecture guide](architecture.md#mcp-tool-surface).
+For the full tool, resource, and prompt catalogue, see the [MCP server reference](mcp-reference.md). For the underlying analysis pipeline, see [the architecture guide](architecture.md#mcp-boundary).
 
 ## Why this matters
 

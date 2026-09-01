@@ -76,7 +76,7 @@ http://localhost:5050/mcp
 
 ### Why the launch profile matters
 
-The `applicationUrl` value in `launchSettings.json` is only injected when you choose the **SSE** launch profile. If you start the project without that profile, ASP.NET Core falls back to its default URL (typically port `5000`). Always select the profile when debugging over the HTTP transport.
+The `applicationUrl` value in `launchSettings.json` is injected when you choose an HTTP launch profile, such as **Debug** or **SSE**. If you start the project without one of those profiles, ASP.NET Core falls back to its default URL (typically port `5000`). Always select an HTTP profile when debugging over the HTTP transport.
 
 ### From the command line for quick testing
 

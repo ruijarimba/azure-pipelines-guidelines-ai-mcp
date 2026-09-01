@@ -6,7 +6,7 @@ Implements the Model Context Protocol (MCP) server logic. Exposes guideline look
 
 ## What belongs here
 
-- MCP tool handler implementations (guideline lookup, YAML analysis, fix suggestions).
+- MCP tool handler implementations (guideline lookup and YAML analysis).
 - MCP resource definitions (guideline catalogue, per-rule metadata).
 - DI extension method: `AddGuidelinesMcp(IServiceCollection)`.
 - Request/response DTOs specific to the MCP surface — these are `internal` and must not

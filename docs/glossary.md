@@ -65,7 +65,7 @@ When you see `do-not` in a manifest or a prompt file, and `DoNot` in C# code or 
 | Term | Definition |
 | --- | --- |
 | **MCP server** | A process that exposes capabilities (tools and resources) to AI assistants via the Model Context Protocol standard. |
-| **MCP tool** | A callable function exposed by the server. For this project: guideline lookup, YAML analysis, fix suggestions. |
+| **MCP tool** | A callable function exposed by the server. For this project: guideline lookup and YAML analysis. |
 | **MCP resource** | A queryable data source. For this project: guideline catalogue, per-rule metadata. |
 | **MCP prompt** | A reusable instruction template exposed by the server. It guides an AI assistant to use MCP tools and present results without performing analysis itself. |
 

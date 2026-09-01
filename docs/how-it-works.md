@@ -87,9 +87,8 @@ Each guideline in the manifest specifies how a violation should be detected.
 | --- | --- | --- |
 | `Regex` | Matches patterns in the raw YAML text | Phase 1 ✓ |
 | `YamlPath` | Queries specific nodes in the parsed AST | Phase 1 ✓ |
-| `Heuristic` | Requires reasoning about intent or architecture | Phase 2 (LLM-assisted) |
 
-Phase 1 implements all `Regex` and `YamlPath` rules. `Heuristic` rules are deferred to Phase 2 because they require contextual reasoning that static analysis cannot reliably provide. See [ADR-013 in the architecture decisions record](decisions.md) for the rationale.
+Phase 1 implements all `Regex` and `YamlPath` rules.
 
 ## Guideline rule IDs
 

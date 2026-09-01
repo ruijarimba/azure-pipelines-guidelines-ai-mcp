@@ -113,7 +113,7 @@ Choose the transport based on the deployment boundary and your MCP client suppor
 
 `stdio` is the current executable default. It is not a general recommendation over HTTP. It is the practical default for clients that launch a local command, including the Docker command in this repository.
 
-Use the HTTP transport when the client must connect to a server that is already running, such as a local debugging setup or a hosted deployment. The host uses the HTTP endpoint at `/mcp` for this mode. As of the MCP 2.0 SDK, this endpoint serves the modern **Streamable HTTP** transport by default and additionally accepts the legacy HTTP+SSE transport for backward compatibility with older SSE-only clients. The `Debug` launch profile is the recommended Visual Studio entry point for local debugging; the existing `SSE` launch-profile and `--transport sse` selector names remain for compatibility and start the same HTTP host with both transports enabled.
+Use the HTTP transport when the client must connect to a server that is already running, such as a local debugging setup or a hosted deployment. The host uses the HTTP endpoint at `/mcp` for this mode. This endpoint serves the modern **Streamable HTTP** transport by default and additionally accepts the legacy HTTP+SSE transport for backward compatibility with older SSE-only clients. The `Debug` launch profile is the recommended Visual Studio entry point for local debugging; the existing `SSE` launch-profile and `--transport sse` selector names remain for compatibility and start the same HTTP host with both transports enabled.
 
 ### HTTP endpoint
 

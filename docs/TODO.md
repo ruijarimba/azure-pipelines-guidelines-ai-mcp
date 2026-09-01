@@ -1,6 +1,6 @@
 # TODO List
 
-This file tracks upcoming work and enhancements for the next development session.
+This file tracks upcoming work and optional enhancements for future development sessions.
 
 The backlog below reflects the current state of the repository after the latest validation pass:
 
@@ -13,7 +13,7 @@ The backlog below reflects the current state of the repository after the latest 
 
 | Priority | Item | Why it matters |
 | --- | --- | --- |
-| Now | Revisit rule coverage | New manifest rules need matching implementations |
+| Watch | Revisit rule coverage | Check for new rules when the companion manifest changes |
 
 ---
 
@@ -30,7 +30,7 @@ Many classes, methods, and options lack comments. This is especially problematic
   - The difference between stdio and SSE transports.
   - How to start the MCP host from Visual Studio for live SSE debugging.
   - How to connect VS Code (or another client) to the SSE endpoint.
-- [ ] Assume .NET familiarity may be limited; focus on *why* something exists and *how* to use it
+- [x] Assume .NET familiarity may be limited; focus on *why* something exists and *how* to use it
       rather than restating syntax.
 
 Related files:
@@ -45,7 +45,7 @@ Related files:
 
 ## Medium Priority
 
-### 2. Add the remaining future enhancements
+### 2. Record optional future enhancements
 
 These are optional follow-ups that are not blocked by the current implementation.
 
@@ -91,7 +91,6 @@ Improve MCP support without making clients load the full guideline catalogue or 
       CONSIDER instead of diagnostic severity labels
 - [x] Add an `explain_diagnostic` tool that returns one guideline's full detail by ID, optionally
       echoing back the diagnostic message, file path, line, and column that raised it
-- [ ] Do not add Sampling or LLM-assisted heuristic analysis as part of this work
 
 Related files:
 
@@ -108,7 +107,7 @@ Related files:
 
 ### 5. Document MCP token usage
 
-Create a user-facing document that explains how each MCP capability affects client token usage. Include practical guidance for keeping usage low: use focused lookups instead of full catalogues, return summaries by default, make detailed results opt-in, limit and page list results, omit empty fields, and keep prompts procedural. Explain that full-catalogue resources and large analysis results are the main token risks.
+Create a user-facing document that explains how each MCP capability affects client token usage. Include practical guidance for keeping usage low: use focused lookups instead of full catalogues, return summaries by default, make detailed results opt-in, scope list results with available filters, omit empty fields, and keep prompts procedural. Explain that full-catalogue resources and large analysis results are the main token risks.
 
 - [x] Create `docs/mcp-token-usage.md` and register it in `AzurePipelinesGuidelines.slnx`
 

@@ -6,8 +6,8 @@ This file is the **session handoff note** for AI agents and human contributors. 
 
 | Area | Status |
 | --- | --- |
-| Current focus | Documentation cleanup for the completed MCP server |
-| Recent wins | Commit `36a34a3` added `explain_diagnostic` (new `Tools/ExplainDiagnosticTool.cs`) returning one guideline's full detail by ID with an optional echoed diagnostic context (message, filePath, line, column); added `DiagnosticContextDto`/`DiagnosticExplanationDto`; reused `GuidelineTools.ToDetailDto`; added `explain_diagnostic` to `adog://capabilities`; added `ExplainDiagnosticToolTests.cs` and updated `GuidelineResourcesTests.cs`; updated `docs/mcp-reference.md`, `docs/architecture.md`, `docs/how-it-works.md`, and `docs/mcp-token-usage.md`; 412 tests passed. Later commits `eab7f24`, `7201554`, and `55f428f` reconciled the handoff, clarified product scope, and documented the documentation-only quality-gate exception. |
+| Current focus | Documentation consistency review for the completed MCP server |
+| Recent wins | Commit `36a34a3` added `explain_diagnostic` (new `Tools/ExplainDiagnosticTool.cs`) returning one guideline's full detail by ID with an optional echoed diagnostic context (message, filePath, line, column); added `DiagnosticContextDto`/`DiagnosticExplanationDto`; reused `GuidelineTools.ToDetailDto`; added `explain_diagnostic` to `adog://capabilities`; added `ExplainDiagnosticToolTests.cs` and updated `GuidelineResourcesTests.cs`; updated `docs/mcp-reference.md`, `docs/architecture.md`, `docs/how-it-works.md`, and `docs/mcp-token-usage.md`; 412 tests passed. Later commits `eab7f24`, `7201554`, and `55f428f` reconciled the handoff, clarified product scope, and documented the documentation-only quality-gate exception. Documentation consistency corrections are now applied in the working tree. |
 | Next up | Monitor the companion manifest for new `ADOG-*` rules |
 
 ---
