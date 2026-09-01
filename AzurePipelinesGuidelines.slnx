@@ -1,76 +1,285 @@
-<Solution>
+﻿<Solution>
   <Folder Name="/src/">
-    <File Path="src/Directory.Build.props" />
-    <Project Path="src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj" />
-    <Project Path="src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj" />
-    <Project Path="src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj" />
-    <Folder Name="/src/AzurePipelines.Guidelines.Mcp/">
-      <Folder Name="/src/AzurePipelines.Guidelines.Mcp/Resources/">
-        <File Path="src/AzurePipelines.Guidelines.Mcp/Resources/CapabilitiesResponseDto.cs" />
-        <File Path="src/AzurePipelines.Guidelines.Mcp/Resources/CapabilitiesSupportDto.cs" />
-        <File Path="src/AzurePipelines.Guidelines.Mcp/Resources/GuidelineAutomationMetadataDto.cs" />
-      </Folder>
-      <Folder Name="/src/AzurePipelines.Guidelines.Mcp/Tools/">
-        <File Path="src/AzurePipelines.Guidelines.Mcp/Tools/GuidelineAutomationMetadataDto.cs" />
-      </Folder>
-      <Folder Name="/src/AzurePipelines.Guidelines.Mcp/Prompts/">
-        <File Path="src/AzurePipelines.Guidelines.Mcp/Prompts/GuidelinePrompts.cs" />
-      </Folder>
+    <Folder Name="/src/AzurePipelines.Guidelines.Analysis/">
+      <Project Path="src/AzurePipelines.Guidelines.Analysis/AzurePipelines.Guidelines.Analysis.csproj" />
+      <File Path="src/AzurePipelines.Guidelines.Analysis/AGENTS.md" />
     </Folder>
-    <Project Path="src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj" />
-    <Project Path="src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj" />
+    <Folder Name="/src/AzurePipelines.Guidelines.Core/">
+      <Project Path="src/AzurePipelines.Guidelines.Core/AzurePipelines.Guidelines.Core.csproj" />
+      <File Path="src/AzurePipelines.Guidelines.Core/AGENTS.md" />
+    </Folder>
+    <Folder Name="/src/AzurePipelines.Guidelines.Mcp/">
+      <Project Path="src/AzurePipelines.Guidelines.Mcp/AzurePipelines.Guidelines.Mcp.csproj" />
+      <File Path="src/AzurePipelines.Guidelines.Mcp/AGENTS.md" />
+    </Folder>
+    <Folder Name="/src/AzurePipelines.Guidelines.Parsing/">
+      <Project Path="src/AzurePipelines.Guidelines.Parsing/AzurePipelines.Guidelines.Parsing.csproj" />
+      <File Path="src/AzurePipelines.Guidelines.Parsing/AGENTS.md" />
+    </Folder>
+    <Folder Name="/src/AzurePipelines.Guidelines.Rules/">
+      <Project Path="src/AzurePipelines.Guidelines.Rules/AzurePipelines.Guidelines.Rules.csproj" />
+      <File Path="src/AzurePipelines.Guidelines.Rules/AGENTS.md" />
+    </Folder>
+    <File Path="src/Directory.Build.props" />
   </Folder>
   <Folder Name="/tests/">
-    <File Path="tests/Directory.Build.props" />
-    <Folder Name="/tests/FolderStructure/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithAbsolutePath.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithAdHocPath.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithSharedRootPath.yml" />
-    </Folder>
-    <Folder Name="/tests/DiagnosticLogging/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/WithLogging.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/WithoutLogging.yml" />
-    </Folder>
-    <Folder Name="/tests/SeparateConfiguration/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/WithEmbeddedConfiguration.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/WithVariableTemplate.yml" />
-    </Folder>
-    <Folder Name="/tests/SingleResponsibility/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/WithMultipleResponsibilities.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/WithSingleResponsibility.yml" />
-    </Folder>
-    <Folder Name="/tests/StepParameterValidation/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/WithoutValidation.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/WithValidation.yml" />
-    </Folder>
-    <Folder Name="/tests/EnvironmentParameterMinimization/">
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithEnvironmentParameters.yml" />
-      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithVariableTemplates.yml" />
-    </Folder>
-    <Project Path="tests/AzurePipelines.Guidelines.Integration.Tests/AzurePipelines.Guidelines.Integration.Tests.csproj" />
-    <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
-    <Project Path="tests/AzurePipelines.Guidelines.Core.Tests/AzurePipelines.Guidelines.Core.Tests.csproj" />
-    <Project Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AzurePipelines.Guidelines.Mcp.Tests.csproj" />
-    <Folder Name="/tests/AzurePipelines.Guidelines.Mcp.Tests/">
-      <Folder Name="/tests/AzurePipelines.Guidelines.Mcp.Tests/Prompts/">
-        <File Path="tests/AzurePipelines.Guidelines.Mcp.Tests/Prompts/GuidelinePromptsTests.cs" />
+    <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AzurePipelines.Guidelines.Analysis.Tests.csproj" />
+      <File Path="tests/AzurePipelines.Guidelines.Analysis.Tests/AGENTS.md" />
+      <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/">
+        <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/">
+          <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/">
+            <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/Compliant/">
+              <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/Compliant/pipelines/">
+                <File Path="tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/Compliant/pipelines/ci.yml" />
+              </Folder>
+              <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/Compliant/templates/">
+                <File Path="tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/Compliant/templates/step.yml" />
+              </Folder>
+            </Folder>
+            <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/Violations/">
+              <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/Violations/pipelines/">
+                <File Path="tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/Violations/pipelines/ci.yml" />
+              </Folder>
+              <Folder Name="/tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/Violations/templates/">
+                <File Path="tests/AzurePipelines.Guidelines.Analysis.Tests/Fixtures/Integration/TemplateRepo/Violations/templates/step-with-controls.yml" />
+              </Folder>
+            </Folder>
+          </Folder>
+        </Folder>
       </Folder>
     </Folder>
-    <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />
-    <Project Path="tests/AzurePipelines.Guidelines.Rules.Tests/AzurePipelines.Guidelines.Rules.Tests.csproj" />
-    <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/RuleHelpersTests.cs" />
+    <Folder Name="/tests/AzurePipelines.Guidelines.Core.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Core.Tests/AzurePipelines.Guidelines.Core.Tests.csproj" />
+      <File Path="tests/AzurePipelines.Guidelines.Core.Tests/AGENTS.md" />
+      <Folder Name="/tests/AzurePipelines.Guidelines.Core.Tests/Fixtures/">
+        <Folder Name="/tests/AzurePipelines.Guidelines.Core.Tests/Fixtures/HttpGuidelineLoader/">
+          <File Path="tests/AzurePipelines.Guidelines.Core.Tests/Fixtures/HttpGuidelineLoader/EmptyGuidelines.json" />
+          <File Path="tests/AzurePipelines.Guidelines.Core.Tests/Fixtures/HttpGuidelineLoader/MissingGuidelinesProperty.json" />
+          <File Path="tests/AzurePipelines.Guidelines.Core.Tests/Fixtures/HttpGuidelineLoader/ValidGuideline.json" />
+        </Folder>
+      </Folder>
+    </Folder>
+    <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Integration.Tests/AzurePipelines.Guidelines.Integration.Tests.csproj" />
+      <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/AGENTS.md" />
+      <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/">
+        <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/">
+          <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/docker-pipeline-templates/">
+            <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/docker-pipeline-templates/docker-build-pipeline.yaml" />
+            <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/docker-pipeline-templates/jobs/">
+              <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/docker-pipeline-templates/jobs/docker-build-job.yaml" />
+            </Folder>
+            <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/docker-pipeline-templates/steps/">
+              <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/docker-pipeline-templates/steps/docker-push-steps.yaml" />
+            </Folder>
+          </Folder>
+          <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/helm-pipeline-templates/">
+            <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/helm-pipeline-templates/helm-deploy-pipeline.yaml" />
+            <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/helm-pipeline-templates/jobs/">
+              <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/helm-pipeline-templates/jobs/helm-release-job.yaml" />
+            </Folder>
+            <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/helm-pipeline-templates/steps/">
+              <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/helm-pipeline-templates/steps/helm-command-steps.yaml" />
+            </Folder>
+            <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/helm-pipeline-templates/variables/">
+              <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/helm-pipeline-templates/variables/helm-environment-variables.yaml" />
+            </Folder>
+          </Folder>
+          <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/terraform-pipeline-templates/">
+            <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/terraform-pipeline-templates/terraform-jobs-pipeline.yml" />
+            <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/terraform-pipeline-templates/terraform-stages-pipeline.yaml" />
+            <Folder Name="/tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/terraform-pipeline-templates/variables/">
+              <File Path="tests/AzurePipelines.Guidelines.Integration.Tests/Fixtures/PipelineRepositories/terraform-pipeline-templates/variables/terraform-backend-variables.yaml" />
+            </Folder>
+          </Folder>
+        </Folder>
+      </Folder>
+    </Folder>
+    <Folder Name="/tests/AzurePipelines.Guidelines.Mcp.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AzurePipelines.Guidelines.Mcp.Tests.csproj" />
+      <File Path="tests/AzurePipelines.Guidelines.Mcp.Tests/AGENTS.md" />
+    </Folder>
+    <Folder Name="/tests/AzurePipelines.Guidelines.Parsing.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AzurePipelines.Guidelines.Parsing.Tests.csproj" />
+      <File Path="tests/AzurePipelines.Guidelines.Parsing.Tests/AGENTS.md" />
+      <Folder Name="/tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/">
+        <Folder Name="/tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/YamlPipelineParser/">
+          <File Path="tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/YamlPipelineParser/MinimalTriggerOnly.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/YamlPipelineParser/MultipleParameters.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/YamlPipelineParser/ParameterWithValues.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/YamlPipelineParser/ParametersBlock.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/YamlPipelineParser/ReadOnlyVariable.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/YamlPipelineParser/TopLevelSteps.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/YamlPipelineParser/VariableGroupReference.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/YamlPipelineParser/VariableMapping.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Parsing.Tests/Fixtures/YamlPipelineParser/VariableSequence.yml" />
+        </Folder>
+      </Folder>
+    </Folder>
+    <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/">
+      <Project Path="tests/AzurePipelines.Guidelines.Rules.Tests/AzurePipelines.Guidelines.Rules.Tests.csproj" />
+      <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/AGENTS.md" />
+      <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/">
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/AzureKeyVaultTask/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/AzureKeyVaultTask/WithKeyVaultTask.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/AzureKeyVaultTask/WithoutKeyVaultTask.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/WithLogging.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/DiagnosticLogging/WithoutLogging.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithEnvironmentParameters.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/EnvironmentParameterMinimization/WithVariableTemplates.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithAbsolutePath.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithAdHocPath.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/FolderStructure/WithSharedRootPath.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/HardCodedValues/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/HardCodedValues/HardCodedValue.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/HardCodedValues/ParameterizedValue.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/InlineTemplateLogic/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/InlineTemplateLogic/InlineLogic.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/InlineTemplateLogic/UsesTemplate.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobLevelVariable/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobLevelVariable/WithRootVariable.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobLevelVariable/WithoutJobs.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobMissingCheckout/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobMissingCheckout/WithCheckout.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobMissingCheckout/WithCheckoutNone.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobMissingCheckout/WithoutCheckout.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobMissingTimeout/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobMissingTimeout/MultipleJobsMixedTimeout.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobMissingTimeout/UnnamedJob.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobMissingTimeout/WithTimeout.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/JobMissingTimeout/WithoutTimeout.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/LargeExpression/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/LargeExpression/WithNoExpressions.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/LargeExpression/WithTemplateExpression.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/MacroSyntax/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/MacroSyntax/WithMacroSyntax.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/MacroSyntax/WithRuntimeExpression.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/MultiEnvironmentVariableTemplate/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/MultiEnvironmentVariableTemplate/MultiEnvironment.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/MultiEnvironmentVariableTemplate/SingleEnvironment.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/MultipleStepsTemplatesInJob/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/MultipleStepsTemplatesInJob/MultipleTemplates.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/MultipleStepsTemplatesInJob/SingleTemplate.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ParameterGrouping/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ParameterGrouping/NonSensitiveParameter.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ParameterGrouping/SensitiveParameter.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ParameterMissingValues/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ParameterMissingValues/ImplicitStringType.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ParameterMissingValues/NonStringType.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ParameterMissingValues/WithValues.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ParameterMissingValues/WithoutValues.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/PipelineDocumentation/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/PipelineDocumentation/WithHeaderComment.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/PipelineDocumentation/WithoutHeaderComment.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/PipelineValidationMode/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/PipelineValidationMode/WithValidationMode.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/PipelineValidationMode/WithoutValidationMode.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ReadonlyVariable/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ReadonlyVariable/MutableVariable.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ReadonlyVariable/ReadonlyVariable.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/RelativeTemplatePath/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/RelativeTemplatePath/WithAbsolutePath.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/RelativeTemplatePath/WithCrossRepoRef.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/RelativeTemplatePath/WithRelativePath.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/RunIndependentStagesInParallel/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/RunIndependentStagesInParallel/WithDependsOn.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/RunIndependentStagesInParallel/WithoutDependsOn.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SecretLikeVariable/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SecretLikeVariable/WithMappingStyleSecretName.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SecretLikeVariable/WithSafeName.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SecretLikeVariable/WithSecretLikeName.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/WithEmbeddedConfiguration.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SeparateConfiguration/WithVariableTemplate.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ServiceConnectionAuth/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ServiceConnectionAuth/WithServiceConnection.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ServiceConnectionAuth/WithoutServiceConnection.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/WithMultipleResponsibilities.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/SingleResponsibility/WithSingleResponsibility.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepMissingTimeout/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepMissingTimeout/ScriptStepNoTimeout.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepMissingTimeout/TaskWithDisplayNameNoTimeout.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepMissingTimeout/TaskWithTimeout.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepMissingTimeout/TaskWithoutTimeout.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/WithValidation.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepParameterValidation/WithoutValidation.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepRetry/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepRetry/WithRetryCount.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StepRetry/WithoutRetryCount.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StringEncodedConstructs/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StringEncodedConstructs/InlineJsonStyleValue.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/StringEncodedConstructs/NativeYamlConstructs.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/TaskEnvironmentVariables/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/TaskEnvironmentVariables/UsesVariablesWithEnv.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/TaskEnvironmentVariables/UsesVariablesWithoutEnv.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/UseStagesForRelatedJobs/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/UseStagesForRelatedJobs/MultipleTopLevelJobs.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/UseStagesForRelatedJobs/SingleTopLevelJob.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ValidationModeJobParameter/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ValidationModeJobParameter/WithValidationParameter.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/ValidationModeJobParameter/WithoutValidationParameter.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/VariableScope/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/VariableScope/JobScopeVariable.yml" />
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/VariableScope/PipelineScopeVariable.yml" />
+        </Folder>
+        <Folder Name="/tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/VariableTemplateOrganization/">
+          <File Path="tests/AzurePipelines.Guidelines.Rules.Tests/Fixtures/VariableTemplateOrganization/GroupedByEnvironment.yml" />
+        </Folder>
+      </Folder>
+    </Folder>
+    <File Path="tests/Directory.Build.props" />
   </Folder>
   <Folder Name="/tools/">
+    <Folder Name="/tools/AzurePipelines.Guidelines.Mcp.Host/">
+      <Project Path="tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj" />
+      <File Path="tools/AzurePipelines.Guidelines.Mcp.Host/AGENTS.md" />
+      <Folder Name="/tools/AzurePipelines.Guidelines.Mcp.Host/Properties/">
+        <File Path="tools/AzurePipelines.Guidelines.Mcp.Host/Properties/launchSettings.json" />
+      </Folder>
+      <File Path="tools/AzurePipelines.Guidelines.Mcp.Host/README.md" />
+    </Folder>
     <File Path="tools/Directory.Build.props" />
-    <Project Path="tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj" />
   </Folder>
-    <Folder Name="/scripts/">
-    <File Path="scripts/build-mcp-image.ps1" />
-    <File Path="scripts/publish-mcp-image.ps1" />
-    <File Path="scripts/quality-check.ps1" />
-    <File Path="scripts/run-mcp-compose.ps1" />
-    <File Path="scripts/run-mcp-local.ps1" />
-  </Folder>
+  <File Path=".dockerignore" />
+  <File Path=".editorconfig" />
+  <File Path=".env.example" />
   <Folder Name="/.github/">
     <File Path=".github/copilot-instructions.md" />
     <Folder Name="/.github/instructions/">
@@ -90,30 +299,36 @@
       <File Path=".github/prompts/implement-rule.prompt.md" />
     </Folder>
   </Folder>
-  <Folder Name="/.solution/">
-    <File Path=".env.example" />
-    <File Path=".dockerignore" />
-    <File Path=".editorconfig" />
-    <File Path=".gitignore" />
-    <File Path="AGENTS.md" />
-    <File Path="coverlet.runsettings" />
-    <File Path="Directory.Build.props" />
-    <File Path="Directory.Packages.props" />
-    <File Path="Dockerfile" />
-    <File Path="compose.yaml" />
-    <File Path="global.json" />
-    <File Path="LICENSE" />
-    <File Path="README.md" />
-  </Folder>
+  <File Path=".gitignore" />
+  <File Path=".tmp-guidelines.json" />
+  <File Path="AGENTS.md" />
+  <File Path="Directory.Build.props" />
+  <File Path="Directory.Packages.props" />
+  <File Path="Dockerfile" />
+  <File Path="LICENSE" />
+  <File Path="README.md" />
+  <File Path="compose.yaml" />
+  <File Path="coverlet.runsettings" />
   <Folder Name="/docs/">
+    <File Path="docs/TODO.md" />
     <File Path="docs/architecture.md" />
     <File Path="docs/decisions.md" />
     <File Path="docs/glossary.md" />
     <File Path="docs/guideline-automation.md" />
     <File Path="docs/how-it-works.md" />
+    <Folder Name="/docs/images/">
+      <File Path="docs/images/vscode-copilot-violations-summary.png" />
+    </Folder>
     <File Path="docs/mcp-reference.md" />
     <File Path="docs/mcp-token-usage.md" />
     <File Path="docs/progress.md" />
-    <File Path="docs/TODO.md" />
+  </Folder>
+  <File Path="global.json" />
+  <Folder Name="/scripts/">
+    <File Path="scripts/build-mcp-image.ps1" />
+    <File Path="scripts/publish-mcp-image.ps1" />
+    <File Path="scripts/quality-check.ps1" />
+    <File Path="scripts/run-mcp-compose.ps1" />
+    <File Path="scripts/run-mcp-local.ps1" />
   </Folder>
 </Solution>

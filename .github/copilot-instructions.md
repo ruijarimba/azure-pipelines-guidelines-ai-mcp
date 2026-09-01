@@ -113,4 +113,3 @@ For multi-item remediation work in this repository, commit and push each indepen
 ## Communication Efficiency
 
 - For tasks in this repository, keep agent communication token-efficient: avoid narrating every tool call, do not repeat plans or status, batch independent actions, consolidate updates, and report progress using numbered plan steps or concrete counts rather than guessed percentages.
-
