@@ -120,7 +120,9 @@ Related files:
 
 ## Recent validation summary
 
-The current branch contains the completed MCP server, shared analysis stack, documentation, and Solution Explorer registration. The latest feature commit is `36a34a3`; the branch handoff and agent guidance were updated in `eab7f24`, `7201554`, and `55f428f`.
+The current branch contains the completed MCP server, shared analysis stack, documentation, and Solution Explorer registration.
+
+Docker image builds run the full solution test suite before publishing, and the multi-architecture MCP image is published to Docker Hub.
 
 **Completed:**
 
