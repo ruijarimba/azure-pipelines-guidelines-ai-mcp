@@ -368,9 +368,10 @@ fields where the message remains actionable without it.
   [csharp-patterns.instructions.md §4.3](../.github/instructions/csharp-patterns.instructions.md).
 - The required adversarial test cases are documented in
   [testing.instructions.md](../.github/instructions/testing.instructions.md).
-- A shared `RuleHelpers.SanitizeForDiagnostic` implementation now strips control characters,
-  trims values, caps them at 200 characters, and appends a single ellipsis when truncation is
-  required before pipeline-derived text is included in diagnostic messages.
+- Shared `RuleHelpers.SanitizeForDiagnostic` and MCP-boundary sanitization now strip control
+  characters, trim values, cap them at 200 characters, and append a single ellipsis when
+  truncation is required before pipeline-derived text is included in diagnostic messages or
+  echoed diagnostic context.
 - Adversarial tests cover oversized values, control characters, instruction-like text, empty
   values, and the exact truncation boundary.
 
