@@ -40,6 +40,18 @@ From the repository root:
 dotnet build tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj -c Release
 ```
 
+## Validate the Docker image build
+
+The Dockerfile restores the complete solution and runs the full test suite before it publishes the MCP host. Test projects and test results stay in the intermediate build stage and are not copied into the final runtime image.
+
+From the repository root, build the local image with:
+
+```powershell
+pwsh ./scripts/build-mcp-image.ps1
+```
+
+The image is created only when the solution tests pass. Use `publish-mcp-image.ps1` when you are ready to publish a multi-architecture image to Docker Hub.
+
 ## Run in stdio mode
 
 ### From the command line

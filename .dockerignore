@@ -1,12 +1,10 @@
-# Keep the Docker build context small by excluding local build outputs,
-# test projects, and repository metadata that are not needed inside the image.
+# Keep the Docker build context small by excluding local build outputs and
+# repository metadata that are not needed inside the image. Test projects remain
+# in the context because the Docker build validates the solution before publish.
 # Build outputs — excluded to keep the context small and prevent stale
 # local binaries from leaking into the Docker build cache.
 **/bin/
 **/obj/
-
-# Test projects — not needed for the production image.
-tests/
 
 # Git metadata.
 .git/

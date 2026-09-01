@@ -129,7 +129,7 @@ The exact startup method depends on the host environment. The important point is
 
 ### Option 1 — Docker Hub image
 
-**Prerequisites:** [Docker Desktop](https://docs.docker.com/get-docker/) and an MCP client that supports stdio servers. This is the fastest way to try the server: it does not require a repository clone, the .NET SDK, or a local build.
+**Prerequisites:** [Docker Desktop](https://docs.docker.com/get-docker/) and an MCP client that supports stdio servers. This is the fastest way to try the server: it does not require a repository clone, the .NET SDK, or a local build. Published images are built only after the complete solution test suite passes in the Docker build stage.
 
 The published image uses HTTP by default, so set `MCP_TRANSPORT=stdio` when an MCP client starts the container as a child process. For GitHub Copilot in VS Code, create or edit `.vscode/mcp.json` in the workspace you want to use:
 

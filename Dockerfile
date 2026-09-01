@@ -2,34 +2,51 @@
 
 # Build the MCP host image for containerized HTTP transport. The default runtime
 # is Streamable HTTP on port 8080 so the container is usable without extra flags.
-# ── Stage 1: build ────────────────────────────────────────────────────────────
+# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy the central version and build props first so layer caching is effective.
-COPY Directory.Build.props Directory.Packages.props global.json ./
+# Copy the solution, central version, build props, and test settings first so
+# restore remains cacheable until project or package configuration changes.
+COPY \
+    AzurePipelinesGuidelines.slnx \
+    Directory.Build.props \
+    Directory.Packages.props \
+    coverlet.runsettings \
+    global.json \
+    ./
 
-# Copy only the projects that Mcp.Host needs, preserving the relative paths
-# the .csproj ProjectReference elements expect.
-COPY src/AzurePipelines.Guidelines.Core/                src/AzurePipelines.Guidelines.Core/
-COPY src/AzurePipelines.Guidelines.Parsing/             src/AzurePipelines.Guidelines.Parsing/
-COPY src/AzurePipelines.Guidelines.Rules/               src/AzurePipelines.Guidelines.Rules/
-COPY src/AzurePipelines.Guidelines.Analysis/            src/AzurePipelines.Guidelines.Analysis/
-COPY src/AzurePipelines.Guidelines.Mcp/                 src/AzurePipelines.Guidelines.Mcp/
-COPY tools/AzurePipelines.Guidelines.Mcp.Host/          tools/AzurePipelines.Guidelines.Mcp.Host/
-COPY tools/Directory.Build.props                        tools/Directory.Build.props
+# Copy the complete source, test, and tool trees. This keeps the build context
+# simple and automatically includes future projects while preserving references.
+COPY src/ src/
+COPY tests/ tests/
+COPY tools/ tools/
 
-# Restore — separate layer so it is cached unless a .csproj or props file changes.
-RUN dotnet restore tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj
+# Restore the complete solution because the image build runs the complete test suite.
+RUN dotnet restore AzurePipelinesGuidelines.slnx
 
-# Publish a self-contained-trimmed binary is explicitly NOT used here because
+# Build the complete solution once so the following test and publish steps can reuse the outputs.
+RUN dotnet build AzurePipelinesGuidelines.slnx \
+    --configuration Release \
+    --no-restore \
+    -p:RunAnalyzers=false
+
+# Validate the source tree inside the Docker build without compiling it again.
+# Test projects and their output remain in this intermediate stage only.
+RUN dotnet test AzurePipelinesGuidelines.slnx \
+    --configuration Release \
+    --no-restore \
+    --no-build
+
+# A self-contained, trimmed binary is explicitly not used because
 # the ASP.NET runtime image supplies the required shared framework and avoids trimming risks.
 RUN dotnet publish tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guidelines.Mcp.Host.csproj \
-    --no-restore \
     --configuration Release \
+    --no-restore \
+    --no-build \
     --output /app/publish
 
-# ── Stage 2: final image ──────────────────────────────────────────────────────
+# Final runtime image
 # Use aspnet instead of runtime: Mcp.Host references ModelContextProtocol.AspNetCore,
 # which requires the Microsoft.AspNetCore.App shared framework at process startup.
 # One aspnet image supports both stdio and HTTP. Using runtime would require separately built,
@@ -38,7 +55,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 
 # Run as a non-root user for security best practice.
 RUN groupadd --system --gid 1001 mcpgroup \
- && useradd --system --uid 1001 --gid mcpgroup --no-create-home mcpuser
+    && useradd --system --uid 1001 --gid mcpgroup --no-create-home mcpuser
 
 WORKDIR /app
 COPY --from=build /app/publish .
