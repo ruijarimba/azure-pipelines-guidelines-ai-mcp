@@ -15,7 +15,10 @@ public sealed class GuidelineId : IEquatable<GuidelineId>
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>Gets the raw string value of this identifier.</summary>
-    public string Value { get; }
+    public string Value
+    {
+        get;
+    }
 
     /// <summary>
     /// Initialises a new <see cref="GuidelineId"/> and validates the format.

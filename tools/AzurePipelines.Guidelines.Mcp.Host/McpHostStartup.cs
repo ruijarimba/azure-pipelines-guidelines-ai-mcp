@@ -1,9 +1,9 @@
+using System.Collections.Generic;
 using AzurePipelines.Guidelines.Mcp;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 
 namespace AzurePipelines.Guidelines.Mcp.Host;
 

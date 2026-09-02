@@ -238,6 +238,13 @@ Invoke-Step -Name "Restore" -ScriptBlock {
     dotnet restore
 }
 
+Invoke-Step -Name "Format" -ScriptBlock {
+    dotnet format AzurePipelinesGuidelines.slnx --verify-no-changes --no-restore
+    if ($LASTEXITCODE -ne 0) {
+        throw "dotnet format verification failed for the solution. Run 'dotnet format AzurePipelinesGuidelines.slnx' locally and review the changes."
+    }
+}
+
 Invoke-Step -Name "Build" -ScriptBlock {
     dotnet build --no-restore --configuration $Configuration
 }

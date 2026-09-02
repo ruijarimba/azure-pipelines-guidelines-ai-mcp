@@ -27,7 +27,7 @@ dotnet_separate_import_directive_groups    = false
 
 # 'var' — explicit types preferred; only use var when type is obvious
 csharp_style_var_for_built_in_types        = false:warning
-csharp_style_var_when_type_is_apparent     = false:warning
+csharp_style_var_when_type_is_apparent     = true:suggestion
 csharp_style_var_elsewhere                 = false:warning
 
 # Expression-bodied members

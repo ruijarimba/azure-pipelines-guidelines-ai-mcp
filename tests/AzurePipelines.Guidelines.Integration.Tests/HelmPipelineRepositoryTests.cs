@@ -12,7 +12,10 @@ public sealed class HelmPipelineRepositoryTests : PipelineRepositoryIntegrationT
 
     protected override int ExpectedYamlFileCount => 4;
 
-    protected override IReadOnlyCollection<GuidelineId> ExpectedGuidelineIds { get; } =
+    protected override IReadOnlyCollection<GuidelineId> ExpectedGuidelineIds
+    {
+        get;
+    } =
     [
         new("ADOG-GENERAL-001"),
         new("ADOG-GENERAL-004"),

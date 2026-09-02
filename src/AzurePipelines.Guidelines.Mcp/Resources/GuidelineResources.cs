@@ -357,4 +357,4 @@ internal sealed class GuidelineResources(
         });
     }
 
-    }
+}

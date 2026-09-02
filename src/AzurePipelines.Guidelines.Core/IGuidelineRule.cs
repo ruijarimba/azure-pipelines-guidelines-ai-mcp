@@ -7,7 +7,10 @@ namespace AzurePipelines.Guidelines.Core;
 public interface IGuidelineRule
 {
     /// <summary>Gets the identifier of the guideline this rule enforces.</summary>
-    public GuidelineId GuidelineId { get; }
+    public GuidelineId GuidelineId
+    {
+        get;
+    }
 
     /// <summary>
     /// Evaluates the <paramref name="document"/> and yields any violations found.

@@ -21,8 +21,14 @@ public sealed class RuleMetadataAttribute : Attribute
     }
 
     /// <summary>Gets the stable guideline identifier.</summary>
-    public string RuleId { get; }
+    public string RuleId
+    {
+        get;
+    }
 
     /// <summary>Gets the canonical GitHub URL for the guideline markdown.</summary>
-    public string GuidelineUrl { get; }
+    public string GuidelineUrl
+    {
+        get;
+    }
 }

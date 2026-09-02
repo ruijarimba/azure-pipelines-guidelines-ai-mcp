@@ -12,7 +12,10 @@ public sealed class DockerPipelineRepositoryTests : PipelineRepositoryIntegratio
 
     protected override int ExpectedYamlFileCount => 3;
 
-    protected override IReadOnlyCollection<GuidelineId> ExpectedGuidelineIds { get; } =
+    protected override IReadOnlyCollection<GuidelineId> ExpectedGuidelineIds
+    {
+        get;
+    } =
     [
         new("ADOG-GENERAL-002"),
         new("ADOG-GENERAL-003"),

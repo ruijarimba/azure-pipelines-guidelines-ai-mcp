@@ -10,11 +10,20 @@ namespace AzurePipelines.Guidelines.Integration.Tests;
 
 public abstract class PipelineRepositoryIntegrationTestsBase
 {
-    protected abstract string RepositoryFolder { get; }
+    protected abstract string RepositoryFolder
+    {
+        get;
+    }
 
-    protected abstract int ExpectedYamlFileCount { get; }
+    protected abstract int ExpectedYamlFileCount
+    {
+        get;
+    }
 
-    protected abstract IReadOnlyCollection<GuidelineId> ExpectedGuidelineIds { get; }
+    protected abstract IReadOnlyCollection<GuidelineId> ExpectedGuidelineIds
+    {
+        get;
+    }
 
     internal IReadOnlyCollection<GuidelineId> GetExpectedGuidelineIds() => ExpectedGuidelineIds;
 

@@ -172,7 +172,7 @@ public sealed class PipelineAnalyserTests
         Diagnostic d1 = MakeDiagnostic("ADOG-STEPS-001");
         Diagnostic d2 = MakeDiagnostic("ADOG-JOBS-006");
         IGuidelineRule stepsRule = MakeRule("ADOG-STEPS-001", d1);
-        IGuidelineRule jobsRule  = MakeRule("ADOG-JOBS-006",  d2);
+        IGuidelineRule jobsRule = MakeRule("ADOG-JOBS-006", d2);
 
         IGuidelineRepository repository = Substitute.For<IGuidelineRepository>();
         repository.FindById(new GuidelineId("ADOG-STEPS-001"))
@@ -209,8 +209,8 @@ public sealed class PipelineAnalyserTests
     {
         Diagnostic d1 = MakeDiagnostic("ADOG-STEPS-001");
         Diagnostic d2 = MakeDiagnostic("ADOG-JOBS-006");
-        IGuidelineRule enforceableRule   = MakeRule("ADOG-STEPS-001", d1);
-        IGuidelineRule nonEnforceable    = MakeRule("ADOG-JOBS-006",  d2);
+        IGuidelineRule enforceableRule = MakeRule("ADOG-STEPS-001", d1);
+        IGuidelineRule nonEnforceable = MakeRule("ADOG-JOBS-006", d2);
 
         IGuidelineAutomationMetadataProvider metaProvider = Substitute.For<IGuidelineAutomationMetadataProvider>();
         metaProvider.GetAutomationMetadata(new GuidelineId("ADOG-STEPS-001"))
@@ -237,7 +237,7 @@ public sealed class PipelineAnalyserTests
         Diagnostic d1 = MakeDiagnostic("ADOG-STEPS-001");
         Diagnostic d2 = MakeDiagnostic("ADOG-JOBS-006");
         IGuidelineRule rule1 = MakeRule("ADOG-STEPS-001", d1);
-        IGuidelineRule rule2 = MakeRule("ADOG-JOBS-006",  d2);
+        IGuidelineRule rule2 = MakeRule("ADOG-JOBS-006", d2);
 
         IGuidelineAutomationMetadataProvider metaProvider = Substitute.For<IGuidelineAutomationMetadataProvider>();
         metaProvider.GetAutomationMetadata(new GuidelineId("ADOG-STEPS-001"))
@@ -291,7 +291,7 @@ public sealed class PipelineAnalyserTests
         Diagnostic d1 = MakeDiagnostic("ADOG-STEPS-001");
         Diagnostic d2 = MakeDiagnostic("ADOG-JOBS-006");
         IGuidelineRule rule1 = MakeRule("ADOG-STEPS-001", d1);
-        IGuidelineRule rule2 = MakeRule("ADOG-JOBS-006",  d2);
+        IGuidelineRule rule2 = MakeRule("ADOG-JOBS-006", d2);
 
         // No metadata provider — fourth parameter omitted.
         PipelineAnalyser sut = new([rule1, rule2], NullRepository(), NullLogger<PipelineAnalyser>.Instance);

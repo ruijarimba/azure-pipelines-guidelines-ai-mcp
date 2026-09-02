@@ -247,37 +247,70 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
     private sealed class GuidelineItemDto
     {
         [JsonPropertyName("id")]
-        public string? Id { get; init; }
+        public string? Id
+        {
+            get; init;
+        }
 
         [JsonPropertyName("category")]
-        public string? Category { get; init; }
+        public string? Category
+        {
+            get; init;
+        }
 
         [JsonPropertyName("severity")]
-        public string? Severity { get; init; }
+        public string? Severity
+        {
+            get; init;
+        }
 
         [JsonPropertyName("title")]
-        public string? Title { get; init; }
+        public string? Title
+        {
+            get; init;
+        }
 
         [JsonPropertyName("summary")]
-        public string? Summary { get; init; }
+        public string? Summary
+        {
+            get; init;
+        }
 
         [JsonPropertyName("url")]
-        public string? Url { get; init; }
+        public string? Url
+        {
+            get; init;
+        }
 
         [JsonPropertyName("appliesTo")]
-        public List<string>? AppliesTo { get; init; }
+        public List<string>? AppliesTo
+        {
+            get; init;
+        }
 
         [JsonPropertyName("tags")]
-        public List<string>? Tags { get; init; }
+        public List<string>? Tags
+        {
+            get; init;
+        }
 
         [JsonPropertyName("related")]
-        public List<string>? Related { get; init; }
+        public List<string>? Related
+        {
+            get; init;
+        }
 
         [JsonPropertyName("detection")]
-        public List<DetectionItemDto>? Detection { get; init; }
+        public List<DetectionItemDto>? Detection
+        {
+            get; init;
+        }
 
         [JsonPropertyName("fix")]
-        public FixDto? Fix { get; init; }
+        public FixDto? Fix
+        {
+            get; init;
+        }
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -286,16 +319,28 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
     private sealed class DetectionItemDto
     {
         [JsonPropertyName("kind")]
-        public string? Kind { get; init; }
+        public string? Kind
+        {
+            get; init;
+        }
 
         [JsonPropertyName("pattern")]
-        public string? Pattern { get; init; }
+        public string? Pattern
+        {
+            get; init;
+        }
 
         [JsonPropertyName("appliesTo")]
-        public List<string>? AppliesTo { get; init; }
+        public List<string>? AppliesTo
+        {
+            get; init;
+        }
 
         [JsonPropertyName("message")]
-        public string? Message { get; init; }
+        public string? Message
+        {
+            get; init;
+        }
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -304,6 +349,9 @@ public sealed class HttpGuidelineLoader : IGuidelineLoader
     private sealed class FixDto
     {
         [JsonPropertyName("summary")]
-        public string? Summary { get; init; }
+        public string? Summary
+        {
+            get; init;
+        }
     }
 }

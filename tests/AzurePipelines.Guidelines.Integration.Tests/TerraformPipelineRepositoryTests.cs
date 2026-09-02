@@ -12,7 +12,10 @@ public sealed class TerraformPipelineRepositoryTests : PipelineRepositoryIntegra
 
     protected override int ExpectedYamlFileCount => 3;
 
-    protected override IReadOnlyCollection<GuidelineId> ExpectedGuidelineIds { get; } =
+    protected override IReadOnlyCollection<GuidelineId> ExpectedGuidelineIds
+    {
+        get;
+    } =
     [
         new("ADOG-GENERAL-004"),
         new("ADOG-GENERAL-005"),
