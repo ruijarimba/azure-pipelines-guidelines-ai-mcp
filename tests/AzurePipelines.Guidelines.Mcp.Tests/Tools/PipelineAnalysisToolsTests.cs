@@ -8,11 +8,11 @@ using Xunit;
 
 namespace AzurePipelines.Guidelines.Mcp.Tests.Tools;
 
-public sealed class PipelineAnalysisToolsTests
+public sealed class AnalyzeTemplateOrFolderToolTests
 {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private static PipelineAnalysisTools MakeSut(
+    private static AnalyzeTemplateOrFolderTool MakeSut(
         IPipelineParser? parser = null,
         IPipelineAnalyser? analyser = null,
         PipelinePathResolver? pathResolver = null,
@@ -65,7 +65,7 @@ public sealed class PipelineAnalysisToolsTests
     public async Task AnalyzeTemplateAsync_GivenNoTarget_ShouldReturnErrorResponse()
     {
         // Arrange
-        PipelineAnalysisTools sut = MakeSut();
+        AnalyzeTemplateOrFolderTool sut = MakeSut();
 
         // Act
         string result = await sut.AnalyzeTemplateAsync();
@@ -79,7 +79,7 @@ public sealed class PipelineAnalysisToolsTests
     public async Task AnalyzeTemplateAsync_GivenBothTargets_ShouldReturnErrorResponse()
     {
         // Arrange
-        PipelineAnalysisTools sut = MakeSut();
+        AnalyzeTemplateOrFolderTool sut = MakeSut();
 
         // Act
         string result = await sut.AnalyzeTemplateAsync("steps: []", "pipeline.yml");
@@ -98,7 +98,7 @@ public sealed class PipelineAnalysisToolsTests
         IPipelineParser parser = Substitute.For<IPipelineParser>();
         parser.Parse(Arg.Any<string>(), Arg.Any<string>())
               .Returns(_ => throw new PipelineParsingException("Invalid YAML structure."));
-        PipelineAnalysisTools sut = MakeSut(parser: parser);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser: parser);
 
         // Act
         string result = await sut.AnalyzeTemplateAsync(yaml: "not: valid: yaml: !!!");
@@ -121,7 +121,7 @@ public sealed class PipelineAnalysisToolsTests
         analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
                 .Returns(MakeResult([]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser);
 
         // Act
         string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
@@ -153,7 +153,7 @@ public sealed class PipelineAnalysisToolsTests
             .Returns(new GuidelineDefinition(
                 new GuidelineId("ADOG-STEPS-001"), GuidelineCategory.Steps, GuidelineSeverity.Do,
                 "Test", "Test", null, [], [], null, []));
-        PipelineAnalysisTools sut = MakeSut(parser, analyser, guidelineRepository: guidelineRepository);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser, guidelineRepository: guidelineRepository);
 
         // Act
         string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
@@ -187,7 +187,7 @@ public sealed class PipelineAnalysisToolsTests
                     MakeDiagnostic("ADOG-JOBS-006", DiagnosticSeverity.Warning, line: 10),
                 ]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser);
 
         // Act
         string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
@@ -214,7 +214,7 @@ public sealed class PipelineAnalysisToolsTests
         analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
                 .Returns(MakeResult([]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser);
 
         // Act
         await sut.AnalyzeTemplateAsync(yaml: "steps: []", guidelineIds: "ADOG-STEPS-001,ADOG-JOBS-006");
@@ -239,7 +239,7 @@ public sealed class PipelineAnalysisToolsTests
         analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
                 .Returns(MakeResult([]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser);
 
         // Act
         await sut.AnalyzeTemplateAsync(yaml: "steps: []", guidelineIds: null);
@@ -256,9 +256,9 @@ public sealed class PipelineAnalysisToolsTests
     // ── Recommendation serialisation ──────────────────────────────────────────────────────────────
 
     [Theory]
-    [InlineData(GuidelineSeverity.Do,       "do")]
-    [InlineData(GuidelineSeverity.DoNot,    "donot")]
-    [InlineData(GuidelineSeverity.Avoid,    "avoid")]
+    [InlineData(GuidelineSeverity.Do, "do")]
+    [InlineData(GuidelineSeverity.DoNot, "donot")]
+    [InlineData(GuidelineSeverity.Avoid, "avoid")]
     [InlineData(GuidelineSeverity.Consider, "consider")]
     public async Task AnalyzeTemplateAsync_RecommendationValues_ShouldBeGuidelineSeverityInOutput(
         GuidelineSeverity guidelineSeverity, string expectedJsonValue)
@@ -277,7 +277,7 @@ public sealed class PipelineAnalysisToolsTests
             .Returns(new GuidelineDefinition(
                 new GuidelineId("ADOG-STEPS-001"), GuidelineCategory.Steps, guidelineSeverity,
                 "Test", "Test", null, [], [], null, []));
-        PipelineAnalysisTools sut = MakeSut(parser, analyser, guidelineRepository: guidelineRepository);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser, guidelineRepository: guidelineRepository);
 
         // Act
         string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
@@ -301,7 +301,7 @@ public sealed class PipelineAnalysisToolsTests
         analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
                 .Returns(MakeResult([diag]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser);
 
         // Act
         string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []");
@@ -331,7 +331,7 @@ public sealed class PipelineAnalysisToolsTests
                 Arg.Any<CancellationToken>())
                 .Returns(MakeResult([validDiag]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser);
 
         // Act — "NOTVALID" is malformed and should be skipped; only ADOG-STEPS-001 survives
         string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []", guidelineIds: "ADOG-STEPS-001, NOTVALID");
@@ -357,7 +357,7 @@ public sealed class PipelineAnalysisToolsTests
                 Arg.Any<CancellationToken>())
                 .Returns(MakeResult([diag]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser);
 
         // Act — all IDs are malformed; parser should fall back to AnalysisOptions.Default
         string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []", guidelineIds: "NOTVALID, ALSOBAD");
@@ -378,7 +378,7 @@ public sealed class PipelineAnalysisToolsTests
         analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
                 .Returns(MakeResult([MakeDiagnostic()]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser, new PipelinePathResolver());
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser, new PipelinePathResolver());
         string tempDirectory = CreateTempDirectory();
         string nestedDirectory = Path.Combine(tempDirectory, "nested");
         Directory.CreateDirectory(nestedDirectory);
@@ -418,7 +418,7 @@ public sealed class PipelineAnalysisToolsTests
         analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
                 .Returns(MakeResult([]));
 
-        PipelineAnalysisTools sut = MakeSut(parser, analyser);
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser);
 
         // Act
         await sut.AnalyzeTemplateAsync(yaml: "steps: []", category: "steps");
@@ -436,7 +436,7 @@ public sealed class PipelineAnalysisToolsTests
     public async Task AnalyzeTemplateAsync_GivenUnknownCategory_ShouldReturnErrorResponse()
     {
         // Arrange
-        PipelineAnalysisTools sut = MakeSut();
+        AnalyzeTemplateOrFolderTool sut = MakeSut();
 
         // Act
         string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []", category: "not-a-category");
@@ -462,7 +462,7 @@ public sealed class PipelineAnalysisToolsTests
 
         try
         {
-            PipelineAnalysisTools sut = MakeSut(parser, analyser, new PipelinePathResolver());
+            AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser, new PipelinePathResolver());
 
             // Act
             await sut.AnalyzeTemplateAsync(fileOrPath: tempDirectory, category: "jobs");
@@ -490,7 +490,7 @@ public sealed class PipelineAnalysisToolsTests
 
         try
         {
-            PipelineAnalysisTools sut = MakeSut(pathResolver: new PipelinePathResolver());
+            AnalyzeTemplateOrFolderTool sut = MakeSut(pathResolver: new PipelinePathResolver());
 
             // Act
             string result = await sut.AnalyzeTemplateAsync(fileOrPath: tempDirectory, category: "not-a-category");

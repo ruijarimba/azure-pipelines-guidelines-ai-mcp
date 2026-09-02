@@ -9,7 +9,7 @@ namespace AzurePipelines.Guidelines.Mcp.Tests.Tools;
 
 public sealed class GuidelineToolsTests
 {
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ΓöÇΓöÇ Helpers ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
     private static GuidelineDefinition MakeGuideline(
         string id,
@@ -42,7 +42,7 @@ public sealed class GuidelineToolsTests
     private static T Deserialize<T>(string json) =>
         JsonSerializer.Deserialize<T>(json)!;
 
-    // ── ListGuidelines ────────────────────────────────────────────────────────
+    // ΓöÇΓöÇ ListGuidelines ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
     [Fact]
     public void ListGuidelines_GivenEmptyRepository_ShouldReturnEmptyArray()
@@ -151,7 +151,7 @@ public sealed class GuidelineToolsTests
         repo.Received(1).GetByCategory(expectedEnum);
     }
 
-    // ── GetGuideline ──────────────────────────────────────────────────────────
+    // ΓöÇΓöÇ GetGuideline ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
     [Theory]
     [InlineData("")]
@@ -358,7 +358,7 @@ public sealed class GuidelineToolsTests
         hints[0].GetProperty("description").GetString().Should().Be("Matches task steps");
     }
 
-    // ── SearchGuidelines ──────────────────────────────────────────────────────
+    // ΓöÇΓöÇ SearchGuidelines ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
     [Fact]
     public void SearchGuidelines_GivenEmptyKeyword_ShouldReturnErrorObject()
@@ -442,7 +442,7 @@ public sealed class GuidelineToolsTests
         items.Should().BeEmpty();
     }
 
-    // ── ListCategories ────────────────────────────────────────────────────────
+    // ΓöÇΓöÇ ListCategories ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
     [Fact]
     public void ListCategories_GivenEmptyRepository_ShouldReturnEmptyArray()

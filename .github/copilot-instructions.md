@@ -42,6 +42,10 @@ Rule ID pattern: `ADOG-(GENERAL|JOBS|PARAMETERS|PIPELINES|STAGES|STEPS|VARIABLES
 
 Severity mapping: `do` / `do-not` → Error, `avoid` → Warning, `consider` → Info.
 
+## MCP Tool Implementations
+
+- Use one tool per class and one class per file for MCP tool implementations. Resources and prompts may remain grouped unless separately requested.
+
 ## Integration Testing
 
 - Integration tests are a high-priority repository quality area.

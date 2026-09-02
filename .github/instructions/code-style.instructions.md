@@ -17,6 +17,20 @@ applyTo: "**/*.cs"
 
 This rule applies even for small helper DTOs, response wrappers, and private/internal records.
 
+## Readability and whitespace
+
+- Keep one logical statement per line. Do not write multiple statements on one line,
+  including compact `try`/`catch`, `if`, or loop bodies.
+- Leave a blank line between logical statement groups such as setup, validation,
+  transformation, external calls, and the final return.
+- Expand long expression-bodied members into block-bodied members when the expression
+  contains multiple operations, a conditional, a query chain, or a method call that wraps
+  across lines.
+- Break long method calls, object construction, conditionals, and collection expressions
+  across meaningful boundaries. Keep source lines at or below 120 characters.
+- Use the repository `.editorconfig` formatting settings and run `dotnet format` on changed
+  C# files before requesting review.
+
 ---
 
 ## Naming conventions

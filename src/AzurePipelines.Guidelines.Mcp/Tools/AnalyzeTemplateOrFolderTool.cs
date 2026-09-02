@@ -9,46 +9,41 @@ using ModelContextProtocol.Server;
 namespace AzurePipelines.Guidelines.Mcp.Tools;
 
 /// <summary>
-/// MCP tool handlers for analysing Azure Pipelines YAML against the loaded guidelines.
+/// MCP tool handler for analysing Azure Pipelines YAML against the loaded guidelines.
 /// </summary>
 [McpServerToolType]
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Performance", "CA1812:Avoid uninstantiated internal classes",
     Justification = "Instantiated by the MCP SDK via dependency injection.")]
-internal sealed class PipelineAnalysisTools(
+internal sealed class AnalyzeTemplateOrFolderTool(
     IPipelineParser parser,
     IPipelineAnalyser analyser,
     PipelinePathResolver pathResolver,
     IGuidelineRepository repository,
-    ILogger<PipelineAnalysisTools>? logger = null)
+    ILogger<AnalyzeTemplateOrFolderTool>? logger = null)
 {
-    // Compact JSON with camel-case property names. Null values are omitted so AI clients
-    // receive smaller responses and the shared contract stays predictable.
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = false,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    // ── analyze_template_or_folder ────────────────────────────────────────────
-
     /// <summary>
-    /// Analyses an inline pipeline or template, or files discovered from a path,
-    /// against the loaded guidelines.
+    /// Analyzes inline YAML or pipeline files discovered from a file or directory path.
     /// </summary>
     [McpServerTool(
-         Name = "analyze_template_or_folder",
-         Title = "Analyze pipeline, template, or folder",
+        Name = "analyze_template_or_folder",
+        Title = "Analyze pipeline, template, or folder",
         ReadOnly = true,
         Destructive = false,
         Idempotent = true,
         OpenWorld = true)]
     [Description(
-         "Analyses one Azure Pipelines pipeline or template, or all supported YAML files in a " +
+        "Analyses one Azure Pipelines pipeline or template, or all supported YAML files in a " +
         "file or directory path, against the loaded guidelines. Templates can define steps, " +
         "jobs, stages, or variables. Pass exactly one of yaml or fileOrPath. Directories are " +
-         "scanned recursively. If a path cannot be resolved, common pipeline paths in the current " +
-         "repository are tried automatically. Optional category and guideline ID filters restrict the rules checked.")]
+        "scanned recursively. If a path cannot be resolved, common pipeline paths in the current " +
+        "repository are tried automatically. Optional category and guideline ID filters restrict the rules checked.")]
     internal async Task<string> AnalyzeTemplateAsync(
         [Description("Inline YAML for one pipeline or template. Pass this or fileOrPath, not both.")]
         string? yaml = null,
@@ -69,20 +64,25 @@ internal sealed class PipelineAnalysisTools(
             "Defaults to false (enforceable rules only). Ignored when guidelineIds is provided.")]
         bool includeNonEnforceable = false)
     {
-        ILogger<PipelineAnalysisTools> invocationLogger =
-            logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<PipelineAnalysisTools>.Instance;
+        ILogger<AnalyzeTemplateOrFolderTool> invocationLogger =
+            logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<AnalyzeTemplateOrFolderTool>.Instance;
 
         bool hasYaml = !string.IsNullOrWhiteSpace(yaml);
         bool hasPath = !string.IsNullOrWhiteSpace(fileOrPath);
         if (hasYaml == hasPath)
         {
             return JsonSerializer.Serialize(
-                new ErrorResponse("Pass exactly one of 'yaml' or 'fileOrPath'."), _jsonOptions);
+                new ErrorResponseDto("Pass exactly one of 'yaml' or 'fileOrPath'."), _jsonOptions);
         }
 
-        if (!TryBuildOptions(guidelineIds, category, includeNonEnforceable, out AnalysisOptions options, out string? optionsError))
+        if (!TryBuildOptions(
+            guidelineIds,
+            category,
+            includeNonEnforceable,
+            out AnalysisOptions options,
+            out string? optionsError))
         {
-            return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
+            return JsonSerializer.Serialize(new ErrorResponseDto(optionsError!), _jsonOptions);
         }
 
         McpToolInvocationLog.Log(invocationLogger, "analyze_template_or_folder", category, guidelineIds, options);
@@ -98,7 +98,7 @@ internal sealed class PipelineAnalysisTools(
             out _,
             out string? pathError))
         {
-            return JsonSerializer.Serialize(new ErrorResponse(pathError!), _jsonOptions);
+            return JsonSerializer.Serialize(new ErrorResponseDto(pathError!), _jsonOptions);
         }
 
         return await AnalyzeFilesAsync(discoveredPaths, options).ConfigureAwait(false);
@@ -113,7 +113,9 @@ internal sealed class PipelineAnalysisTools(
         }
         catch (PipelineParsingException ex)
         {
-            return JsonSerializer.Serialize(new ErrorResponse($"Failed to parse YAML: {ex.Message}"), _jsonOptions);
+            return JsonSerializer.Serialize(
+                new ErrorResponseDto($"Failed to parse YAML: {ex.Message}"),
+                _jsonOptions);
         }
 
         AnalysisResult result = await analyser.AnalyseAsync(document, options).ConfigureAwait(false);
@@ -122,9 +124,7 @@ internal sealed class PipelineAnalysisTools(
             new AnalysisResponse(BuildSummary([result]), diagnostics, null), _jsonOptions);
     }
 
-    private async Task<string> AnalyzeFilesAsync(
-        IReadOnlyList<string> discoveredPaths,
-        AnalysisOptions options)
+    private async Task<string> AnalyzeFilesAsync(IReadOnlyList<string> discoveredPaths, AnalysisOptions options)
     {
         List<FileAnalysisResultDto> fileResults = [];
         List<AnalysisResult> results = [];
@@ -139,7 +139,7 @@ internal sealed class PipelineAnalysisTools(
             catch (IOException ex)
             {
                 return JsonSerializer.Serialize(
-                    new ErrorResponse($"Cannot read file {discoveredPath}: {ex.Message}"), _jsonOptions);
+                    new ErrorResponseDto($"Cannot read file {discoveredPath}: {ex.Message}"), _jsonOptions);
             }
 
             PipelineDocument document;
@@ -150,7 +150,7 @@ internal sealed class PipelineAnalysisTools(
             catch (PipelineParsingException ex)
             {
                 return JsonSerializer.Serialize(
-                    new ErrorResponse($"Failed to parse YAML in {discoveredPath}: {ex.Message}"), _jsonOptions);
+                    new ErrorResponseDto($"Failed to parse YAML in {discoveredPath}: {ex.Message}"), _jsonOptions);
             }
 
             AnalysisResult result = await analyser.AnalyseAsync(document, options).ConfigureAwait(false);
@@ -158,21 +158,13 @@ internal sealed class PipelineAnalysisTools(
             fileResults.Add(new FileAnalysisResultDto(discoveredPath, BuildDiagnosticDtos(result.Diagnostics)));
         }
 
-        return JsonSerializer.Serialize(
-            new AnalysisResponse(BuildSummary(results), null, fileResults), _jsonOptions);
+        return JsonSerializer.Serialize(new AnalysisResponse(BuildSummary(results), null, fileResults), _jsonOptions);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private static bool TryBuildOptions(
-        string? guidelineIds,
-        string? category,
-        bool includeNonEnforceable,
-        out AnalysisOptions options,
-        out string? error)
+    private static bool TryBuildOptions(string? guidelineIds, string? category, bool includeNonEnforceable,
+        out AnalysisOptions options, out string? error)
     {
         error = null;
-
         IReadOnlyList<GuidelineCategory>? includedCategories = null;
         if (!string.IsNullOrWhiteSpace(category))
         {
@@ -182,14 +174,11 @@ internal sealed class PipelineAnalysisTools(
                 if (!TryParseCategory(part, out GuidelineCategory parsedCategory))
                 {
                     options = AnalysisOptions.Default;
-                    error = $"Unknown category '{part}'. " +
-                        "Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.";
+                    error = $"Unknown category '{part}'. Allowed values: general, jobs, parameters, pipelines, stages, steps, variables.";
                     return false;
                 }
-
                 parsedCategories.Add(parsedCategory);
             }
-
             includedCategories = parsedCategories.Distinct().ToArray();
         }
 
@@ -205,12 +194,8 @@ internal sealed class PipelineAnalysisTools(
                 }
                 catch (ArgumentException)
                 {
-                    // Skip malformed IDs rather than failing the whole request.
-                    // The alternative would force callers to send a perfect list; partial
-                    // matches are more useful for interactive AI clients.
                 }
             }
-
             if (ids.Count > 0)
             {
                 includedIds = ids;
@@ -221,7 +206,6 @@ internal sealed class PipelineAnalysisTools(
             IncludedCategories: includedCategories,
             IncludedGuidelineIds: includedIds,
             EnforceableOnly: !includeNonEnforceable);
-
         return true;
     }
 
@@ -229,16 +213,15 @@ internal sealed class PipelineAnalysisTools(
     {
         result = value.ToUpperInvariant() switch
         {
-            "GENERAL"    => GuidelineCategory.General,
-            "JOBS"       => GuidelineCategory.Jobs,
+            "GENERAL" => GuidelineCategory.General,
+            "JOBS" => GuidelineCategory.Jobs,
             "PARAMETERS" => GuidelineCategory.Parameters,
-            "PIPELINES"  => GuidelineCategory.Pipelines,
-            "STAGES"     => GuidelineCategory.Stages,
-            "STEPS"      => GuidelineCategory.Steps,
-            "VARIABLES"  => GuidelineCategory.Variables,
-            _            => (GuidelineCategory)(-1),
+            "PIPELINES" => GuidelineCategory.Pipelines,
+            "STAGES" => GuidelineCategory.Stages,
+            "STEPS" => GuidelineCategory.Steps,
+            "VARIABLES" => GuidelineCategory.Variables,
+            _ => (GuidelineCategory)(-1),
         };
-
         return (int)result >= 0;
     }
 
@@ -248,32 +231,22 @@ internal sealed class PipelineAnalysisTools(
         for (int i = 0; i < diagnostics.Count; i++)
         {
             Diagnostic d = diagnostics[i];
-            string recommendation = ResolveRecommendation(d);
-            dtos[i] = new DiagnosticDto(
-                d.GuidelineId.Value,
-                recommendation,
-                d.Message,
-                d.Line);
+            dtos[i] = new DiagnosticDto(d.GuidelineId.Value, ResolveRecommendation(d), d.Message, d.Line);
         }
-
         return dtos;
     }
 
     private string ResolveRecommendation(Diagnostic diagnostic)
     {
         GuidelineDefinition? def = repository.FindById(diagnostic.GuidelineId);
-        if (def is not null)
-        {
-            return EnumToJsonString(def.Severity);
-        }
-
-        // Fallback: map DiagnosticSeverity to nearest recommendation label.
-        return diagnostic.Severity switch
-        {
-            DiagnosticSeverity.Error   => EnumToJsonString(GuidelineSeverity.Do),
-            DiagnosticSeverity.Warning => EnumToJsonString(GuidelineSeverity.Avoid),
-            _                          => EnumToJsonString(GuidelineSeverity.Consider),
-        };
+        return def is not null
+            ? EnumToJsonString(def.Severity)
+            : diagnostic.Severity switch
+            {
+                DiagnosticSeverity.Error => EnumToJsonString(GuidelineSeverity.Do),
+                DiagnosticSeverity.Warning => EnumToJsonString(GuidelineSeverity.Avoid),
+                _ => EnumToJsonString(GuidelineSeverity.Consider),
+            };
     }
 
     private AnalysisSummaryDto BuildSummary(List<AnalysisResult> results)
@@ -283,60 +256,32 @@ internal sealed class PipelineAnalysisTools(
         Dictionary<string, int> byRule = [];
         int filesWithFindings = 0;
         int totalFindings = 0;
-
         foreach (AnalysisResult result in results)
         {
             if (result.Diagnostics.Count > 0)
             {
                 filesWithFindings++;
             }
-
             totalFindings += result.Diagnostics.Count;
             foreach (Diagnostic diagnostic in result.Diagnostics)
             {
                 GuidelineDefinition? guideline = repository.FindById(diagnostic.GuidelineId);
-
                 Increment(byRecommendation, ResolveRecommendation(diagnostic));
                 Increment(byRule, diagnostic.GuidelineId.Value);
-
                 if (guideline is not null)
                 {
                     Increment(byCategory, EnumToJsonString(guideline.Category));
                 }
             }
         }
-
-        return new AnalysisSummaryDto(
-            results.Count,
-            filesWithFindings,
-            totalFindings,
+        return new AnalysisSummaryDto(results.Count, filesWithFindings, totalFindings,
             byRecommendation.Count == 0 ? null : new SortedDictionary<string, int>(byRecommendation),
             byCategory.Count == 0 ? null : new SortedDictionary<string, int>(byCategory),
             byRule.Count == 0 ? null : new SortedDictionary<string, int>(byRule));
     }
 
-    private static void Increment(Dictionary<string, int> counts, string key)
-    {
+    private static void Increment(Dictionary<string, int> counts, string key) =>
         counts[key] = counts.TryGetValue(key, out int count) ? count + 1 : 1;
-    }
-
-    // ── Internal DTOs ─────────────────────────────────────────────────────────
-
-    // Converts an enum value to a lowercase ASCII string for JSON output.
-    // We avoid string.ToLowerInvariant because the codebase treats enum names as stable
-    // ASCII identifiers, and CA1308 warns against ToLowerInvariant in invariant contexts.
-    private static string EnumToJsonString<T>(T value) where T : struct, Enum
-    {
-        string name = value.ToString();
-        return string.Create(name.Length, name, static (span, src) =>
-        {
-            for (int i = 0; i < src.Length; i++)
-            {
-                char c = src[i];
-                span[i] = c is >= 'A' and <= 'Z' ? (char)(c + 32) : c;
-            }
-        });
-    }
 
     private sealed record DiagnosticDto(
         [property: JsonPropertyName("ruleId")] string RuleId,
@@ -361,6 +306,16 @@ internal sealed class PipelineAnalysisTools(
         [property: JsonPropertyName("byCategory")] SortedDictionary<string, int>? ByCategory,
         [property: JsonPropertyName("byRule")] SortedDictionary<string, int>? ByRule);
 
-    private sealed record ErrorResponse(
-        [property: JsonPropertyName("error")] string Error);
+    private static string EnumToJsonString<TEnum>(TEnum value) where TEnum : struct, Enum
+    {
+        string name = value.ToString();
+        return string.Create(name.Length, name, static (span, source) =>
+        {
+            for (int i = 0; i < source.Length; i++)
+            {
+                char c = source[i];
+                span[i] = c is >= 'A' and <= 'Z' ? (char)(c + 32) : c;
+            }
+        });
+    }
 }

@@ -88,7 +88,7 @@ internal sealed class ExplainDiagnosticTool(
 
         DiagnosticContextDto? context = BuildContext(message, filePath, line, column);
         DiagnosticExplanationDto explanation = new(
-            GuidelineTools.ToDetailDto(guideline, automationMetadataProvider), context);
+            GuidelineToolSupport.ToDetailDto(guideline, automationMetadataProvider), context);
 
         return JsonSerializer.Serialize(explanation, _jsonOptions);
     }

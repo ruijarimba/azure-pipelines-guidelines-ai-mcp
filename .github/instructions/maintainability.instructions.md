@@ -169,7 +169,28 @@ var distinctPatterns = regexHints.Select(h => h.Pattern).Distinct().OrderBy(p =>
 
 ---
 
-## 9. Change scope
+## 9. Human-readable statement layout
+
+Readable code needs visual separation as well as correct indentation.
+
+- Keep one statement or control-flow block per line. Never compress statements into a
+  single line such as `try { ... } catch { ... }`.
+- Separate logical phases in a method with a blank line. Typical phases are arrangement,
+  input validation, parsing, repository or service calls, transformation, and response
+  construction.
+- Do not rely on the formatter to invent semantic whitespace. `.editorconfig` can expand
+  single-line statements and blocks, but it cannot determine where every logical phase
+  should be separated.
+- Expand expression-bodied members when the body is no longer immediately readable as one
+  simple operation.
+- Prefer short, named intermediate variables over dense nested calls or long conditional
+  expressions, even when the resulting code is technically formatter-compliant.
+
+*Inspiration: Microsoft C# coding conventions and the repository's human-readability standard.*
+
+---
+
+## 10. Change scope
 
 Each pull request or agent task should be reviewable in a single sitting.
 
