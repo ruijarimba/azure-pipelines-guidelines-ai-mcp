@@ -35,6 +35,7 @@ The tables below show the complete MCP surface. Use the linked sections for deta
 | Prompt | Inputs | Purpose | Status |
 | --- | --- | --- | --- |
 | `review` | `fileOrPath` (optional) | Review inline YAML, a file, or a directory | Available |
+| `review-summary` | None | Summarize violations across all repository pipeline YAML files | Available |
 | `review-category` | `category`, `fileOrPath` (optional) | Review one guideline category | Available |
 | `review-guideline` | `guidelineIds`, `fileOrPath` (optional) | Review selected rules | Available |
 | `explain-guideline` | `guidelineId`, `detail` (optional) | Explain one guideline | Available |
@@ -145,6 +146,10 @@ The published image uses HTTP by default, so set `MCP_TRANSPORT=stdio` when an M
         "--rm",
         "--pull",
         "always",
+        "--mount",
+        "type=bind,source=${workspaceFolder},target=/workspace,readonly",
+        "--workdir",
+        "/workspace",
         "-e",
         "MCP_TRANSPORT=stdio",
         "ruijarimba/azure-pipelines-guidelines-mcp:latest"
@@ -154,7 +159,11 @@ The published image uses HTTP by default, so set `MCP_TRANSPORT=stdio` when an M
 }
 ```
 
-Restart or reload the MCP server from VS Code after saving the file. The container can analyze inline YAML immediately. To analyze files with `analyze_template_or_folder`, mount only the intended workspace directory as read-only and pass the corresponding container path; see the [file-access boundary](#file-access-boundary) guidance below.
+`${workspaceFolder}` is expanded by VS Code to the currently open workspace, so this configuration can
+be reused across repositories. The workspace is mounted read-only so the server can analyze pipeline
+files without modifying them; Copilot can still suggest and apply fixes through the editor.
+
+Restart or reload the MCP server from VS Code after saving the file. The container can analyze inline YAML immediately. The mount makes the current workspace available for `analyze_template_or_folder`, including the `review-summary` prompt; see the [file-access boundary](#file-access-boundary) guidance below.
 
 ### Option 2 — Local clone
 
@@ -186,6 +195,10 @@ For details about adding and managing MCP servers in VS Code, see the official [
         "--rm",
         "--pull",
         "always",
+        "--mount",
+        "type=bind,source=${workspaceFolder},target=/workspace,readonly",
+        "--workdir",
+        "/workspace",
         "-e",
         "MCP_TRANSPORT=stdio",
         "ruijarimba/azure-pipelines-guidelines-mcp:latest"
@@ -242,12 +255,18 @@ Analyzes one Azure Pipelines pipeline or template. Use inline `yaml` content or 
 - `category` (string, optional) — Category filter for analysis options.
 - `includeNonEnforceable` (boolean, optional) — When `true`, also evaluates rules whose automation
   status is `Heuristic` or `NotAutomatable`. Defaults to `false` (enforceable rules only).
+- `summaryMode` (boolean, optional) — When `true`, returns compact violation summaries grouped by
+  guideline ID instead of individual diagnostics. Defaults to `false`.
 
 **Returns:**
 
 - An object containing `summary` and `diagnostics`.
+- When `summaryMode` is `true`, an object containing `summary` and `violations` is returned instead.
 
 `summary` includes `filesAnalyzed`, `filesWithFindings`, and `totalFindings`. When findings exist, it also includes `byRecommendation`, `byCategory`, and `byRule` count maps. The detailed `diagnostics` array contains `ruleId`, `recommendation`, `message`, and optional `line` and `column` values.
+
+The compact `violations` array contains one entry per guideline ID with `ruleId`, `recommendation`,
+`category`, `occurrences`, and the number of affected `files`.
 
 Example:
 
@@ -357,6 +376,7 @@ The server exposes read-only MCP prompts. In VS Code, restart or reload the MCP 
 | Prompt | Inputs | Purpose |
 | --- | --- | --- |
 | `review` | `fileOrPath` (optional, default `/pipelines`) | Selects inline or path-based analysis for YAML, a file, or a directory. |
+| `review-summary` | None | Reviews all pipeline YAML files from the repository root and requests a concise Markdown table of grouped violations. |
 | `review-category` | `category`, `fileOrPath` (optional, default `/pipelines`) | Reviews a target for one guideline category. |
 | `review-guideline` | `guidelineIds`, `fileOrPath` (optional, default `/pipelines`) | Reviews a target against selected rule IDs. |
 | `explain-guideline` | `guidelineId`, `detail` (optional) | Explains one guideline from the catalogue. |

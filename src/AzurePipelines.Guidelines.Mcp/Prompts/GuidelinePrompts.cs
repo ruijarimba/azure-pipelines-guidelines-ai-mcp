@@ -30,6 +30,19 @@ internal sealed class GuidelinePrompts
         Do not modify files or generate patches.
         """;
 
+    [McpServerPrompt(Name = "review-summary", Title = "Summarize repository pipeline violations")]
+    [Description("Summarizes guideline violations across all Azure Pipelines YAML files in the repository.")]
+    internal static string ReviewSummary() =>
+        """
+        Perform a read-only Azure Pipelines guideline review of the entire repository.
+
+        Call analyze_template_or_folder with fileOrPath="." and summaryMode=true. Do not provide inline YAML.
+        Return a concise summary of the total files analyzed and total findings, followed by a Markdown table
+        grouped by guideline ID with these columns: Rule ID, Recommendation, Category, Occurrences, and Files.
+        Use only DO, DO-NOT, AVOID, and CONSIDER as recommendation labels. If there are no findings, state that
+        all analyzed files passed the selected checks. Do not modify files or generate patches.
+        """;
+
     [McpServerPrompt(Name = "review-category", Title = "Review one guideline category")]
     [Description("Reviews inline YAML, a file, or a directory for one guideline category.")]
     internal static string ReviewCategory(

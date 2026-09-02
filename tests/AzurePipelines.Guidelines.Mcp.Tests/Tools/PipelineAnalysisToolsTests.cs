@@ -174,6 +174,37 @@ public sealed class AnalyzeTemplateOrFolderToolTests
     }
 
     [Fact]
+    public async Task AnalyzeTemplateAsync_GivenSummaryMode_ShouldReturnGroupedViolations()
+    {
+        IPipelineParser parser = Substitute.For<IPipelineParser>();
+        parser.Parse(Arg.Any<string>(), Arg.Any<string>()).Returns(EmptyDocument());
+
+        Diagnostic first = MakeDiagnostic(line: 7);
+        Diagnostic second = MakeDiagnostic(line: 12);
+        IPipelineAnalyser analyser = Substitute.For<IPipelineAnalyser>();
+        analyser.AnalyseAsync(Arg.Any<PipelineDocument>(), Arg.Any<AnalysisOptions>(), Arg.Any<CancellationToken>())
+            .Returns(MakeResult([first, second]));
+
+        IGuidelineRepository guidelineRepository = Substitute.For<IGuidelineRepository>();
+        guidelineRepository.FindById(new GuidelineId("ADOG-STEPS-001"))
+            .Returns(new GuidelineDefinition(
+                new GuidelineId("ADOG-STEPS-001"), GuidelineCategory.Steps, GuidelineSeverity.Do,
+                "Test", "Test", null, [], [], null, []));
+        AnalyzeTemplateOrFolderTool sut = MakeSut(parser, analyser, guidelineRepository: guidelineRepository);
+
+        string result = await sut.AnalyzeTemplateAsync(yaml: "steps: []", summaryMode: true);
+
+        JsonElement obj = Deserialize<JsonElement>(result);
+        obj.TryGetProperty("diagnostics", out _).Should().BeFalse();
+        JsonElement violation = obj.GetProperty("violations")[0];
+        violation.GetProperty("ruleId").GetString().Should().Be("ADOG-STEPS-001");
+        violation.GetProperty("recommendation").GetString().Should().Be("do");
+        violation.GetProperty("category").GetString().Should().Be("steps");
+        violation.GetProperty("occurrences").GetInt32().Should().Be(2);
+        violation.GetProperty("files").GetInt32().Should().Be(1);
+    }
+
+    [Fact]
     public async Task AnalyzeTemplateAsync_GivenMultipleViolations_ShouldReturnAllDiagnostics()
     {
         // Arrange

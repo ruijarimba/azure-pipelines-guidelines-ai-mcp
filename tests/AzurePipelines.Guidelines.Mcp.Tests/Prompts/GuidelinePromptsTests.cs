@@ -9,6 +9,8 @@ public sealed class GuidelinePromptsTests
     private static readonly string[] _recommendationPrompts =
     [
         GuidelinePrompts.Review("steps:\n- script: dotnet build"),
+        GuidelinePrompts.Review("steps:\n- script: dotnet build"),
+        GuidelinePrompts.ReviewSummary(),
         GuidelinePrompts.ReviewCategory("steps", "pipelines"),
         GuidelinePrompts.ReviewGuidelines("ADOG-STEPS-001,ADOG-JOBS-006", "pipeline.yml"),
         GuidelinePrompts.ExplainGuideline("ADOG-STEPS-001"),
@@ -24,6 +26,18 @@ public sealed class GuidelinePromptsTests
         result.Should().Contain("analyze_template_or_folder");
         result.Should().Contain("yaml for inline content");
         result.Should().Contain("DO, DO-NOT, AVOID, and CONSIDER");
+        result.Should().Contain("Do not modify files");
+    }
+
+    [Fact]
+    public void ReviewSummary_ShouldRequestRepositoryWideTableSummary()
+    {
+        string result = GuidelinePrompts.ReviewSummary();
+
+        result.Should().Contain("fileOrPath=\".\"");
+        result.Should().Contain("summaryMode=true");
+        result.Should().Contain("Markdown table");
+        result.Should().Contain("Rule ID, Recommendation, Category, Occurrences, and Files");
         result.Should().Contain("Do not modify files");
     }
 

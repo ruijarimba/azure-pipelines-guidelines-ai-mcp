@@ -66,6 +66,10 @@ No repository clone or .NET SDK is required. Create or edit `.vscode/mcp.json` i
         "--rm",
         "--pull",
         "always",
+        "--mount",
+        "type=bind,source=${workspaceFolder},target=/workspace,readonly",
+        "--workdir",
+        "/workspace",
         "-e",
         "MCP_TRANSPORT=stdio",
         "ruijarimba/azure-pipelines-guidelines-mcp:latest"
@@ -74,6 +78,10 @@ No repository clone or .NET SDK is required. Create or edit `.vscode/mcp.json` i
   }
 }
 ```
+
+`${workspaceFolder}` is expanded by VS Code to the currently open workspace, so this configuration
+can be reused across repositories. The workspace is mounted read-only so the server can analyze
+pipeline files without modifying them; Copilot can still suggest and apply fixes through the editor.
 
 ### Option 2 — MCP server from a local clone
 

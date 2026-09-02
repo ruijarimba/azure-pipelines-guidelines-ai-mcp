@@ -62,7 +62,11 @@ internal sealed class AnalyzeTemplateOrFolderTool(
         [Description(
             "When true, includes heuristic and non-automatable rules in addition to enforceable rules. " +
             "Defaults to false (enforceable rules only). Ignored when guidelineIds is provided.")]
-        bool includeNonEnforceable = false)
+         bool includeNonEnforceable = false,
+         [Description(
+             "When true, returns only a compact summary grouped by guideline ID instead of individual diagnostics. " +
+             "Defaults to false.")]
+         bool summaryMode = false)
     {
         ILogger<AnalyzeTemplateOrFolderTool> invocationLogger =
             logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<AnalyzeTemplateOrFolderTool>.Instance;
@@ -89,7 +93,7 @@ internal sealed class AnalyzeTemplateOrFolderTool(
 
         if (hasYaml)
         {
-            return await AnalyzeInlineAsync(yaml!, options).ConfigureAwait(false);
+            return await AnalyzeInlineAsync(yaml!, options, summaryMode).ConfigureAwait(false);
         }
 
         if (!pathResolver.TryResolveWithRepositoryFallback(
@@ -101,10 +105,10 @@ internal sealed class AnalyzeTemplateOrFolderTool(
             return JsonSerializer.Serialize(new ErrorResponseDto(pathError!), _jsonOptions);
         }
 
-        return await AnalyzeFilesAsync(discoveredPaths, options).ConfigureAwait(false);
+        return await AnalyzeFilesAsync(discoveredPaths, options, summaryMode).ConfigureAwait(false);
     }
 
-    private async Task<string> AnalyzeInlineAsync(string yaml, AnalysisOptions options)
+    private async Task<string> AnalyzeInlineAsync(string yaml, AnalysisOptions options, bool summaryMode)
     {
         PipelineDocument document;
         try
@@ -119,12 +123,21 @@ internal sealed class AnalyzeTemplateOrFolderTool(
         }
 
         AnalysisResult result = await analyser.AnalyseAsync(document, options).ConfigureAwait(false);
+        if (summaryMode)
+        {
+            return JsonSerializer.Serialize(
+                new SummaryResponse(BuildSummary([result]), BuildViolationSummaries([result])), _jsonOptions);
+        }
+
         DiagnosticDto[] diagnostics = BuildDiagnosticDtos(result.Diagnostics);
         return JsonSerializer.Serialize(
             new AnalysisResponse(BuildSummary([result]), diagnostics, null), _jsonOptions);
     }
 
-    private async Task<string> AnalyzeFilesAsync(IReadOnlyList<string> discoveredPaths, AnalysisOptions options)
+    private async Task<string> AnalyzeFilesAsync(
+        IReadOnlyList<string> discoveredPaths,
+        AnalysisOptions options,
+        bool summaryMode)
     {
         List<FileAnalysisResultDto> fileResults = [];
         List<AnalysisResult> results = [];
@@ -158,7 +171,10 @@ internal sealed class AnalyzeTemplateOrFolderTool(
             fileResults.Add(new FileAnalysisResultDto(discoveredPath, BuildDiagnosticDtos(result.Diagnostics)));
         }
 
-        return JsonSerializer.Serialize(new AnalysisResponse(BuildSummary(results), null, fileResults), _jsonOptions);
+        return summaryMode
+            ? JsonSerializer.Serialize(
+                new SummaryResponse(BuildSummary(results), BuildViolationSummaries(results)), _jsonOptions)
+            : JsonSerializer.Serialize(new AnalysisResponse(BuildSummary(results), null, fileResults), _jsonOptions);
     }
 
     private static bool TryBuildOptions(string? guidelineIds, string? category, bool includeNonEnforceable,
@@ -280,6 +296,40 @@ internal sealed class AnalyzeTemplateOrFolderTool(
             byRule.Count == 0 ? null : new SortedDictionary<string, int>(byRule));
     }
 
+    private List<ViolationSummaryDto> BuildViolationSummaries(List<AnalysisResult> results)
+    {
+        Dictionary<string, List<Diagnostic>> diagnosticsByRule = [];
+        foreach (AnalysisResult result in results)
+        {
+            foreach (Diagnostic diagnostic in result.Diagnostics)
+            {
+                if (!diagnosticsByRule.TryGetValue(diagnostic.GuidelineId.Value, out List<Diagnostic>? diagnostics))
+                {
+                    diagnostics = [];
+                    diagnosticsByRule[diagnostic.GuidelineId.Value] = diagnostics;
+                }
+
+                diagnostics.Add(diagnostic);
+            }
+        }
+
+        return [.. diagnosticsByRule
+            .OrderBy(pair => pair.Key, StringComparer.Ordinal)
+            .Select(pair =>
+            {
+                Diagnostic firstDiagnostic = pair.Value[0];
+                GuidelineDefinition? guideline = repository.FindById(firstDiagnostic.GuidelineId);
+                return new ViolationSummaryDto(
+                    pair.Key,
+                    ResolveRecommendation(firstDiagnostic),
+                    guideline is null ? null : EnumToJsonString(guideline.Category),
+                    pair.Value.Count,
+                    pair.Value.Select(diagnostic => diagnostic.FilePath)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .Count());
+            })];
+    }
+
     private static void Increment(Dictionary<string, int> counts, string key) =>
         counts[key] = counts.TryGetValue(key, out int count) ? count + 1 : 1;
 
@@ -297,6 +347,17 @@ internal sealed class AnalyzeTemplateOrFolderTool(
         [property: JsonPropertyName("summary")] AnalysisSummaryDto Summary,
         [property: JsonPropertyName("diagnostics")] DiagnosticDto[]? Diagnostics,
         [property: JsonPropertyName("files")] List<FileAnalysisResultDto>? Files);
+
+    private sealed record SummaryResponse(
+        [property: JsonPropertyName("summary")] AnalysisSummaryDto Summary,
+        [property: JsonPropertyName("violations")] List<ViolationSummaryDto> Violations);
+
+    private sealed record ViolationSummaryDto(
+        [property: JsonPropertyName("ruleId")] string RuleId,
+        [property: JsonPropertyName("recommendation")] string Recommendation,
+        [property: JsonPropertyName("category")] string? Category,
+        [property: JsonPropertyName("occurrences")] int Occurrences,
+        [property: JsonPropertyName("files")] int Files);
 
     private sealed record AnalysisSummaryDto(
         [property: JsonPropertyName("filesAnalyzed")] int FilesAnalyzed,

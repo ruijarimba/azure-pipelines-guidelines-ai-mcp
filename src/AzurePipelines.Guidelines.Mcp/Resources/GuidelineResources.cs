@@ -67,6 +67,7 @@ internal sealed class GuidelineResources(
             ],
             [
                 "review",
+                "review-summary",
                 "review-category",
                 "review-guideline",
                 "explain-guideline",

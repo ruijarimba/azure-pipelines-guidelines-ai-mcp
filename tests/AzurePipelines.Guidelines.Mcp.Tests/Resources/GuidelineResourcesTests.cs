@@ -104,7 +104,7 @@ public sealed class GuidelineResourcesTests
         payload.GetProperty("resources").EnumerateArray().Select(item => item.GetString())
             .Should().Contain("adog://guidelines/{id}/automation");
         payload.GetProperty("prompts").EnumerateArray().Select(item => item.GetString())
-            .Should().Contain(["review", "review-category", "review-guideline"]);
+            .Should().Contain(["review", "review-summary", "review-category", "review-guideline"]);
         payload.GetProperty("supports").GetProperty("automationMetadata").GetBoolean().Should().BeTrue();
         payload.GetProperty("supports").GetProperty("prompts").GetBoolean().Should().BeTrue();
     }
