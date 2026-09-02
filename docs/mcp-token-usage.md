@@ -24,7 +24,7 @@ Every MCP tool, resource, or prompt result becomes part of the client's context.
 
 ## Server-side analysis summaries
 
-- `analyze_template` returns a `summary` object
+- `analyze_template_or_folder` returns a `summary` object
   (`filesAnalyzed`, `filesWithFindings`, `totalFindings`, and, when findings exist, `byRecommendation`,
   `byCategory`, and `byRule` count maps) alongside the detailed `diagnostics` array.
 - A client can inspect the summary first to decide whether it needs the full diagnostics list at
@@ -63,7 +63,7 @@ The predefined prompts (`review`, `review-category`, `review-guideline`, `explai
 
 - Use a focused lookup (`get_guideline` by ID) instead of the full catalogue (`list_guidelines` or
   `adog://guidelines`) whenever the target rule ID is already known.
-- Pass `category` or `guidelineIds` to `analyze_template` when the user
+- Pass `category` or `guidelineIds` to `analyze_template_or_folder` when the user
   only cares about a subset of rules, instead of running every rule and filtering the result
   afterward.
 - Read the `summary` object first and only request or process the detailed `diagnostics` array
@@ -71,7 +71,7 @@ The predefined prompts (`review`, `review-category`, `review-guideline`, `explai
 - Cache `adog://guidelines/version` and `adog://capabilities` results across a session instead of
   re-fetching them for every request.
 - Treat the full guideline catalogue (`list_guidelines` with no filter, `adog://guidelines`) and
-  large multi-file `analyze_template` calls using `fileOrPath` as the main source of token cost. Scope them to
+  large multi-file `analyze_template_or_folder` calls using `fileOrPath` as the main source of token cost. Scope them to
   the smallest set of files, categories, or rule IDs that answers the user's question.
 
 ## See also
@@ -79,3 +79,4 @@ The predefined prompts (`review`, `review-category`, `review-guideline`, `explai
 - [MCP server reference](mcp-reference.md) — full tool, resource, and prompt catalogue
 - [Architecture guide](architecture.md) — MCP tool surface and analysis pipeline
 - [Glossary](glossary.md) — domain vocabulary used throughout this guide
+

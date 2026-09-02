@@ -30,18 +30,25 @@ internal sealed class PipelineAnalysisTools(
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    // ── analyze_template ──────────────────────────────────────────────────────
+    // ── analyze_template_or_folder ────────────────────────────────────────────
 
     /// <summary>
     /// Analyses an inline pipeline or template, or files discovered from a path,
     /// against the loaded guidelines.
     /// </summary>
-    [McpServerTool(Name = "analyze_template", Title = "Analyze pipeline or template", ReadOnly = true)]
+    [McpServerTool(
+         Name = "analyze_template_or_folder",
+         Title = "Analyze pipeline, template, or folder",
+        ReadOnly = true,
+        Destructive = false,
+        Idempotent = true,
+        OpenWorld = true)]
     [Description(
-        "Analyses one Azure Pipelines pipeline or template, or all supported YAML files in a " +
+         "Analyses one Azure Pipelines pipeline or template, or all supported YAML files in a " +
         "file or directory path, against the loaded guidelines. Templates can define steps, " +
         "jobs, stages, or variables. Pass exactly one of yaml or fileOrPath. Directories are " +
-        "scanned recursively. Optional category and guideline ID filters restrict the rules checked.")]
+         "scanned recursively. If a path cannot be resolved, common pipeline paths in the current " +
+         "repository are tried automatically. Optional category and guideline ID filters restrict the rules checked.")]
     internal async Task<string> AnalyzeTemplateAsync(
         [Description("Inline YAML for one pipeline or template. Pass this or fileOrPath, not both.")]
         string? yaml = null,
@@ -78,21 +85,20 @@ internal sealed class PipelineAnalysisTools(
             return JsonSerializer.Serialize(new ErrorResponse(optionsError!), _jsonOptions);
         }
 
-        McpToolInvocationLog.Log(invocationLogger, "analyze_template", category, guidelineIds, options);
+        McpToolInvocationLog.Log(invocationLogger, "analyze_template_or_folder", category, guidelineIds, options);
 
         if (hasYaml)
         {
             return await AnalyzeInlineAsync(yaml!, options).ConfigureAwait(false);
         }
 
-        IReadOnlyList<string> discoveredPaths;
-        try
+        if (!pathResolver.TryResolveWithRepositoryFallback(
+            fileOrPath!,
+            out IReadOnlyList<string> discoveredPaths,
+            out _,
+            out string? pathError))
         {
-            discoveredPaths = pathResolver.Resolve([fileOrPath!]);
-        }
-        catch (Exception ex) when (ex is FileNotFoundException or InvalidOperationException or ArgumentException)
-        {
-            return JsonSerializer.Serialize(new ErrorResponse(ex.Message), _jsonOptions);
+            return JsonSerializer.Serialize(new ErrorResponse(pathError!), _jsonOptions);
         }
 
         return await AnalyzeFilesAsync(discoveredPaths, options).ConfigureAwait(false);

@@ -12,7 +12,7 @@ The tables below show the complete MCP surface. Use the linked sections for deta
 
 | Tool | Purpose | Status |
 | --- | --- | --- |
-| `analyze_template` | Analyze a pipeline or template from YAML, a file, or a directory | Available |
+| `analyze_template_or_folder` | Analyze a pipeline or template from YAML, a file, or a directory | Available |
 | `list_guidelines` | List guideline summaries | Available |
 | `get_guideline` | Get one guideline by ID | Available |
 | `search_guidelines` | Search guidelines by text | Available |
@@ -34,9 +34,9 @@ The tables below show the complete MCP surface. Use the linked sections for deta
 
 | Prompt | Inputs | Purpose | Status |
 | --- | --- | --- | --- |
-| `review` | `fileOrPath` | Review inline YAML, a file, or a directory | Available |
-| `review-category` | `fileOrPath`, `category` | Review one guideline category | Available |
-| `review-guideline` | `fileOrPath`, `guidelineIds` | Review selected rules | Available |
+| `review` | `fileOrPath` (optional) | Review inline YAML, a file, or a directory | Available |
+| `review-category` | `category`, `fileOrPath` (optional) | Review one guideline category | Available |
+| `review-guideline` | `guidelineIds`, `fileOrPath` (optional) | Review selected rules | Available |
 | `explain-guideline` | `guidelineId`, `detail` (optional) | Explain one guideline | Available |
 | `find-guidelines` | `query`, `category` (optional) | Search the guideline catalogue | Available |
 | `list-guidelines` | `category` (optional) | List guideline summaries | Available |
@@ -154,7 +154,7 @@ The published image uses HTTP by default, so set `MCP_TRANSPORT=stdio` when an M
 }
 ```
 
-Restart or reload the MCP server from VS Code after saving the file. The container can analyze inline YAML immediately. To analyze files with `analyze_template`, mount only the intended workspace directory as read-only and pass the corresponding container path; see the [file-access boundary](#file-access-boundary) guidance below.
+Restart or reload the MCP server from VS Code after saving the file. The container can analyze inline YAML immediately. To analyze files with `analyze_template_or_folder`, mount only the intended workspace directory as read-only and pass the corresponding container path; see the [file-access boundary](#file-access-boundary) guidance below.
 
 ### Option 2 — Local clone
 
@@ -220,21 +220,23 @@ The MCP server exposes six tools plus resource-based catalogue endpoints in the 
 
 | Tool | Purpose |
 | --- | --- |
-| `analyze_template` | Analyze a pipeline or template from YAML, a file, or a directory |
+| `analyze_template_or_folder` | Analyze a pipeline or template from YAML, a file, or a directory |
 | `list_guidelines` | List guidelines from the manifest |
 | `get_guideline` | Show a single guideline by ID |
 | `search_guidelines` | Search guidelines by text |
 | `list_categories` | List the supported categories |
 | `explain_diagnostic` | Explain one guideline diagnostic in focused detail |
 
-### `analyze_template`
+### `analyze_template_or_folder`
 
 Analyzes one Azure Pipelines pipeline or template. Use inline `yaml` content or one `fileOrPath` value. A directory is scanned recursively for supported YAML files. Templates can define steps, jobs, stages, or variables.
 
 **Input:**
 
 - `yaml` (string, optional) — Inline pipeline or template YAML. Pass this or `fileOrPath`, not both.
-- `fileOrPath` (string, optional) — One file or directory path. Pass this or `yaml`, not both.
+- `fileOrPath` (string, optional) — One file or directory path. Pass this or `yaml`, not both. If
+  resolution fails, the server tries common paths such as `pipelines` in the current repository and
+  reports every attempted path if no candidate succeeds.
 - `guidelineIds` (string, optional) — Comma-separated list of rule IDs to check. When provided,
   exactly those rules are evaluated regardless of other filters.
 - `category` (string, optional) — Category filter for analysis options.
@@ -277,7 +279,7 @@ The summary is calculated server-side so clients can first identify the number, 
 
 The server reads files with the permissions of the process started by your AI client. Use only workspace paths that you intend the server to analyze. Do not configure the client to run the server with access to directories that contain secrets, credentials, or unrelated sensitive files.
 
-When using Docker, the container cannot read host files unless you explicitly mount a directory. Mount only the workspace or pipeline directory you want to analyze as read-only, then pass paths inside that container mount to `analyze_template`. For example, add these arguments before the `adog-mcp:local` image tag in the MCP client configuration:
+When using Docker, the container cannot read host files unless you explicitly mount a directory. Mount only the workspace or pipeline directory you want to analyze as read-only, then pass paths inside that container mount to `analyze_template_or_folder`. For example, add these arguments before the `adog-mcp:local` image tag in the MCP client configuration:
 
 ```json
 [
@@ -290,7 +292,7 @@ Use `/workspace/azure-pipelines.yml` as the `fileOrPath` value when calling the 
 
 ### `explain_diagnostic`
 
-Explains a single Azure Pipelines guideline diagnostic in focused detail. Pass the `guidelineId` from a diagnostic (for example, from an `analyze_template` result) to get its full detail payload, without fetching the whole catalogue. Optionally echo back the diagnostic's `message`, `filePath`, `line`, and `column` so the response stays paired with the original finding.
+Explains a single Azure Pipelines guideline diagnostic in focused detail. Pass the `guidelineId` from a diagnostic (for example, from an `analyze_template_or_folder` result) to get its full detail payload, without fetching the whole catalogue. Optionally echo back the diagnostic's `message`, `filePath`, `line`, and `column` so the response stays paired with the original finding.
 
 **Input:**
 
@@ -354,9 +356,9 @@ The server exposes read-only MCP prompts. In VS Code, restart or reload the MCP 
 
 | Prompt | Inputs | Purpose |
 | --- | --- | --- |
-| `review` | `fileOrPath` | Selects inline or path-based analysis for YAML, a file, or a directory. |
-| `review-category` | `fileOrPath`, `category` | Reviews a target for one guideline category. |
-| `review-guideline` | `fileOrPath`, `guidelineIds` | Reviews a target against selected rule IDs. |
+| `review` | `fileOrPath` (optional, default `/pipelines`) | Selects inline or path-based analysis for YAML, a file, or a directory. |
+| `review-category` | `category`, `fileOrPath` (optional, default `/pipelines`) | Reviews a target for one guideline category. |
+| `review-guideline` | `guidelineIds`, `fileOrPath` (optional, default `/pipelines`) | Reviews a target against selected rule IDs. |
 | `explain-guideline` | `guidelineId`, `detail` (optional) | Explains one guideline from the catalogue. |
 | `find-guidelines` | `query`, `category` (optional) | Searches the guideline catalogue. |
 | `list-guidelines` | `category` (optional) | Lists guideline summaries. |
@@ -382,13 +384,13 @@ The AI will use the MCP server to look up the rule details and explain it.
 >   - script: echo $(DEPLOY_ENV)
 > ```"
 
-The AI will call `analyze_template` with your YAML snippet and report any violations.
+The AI will call `analyze_template_or_folder` with your YAML snippet and report any violations.
 
 ### Analyze files in your workspace
 
 > "Check all pipeline files in the `.azuredevops` directory"
 
-The AI will call `analyze_template` with the directory as `fileOrPath` and summarize findings.
+The AI will call `analyze_template_or_folder` with the directory as `fileOrPath` and summarize findings.
 
 ### Filter by specific rules
 
@@ -487,7 +489,7 @@ The server runs only while the Visual Studio debugger is attached. To stop it, d
 ### Server starts but doesn't return results
 
 - Verify you're passing valid Azure Pipelines YAML (not alternative CI syntaxes)
-- Check that the YAML file is well-formed. Call `analyze_template` with the file content as `yaml` to inspect parsing errors.
+- Check that the YAML file is well-formed. Call `analyze_template_or_folder` with the file content as `yaml` to inspect parsing errors.
 
 ## See also
 
@@ -495,3 +497,4 @@ The server runs only while the Visual Studio debugger is attached. To stop it, d
 - [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines) — rule definitions
 - [Model Context Protocol specification](https://modelcontextprotocol.io) — MCP standard documentation
 - [Architecture guide](architecture.md) — how the analysis engine works
+

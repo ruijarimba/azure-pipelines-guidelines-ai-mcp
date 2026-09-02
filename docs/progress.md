@@ -29,7 +29,7 @@ Before committing, edit the sections below:
 | --- | --- |
 | MCP diagnostic explanation | Added the `explain_diagnostic` MCP tool, related DTOs, capability discovery, tests, and documentation. |
 | MCP capability expansion | Added prompts, cache-friendly catalogue access, summary-first guideline lookup, automation metadata, analysis summaries, and token-usage guidance. |
-| Analysis and host consolidation | Consolidated pipeline and template analysis behind the `analyze_template` MCP tool and kept the host as a thin transport boundary. |
+| Analysis and host consolidation | Consolidated pipeline and template analysis behind the `analyze_template_or_folder` MCP tool and kept the host as a thin transport boundary. |
 | Integration validation | Added folder-based integration tests for the real analysis stack and validated both MCP launch profiles. |
 | Documentation and maintainability | Updated user documentation, architecture guidance, Solution Explorer registration, host guidance, and repository guardrails. |
 | Docker distribution | Selected the ASP.NET runtime image, added Docker build-stage test execution, and published the multi-architecture MCP image to Docker Hub. |
@@ -110,3 +110,4 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 - The next MCP capability should be selected from the ordered backlog above at the start of the
   next session.
 - NuGet publication is out of scope. Package metadata and local packing remain in the project files.
+

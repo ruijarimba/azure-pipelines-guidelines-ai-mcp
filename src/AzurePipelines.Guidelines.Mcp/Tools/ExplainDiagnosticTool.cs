@@ -31,7 +31,13 @@ internal sealed class ExplainDiagnosticTool(
     /// Explains a single guideline in full detail, optionally echoing back the diagnostic
     /// context (message, file path, line, and column) that triggered the explanation request.
     /// </summary>
-    [McpServerTool(Name = "explain_diagnostic", Title = "Explain a guideline diagnostic", ReadOnly = true)]
+    [McpServerTool(
+        Name = "explain_diagnostic",
+        Title = "Explain a guideline diagnostic",
+        ReadOnly = true,
+        Destructive = false,
+        Idempotent = true,
+        OpenWorld = false)]
     [Description(
         "Explains a single Azure Pipelines guideline diagnostic in focused detail: title, category, " +
         "severity, description, rationale, detection hints, fix guidance, references, and automation " +

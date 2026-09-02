@@ -28,6 +28,7 @@ When an agent considers changing an existing decision, it must re-read the ratio
 | [ADR-014](#adr-014-debuggability) | 2026-07-08 | Debuggability |
 | [ADR-015](#adr-015-mcp-transports) | 2026-07-29 | MCP transports |
 | [ADR-016](#adr-016-mcp-tool-output-safety) | 2026-09-01 | MCP tool output safety |
+| [ADR-017](#adr-017-mcp-analysis-tool-name-and-repository-path-fallback) | 2026-09-02 | MCP analysis tool name and repository path fallback |
 
 ---
 
@@ -374,6 +375,33 @@ fields where the message remains actionable without it.
   echoed diagnostic context.
 - Adversarial tests cover oversized values, control characters, instruction-like text, empty
   values, and the exact truncation boundary.
+
+---
+
+## ADR-017 MCP analysis tool name and repository path fallback
+
+**Date:** 2026-09-02  
+**Context:** The original `analyze_template` name did not describe directory analysis clearly,
+and MCP prompt argument defaults are not displayed by some clients, including VS Code. Explicit
+relative paths can also be interpreted from the MCP host's working directory rather than the user's
+repository.  
+**Decision:** Rename the tool to `analyze_template_or_folder`. When an explicit `fileOrPath` cannot
+be resolved, detect the current repository by walking toward a `.git` marker and try a bounded list
+of common pipeline files and directories, including `pipelines`. If all attempts fail, return an
+error listing every attempted path. Prompt path arguments remain optional without relying on C#
+default values and explain the automatic resolution behavior.  
+**Rationale:**
+
+- The new name accurately communicates that both individual templates and folders are supported.
+- Client-visible prompt defaults are not portable across MCP clients.
+- Repository-relative fallback reduces friction without changing successful explicit path behavior.
+- Listing attempts gives AI clients actionable feedback instead of a misleading single-path error.
+
+**Consequences:**
+
+- Clients must use `analyze_template_or_folder`; the old tool name is no longer advertised.
+- Fallback candidates are intentionally bounded and are only used after explicit resolution fails.
+- The MCP host still needs filesystem access to the repository being analyzed.
 
 ---
 

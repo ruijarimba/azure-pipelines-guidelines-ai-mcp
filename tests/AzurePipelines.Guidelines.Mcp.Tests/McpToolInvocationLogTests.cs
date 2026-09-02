@@ -20,10 +20,10 @@ public sealed class McpToolInvocationLogTests
             IncludedDiagnosticSeverities: [DiagnosticSeverity.Warning]);
 
         // Act
-        McpToolInvocationLog.Log(logger, "analyze_template", "steps", "ADOG-STEPS-001", options);
+        McpToolInvocationLog.Log(logger, "analyze_template_or_folder", "steps", "ADOG-STEPS-001", options);
 
         // Assert
-        logger.Message.Should().Contain("analyze_template");
+        logger.Message.Should().Contain("analyze_template_or_folder");
         logger.Message.Should().Contain("category=steps");
         logger.Message.Should().Contain("guidelineIds=ADOG-STEPS-001");
         logger.Message.Should().Contain("minimumSeverity=Warning");
@@ -39,7 +39,7 @@ public sealed class McpToolInvocationLogTests
         TestLogger logger = new();
 
         // Act
-        McpToolInvocationLog.Log(logger, "analyze_template", category: "steps");
+        McpToolInvocationLog.Log(logger, "analyze_template_or_folder", category: "steps");
 
         // Assert
         logger.Message.Should().Contain("category=steps");

@@ -9,8 +9,8 @@ public sealed class GuidelinePromptsTests
     private static readonly string[] _recommendationPrompts =
     [
         GuidelinePrompts.Review("steps:\n- script: dotnet build"),
-        GuidelinePrompts.ReviewCategory("pipelines", "steps"),
-        GuidelinePrompts.ReviewGuidelines("pipeline.yml", "ADOG-STEPS-001,ADOG-JOBS-006"),
+        GuidelinePrompts.ReviewCategory("steps", "pipelines"),
+        GuidelinePrompts.ReviewGuidelines("ADOG-STEPS-001,ADOG-JOBS-006", "pipeline.yml"),
         GuidelinePrompts.ExplainGuideline("ADOG-STEPS-001"),
         GuidelinePrompts.FindGuidelines("template", "steps"),
         GuidelinePrompts.ListGuidelines("steps"),
@@ -21,7 +21,7 @@ public sealed class GuidelinePromptsTests
     {
         string result = GuidelinePrompts.Review("steps:\n- script: dotnet build");
 
-        result.Should().Contain("analyze_template");
+        result.Should().Contain("analyze_template_or_folder");
         result.Should().Contain("yaml for inline content");
         result.Should().Contain("DO, DO-NOT, AVOID, and CONSIDER");
         result.Should().Contain("Do not modify files");
@@ -32,32 +32,62 @@ public sealed class GuidelinePromptsTests
     {
         string result = GuidelinePrompts.Review("pipelines/build.yml");
 
-        result.Should().Contain("analyze_template");
+        result.Should().Contain("analyze_template_or_folder");
         result.Should().Contain("file or directory path");
         result.Should().Contain("DO, DO-NOT, AVOID, and CONSIDER");
         result.Should().Contain("Do not modify files");
     }
 
     [Fact]
+    public void Review_GivenNoFileOrPath_ShouldRequestAutomaticResolution()
+    {
+        string result = GuidelinePrompts.Review();
+
+        result.Should().Contain("automatic repository path resolution");
+        result.Should().Contain("analyze_template_or_folder");
+        result.Should().Contain("Do not modify files");
+    }
+
+    [Fact]
     public void ReviewCategory_GivenCategory_ShouldIncludeTargetAndCategory()
     {
-        string result = GuidelinePrompts.ReviewCategory("pipelines", "steps");
+        string result = GuidelinePrompts.ReviewCategory("steps", "pipelines");
 
         result.Should().Contain("Target: pipelines");
         result.Should().Contain("Category: steps");
-        result.Should().Contain("analyze_template");
+        result.Should().Contain("analyze_template_or_folder");
         result.Should().Contain("DO, DO-NOT, AVOID, and CONSIDER");
+    }
+
+    [Fact]
+    public void ReviewCategory_GivenNoFileOrPath_ShouldRequestAutomaticResolution()
+    {
+        string result = GuidelinePrompts.ReviewCategory("steps");
+
+        result.Should().Contain("Target: (automatic repository path resolution)");
+        result.Should().Contain("Category: steps");
+        result.Should().Contain("analyze_template_or_folder");
     }
 
     [Fact]
     public void ReviewGuidelines_GivenGuidelineIds_ShouldIncludeTargetAndIds()
     {
-        string result = GuidelinePrompts.ReviewGuidelines("pipeline.yml", "ADOG-STEPS-001,ADOG-JOBS-006");
+        string result = GuidelinePrompts.ReviewGuidelines("ADOG-STEPS-001,ADOG-JOBS-006", "pipeline.yml");
 
         result.Should().Contain("Guideline IDs: ADOG-STEPS-001,ADOG-JOBS-006");
         result.Should().Contain("Restrict the analysis");
         result.Should().Contain("DO, DO-NOT, AVOID, and CONSIDER");
         result.Should().Contain("Do not modify files");
+    }
+
+    [Fact]
+    public void ReviewGuidelines_GivenNoFileOrPath_ShouldRequestAutomaticResolution()
+    {
+        string result = GuidelinePrompts.ReviewGuidelines("ADOG-STEPS-001,ADOG-JOBS-006");
+
+        result.Should().Contain("Target: (automatic repository path resolution)");
+        result.Should().Contain("Guideline IDs: ADOG-STEPS-001,ADOG-JOBS-006");
+        result.Should().Contain("Restrict the analysis");
     }
 
     [Fact]

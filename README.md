@@ -22,13 +22,13 @@ The server analyzes Azure Pipelines YAML files against guidelines organized into
 
 | Category | Covers |
 | --- | --- |
-| `GENERAL` | Pipeline-wide structural rules |
-| `JOBS` | Job definition guidance |
-| `PARAMETERS` | Parameter declaration and defaults |
-| `PIPELINES` | Pipeline-level settings |
-| `STAGES` | Stage structure and ordering |
-| `STEPS` | Step and task guidelines |
-| `VARIABLES` | Variable declarations and scoping |
+| [`GENERAL`](https://github.com/ruijarimba/azure-pipelines-guidelines/tree/main/guidelines/general) | Pipeline-wide structural rules |
+| [`JOBS`](https://github.com/ruijarimba/azure-pipelines-guidelines/tree/main/guidelines/jobs) | Job definition guidance |
+| [`PARAMETERS`](https://github.com/ruijarimba/azure-pipelines-guidelines/tree/main/guidelines/parameters) | Parameter declaration and defaults |
+| [`PIPELINES`](https://github.com/ruijarimba/azure-pipelines-guidelines/tree/main/guidelines/pipelines) | Pipeline-level settings |
+| [`STAGES`](https://github.com/ruijarimba/azure-pipelines-guidelines/tree/main/guidelines/stages) | Stage structure and ordering |
+| [`STEPS`](https://github.com/ruijarimba/azure-pipelines-guidelines/tree/main/guidelines/steps) | Step and task guidelines |
+| [`VARIABLES`](https://github.com/ruijarimba/azure-pipelines-guidelines/tree/main/guidelines/variables) | Variable declarations and scoping |
 
 The [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-pipelines-guidelines) owns the manifest and metadata and defines the rules and guidelines.
 
@@ -37,7 +37,7 @@ The [Azure Pipelines Guidelines repository](https://github.com/ruijarimba/azure-
 - **.NET 10 and C# 13** provide the layered application and executable MCP host.
 - **Model Context Protocol (MCP)** exposes analysis tools, guideline lookups, resources, and prompts to AI clients. Built using the [official C# MCP SDK](https://github.com/modelcontextprotocol/csharp-sdk).
 - **ASP.NET Core** provides the HTTP transport; `stdio` supports clients that start the server locally.
-- **Docker Hub** provides a published container for clients that support stdio servers.
+- **Docker Hub** hosts the published MCP container image for clients that launch it in `stdio` mode or connect via HTTP.
 
 ## Prerequisites
 

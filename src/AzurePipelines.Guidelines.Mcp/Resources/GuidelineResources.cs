@@ -50,7 +50,7 @@ internal sealed class GuidelineResources(
             repository.ContentVersion,
             ["stdio", "streamable-http"],
             [
-                "analyze_template",
+                "analyze_template_or_folder",
                 "list_guidelines",
                 "get_guideline",
                 "search_guidelines",

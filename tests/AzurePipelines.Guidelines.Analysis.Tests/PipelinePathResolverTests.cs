@@ -48,6 +48,62 @@ public sealed class PipelinePathResolverTests
     }
 
     [Fact]
+    public void TryResolveWithRepositoryFallback_GivenCandidateInRepository_ShouldReturnCandidateFiles()
+    {
+        string repositoryRoot = CreateTempDirectory();
+        try
+        {
+            Directory.CreateDirectory(Path.Combine(repositoryRoot, ".git"));
+            string pipelinesDirectory = Path.Combine(repositoryRoot, "pipelines");
+            Directory.CreateDirectory(pipelinesDirectory);
+            string pipeline = Path.Combine(pipelinesDirectory, "build.yml");
+            File.WriteAllText(pipeline, "steps: []");
+
+            PipelinePathResolver sut = new();
+
+            bool resolved = sut.TryResolveWithRepositoryFallback(
+                Path.Combine(repositoryRoot, "missing"), out IReadOnlyList<string> paths,
+                out IReadOnlyList<string> attempted, out string? error, repositoryRoot);
+
+            resolved.Should().BeTrue();
+            paths.Should().ContainSingle().Which.Should().Be(Path.GetFullPath(pipeline));
+            attempted.Should().Contain(Path.Combine(repositoryRoot, "pipelines"));
+            error.Should().BeNull();
+        }
+        finally
+        {
+            DeleteTempDirectory(repositoryRoot);
+        }
+    }
+
+    [Fact]
+    public void TryResolveWithRepositoryFallback_GivenNoCandidates_ShouldListAllAttempts()
+    {
+        string repositoryRoot = CreateTempDirectory();
+        try
+        {
+            Directory.CreateDirectory(Path.Combine(repositoryRoot, ".git"));
+            PipelinePathResolver sut = new();
+
+            bool resolved = sut.TryResolveWithRepositoryFallback(
+                Path.Combine(repositoryRoot, "missing"), out _,
+                out IReadOnlyList<string> attempted, out string? error, repositoryRoot);
+
+            resolved.Should().BeFalse();
+            attempted.Should().HaveCount(7);
+            error.Should().Contain("Attempted:");
+            foreach (string path in attempted)
+            {
+                error.Should().Contain(path);
+            }
+        }
+        finally
+        {
+            DeleteTempDirectory(repositoryRoot);
+        }
+    }
+
+    [Fact]
     public void Resolve_GivenDirectoryWithMixedFiles_ShouldReturnOnlyYamlFilesInSortedOrder()
     {
         string tempDirectory = CreateTempDirectory();

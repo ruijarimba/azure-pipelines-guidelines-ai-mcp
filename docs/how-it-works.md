@@ -50,7 +50,7 @@ sequenceDiagram
     participant Mnf as guidelines.json
 
     Dev->>AI: "Check my pipeline for issues"
-    AI->>Srv: MCP tool call: analyze_template(yaml or fileOrPath)
+    AI->>Srv: MCP tool call: analyze_template_or_folder(yaml or fileOrPath)
     Srv->>Eng: IPipelineAnalyser.AnalyseAsync(yaml)
     Eng->>Eng: parse YAML → PipelineDocument
     Eng->>Mnf: load GuidelineDefinitions
@@ -65,7 +65,7 @@ The MCP server supports both a local **stdio** transport and an **HTTP transport
 
 The MCP server exposes six tools: one analysis tool and five guideline lookup tools, plus resource endpoints for the guideline catalogue.
 
-- `analyze_template` accepts exactly one of inline `yaml` or a `fileOrPath` file or directory
+- `analyze_template_or_folder` accepts exactly one of inline `yaml` or a `fileOrPath` file or directory
   target. It covers full pipelines and steps, jobs, stages, and variables templates.
 - `list_guidelines`, `get_guideline`, `search_guidelines`, and `list_categories` browse the
   loaded guideline catalogue.
@@ -107,3 +107,4 @@ Rule IDs appear in:
 - The `IGuidelineRule.GuidelineId` property of each rule implementation
 
 For the full severity mapping (`Do`/`DoNot` → Error, `Avoid` → Warning, `Consider` → Info), see [the glossary reference](glossary.md).
+
