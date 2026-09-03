@@ -46,6 +46,9 @@ Implements the Model Context Protocol (MCP) server logic. Exposes guideline look
   the MCP SDK creates them through dependency injection at runtime.
 - Tool and resource descriptions shown to AI clients must be concise, accurate, and
   derived from the guideline manifest vocabulary.
+- Tool, resource, prompt, and server metadata must make the Azure Pipelines YAML guideline
+  purpose explicit. Keep stable tool names, resource URIs, and prompt names unchanged when
+  improving titles or descriptions.
 - Handler return values are JSON strings. The shared `_jsonOptions` use camel-case property
   names and skip null values to keep responses small and predictable for clients.
 - Enum values returned to clients are lower-case ASCII strings (`general`, `error`, etc.)

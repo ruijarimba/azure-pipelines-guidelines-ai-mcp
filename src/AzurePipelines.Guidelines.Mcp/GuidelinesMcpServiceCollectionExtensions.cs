@@ -85,7 +85,11 @@ public static class GuidelinesMcpServiceCollectionExtensions
                 options.ServerInfo = new Implementation
                 {
                     Name = "azure-pipelines-guidelines",
+                    Title = "Azure Pipelines YAML Guidelines",
                     Version = "1.0.0",
+                    Description =
+                        "Deterministic analysis and guideline lookup for Azure Pipelines YAML pipelines and reusable templates.",
+                    WebsiteUrl = "https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp",
                 };
             })
             .WithToolsFromAssembly(typeof(GuidelinesMcpServiceCollectionExtensions).Assembly)

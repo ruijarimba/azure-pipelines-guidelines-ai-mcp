@@ -6,9 +6,9 @@ This file is the **session handoff note** for AI agents and human contributors. 
 
 | Area | Status |
 | --- | --- |
-| Current focus | Completing the MCP output-safety retrofit for diagnostic and error responses |
-| Recent wins | Completed a Copilot instruction-file consistency pass: fixed duplicate/malformed headings in code-style.instructions.md and maintainability.instructions.md, realigned AGENTS.md's principle summary and decision diagram with agent-behaviour.instructions.md's 12 principles, added a new MCP tool output-safety guardrail (agent-behaviour.instructions.md §6.1, csharp-patterns.instructions.md §4.3, testing.instructions.md security section, ADR-016). Added the `explain_diagnostic` MCP tool, which returns one guideline's full detail by ID with an optional echoed diagnostic context (message, filePath, line, column); added related DTOs, capability discovery, tests, and documentation. Added MCP prompts, cache-friendly catalogue access, guideline automation metadata, analysis summaries, and token-usage guidance. Completed the documentation consistency review, Docker build-stage test execution, and multi-architecture Docker Hub publication. |
-| Next up | Run the repository quality gate, then monitor the companion manifest for new `ADOG-*` rules and preserve MCP output-safety coverage when adding rules |
+| Current focus | Maintaining MCP capability metadata and monitoring the companion manifest for new rules |
+| Recent wins | Improved MCP discoverability with descriptive server initialization metadata, Azure Pipelines YAML-focused titles and descriptions for tools, resources, and prompts, and structured descriptors in `adog://capabilities`. Added regression coverage and updated the MCP reference and maintainer guidance. Previously completed the MCP output-safety retrofit, `explain_diagnostic` tool, prompts, cache-friendly catalogue access, guideline automation metadata, analysis summaries, token-usage guidance, documentation consistency review, Docker build-stage test execution, and multi-architecture Docker Hub publication. |
+| Next up | Monitor the companion manifest for new `ADOG-*` rules and preserve MCP output-safety and discovery-metadata coverage when adding capabilities |
 
 ---
 
@@ -36,6 +36,7 @@ Before committing, edit the sections below:
 | Copilot instruction-file consistency pass | Fixed duplicate/malformed headings in code-style.instructions.md and maintainability.instructions.md; realigned AGENTS.md's principle summary and decision diagram with the canonical 12 principles in agent-behaviour.instructions.md; added a new MCP tool output-safety guardrail (agent-behaviour.instructions.md §6.1, csharp-patterns.instructions.md §4.3, testing.instructions.md security section, ADR-016 in docs/decisions.md). |
 | MCP diagnostic output sanitization | Added `RuleHelpers.SanitizeForDiagnostic` and applied it to pipeline-derived diagnostic values; added adversarial sanitizer and rule regression tests. |
 | MCP boundary output sanitization | Sanitized analysis diagnostics, parser/file errors, and echoed diagnostic context before returning MCP responses; added adversarial MCP regression tests. |
+| MCP discovery metadata | Added descriptive server, tool, resource, and prompt metadata for Azure Pipelines YAML guideline discovery; added structured capability descriptors, tests, documentation, and maintainer guidance. |
 
 ---
 
@@ -89,7 +90,7 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-- MCP output-safety retrofit is implemented and awaiting the repository quality gate.
+- No implementation work is currently in progress.
 
 ---
 

@@ -18,8 +18,8 @@ internal sealed class GetGuidelineTool(
     /// <summary>
     /// Returns a guideline by its stable identifier.
     /// </summary>
-    [McpServerTool(Name = "get_guideline", Title = "Get guideline details", ReadOnly = true, Destructive = false, Idempotent = true, OpenWorld = false)]
-    [Description("Returns the details of a single Azure Pipelines guideline by its stable ID (e.g. ADOG-STEPS-001). By default this returns a compact summary with id, title, category, and severity. Pass detail=full to include description, detection hints, fix guidance, and reference links.")]
+    [McpServerTool(Name = "get_guideline", Title = "Get an Azure Pipelines YAML guideline", ReadOnly = true, Destructive = false, Idempotent = true, OpenWorld = false)]
+    [Description("Gets one Azure Pipelines YAML coding guideline by stable ID, such as ADOG-STEPS-001. Returns a compact summary by default. Pass detail=full for the description, detection hints, fix guidance, and reference links.")]
     internal string GetGuideline(
         [Description("The stable guideline identifier, e.g. ADOG-STEPS-001.")] string id,
         [Description("Optional detail level. Use 'summary' for the compact response or 'full' for the detailed response. Defaults to 'summary'.")] string? detail = null)

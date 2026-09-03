@@ -1,5 +1,8 @@
+using System.ComponentModel;
+using System.Reflection;
 using AzurePipelines.Guidelines.Mcp.Prompts;
 using FluentAssertions;
+using ModelContextProtocol.Server;
 using Xunit;
 
 namespace AzurePipelines.Guidelines.Mcp.Tests.Prompts;
@@ -17,6 +20,39 @@ public sealed class GuidelinePromptsTests
         GuidelinePrompts.FindGuidelines("template", "steps"),
         GuidelinePrompts.ListGuidelines("steps"),
     ];
+
+    [Fact]
+    public void PromptMetadata_ShouldIdentifyAzurePipelinesYamlGuidelines()
+    {
+        // Arrange
+        MethodInfo[] promptMethods = typeof(GuidelinePrompts)
+            .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+            .Where(method => method.GetCustomAttributes<McpServerPromptAttribute>().Any())
+            .ToArray();
+
+        // Act
+        McpServerPromptAttribute[] prompts = [.. promptMethods
+            .SelectMany(method => method.GetCustomAttributes<McpServerPromptAttribute>())];
+        DescriptionAttribute[] descriptions = [.. promptMethods
+            .SelectMany(method => method.GetCustomAttributes<DescriptionAttribute>())];
+
+        // Assert
+        prompts.Should().HaveCount(8);
+        prompts.Select(prompt => prompt.Name).Should().BeEquivalentTo([
+            "review", "review-summary", "review-category", "review-guideline", "explain-guideline",
+            "find-guidelines", "list-guidelines", "list-categories",
+        ]);
+        descriptions.Should().HaveCount(8);
+        foreach (McpServerPromptAttribute prompt in prompts)
+        {
+            prompt.Title.Should().Contain("Azure Pipelines YAML");
+        }
+
+        foreach (DescriptionAttribute description in descriptions)
+        {
+            description.Description.Should().Contain("Azure Pipelines YAML");
+        }
+    }
 
     [Fact]
     public void Review_GivenInlineYaml_ShouldSelectTemplateAnalysisTool()

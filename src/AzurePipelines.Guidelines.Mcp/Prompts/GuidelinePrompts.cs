@@ -12,8 +12,8 @@ namespace AzurePipelines.Guidelines.Mcp.Prompts;
     Justification = "Instantiated by the MCP SDK via dependency injection.")]
 internal sealed class GuidelinePrompts
 {
-    [McpServerPrompt(Name = "review", Title = "Review pipeline or template")]
-    [Description("Reviews inline YAML, a file, or a directory with the template analysis tool.")]
+    [McpServerPrompt(Name = "review", Title = "Review Azure Pipelines YAML pipelines and templates")]
+    [Description("Reviews inline Azure Pipelines YAML, one file, or a directory against this server's coding guidelines.")]
     internal static string Review(
         [Description("Optional inline Azure Pipelines YAML, or a file or directory path. If omitted, ask the analysis tool to resolve common repository pipeline paths.")]
         string? fileOrPath = null) =>
@@ -30,8 +30,8 @@ internal sealed class GuidelinePrompts
         Do not modify files or generate patches.
         """;
 
-    [McpServerPrompt(Name = "review-summary", Title = "Summarize repository pipeline violations")]
-    [Description("Summarizes guideline violations across all Azure Pipelines YAML files in the repository.")]
+    [McpServerPrompt(Name = "review-summary", Title = "Summarize Azure Pipelines YAML guideline violations")]
+    [Description("Summarizes guideline violations across Azure Pipelines YAML pipelines and templates in a repository.")]
     internal static string ReviewSummary() =>
         """
         Perform a read-only Azure Pipelines guideline review of the entire repository.
@@ -43,8 +43,8 @@ internal sealed class GuidelinePrompts
         all analyzed files passed the selected checks. Do not modify files or generate patches.
         """;
 
-    [McpServerPrompt(Name = "review-category", Title = "Review one guideline category")]
-    [Description("Reviews inline YAML, a file, or a directory for one guideline category.")]
+    [McpServerPrompt(Name = "review-category", Title = "Review one Azure Pipelines YAML guideline category")]
+    [Description("Reviews Azure Pipelines YAML pipelines and templates for one coding guideline category.")]
     internal static string ReviewCategory(
         [Description("Guideline category, such as jobs, steps, stages, or variables.")] string category,
         [Description("Optional inline Azure Pipelines YAML, or a file or directory path. If omitted, ask the analysis tool to resolve common repository pipeline paths.")]
@@ -62,8 +62,8 @@ internal sealed class GuidelinePrompts
         Do not modify files or generate patches.
         """;
 
-    [McpServerPrompt(Name = "review-guideline", Title = "Review selected guidelines")]
-    [Description("Reviews inline YAML, a file, or a directory against selected guideline IDs.")]
+    [McpServerPrompt(Name = "review-guideline", Title = "Review selected Azure Pipelines YAML guidelines")]
+    [Description("Reviews Azure Pipelines YAML pipelines and templates against selected coding guideline IDs.")]
     internal static string ReviewGuidelines(
         [Description("Comma-separated guideline IDs, such as ADOG-STEPS-001,ADOG-JOBS-006.")] string guidelineIds,
         [Description("Optional inline Azure Pipelines YAML, or a file or directory path. If omitted, ask the analysis tool to resolve common repository pipeline paths.")]
@@ -81,8 +81,8 @@ internal sealed class GuidelinePrompts
         Do not modify files or generate patches.
         """;
 
-    [McpServerPrompt(Name = "explain-guideline", Title = "Explain a guideline")]
-    [Description("Explains one Azure Pipelines guideline from the catalogue.")]
+    [McpServerPrompt(Name = "explain-guideline", Title = "Explain an Azure Pipelines YAML guideline")]
+    [Description("Explains one Azure Pipelines YAML coding guideline from the loaded catalogue.")]
     internal static string ExplainGuideline(
         [Description("The stable guideline ID, such as ADOG-STEPS-001.")] string guidelineId,
         [Description("Optional detail level: summary or full.")] string? detail = null) =>
@@ -97,8 +97,8 @@ internal sealed class GuidelinePrompts
         DO, DO-NOT, AVOID, and CONSIDER only. Do not propose file changes.
         """;
 
-    [McpServerPrompt(Name = "find-guidelines", Title = "Find guidelines")]
-    [Description("Searches the guideline catalogue for rules relevant to a topic.")]
+    [McpServerPrompt(Name = "find-guidelines", Title = "Search Azure Pipelines YAML guidelines")]
+    [Description("Searches the Azure Pipelines YAML coding guideline catalogue for rules relevant to a topic.")]
     internal static string FindGuidelines(
         [Description("A word or phrase to search for in guideline titles and descriptions.")] string query,
         [Description("Optional category filter.")] string? category = null) =>
@@ -113,8 +113,8 @@ internal sealed class GuidelinePrompts
         Present recommendation labels using DO, DO-NOT, AVOID, and CONSIDER only.
         """;
 
-    [McpServerPrompt(Name = "list-guidelines", Title = "List guidelines")]
-    [Description("Lists Azure Pipelines guideline summaries, optionally filtered by category.")]
+    [McpServerPrompt(Name = "list-guidelines", Title = "Browse Azure Pipelines YAML guidelines")]
+    [Description("Lists Azure Pipelines YAML coding guideline summaries, optionally filtered by category.")]
     internal static string ListGuidelines(
         [Description("Optional category filter.")] string? category = null) =>
         $"""
@@ -127,8 +127,8 @@ internal sealed class GuidelinePrompts
         Present recommendation labels using DO, DO-NOT, AVOID, and CONSIDER only.
         """;
 
-    [McpServerPrompt(Name = "list-categories", Title = "List guideline categories")]
-    [Description("Lists the Azure Pipelines guideline categories.")]
+    [McpServerPrompt(Name = "list-categories", Title = "Browse Azure Pipelines YAML guideline categories")]
+    [Description("Lists the Azure Pipelines YAML coding guideline categories.")]
     internal static string ListCategories() =>
         """
         List the available Azure Pipelines guideline categories in read-only mode.

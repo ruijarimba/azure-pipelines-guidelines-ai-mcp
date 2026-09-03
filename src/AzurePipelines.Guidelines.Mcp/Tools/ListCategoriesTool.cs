@@ -17,8 +17,8 @@ internal sealed class ListCategoriesTool(
     /// <summary>
     /// Returns the available categories and their counts.
     /// </summary>
-    [McpServerTool(Name = "list_categories", Title = "List guideline categories", ReadOnly = true, Destructive = false, Idempotent = true, OpenWorld = false)]
-    [Description("Returns a JSON array listing each guideline category and the number of guidelines it contains. Useful for exploring what the server knows before calling list_guidelines.")]
+    [McpServerTool(Name = "list_categories", Title = "Browse Azure Pipelines YAML guideline categories", ReadOnly = true, Destructive = false, Idempotent = true, OpenWorld = false)]
+    [Description("Lists Azure Pipelines YAML coding guideline categories and their guideline counts. Use it to choose a category before browsing guidelines or analyzing pipelines and templates.")]
     internal string ListCategories()
     {
         McpToolInvocationLog.Log(

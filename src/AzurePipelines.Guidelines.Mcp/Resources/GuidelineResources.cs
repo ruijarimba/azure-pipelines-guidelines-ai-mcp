@@ -18,9 +18,6 @@ internal sealed class GuidelineResources(
     IGuidelineRepository repository,
     IGuidelineAutomationMetadataProvider? automationMetadataProvider = null)
 {
-    private static string ServerName => "azure-pipelines-guidelines";
-    private static string ServerVersion => "1.0.0";
-
     // Compact JSON with camel-case property names. Null values are omitted so AI clients
     // receive smaller responses and the shared contract stays predictable.
     private static readonly JsonSerializerOptions _jsonOptions = new()
@@ -28,57 +25,6 @@ internal sealed class GuidelineResources(
         WriteIndented = false,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
-
-    // ── adog://capabilities ──────────────────────────────────────────────────
-
-    /// <summary>
-    /// Returns the cacheable MCP surface and current catalogue version.
-    /// </summary>
-    [McpServerResource(
-        UriTemplate = "adog://capabilities",
-        Name = "capabilities",
-        Title = "MCP capabilities",
-        MimeType = "application/json")]
-    [Description(
-        "Returns the server version, catalogue version, supported transports, and the " +
-        "currently available tools, resources, and prompts.")]
-    internal Task<string> GetCapabilitiesAsync()
-    {
-        CapabilitiesResponseDto capabilities = new(
-            ServerName,
-            ServerVersion,
-            repository.ContentVersion,
-            ["stdio", "streamable-http"],
-            [
-                "analyze_template_or_folder",
-                "list_guidelines",
-                "get_guideline",
-                "search_guidelines",
-                "list_categories",
-                "explain_diagnostic"
-            ],
-            [
-                "adog://capabilities",
-                "adog://guidelines",
-                "adog://guidelines/version",
-                "adog://guidelines/category/{category}",
-                "adog://guidelines/{id}",
-                "adog://guidelines/{id}/automation"
-            ],
-            [
-                "review",
-                "review-summary",
-                "review-category",
-                "review-guideline",
-                "explain-guideline",
-                "find-guidelines",
-                "list-guidelines",
-                "list-categories"
-            ],
-            new CapabilitiesSupportDto(AutomationMetadata: true, Prompts: true));
-
-        return Task.FromResult(JsonSerializer.Serialize(capabilities, _jsonOptions));
-    }
 
     // ── adog://guidelines ─────────────────────────────────────────────────────
 
@@ -89,11 +35,11 @@ internal sealed class GuidelineResources(
     [McpServerResource(
         UriTemplate = "adog://guidelines",
         Name = "guidelines",
-        Title = "Guideline catalogue",
+        Title = "Azure Pipelines YAML guideline catalogue",
         MimeType = "application/json")]
     [Description(
-        "The complete Azure Pipelines guideline catalogue. " +
-        "Returns a JSON array; each element contains id, title, category, and severity.")]
+        "The complete Azure Pipelines YAML coding guideline catalogue for pipelines and reusable templates. " +
+        "Returns a JSON array with each guideline ID, title, category, and recommendation strength.")]
     internal Task<string> GetAllGuidelinesAsync()
     {
         IReadOnlyList<GuidelineDefinition> all = repository.GetAll();
@@ -112,24 +58,6 @@ internal sealed class GuidelineResources(
         return Task.FromResult(JsonSerializer.Serialize(summaries, _jsonOptions));
     }
 
-    // ── adog://guidelines/version ───────────────────────────────────────────
-
-    /// <summary>
-    /// Returns a small cache fingerprint for the current guideline catalogue.
-    /// </summary>
-    [McpServerResource(
-        UriTemplate = "adog://guidelines/version",
-        Name = "guidelines-version",
-        Title = "Guideline catalogue version",
-        MimeType = "application/json")]
-    [Description(
-        "Returns a small JSON object with the current guideline catalogue version. " +
-        "Clients can use this as a cache key and skip refetching the full catalogue when the version is unchanged.")]
-    internal Task<string> GetCatalogueVersionAsync()
-    {
-        return Task.FromResult(JsonSerializer.Serialize(new CatalogueVersionResponseDto(repository.ContentVersion), _jsonOptions));
-    }
-
     // ── adog://guidelines/category/{category} ──────────────────────────────
 
     /// <summary>
@@ -138,12 +66,12 @@ internal sealed class GuidelineResources(
     [McpServerResource(
         UriTemplate = "adog://guidelines/category/{category}",
         Name = "guidelines-by-category",
-        Title = "Guideline catalogue by category",
+        Title = "Azure Pipelines YAML guideline catalogue by category",
         MimeType = "application/json")]
     [Description(
-        "Returns the guideline catalogue filtered to a single category. " +
-        "Supply the category as the {category} path segment, for example adog://guidelines/category/steps. " +
-        "Returns a JSON array with id, title, category, and severity for each matching guideline.")]
+        "Returns Azure Pipelines YAML coding guidelines for one category. Supply the category as the " +
+        "{category} path segment, for example adog://guidelines/category/steps. Returns IDs, titles, " +
+        "categories, and recommendation strengths for matching guidelines.")]
     internal Task<string> GetGuidelinesByCategoryAsync(string category)
     {
         if (string.IsNullOrWhiteSpace(category))
@@ -181,13 +109,12 @@ internal sealed class GuidelineResources(
     [McpServerResource(
         UriTemplate = "adog://guidelines/{id}",
         Name = "guideline",
-        Title = "Guideline detail",
+        Title = "Azure Pipelines YAML guideline detail",
         MimeType = "application/json")]
     [Description(
-        "Full details for a single Azure Pipelines guideline. " +
-        "Supply the stable guideline ID as the {id} path segment, e.g. adog://guidelines/ADOG-STEPS-001. " +
-        "Returns a JSON object with id, title, category, severity, description, rationale, " +
-        "detectionHints, fix, and references.")]
+        "Returns full detail for one Azure Pipelines YAML coding guideline. Supply the stable guideline ID " +
+        "as the {id} path segment, for example adog://guidelines/ADOG-STEPS-001. The JSON response includes " +
+        "the guideline purpose, detection hints, fix guidance, and references.")]
     internal Task<string> GetGuidelineAsync(string id)
     {
         if (string.IsNullOrWhiteSpace(id))
@@ -230,11 +157,12 @@ internal sealed class GuidelineResources(
     [McpServerResource(
         UriTemplate = "adog://guidelines/{id}/automation",
         Name = "guideline-automation",
-        Title = "Guideline automation metadata",
+        Title = "Azure Pipelines YAML guideline automation metadata",
         MimeType = "application/json")]
     [Description(
-        "Returns the local automation status and reason for a single Azure Pipelines guideline. " +
-        "Supply the stable guideline ID as the {id} path segment, e.g. adog://guidelines/ADOG-STEPS-001/automation.")]
+        "Returns local automation status and rationale for one Azure Pipelines YAML coding guideline. Supply " +
+        "the stable guideline ID as the {id} path segment, for example " +
+        "adog://guidelines/ADOG-STEPS-001/automation.")]
     internal Task<string> GetGuidelineAutomationAsync(string id)
     {
         if (string.IsNullOrWhiteSpace(id))

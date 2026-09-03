@@ -33,17 +33,17 @@ internal sealed class AnalyzeTemplateOrFolderTool(
     /// </summary>
     [McpServerTool(
         Name = "analyze_template_or_folder",
-        Title = "Analyze pipeline, template, or folder",
+        Title = "Analyze Azure Pipelines YAML pipelines and templates",
         ReadOnly = true,
         Destructive = false,
         Idempotent = true,
         OpenWorld = true)]
     [Description(
-        "Analyses one Azure Pipelines pipeline or template, or all supported YAML files in a " +
-        "file or directory path, against the loaded guidelines. Templates can define steps, " +
-        "jobs, stages, or variables. Pass exactly one of yaml or fileOrPath. Directories are " +
-        "scanned recursively. If a path cannot be resolved, common pipeline paths in the current " +
-        "repository are tried automatically. Optional category and guideline ID filters restrict the rules checked.")]
+        "Analyzes Azure Pipelines YAML pipelines and reusable step, job, stage, or variable templates " +
+        "against the loaded Azure Pipelines coding guidelines. Review inline YAML, one file, or a " +
+        "directory recursively. Pass exactly one of yaml or fileOrPath. When a path cannot be resolved, " +
+        "the server tries common pipeline paths in the current repository. Optional category and guideline " +
+        "ID filters restrict the rules checked.")]
     internal async Task<string> AnalyzeTemplateAsync(
         [Description("Inline YAML for one pipeline or template. Pass this or fileOrPath, not both.")]
         string? yaml = null,

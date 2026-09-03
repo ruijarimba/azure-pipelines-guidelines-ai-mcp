@@ -17,8 +17,8 @@ internal sealed class ListGuidelinesTool(
     /// <summary>
     /// Returns the available guideline summaries.
     /// </summary>
-    [McpServerTool(Name = "list_guidelines", Title = "List guidelines", ReadOnly = true, Destructive = false, Idempotent = true, OpenWorld = false)]
-    [Description("Lists all Azure Pipelines guidelines. Returns a JSON array with id, title, category, and severity. Optionally filter by category (general|jobs|parameters|pipelines|stages|steps|variables).")]
+    [McpServerTool(Name = "list_guidelines", Title = "Browse Azure Pipelines YAML guidelines", ReadOnly = true, Destructive = false, Idempotent = true, OpenWorld = false)]
+    [Description("Lists Azure Pipelines YAML coding guideline summaries for pipelines and reusable templates. Returns IDs, titles, categories, and recommendation strengths. Optionally filter by category.")]
     internal string ListGuidelines(
         [Description("Optional category filter. Allowed values: general, jobs, parameters, pipelines, stages, steps, variables. Omit or pass null to return all categories.")]
         string? category = null)

@@ -33,16 +33,16 @@ internal sealed class ExplainDiagnosticTool(
     /// </summary>
     [McpServerTool(
         Name = "explain_diagnostic",
-        Title = "Explain a guideline diagnostic",
+        Title = "Explain an Azure Pipelines YAML diagnostic",
         ReadOnly = true,
         Destructive = false,
         Idempotent = true,
         OpenWorld = false)]
     [Description(
-        "Explains a single Azure Pipelines guideline diagnostic in focused detail: title, category, " +
-        "severity, description, rationale, detection hints, fix guidance, references, and automation " +
-        "metadata. Optionally echoes back the diagnostic message, file path, line, and column for context. " +
-        "Returns only the requested guideline, never the full catalogue.")]
+        "Explains one Azure Pipelines YAML pipeline or template diagnostic in focused detail: guideline " +
+        "purpose, recommendation strength, detection hints, fix guidance, references, and automation metadata. " +
+        "Optionally echoes the diagnostic message, file path, line, and column for context. Returns only " +
+        "the requested guideline, never the full catalogue.")]
     internal string ExplainDiagnostic(
         [Description("The stable guideline identifier the diagnostic was raised for, e.g. ADOG-STEPS-001.")]
         string guidelineId,

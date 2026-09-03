@@ -99,7 +99,7 @@ Full rules are in [`.github/instructions/agent-behaviour.instructions.md`](instr
 
 ## Multi-Item Remediation
 
-For multi-item remediation work in this repository, commit and push each independently reviewable item one at a time after validation.
+For multi-item remediation work in this repository, commit and push each independently reviewable item one at a time after validation. For multi-step implementation work, prefer small, reviewable iterations and avoid long-running tasks.
 
 > Before changing any rule here or in the instruction file, re-read [ADR-010](../docs/decisions.md) and the reference sources listed there.
 

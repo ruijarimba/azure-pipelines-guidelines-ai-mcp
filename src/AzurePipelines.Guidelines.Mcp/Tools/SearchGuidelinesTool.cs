@@ -17,8 +17,8 @@ internal sealed class SearchGuidelinesTool(
     /// <summary>
     /// Returns guidelines matching a keyword.
     /// </summary>
-    [McpServerTool(Name = "search_guidelines", Title = "Search guidelines", ReadOnly = true, Destructive = false, Idempotent = true, OpenWorld = false)]
-    [Description("Searches Azure Pipelines guidelines whose title or description contains the given keyword (case-insensitive). Returns a JSON array with id, title, category, and severity.")]
+    [McpServerTool(Name = "search_guidelines", Title = "Search Azure Pipelines YAML guidelines", ReadOnly = true, Destructive = false, Idempotent = true, OpenWorld = false)]
+    [Description("Searches Azure Pipelines YAML coding guidelines by keyword in their titles and descriptions. Returns matching guideline IDs, titles, categories, and recommendation strengths.")]
     internal string SearchGuidelines([Description("The keyword to search for in guideline titles and descriptions.")] string keyword)
     {
         McpToolInvocationLog.Log(

@@ -43,9 +43,18 @@ The tables below show the complete MCP surface. Use the linked sections for deta
 | `list-guidelines` | `category` (optional) | List guideline summaries | Available |
 | `list-categories` | None | List supported categories | Available |
 
+## Server discovery metadata
+
+During initialization, the server identifies itself as `azure-pipelines-guidelines` with the title **Azure Pipelines YAML Guidelines**. Its description states that it provides deterministic analysis and guideline lookup for Azure Pipelines YAML pipelines and reusable templates. It also provides the project website URL.
+
+Each advertised tool, resource, and prompt has a stable identifier, a title, and a short description. These fields help MCP clients recognize that `analyze_template_or_folder` is the primary capability for reviewing Azure Pipelines YAML pipelines and templates.
+
+The metadata helps a client select a relevant capability. It does not require a model or client to invoke that capability.
+
 ## Table of Contents
 
 - [Capability summary](#capability-summary)
+- [Server discovery metadata](#server-discovery-metadata)
 - [What is MCP?](#what-is-mcp)
 - [How it works](#how-it-works)
 - [Choose a transport](#choose-a-transport)
@@ -344,21 +353,31 @@ Resource endpoints are useful when a client wants to cache the catalogue or fetc
 
 - `adog://guidelines` returns the full guideline catalogue as a JSON array of summaries.
 - `adog://guidelines/version` returns a small JSON object with the current catalogue version, for example `{"version":"..."}`. Clients can cache this and skip reloading the catalogue when it is unchanged.
-- `adog://capabilities` returns a compact, cacheable description of the server version, catalogue version, supported transports, available tools, resources, and future capability flags.
+- `adog://capabilities` returns a compact, cacheable description of the server identity, catalogue version, supported transports, available tools, resources, prompts, and capability flags.
 
-The capabilities resource is intended for client discovery rather than analysis. Its `tools`, `resources`, and `prompts` arrays describe the currently exposed MCP surface. The `supports` object reports optional features that clients should not assume are available. Automation metadata and prompts are supported.
+The capabilities resource is intended for client discovery rather than analysis. It includes `title`, `description`, and `websiteUrl` fields for the server. Its `tools`, `resources`, and `prompts` arrays contain objects with `identifier`, `title`, and `description` fields. The `supports` object reports optional features that clients should not assume are available. Automation metadata and prompts are supported.
 
 Example capability fields:
 
 ```json
 {
   "server": "azure-pipelines-guidelines",
+  "title": "Azure Pipelines YAML Guidelines",
+  "description": "Deterministic analysis and guideline lookup for Azure Pipelines YAML pipelines and reusable templates.",
+  "websiteUrl": "https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp",
   "version": "1.0.0",
   "catalogueVersion": "...",
   "transports": ["stdio", "streamable-http"],
+  "tools": [
+    {
+      "identifier": "analyze_template_or_folder",
+      "title": "Analyze Azure Pipelines YAML pipelines and templates",
+      "description": "Analyzes inline YAML, pipeline files, reusable templates, or a directory against loaded coding guidelines."
+    }
+  ],
   "supports": {
-     "automationMetadata": true,
-     "prompts": true
+    "automationMetadata": true,
+    "prompts": true
   }
 }
 ```

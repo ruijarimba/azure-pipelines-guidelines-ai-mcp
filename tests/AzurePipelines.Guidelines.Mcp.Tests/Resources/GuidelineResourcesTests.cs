@@ -64,52 +64,6 @@ public sealed class GuidelineResourcesTests
     }
 
     [Fact]
-    public async Task GetCatalogueVersionAsync_ShouldReturnRepositoryVersion()
-    {
-        // Arrange
-        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
-        repo.ContentVersion.Returns("abc123");
-        GuidelineResources sut = MakeSutWithRepo(repo);
-
-        // Act
-        string result = await sut.GetCatalogueVersionAsync();
-
-        // Assert
-        JsonElement payload = Deserialize<JsonElement>(result);
-        payload.GetProperty("version").GetString().Should().Be("abc123");
-    }
-
-    [Fact]
-    public async Task GetCapabilitiesAsync_ShouldReturnCurrentServerSurface()
-    {
-        // Arrange
-        IGuidelineRepository repo = Substitute.For<IGuidelineRepository>();
-        repo.ContentVersion.Returns("abc123");
-        GuidelineResources sut = MakeSutWithRepo(repo);
-
-        // Act
-        string result = await sut.GetCapabilitiesAsync();
-
-        // Assert
-        JsonElement payload = Deserialize<JsonElement>(result);
-        payload.GetProperty("server").GetString().Should().Be("azure-pipelines-guidelines");
-        payload.GetProperty("version").GetString().Should().Be("1.0.0");
-        payload.GetProperty("catalogueVersion").GetString().Should().Be("abc123");
-        payload.GetProperty("tools").EnumerateArray().Select(item => item.GetString())
-            .Should().Contain("analyze_template_or_folder");
-        payload.GetProperty("tools").EnumerateArray().Select(item => item.GetString())
-            .Should().Contain("explain_diagnostic");
-        payload.GetProperty("resources").EnumerateArray().Select(item => item.GetString())
-            .Should().Contain("adog://capabilities");
-        payload.GetProperty("resources").EnumerateArray().Select(item => item.GetString())
-            .Should().Contain("adog://guidelines/{id}/automation");
-        payload.GetProperty("prompts").EnumerateArray().Select(item => item.GetString())
-            .Should().Contain(["review", "review-summary", "review-category", "review-guideline"]);
-        payload.GetProperty("supports").GetProperty("automationMetadata").GetBoolean().Should().BeTrue();
-        payload.GetProperty("supports").GetProperty("prompts").GetBoolean().Should().BeTrue();
-    }
-
-    [Fact]
     public async Task GetGuidelinesByCategoryAsync_GivenKnownCategory_ShouldReturnFilteredSummaries()
     {
         // Arrange
