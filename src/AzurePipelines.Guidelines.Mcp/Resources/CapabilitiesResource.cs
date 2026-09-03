@@ -39,7 +39,7 @@ internal sealed class CapabilitiesResource(IGuidelineRepository repository)
             "Azure Pipelines YAML Guidelines",
             "Deterministic analysis and guideline lookup for Azure Pipelines YAML pipelines and reusable templates.",
             "https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp",
-            "1.0.0",
+            "0.1.0",
             repository.ContentVersion,
             ["stdio", "streamable-http"],
             [

@@ -365,7 +365,7 @@ Example capability fields:
   "title": "Azure Pipelines YAML Guidelines",
   "description": "Deterministic analysis and guideline lookup for Azure Pipelines YAML pipelines and reusable templates.",
   "websiteUrl": "https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "catalogueVersion": "...",
   "transports": ["stdio", "streamable-http"],
   "tools": [

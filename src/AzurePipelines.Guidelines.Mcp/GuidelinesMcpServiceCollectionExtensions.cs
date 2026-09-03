@@ -86,7 +86,7 @@ public static class GuidelinesMcpServiceCollectionExtensions
                 {
                     Name = "azure-pipelines-guidelines",
                     Title = "Azure Pipelines YAML Guidelines",
-                    Version = "1.0.0",
+                    Version = "0.1.0",
                     Description =
                         "Deterministic analysis and guideline lookup for Azure Pipelines YAML pipelines and reusable templates.",
                     WebsiteUrl = "https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp",

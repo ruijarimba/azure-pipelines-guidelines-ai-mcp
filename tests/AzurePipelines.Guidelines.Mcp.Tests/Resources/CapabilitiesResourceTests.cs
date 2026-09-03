@@ -27,7 +27,7 @@ public sealed class CapabilitiesResourceTests
         payload.GetProperty("description").GetString().Should().Contain("Azure Pipelines YAML");
         payload.GetProperty("websiteUrl").GetString()
             .Should().Be("https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp");
-        payload.GetProperty("version").GetString().Should().Be("1.0.0");
+        payload.GetProperty("version").GetString().Should().Be("0.1.0");
         payload.GetProperty("catalogueVersion").GetString().Should().Be("abc123");
 
         JsonElement analysisTool = payload.GetProperty("tools")
