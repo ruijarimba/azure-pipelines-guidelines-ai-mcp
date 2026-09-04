@@ -6,9 +6,9 @@ This file is the **session handoff note** for AI agents and human contributors. 
 
 | Area | Status |
 | --- | --- |
-| Current focus | Maintaining MCP capability metadata and monitoring the companion manifest for new rules |
-| Recent wins | Improved MCP discoverability with descriptive server initialization metadata, Azure Pipelines YAML-focused titles and descriptions for tools, resources, and prompts, and structured descriptors in `adog://capabilities`. Added regression coverage and updated the MCP reference and maintainer guidance. Previously completed the MCP output-safety retrofit, `explain_diagnostic` tool, prompts, cache-friendly catalogue access, guideline automation metadata, analysis summaries, token-usage guidance, documentation consistency review, Docker build-stage test execution, and multi-architecture Docker Hub publication. |
-| Next up | Monitor the companion manifest for new `ADOG-*` rules and preserve MCP output-safety and discovery-metadata coverage when adding capabilities |
+| Current focus | Final documentation polish for the MCP troubleshooting mode: keep `MCP_LOG_RESPONSES` discoverability-safe, maintain the VS Code samples, and confirm the local-clone/Docker examples match the current host workflow |
+| Recent wins | Improved MCP discoverability with descriptive server initialization metadata, Azure Pipelines YAML-focused titles and descriptions for tools, resources, and prompts, and structured descriptors in `adog://capabilities`. Added regression coverage and updated the MCP reference and maintainer guidance. Implemented the opt-in discovery-only `MCP_LOG_RESPONSES` logger for local troubleshooting, validated it with the MCP test suite and a live HTTP `initialize` request, and refreshed the VS Code configuration samples to include the variable while removing obsolete Docker mount guidance. |
+| Next up | Re-run the final validation pass on the latest documentation edits, then resume with any follow-up maintenance or feature work next session |
 
 ---
 
@@ -90,7 +90,13 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-- No implementation work is currently in progress.
+- Documentation validation for the latest `MCP_LOG_RESPONSES` and VS Code sample cleanup is complete in principle, but the final formatting/check pass should be re-run in the next session if the repo is opened again.
+
+- Confirm the top-level README and `docs/mcp-reference.md` remain aligned with the current Docker and local-clone configuration examples.
+
+- Keep the discovery-response logger limited to static discovery calls; all dynamic tool/result traffic remains excluded by policy.
+
+- No additional implementation work is planned until the next session.
 
 ---
 

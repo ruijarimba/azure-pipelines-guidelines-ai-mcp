@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AzurePipelines.Guidelines.Mcp\AzurePipelines.Guidelines.Mcp.csproj" />
+    <ProjectReference Include="..\..\tools\AzurePipelines.Guidelines.Mcp.Host\AzurePipelines.Guidelines.Mcp.Host.csproj" />
   </ItemGroup>
 
   <ItemGroup>

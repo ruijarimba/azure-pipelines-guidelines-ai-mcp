@@ -24,6 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="AzurePipelines.Guidelines.Mcp.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!--
       The full hosting runtime is needed here to run the MCP server.
       The underlying Mcp library only depends on Hosting.Abstractions.

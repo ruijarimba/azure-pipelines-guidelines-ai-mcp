@@ -155,12 +155,10 @@ The published image uses HTTP by default, so set `MCP_TRANSPORT=stdio` when an M
         "--rm",
         "--pull",
         "always",
-        "--mount",
-        "type=bind,source=${workspaceFolder},target=/workspace,readonly",
-        "--workdir",
-        "/workspace",
         "-e",
         "MCP_TRANSPORT=stdio",
+        "-e",
+        "MCP_LOG_RESPONSES=true",
         "ruijarimba/azure-pipelines-guidelines-mcp:latest"
       ]
     }
@@ -168,11 +166,9 @@ The published image uses HTTP by default, so set `MCP_TRANSPORT=stdio` when an M
 }
 ```
 
-`${workspaceFolder}` is expanded by VS Code to the currently open workspace, so this configuration can
-be reused across repositories. The workspace is mounted read-only so the server can analyze pipeline
-files without modifying them; Copilot can still suggest and apply fixes through the editor.
-
-Restart or reload the MCP server from VS Code after saving the file. The container can analyze inline YAML immediately. The mount makes the current workspace available for `analyze_template_or_folder`, including the `review-summary` prompt; see the [file-access boundary](#file-access-boundary) guidance below.
+Restart or reload the MCP server from VS Code after saving the file. The container can analyze inline
+YAML immediately. `MCP_LOG_RESPONSES=true` writes only static discovery responses to the MCP console;
+remove the two `-e` entries for this variable after troubleshooting.
 
 ### Option 2 — Local clone
 
@@ -204,18 +200,19 @@ For details about adding and managing MCP servers in VS Code, see the official [
         "--rm",
         "--pull",
         "always",
-        "--mount",
-        "type=bind,source=${workspaceFolder},target=/workspace,readonly",
-        "--workdir",
-        "/workspace",
         "-e",
         "MCP_TRANSPORT=stdio",
+        "-e",
+        "MCP_LOG_RESPONSES=true",
         "ruijarimba/azure-pipelines-guidelines-mcp:latest"
       ]
     }
   }
 }
 ```
+
+`MCP_LOG_RESPONSES=true` writes only static discovery responses to the MCP console. Remove the two
+`-e` entries for this variable after troubleshooting.
 
 ### Local clone
 
@@ -230,11 +227,17 @@ For details about adding and managing MCP servers in VS Code, see the official [
         "--project",
         "/absolute/path/to/azure-pipelines-guidelines-ai-mcp/tools/AzurePipelines.Guidelines.Mcp.Host",
         "--"
-      ]
+      ],
+      "env": {
+        "MCP_LOG_RESPONSES": "true"
+      }
     }
   }
 }
 ```
+
+`MCP_LOG_RESPONSES=true` writes only static discovery responses to the MCP console. Remove the `env`
+property after troubleshooting.
 
 ## Available tools
 
@@ -307,16 +310,9 @@ The summary is calculated server-side so clients can first identify the number, 
 
 The server reads files with the permissions of the process started by your AI client. Use only workspace paths that you intend the server to analyze. Do not configure the client to run the server with access to directories that contain secrets, credentials, or unrelated sensitive files.
 
-When using Docker, the container cannot read host files unless you explicitly mount a directory. Mount only the workspace or pipeline directory you want to analyze as read-only, then pass paths inside that container mount to `analyze_template_or_folder`. For example, add these arguments before the `adog-mcp:local` image tag in the MCP client configuration:
-
-```json
-[
-  "--mount",
-  "type=bind,source=H:\\src\\pipeline-repository,target=/workspace,readonly"
-]
-```
-
-Use `/workspace/azure-pipelines.yml` as the `fileOrPath` value when calling the file-path analysis tool. Replace the example source path with the absolute host path that Docker Desktop can access.
+The default Docker configuration does not expose the host workspace to the container. Use inline
+`yaml` input with `analyze_template_or_folder` when using the published image. To analyze files by
+path, run the host from a local clone so it has the same file access as the MCP client.
 
 ### `explain_diagnostic`
 
@@ -495,6 +491,34 @@ The server runs only while the Visual Studio debugger is attached. To stop it, d
 - You can also start the HTTP transport with `MCP_TRANSPORT=sse`, but the `--transport`
   command-line argument takes priority. This value is an implementation selector name, not a
   statement that the endpoint uses legacy HTTP+SSE.
+
+### Inspect discovery responses
+
+Set `MCP_LOG_RESPONSES=true` when troubleshooting whether the running server is advertising the
+expected Azure Pipelines metadata. The setting is disabled by default and logs only these
+successful outbound MCP responses to `stderr`:
+
+- `initialize`
+- `tools/list`
+- `resources/list`
+- `resources/templates/list`
+- `prompts/list`
+
+For Visual Studio debugging, add `MCP_LOG_RESPONSES` with the value `true` to the **Debug** launch
+profile's environment variables for the current troubleshooting session, then press **F5**. The
+response JSON appears in the debug output or connected MCP client's console. Remove the variable
+afterward so normal debug runs remain concise.
+
+The setting is deliberately limited to static discovery responses. It never logs requests or the
+dynamic response methods `tools/call`, `resources/read`, and `prompts/get`; it also excludes
+notifications and error responses. That boundary avoids logging inline YAML, file paths, tool or
+prompt arguments, guideline resource content, diagnostics, and other caller-provided data.
+
+Responses are logged at the MCP SDK's outgoing message boundary, after the server produces its
+response but before it is sent. This captures the response object clients receive without
+overriding the SDK's assembly-discovered tools, resources, or prompts. Logged payloads are capped
+at 32 KiB. Although these discovery responses are low-risk, they still identify the installed
+server and its capabilities; use the setting only in a local, trusted troubleshooting environment.
 
 ## Troubleshooting
 

@@ -45,7 +45,10 @@ internal static class McpHostStartup
         // Legacy SSE also requires in-memory session state shared between the GET /sse and
         // POST /message requests, so MCP 2.0's new stateless-by-default mode must be disabled.
 #pragma warning disable MCP9004 // legacy SSE is intentionally opt-in for trusted local debugging only
-        builder.Services.AddGuidelinesMcp()
+        IMcpServerBuilder mcpServerBuilder = builder.Services.AddGuidelinesMcp();
+        ConfigureDiscoveryResponseLogging(mcpServerBuilder);
+
+        mcpServerBuilder
             .WithHttpTransport(options =>
             {
                 options.Stateless = false;
@@ -72,7 +75,9 @@ internal static class McpHostStartup
         HostApplicationBuilder builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder(args);
         ConfigureLogging(builder.Logging);
 
-        builder.Services.AddGuidelinesMcp().WithStdioServerTransport();
+        IMcpServerBuilder mcpServerBuilder = builder.Services.AddGuidelinesMcp();
+        ConfigureDiscoveryResponseLogging(mcpServerBuilder);
+        mcpServerBuilder.WithStdioServerTransport();
 
         IHost host = builder.Build();
 
@@ -86,6 +91,25 @@ internal static class McpHostStartup
     {
         logging.ClearProviders();
         logging.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace);
+    }
+
+    private static void ConfigureDiscoveryResponseLogging(IMcpServerBuilder mcpServerBuilder)
+    {
+        ArgumentNullException.ThrowIfNull(mcpServerBuilder);
+
+        DiscoveryResponseLoggingOptions options = DiscoveryResponseLoggingOptions.FromEnvironment();
+        if (!options.Enabled)
+        {
+            return;
+        }
+
+        mcpServerBuilder.Services.AddSingleton(options);
+        mcpServerBuilder.Services.AddSingleton<DiscoveryResponseLogger>();
+        mcpServerBuilder.WithMessageFilters(filters =>
+        {
+            filters.AddIncomingFilter(DiscoveryResponseLogger.CreateIncomingFilter);
+            filters.AddOutgoingFilter(DiscoveryResponseLogger.CreateOutgoingFilter);
+        });
     }
 
     private static void LogSseServerListening(ILogger logger, string endpointPath, ICollection<string> urls)
