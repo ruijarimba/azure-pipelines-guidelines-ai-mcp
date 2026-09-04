@@ -94,6 +94,10 @@ Full rules are in [`.github/instructions/agent-behaviour.instructions.md`](instr
 - **Line endings** — use LF for text files. The repository `.editorconfig` and `.gitattributes` define this policy to prevent
   Visual Studio newline prompts and line-ending-only diffs.
 - **Documentation-only or non-runtime changes may skip the gate** when they do not alter .NET, Docker, NuGet, build, or solution configuration.
+- **Keep documentation synchronized** — when behavior, configuration, MCP capabilities, commands,
+  workflows, prerequisites, or limitations change, update related documentation in the same change
+  and remove obsolete guidance. Follow the detailed checklist in
+  [`documentation.instructions.md`](instructions/documentation.instructions.md).
 - **Never push** failing changes.
 - Do not add or upgrade dependencies silently; require explicit approval before irreversible actions.
 

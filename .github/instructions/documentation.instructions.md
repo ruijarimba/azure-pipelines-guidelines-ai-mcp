@@ -183,6 +183,29 @@ Great documentation is usually rewritten. After writing, do these checks:
 - Is there any jargon that can be removed?
 - Are examples concrete and realistic?
 
+## Keep documentation synchronized with the implementation
+
+Review documentation whenever a change adds, removes, renames, or changes user-visible behavior.
+This includes MCP tools, resources, prompts, metadata, configuration keys, launch profiles,
+commands, deployment workflows, prerequisites, and limitations.
+
+Use this checklist before finishing the change:
+
+- Identify the canonical document that explains the changed behavior.
+- Update the top-level `README.md`, the canonical reference guide, and any host or project README
+  that contains the affected workflow.
+- Update architecture, decision, glossary, TODO, or progress documents when the change affects
+  design rationale, domain terms, planned work, or session state.
+- Update code samples, tables, headings, links, and cross-references in the same change.
+- Remove obsolete names, commands, paths, configuration keys, and examples. Do not leave old
+  guidance beside the replacement unless the old behavior is still supported.
+- Search for both the old and new terms across tracked files. Review every match for stale or
+  contradictory guidance.
+- Check that documented commands, configuration, links, and file paths still match the
+  implementation.
+
+If the change does not require documentation, state why in the final summary or session handoff.
+
 ## Useful sources
 
 - [Google developer documentation style guide](https://developers.google.com/style)

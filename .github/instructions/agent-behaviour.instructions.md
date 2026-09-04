@@ -259,3 +259,21 @@ If the answer to either question is "no", fix it before committing.
   the full gate rather than a narrow smoke test.
 
 *Rationale: a push should not leave reviewers or CI to discover avoidable regressions. This supports the Human authority and minimal footprint principles by making the repository's actual state explicit before publication.*
+
+### Documentation synchronization
+
+When a change adds, removes, renames, or changes user-visible behavior, configuration, MCP
+capabilities, commands, deployment workflows, prerequisites, or limitations, review the related
+documentation in the same change.
+
+- Update the relevant README, reference guide, host guide, examples, and cross-references.
+- Remove obsolete names, commands, paths, configuration keys, and examples. Do not only add the
+  replacement guidance.
+- Check architecture, decision, glossary, TODO, and progress documents when the change affects
+  design rationale, domain terms, planned work, or session state.
+- Search the repository for the old and new terms before finishing. Treat stale documentation as
+  a defect, even when the code and tests pass.
+- If no documentation update is needed, record the reason in the final summary or handoff note.
+
+The detailed documentation checklist is in
+[`documentation.instructions.md`](documentation.instructions.md).

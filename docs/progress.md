@@ -6,9 +6,9 @@ This file is the **session handoff note** for AI agents and human contributors. 
 
 | Area | Status |
 | --- | --- |
-| Current focus | Final documentation polish for the MCP troubleshooting mode: keep `MCP_LOG_RESPONSES` discoverability-safe, maintain the VS Code samples, and confirm the local-clone/Docker examples match the current host workflow |
-| Recent wins | Improved MCP discoverability with descriptive server initialization metadata, Azure Pipelines YAML-focused titles and descriptions for tools, resources, and prompts, and structured descriptors in `adog://capabilities`. Added regression coverage and updated the MCP reference and maintainer guidance. Implemented the opt-in discovery-only `MCP_LOG_RESPONSES` logger for local troubleshooting, validated it with the MCP test suite and a live HTTP `initialize` request, and refreshed the VS Code configuration samples to include the variable while removing obsolete Docker mount guidance. |
-| Next up | Re-run the final validation pass on the latest documentation edits, then resume with any follow-up maintenance or feature work next session |
+| Current focus | Documentation synchronization guardrails are now defined for implementation, configuration, MCP capability, command, workflow, prerequisite, and limitation changes |
+| Recent wins | Improved MCP discoverability with descriptive server initialization metadata, Azure Pipelines YAML-focused titles and descriptions for tools, resources, and prompts, and structured descriptors in `adog://capabilities`. Added regression coverage and updated the MCP reference and maintainer guidance. Implemented the opt-in discovery-only `MCP_LOG_RESPONSES` logger for local troubleshooting, validated it with the MCP test suite, live HTTP initialization, and Docker Compose runtime checks. Added explicit instructions to update related documentation and remove obsolete guidance in the same change. |
+| Next up | Review the documentation guardrail wording, validate tracked references and Markdown formatting, then commit and push the instruction update |
 
 ---
 
@@ -37,6 +37,7 @@ Before committing, edit the sections below:
 | MCP diagnostic output sanitization | Added `RuleHelpers.SanitizeForDiagnostic` and applied it to pipeline-derived diagnostic values; added adversarial sanitizer and rule regression tests. |
 | MCP boundary output sanitization | Sanitized analysis diagnostics, parser/file errors, and echoed diagnostic context before returning MCP responses; added adversarial MCP regression tests. |
 | MCP discovery metadata | Added descriptive server, tool, resource, and prompt metadata for Azure Pipelines YAML guideline discovery; added structured capability descriptors, tests, documentation, and maintainer guidance. |
+| Documentation synchronization guardrails | Added repository-wide instructions to review affected documentation, update examples and cross-references, remove obsolete guidance, and search for stale terms after implementation changes. |
 
 ---
 
@@ -90,21 +91,21 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-- Documentation validation for the latest `MCP_LOG_RESPONSES` and VS Code sample cleanup is complete in principle, but the final formatting/check pass should be re-run in the next session if the repo is opened again.
-
-- Confirm the top-level README and `docs/mcp-reference.md` remain aligned with the current Docker and local-clone configuration examples.
+- Validate the new documentation synchronization instructions and confirm all changed Markdown files use LF line endings.
 
 - Keep the discovery-response logger limited to static discovery calls; all dynamic tool/result traffic remains excluded by policy.
 
-- No additional implementation work is planned until the next session.
+- Commit and push the instruction update after documentation-only validation passes.
 
 ---
 
 ## Next up
 
-1. **Monitor MCP output safety.** Preserve the shared diagnostic sanitizers and adversarial
+1. **Use the documentation synchronization checklist** for all future behavior, configuration,
+   MCP surface, command, workflow, prerequisite, and limitation changes.
+2. **Monitor MCP output safety.** Preserve the shared diagnostic sanitizers and adversarial
    coverage when future rules or MCP handlers begin returning pipeline-derived text.
-2. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the rule
+3. **Monitor the companion manifest for new `ADOG-*` rules** and add any new ones with the rule
    template workflow when they appear.
 
 ---
