@@ -13,6 +13,8 @@ namespace AzurePipelines.Guidelines.Mcp;
 [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 public static class GuidelinesMcpServiceCollectionExtensions
 {
+    internal const string ApplicationVersion = "0.1.0";
+
     /// <summary>
     /// Registers the MCP server, guideline loader, and repository as singletons,
     /// and discovers tools and resources from the Mcp assembly.
@@ -40,7 +42,7 @@ public static class GuidelinesMcpServiceCollectionExtensions
         {
             HttpClient httpClient = new();
             httpClient.DefaultRequestHeaders.Add(
-                "User-Agent", "azure-pipelines-guidelines-mcp/1.0");
+                "User-Agent", $"azure-pipelines-guidelines-mcp/{ApplicationVersion}");
             return new HttpGuidelineLoader(httpClient, manifestUrl);
         });
 
@@ -86,7 +88,7 @@ public static class GuidelinesMcpServiceCollectionExtensions
                 {
                     Name = "azure-pipelines-guidelines",
                     Title = "Azure Pipelines YAML Guidelines",
-                    Version = "0.1.0",
+                    Version = ApplicationVersion,
                     Description =
                         "Deterministic analysis and guideline lookup for Azure Pipelines YAML pipelines and reusable templates.",
                     WebsiteUrl = "https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp",

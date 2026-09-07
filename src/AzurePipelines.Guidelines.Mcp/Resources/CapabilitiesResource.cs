@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AzurePipelines.Guidelines.Core;
+using AzurePipelines.Guidelines.Mcp;
 using ModelContextProtocol.Server;
 
 namespace AzurePipelines.Guidelines.Mcp.Resources;
@@ -39,7 +40,7 @@ internal sealed class CapabilitiesResource(IGuidelineRepository repository)
             "Azure Pipelines YAML Guidelines",
             "Deterministic analysis and guideline lookup for Azure Pipelines YAML pipelines and reusable templates.",
             "https://github.com/ruijarimba/azure-pipelines-guidelines-ai-mcp",
-            "0.1.0",
+            GuidelinesMcpServiceCollectionExtensions.ApplicationVersion,
             repository.ContentVersion,
             ["stdio", "streamable-http"],
             [
