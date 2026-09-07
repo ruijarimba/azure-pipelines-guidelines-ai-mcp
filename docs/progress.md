@@ -6,9 +6,9 @@ This file is the **session handoff note** for AI agents and human contributors. 
 
 | Area | Status |
 | --- | --- |
-| Current focus | Documentation synchronization guardrails are now defined for implementation, configuration, MCP capability, command, workflow, prerequisite, and limitation changes |
+| Current focus | Finalize and publish the documentation synchronization guardrail update |
 | Recent wins | Improved MCP discoverability with descriptive server initialization metadata, Azure Pipelines YAML-focused titles and descriptions for tools, resources, and prompts, and structured descriptors in `adog://capabilities`. Added regression coverage and updated the MCP reference and maintainer guidance. Implemented the opt-in discovery-only `MCP_LOG_RESPONSES` logger for local troubleshooting, validated it with the MCP test suite, live HTTP initialization, and Docker Compose runtime checks. Added explicit instructions to update related documentation and remove obsolete guidance in the same change. |
-| Next up | Review the documentation guardrail wording, validate tracked references and Markdown formatting, then commit and push the instruction update |
+| Next up | Validate tracked references and Markdown formatting, then commit and push the instruction update |
 
 ---
 
@@ -91,11 +91,7 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-- Validate the new documentation synchronization instructions and confirm all changed Markdown files use LF line endings.
-
-- Keep the discovery-response logger limited to static discovery calls; all dynamic tool/result traffic remains excluded by policy.
-
-- Commit and push the instruction update after documentation-only validation passes.
+- Commit and push the documentation synchronization instruction update.
 
 ---
 
