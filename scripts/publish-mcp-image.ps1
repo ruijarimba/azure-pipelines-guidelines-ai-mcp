@@ -6,7 +6,11 @@ Builds and publishes the MCP container image to Docker Hub.
 Use this script only when an approved Docker image release is ready to publish.
 The script validates configuration and platform support before logging in or starting
 a build, then publishes the multi-architecture latest tag configured by DOCKERHUB_IMAGE.
-For local builds and validation, use build-mcp-image.ps1 instead.
+The publish generates an SPDX SBOM and SLSA build provenance for each platform and
+attaches them to the image as OCI attestations, so Docker Hub and Docker Scout can
+read the SBOM directly from the registry. After the push the script verifies that
+the published image carries an SBOM attestation. For local builds and validation,
+use build-mcp-image.ps1 instead.
 
 .PARAMETER EnvironmentFile
 The path to the Docker Hub environment file. Defaults to .env at the repository root.
@@ -112,6 +116,12 @@ function Test-DockerPrerequisites {
         throw "Docker Buildx is unavailable. Update Docker Desktop and try again."
     }
 
+    # Docker Scout verifies the SBOM attestation after the push.
+    & docker scout version *> $null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Docker Scout is unavailable. Update Docker Desktop and try again."
+    }
+
     # Bootstrap the active builder and verify both image platforms are available.
     $builderOutput = & docker buildx inspect --bootstrap 2>&1
     if ($LASTEXITCODE -ne 0) {
@@ -175,12 +185,16 @@ if ($LASTEXITCODE -ne 0) {
 
 $imageTag = "${image}:latest"
 
-# Publish the latest multi-architecture image for Docker Hub consumers.
+# Publish the latest multi-architecture image for Docker Hub consumers. The SBOM and
+# provenance flags attach supply-chain attestations to the pushed image manifest so the
+# SBOM travels with the image and Docker Scout can read it from the registry.
 Invoke-Docker -Arguments @(
     "buildx",
     "build",
     "--platform",
     "linux/amd64,linux/arm64",
+    "--sbom=true",
+    "--provenance=true",
     "--tag",
     $imageTag,
     "--push",
@@ -188,3 +202,14 @@ Invoke-Docker -Arguments @(
 )
 
 Write-Host "Published $imageTag for linux/amd64 and linux/arm64." -ForegroundColor Green
+
+# Verify the pushed image carries an SBOM attestation. Scout reads attestations directly
+# from the registry, so a successful exit code confirms the registry image has a readable
+# SBOM attachment. A missing attestation is a release defect and fails the publish.
+Write-Host "Verifying the SBOM attestation on $imageTag ..."
+& docker scout sbom $imageTag *> $null
+if ($LASTEXITCODE -ne 0) {
+    throw "Published image '$imageTag' has no readable SBOM attestation. Check the build output and try again."
+}
+
+Write-Host "SBOM attestation verified on $imageTag." -ForegroundColor Green

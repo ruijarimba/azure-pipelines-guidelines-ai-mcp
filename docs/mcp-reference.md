@@ -170,6 +170,22 @@ Restart or reload the MCP server from VS Code after saving the file. The contain
 YAML immediately. `MCP_LOG_RESPONSES=true` writes only static discovery responses to the MCP console;
 remove the two `-e` entries for this variable after troubleshooting.
 
+#### Verify the image (SBOM and provenance)
+
+Published images carry supply-chain attestations that push with the image to Docker Hub: an SPDX
+SBOM and SLSA build provenance for each platform. To inspect what is inside the image before running
+it, use Docker Scout (bundled with Docker Desktop):
+
+```bash
+docker scout sbom ruijarimba/azure-pipelines-guidelines-mcp:latest
+```
+
+To list the SBOM and provenance attestations attached to the image manifest:
+
+```bash
+docker buildx imagetools inspect ruijarimba/azure-pipelines-guidelines-mcp:latest --format '{{ json .Attestations }}'
+```
+
 ### Option 2 — Local clone
 
 **Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) and a local clone of this repository.

@@ -29,6 +29,7 @@ When an agent considers changing an existing decision, it must re-read the ratio
 | [ADR-015](#adr-015-mcp-transports) | 2026-07-29 | MCP transports |
 | [ADR-016](#adr-016-mcp-tool-output-safety) | 2026-09-01 | MCP tool output safety |
 | [ADR-017](#adr-017-mcp-analysis-tool-name-and-repository-path-fallback) | 2026-09-02 | MCP analysis tool name and repository path fallback |
+| [ADR-018](#adr-018-container-image-sbom) | 2026-09-07 | Container image SBOM |
 
 ---
 
@@ -402,6 +403,40 @@ default values and explain the automatic resolution behavior.
 - Clients must use `analyze_template_or_folder`; the old tool name is no longer advertised.
 - Fallback candidates are intentionally bounded and are only used after explicit resolution fails.
 - The MCP host still needs filesystem access to the repository being analyzed.
+
+---
+
+## ADR-018 Container image SBOM
+
+**Date:** 2026-09-07  
+**Context:** Consumers of the published Docker Hub image have no machine-readable view of what
+is inside it. Supply-chain consumers increasingly expect a software bill of materials (SBOM) for
+container images so they can assess components and vulnerabilities before running an image.  
+**Decision:** Generate the SBOM at build time with Buildx build attestations. The publish script
+(`scripts/publish-mcp-image.ps1`) passes `--sbom=true --provenance=true` to `docker buildx build`,
+which produces an SPDX SBOM and SLSA build provenance for each platform and attaches them to the
+image manifest as OCI attestations that push to Docker Hub with the image. Docker Scout is used
+only to verify the attestation after the push, not to generate the SBOM.  
+**Rationale:**
+
+- Build attestations are the industry-standard, registry-native way to attach an SBOM to a
+  container image. Docker Hub and Docker Scout read them directly; there is no separate
+  SBOM upload API.
+- Generating the SBOM at build time keeps it accurate per platform and bound to the exact
+  image digest it describes.
+- `--provenance=true` adds standard SLSA build provenance (where and how the image was built)
+  at near-zero cost; the default mode is used instead of `max` to limit embedded build metadata.
+- Using Scout for verification keeps generation and inspection separate and fails the publish
+  when the SBOM is missing rather than silently shipping an image without one.
+
+**Consequences:**
+
+- The published `:latest` image always carries an SBOM and provenance attestation for both
+  linux/amd64 and linux/arm64.
+- The publish script requires Docker Scout to be available (bundled with Docker Desktop).
+- Attestations add small manifest overhead but no runtime cost.
+- Because only `:latest` is published, the SBOM always describes the latest build; versioned
+  tags would need the same flags to keep per-version SBOMs.
 
 ---
 

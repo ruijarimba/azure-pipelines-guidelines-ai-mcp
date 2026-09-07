@@ -47,7 +47,7 @@ When you see `do-not` in a manifest or a prompt file, and `DoNot` in C# code or 
 
 ---
 
-## Analysis pipeline
+## Internal C# APIs
 
 | Term | Definition |
 | --- | --- |
@@ -57,6 +57,21 @@ When you see `do-not` in a manifest or a prompt file, and `DoNot` in C# code or 
 | **IAnalysisEngine** | Orchestrates the full pipeline: parse → filter rules → run rules → aggregate `AnalysisResult`. |
 | **AnalysisResult** | Output of the analysis engine: list of `Diagnostic`, summary statistics, elapsed time. |
 | **AnalysisOptions** | Filtering parameters: category, minimum severity, `appliesTo` scopes. Passed to `IAnalysisEngine`. |
+
+---
+
+## Container images and Docker
+
+| Term | Definition |
+| --- | --- |
+| **Container image** | A packaged application and its runtime dependencies. This project publishes a multi-platform image to Docker Hub. |
+| **Docker Buildx** | Docker's build tool for building images with BuildKit, including images for multiple platforms and build attestations. |
+| **Docker Scout** | Docker's tool for inspecting container images, including their software bill of materials and vulnerabilities. |
+| **SBOM** | Software bill of materials: a machine-readable list of the components in a software artifact, such as a container image. |
+| **Attestation** | Signed or verifiable metadata attached to an artifact. This project attaches SBOM and build-provenance attestations to published images. |
+| **Build provenance** | Metadata that describes where, how, and from which inputs an artifact was built. |
+| **SLSA** | Supply-chain Levels for Software Artifacts, a framework for improving the security and integrity of software build processes. |
+| **OCI** | Open Container Initiative, the standard used for container image formats and related registry metadata. |
 
 ---
 
@@ -71,12 +86,13 @@ When you see `do-not` in a manifest or a prompt file, and `DoNot` in C# code or 
 
 ---
 
-## Packaging & distribution
+## Packaging and distribution
 
 | Term | Definition |
 | --- | --- |
 | **NuGet package** | A locally packable artifact. This repository does not publish NuGet packages. |
 | **.NET global tool** | A package that provides a command-line executable. This project retains local packaging configuration for `adog-mcp`; it is not published by this repository. |
+| **Docker Hub image** | The published container image available as `ruijarimba/azure-pipelines-guidelines-mcp:latest`. |
 | **SemVer** | Semantic Versioning 2.0. Breaking changes require a major version bump. |
 
 ---

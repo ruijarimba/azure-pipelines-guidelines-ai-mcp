@@ -6,9 +6,9 @@ This file is the **session handoff note** for AI agents and human contributors. 
 
 | Area | Status |
 | --- | --- |
-| Current focus | .NET SDK and NuGet dependency upgrade to latest stable releases |
-| Recent wins | Improved MCP discoverability with descriptive server initialization metadata, Azure Pipelines YAML-focused titles and descriptions for tools, resources, and prompts, and structured descriptors in `adog://capabilities`. Added regression coverage and updated the MCP reference and maintainer guidance. Implemented the opt-in discovery-only `MCP_LOG_RESPONSES` logger for local troubleshooting, validated it with the MCP test suite, live HTTP initialization, and Docker Compose runtime checks. Added explicit instructions to update related documentation and remove obsolete guidance in the same change. Upgraded the .NET SDK pin and all centrally managed NuGet packages to their latest stable releases, validated by the full quality gate. |
-| Next up | Review the dependency upgrade diff, then commit and push |
+| Current focus | Docker image SBOM and provenance attestations for the published image |
+| Recent wins | Improved MCP discoverability with descriptive server initialization metadata, Azure Pipelines YAML-focused titles and descriptions for tools, resources, and prompts, and structured descriptors in `adog://capabilities`. Added regression coverage and updated the MCP reference and maintainer guidance. Implemented the opt-in discovery-only `MCP_LOG_RESPONSES` logger for local troubleshooting, validated it with the MCP test suite, live HTTP initialization, and Docker Compose runtime checks. Added explicit instructions to update related documentation and remove obsolete guidance in the same change. Upgraded the .NET SDK pin and all centrally managed NuGet packages to their latest stable releases, validated by the full quality gate. Added build-time SPDX SBOM and SLSA provenance attestations to the Docker Hub publish and a Scout verification step. |
+| Next up | Review the SBOM diff, run the quality gate, then commit and push |
 
 ---
 
@@ -39,6 +39,7 @@ Before committing, edit the sections below:
 | MCP discovery metadata | Added descriptive server, tool, resource, and prompt metadata for Azure Pipelines YAML guideline discovery; added structured capability descriptors, tests, documentation, and maintainer guidance. |
 | Documentation synchronization guardrails | Added repository-wide instructions to review affected documentation, update examples and cross-references, remove obsolete guidance, and search for stale terms after implementation changes. |
 | .NET SDK and dependency upgrade | Pinned `global.json` to .NET SDK 10.0.400 (`rollForward: latestMajor`) and raised all centrally managed packages to latest stable: Microsoft.Extensions.* 10.0.11, ModelContextProtocol(.AspNetCore) 2.2.0, YamlDotNet 18.1.0, coverlet.collector 10.0.1, FluentAssertions 8.10.0, Microsoft.NET.Test.Sdk 18.9.0, NSubstitute 6.2.0, xunit.runner.visualstudio 4.0.0 (xunit stays at 2.9.3, latest stable for that package ID). Build, all 452 tests, and the full quality gate passed. |
+| Container image SBOM | Added build-time SPDX SBOM and SLSA provenance attestations to the Docker Hub publish (`--sbom=true --provenance=true`), a Docker Scout prerequisite check, and a post-push SBOM attestation verification. Added ADR-018 and consumer verification docs. |
 
 ---
 
@@ -92,7 +93,7 @@ New rule template: follow `.github/prompts/implement-rule.prompt.md`.
 
 ## In progress
 
-- Commit and push the .NET SDK and dependency upgrade after human review of the diff.
+- Commit and push the Docker image SBOM change after human review of the diff and a passing quality gate. The publish script is updated but has not been run (pushing is irreversible).
 
 ---
 
