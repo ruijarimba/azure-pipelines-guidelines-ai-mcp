@@ -266,14 +266,22 @@ When a change adds, removes, renames, or changes user-visible behavior, configur
 capabilities, commands, deployment workflows, prerequisites, or limitations, review the related
 documentation in the same change.
 
+When a change affects a project's responsibility, dependency boundary, public API, registration
+pattern, file layout, or representative example, review that project's nearest `AGENTS.md` in the
+same change.
+
 - Update the relevant README, reference guide, host guide, examples, and cross-references.
 - Remove obsolete names, commands, paths, configuration keys, and examples. Do not only add the
   replacement guidance.
+- Keep project-level `AGENTS.md` files focused on durable responsibilities, allowed and forbidden
+  dependencies, public extension points, and stable patterns. Do not update them for every private
+  implementation detail.
 - Check architecture, decision, glossary, TODO, and progress documents when the change affects
   design rationale, domain terms, planned work, or session state.
 - Search the repository for the old and new terms before finishing. Treat stale documentation as
   a defect, even when the code and tests pass.
-- If no documentation update is needed, record the reason in the final summary or handoff note.
+- If no related documentation or `AGENTS.md` update is needed, record the reason in the final
+  summary or handoff note.
 
 The detailed documentation checklist is in
 [`documentation.instructions.md`](documentation.instructions.md).

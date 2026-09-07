@@ -6,19 +6,19 @@ Implements the Model Context Protocol (MCP) server logic. Exposes guideline look
 
 ## What belongs here
 
-- MCP tool handler implementations (guideline lookup and YAML analysis).
-- MCP resource definitions (guideline catalogue, per-rule metadata).
-- DI extension method: `AddGuidelinesMcp(IServiceCollection)`.
-- Request/response DTOs specific to the MCP surface — these are `internal` and must not
+- ✅ MCP tool handler implementations (guideline lookup and YAML analysis).
+- ✅ MCP resource definitions (guideline catalogue, per-rule metadata).
+- ✅ DI extension method: `AddGuidelinesMcp(IServiceCollection)`.
+- ✅ Request/response DTOs specific to the MCP surface — these are `internal` and must not
   bleed into the domain model in `Core`.
-- Internal enums, lookups, and exceptions used by the MCP layer.
+- ✅ Internal enums, lookups, and exceptions used by the MCP layer.
 
 ## What does NOT belong here
 
-- Business logic → `Core` / `Analysis`
-- Host / process lifecycle → `Mcp.Host`
-- Rule implementations → `Rules`
-- Direct YAML parsing — use `IAnalysisEngine` from `Analysis`
+- ❌ Business logic → `Core` / `Analysis`
+- ❌ Host / process lifecycle → `Mcp.Host`
+- ❌ Rule implementations → `Rules`
+- ❌ Direct YAML parsing — use the injected `IPipelineParser` and `IPipelineAnalyser` services
 
 ## Dependencies (internal)
 

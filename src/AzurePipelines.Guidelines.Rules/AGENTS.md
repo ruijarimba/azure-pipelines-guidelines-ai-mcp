@@ -6,15 +6,15 @@ Contains one class per guideline rule. Each class implements `IGuidelineRule` fr
 
 ## What belongs here
 
-- Implementations of `IGuidelineRule` for every supported guideline.
-- Rule registration helpers — a DI extension method that registers all rules.
-- Shared rule utility code (e.g., YAML AST path helpers) — kept `internal`.
+- ✅ Implementations of `IGuidelineRule` for every supported guideline.
+- ✅ Rule registration helpers — a DI extension method that registers all rules.
+- ✅ Shared rule utility code (e.g., YAML AST path helpers) — kept `internal`.
 
 ## What does NOT belong here
 
-- YAML parsing → `Parsing`
-- Analyser orchestration → `Analysis`
-- Anything that reads from disk or network.
+- ❌ YAML parsing → `Parsing`
+- ❌ Analyser orchestration → `Analysis`
+- ❌ Anything that reads from disk or network.
 
 ## Dependencies (internal)
 
@@ -24,7 +24,7 @@ Contains one class per guideline rule. Each class implements `IGuidelineRule` fr
 ## Key patterns
 
 - **One file per rule**, named after the guideline behaviour:
-  `AbsoluteTemplatePathRule.cs` (for `ADOG-GENERAL-001`).
+  `RelativeTemplatePathRule.cs` (for `ADOG-GENERAL-001`).
 - Rule classes are **stateless**; all inputs arrive through the `IGuidelineRule.EvaluateAsync(…)` parameters.
 - `EvaluateAsync` validates arguments (`ArgumentNullException.ThrowIfNull(document)`) and honours
   cancellation (`cancellationToken.ThrowIfCancellationRequested()`); apart from those it must not

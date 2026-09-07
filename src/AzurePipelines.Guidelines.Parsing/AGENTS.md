@@ -6,16 +6,16 @@ Transforms raw Azure Pipelines YAML text into the `PipelineDocument` AST defined
 
 ## What belongs here
 
-- Implementation of `IPipelineParser` from `Core`.
-- YamlDotNet-specific mapping from YAML nodes to `Core` AST types.
-- Structural validation of the parsed document (malformed YAML, unrecognised top-level keys).
-- `PipelineParsingException` — thrown when YAML cannot be mapped to a valid pipeline document.
+- ✅ Implementation of `IPipelineParser` from `Core`.
+- ✅ YamlDotNet-specific mapping from YAML nodes to `Core` AST types.
+- ✅ Structural validation of the parsed document (malformed YAML, unrecognised top-level keys).
+- ✅ `PipelineParsingException` — thrown when YAML cannot be mapped to a valid pipeline document.
 
 ## What does NOT belong here
 
-- Rule logic or diagnostic generation → `Rules` / `Analysis`
-- Knowledge of guideline IDs → `Core` / `Rules`
-- MCP protocol code → `Mcp`
+- ❌ Rule logic or diagnostic generation → `Rules` / `Analysis`
+- ❌ Knowledge of guideline IDs → `Core` / `Rules`
+- ❌ MCP protocol code → `Mcp`
 
 ## Dependencies (internal)
 

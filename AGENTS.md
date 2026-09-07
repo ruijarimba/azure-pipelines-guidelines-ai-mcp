@@ -35,6 +35,20 @@ Read these first when starting a session. They carry the durable context so goal
 | [docs/glossary.md](docs/glossary.md) | the glossary reference |
 | [docs/architecture.md](docs/architecture.md) | the architecture guide |
 
+## Keeping project guidance current
+
+Review the nearest project-level `AGENTS.md` whenever a change affects a project's responsibility,
+dependency boundary, public API, registration pattern, file layout, or representative example.
+
+- Update the file when the affected guidance is no longer true.
+- Remove obsolete names, paths, dependencies, and examples instead of only adding replacements.
+- Keep guidance focused on durable project boundaries and stable patterns, not private implementation
+  details.
+- Treat source code and `docs/architecture.md` as authoritative for exact symbols and dependency
+  direction. Treat the glossary as authoritative for shared domain terms.
+- Search for old and new names across the repository before finishing.
+- If the review finds no required update, record that decision in the final summary or handoff note.
+
 ## Agent behaviour
 
 The canonical rules are in [.github/instructions/agent-behaviour.instructions.md](.github/instructions/agent-behaviour.instructions.md) and [ADR-010 in docs/decisions.md](docs/decisions.md). They apply to every task in this repository.

@@ -29,7 +29,7 @@ mindmap
     Interfaces
       IGuidelineRule
       IGuidelineRepository
-      IAnalysisEngine
+      IPipelineAnalyser
       IPipelineParser
     Helpers
       Pure functions

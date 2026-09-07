@@ -10,7 +10,7 @@ Orchestrates the full analysis pipeline: parse YAML → filter applicable rules 
 mindmap
   root((Analysis<br/>Orchestration))
     Engine
-      IAnalysisEngine implementation
+      IPipelineAnalyser implementation
       Parse → filter → run → aggregate
     Results
       AnalysisResult record
@@ -34,7 +34,7 @@ mindmap
 **Visual boundary rules:**
 
 - ✅ Orchestration logic — coordinate parse → analyze → aggregate
-- ✅ `IAnalysisEngine` implementation — single seam for all callers
+- ✅ `IPipelineAnalyser` implementation — single seam for all callers
 - ✅ Result aggregation — collect diagnostics from all rules
 - ✅ Filtering logic — decide which rules to run
 - ✅ DI wiring — register parser + rules + engine
@@ -78,7 +78,7 @@ mindmap
 
 ## Key patterns
 
-- `IAnalysisEngine` is the **single public seam** for all hosts, including `Mcp`.
+- `IPipelineAnalyser` is the **single public seam** for all hosts, including `Mcp`.
 - Rules are resolved at runtime via `IEnumerable<IGuidelineRule>` — adding a new rule to the DI
   container automatically makes it available to the engine.
 - The engine never modifies pipeline files; it produces read-only results only.
