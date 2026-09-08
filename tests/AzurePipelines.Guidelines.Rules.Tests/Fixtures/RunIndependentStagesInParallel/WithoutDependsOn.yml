@@ -1,0 +1,11 @@
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    - script: echo build
+- stage: Test
+  jobs:
+  - job: TestJob
+    steps:
+    - script: echo test

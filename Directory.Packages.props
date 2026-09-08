@@ -1,0 +1,40 @@
+<Project>
+
+  <!--
+	Central NuGet package version management.
+	All PackageReference elements across the solution omit the Version attribute;
+	versions are declared once here.
+
+	Update versions here when starting a new implementation phase.
+  -->
+
+  <PropertyGroup>
+	<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+	<!-- ── Production dependencies ───────────────────────────────────────────── -->
+	<ItemGroup Label="Production">
+	<PackageVersion Include="Microsoft.Extensions.DependencyInjection"                Version="10.0.11" />
+	<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions"   Version="10.0.11" />
+	<PackageVersion Include="Microsoft.Extensions.Hosting"                            Version="10.0.11" />
+	<PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions"               Version="10.0.11" />
+	<PackageVersion Include="Microsoft.Extensions.Logging"                            Version="10.0.11" />
+	<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions"               Version="10.0.11" />
+	<PackageVersion Include="Microsoft.Extensions.Logging.Console"                    Version="10.0.11" />
+	<!-- MCP .NET SDK — keep the runtime and HTTP server packages aligned. -->
+	<PackageVersion Include="ModelContextProtocol"              Version="2.2.0" />
+	<PackageVersion Include="ModelContextProtocol.AspNetCore"   Version="2.2.0" />
+	<PackageVersion Include="YamlDotNet"                        Version="18.1.0" />
+	</ItemGroup>
+
+	<!-- ── Test dependencies ─────────────────────────────────────────────────── -->
+	<ItemGroup Label="Testing">
+	<PackageVersion Include="coverlet.collector"          Version="10.0.1" />
+	<PackageVersion Include="FluentAssertions"            Version="8.10.0" />
+	<PackageVersion Include="Microsoft.NET.Test.Sdk"      Version="18.9.0" />
+	<PackageVersion Include="NSubstitute"                 Version="6.2.0" />
+	<PackageVersion Include="xunit"                       Version="2.9.3" />
+	<PackageVersion Include="xunit.runner.visualstudio"   Version="4.0.0" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,8 @@
+# Build and test the application.
+
+trigger: none
+
+jobs:
+- job: Build
+  steps:
+  - script: echo hello

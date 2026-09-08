@@ -1,0 +1,6 @@
+jobs:
+- job: Build
+  steps:
+  - script: echo $(BuildConfiguration)
+    env:
+      BuildConfiguration: Debug

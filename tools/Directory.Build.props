@@ -1,0 +1,16 @@
+<Project>
+
+  <!--
+    Settings for all executable projects under tools/.
+    These are entry points; they are not published as NuGet packages.
+  -->
+
+  <!-- Import shared root settings first -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>

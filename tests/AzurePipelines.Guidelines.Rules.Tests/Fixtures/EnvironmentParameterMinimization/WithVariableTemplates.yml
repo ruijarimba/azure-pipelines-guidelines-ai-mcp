@@ -1,0 +1,12 @@
+parameters:
+  - name: environment
+    type: string
+    default: dev
+
+variables:
+- template: /pipelines/variables/common.yml
+
+jobs:
+  - job: Build
+    steps:
+      - script: echo Build

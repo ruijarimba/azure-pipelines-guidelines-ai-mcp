@@ -1,0 +1,8 @@
+parameters:
+  - name: environment
+    type: string
+    default: dev
+    values:
+      - dev
+      - staging
+      - prod

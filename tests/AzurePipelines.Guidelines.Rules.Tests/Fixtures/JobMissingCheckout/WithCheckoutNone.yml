@@ -1,0 +1,6 @@
+jobs:
+  - job: Build
+    steps:
+      - checkout: none
+      - script: echo building
+        displayName: Build
