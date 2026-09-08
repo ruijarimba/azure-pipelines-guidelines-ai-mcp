@@ -1,4 +1,0 @@
-parameters:
-- name: environment
-  type: string
-  default: dev

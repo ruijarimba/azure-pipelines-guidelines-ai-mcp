@@ -1,5 +1,0 @@
-steps:
-  - template: ../../pipelines/ci.yml
-    parameters:
-      condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-      displayName: Template step

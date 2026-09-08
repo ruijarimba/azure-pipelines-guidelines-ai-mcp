@@ -1,8 +1,0 @@
-steps:
-  - task: AzureCLI@2
-    displayName: Deploy
-    inputs:
-      azureSubscription: my-connection
-      scriptType: bash
-      scriptLocation: inlineScript
-      inlineScript: echo hello

@@ -1,3 +1,0 @@
-parameters:
-  - name: environment
-    default: dev

@@ -1,6 +1,0 @@
-jobs:
-  - job: Build
-    timeoutInMinutes: 30
-    steps:
-      - script: echo building
-        displayName: Build

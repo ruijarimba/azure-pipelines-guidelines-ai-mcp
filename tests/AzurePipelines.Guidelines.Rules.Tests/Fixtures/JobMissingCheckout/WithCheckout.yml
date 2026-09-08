@@ -1,6 +1,0 @@
-jobs:
-  - job: Build
-    steps:
-      - checkout: self
-      - script: echo building
-        displayName: Build

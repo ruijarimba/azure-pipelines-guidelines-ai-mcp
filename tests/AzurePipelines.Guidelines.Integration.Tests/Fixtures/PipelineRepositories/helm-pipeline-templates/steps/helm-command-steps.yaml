@@ -1,6 +1,0 @@
-# Reusable helm command steps template.
-steps:
-  - template: /templates/steps/helm-install-steps.yaml
-  - script: helm lint ./chart
-    displayName: Lint chart
-    condition: succeeded()

@@ -1,4 +1,0 @@
-parameters:
-  - name: runCount
-    type: number
-    default: 1

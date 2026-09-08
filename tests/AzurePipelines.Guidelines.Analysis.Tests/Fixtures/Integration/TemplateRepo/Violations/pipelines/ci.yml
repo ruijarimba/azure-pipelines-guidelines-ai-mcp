@@ -1,8 +1,0 @@
-trigger:
-  - main
-
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-  - template: ../templates/step-with-controls.yml

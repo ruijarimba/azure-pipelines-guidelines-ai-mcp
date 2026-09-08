@@ -1,6 +1,0 @@
-parameters:
-- name: environment
-  default: prod
-
-steps:
-- script: echo $(environment)

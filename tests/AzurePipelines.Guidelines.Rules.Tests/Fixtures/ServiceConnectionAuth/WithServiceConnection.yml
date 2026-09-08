@@ -1,6 +1,0 @@
-jobs:
-- job: Build
-  steps:
-  - script: az account show
-    env:
-      AZURE_SUBSCRIPTION: example

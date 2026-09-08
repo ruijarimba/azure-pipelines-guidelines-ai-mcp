@@ -1,6 +1,0 @@
-parameters:
-  - name: region
-    type: string
-    values:
-      - eastus
-      - westus

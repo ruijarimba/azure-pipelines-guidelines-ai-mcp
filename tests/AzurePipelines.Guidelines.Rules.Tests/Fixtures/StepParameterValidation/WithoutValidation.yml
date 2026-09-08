@@ -1,7 +1,0 @@
-trigger:
-  - main
-
-steps:
-  - template: templates/step.yml
-    parameters:
-      version: '1.0'
