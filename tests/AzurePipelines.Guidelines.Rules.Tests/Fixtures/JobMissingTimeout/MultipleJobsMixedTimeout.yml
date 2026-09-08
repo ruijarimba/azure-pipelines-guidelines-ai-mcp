@@ -1,0 +1,10 @@
+stages:
+  - stage: CI
+    jobs:
+      - job: Build
+        steps:
+          - script: echo building
+      - job: Test
+        timeoutInMinutes: 20
+        steps:
+          - script: echo testing

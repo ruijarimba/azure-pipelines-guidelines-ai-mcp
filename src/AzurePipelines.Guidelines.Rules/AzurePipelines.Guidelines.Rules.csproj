@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>AzurePipelines.Guidelines.Rules</PackageId>
+    <Description>Individual guideline rule implementations for the AzurePipelines.Guidelines toolchain. Each rule maps to a stable ADOG-{CATEGORY}-{NNN} guideline identifier.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AzurePipelines.Guidelines.Core\AzurePipelines.Guidelines.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      Use the Abstractions package, not the full Microsoft.Extensions.DependencyInjection,
+      to avoid pulling a concrete runtime dependency into this library.
+    -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="AGENTS.md" />
+  </ItemGroup>
+
+</Project>

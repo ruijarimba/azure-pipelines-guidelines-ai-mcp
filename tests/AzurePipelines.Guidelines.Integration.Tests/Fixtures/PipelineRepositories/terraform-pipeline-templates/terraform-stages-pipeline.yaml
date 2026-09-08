@@ -1,0 +1,21 @@
+stages:
+  - stage: plan
+    jobs:
+      - job: terraformPlan
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: tf-connection
+              KeyVaultName: my-vault
+          - script: terraform plan
+            displayName: Plan
+  - stage: apply
+    jobs:
+      - job: terraformApply
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - script: terraform apply
+            displayName: Apply

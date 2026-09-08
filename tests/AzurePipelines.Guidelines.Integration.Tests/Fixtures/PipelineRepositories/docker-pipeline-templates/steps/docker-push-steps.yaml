@@ -1,0 +1,16 @@
+variables:
+  - name: registry
+    value: myregistry.azurecr.io
+  - name: tags
+    value: "[latest, stable]"
+
+steps:
+  - checkout: self
+  - task: Docker@2
+    displayName: Push to registry ${{ variables.registry }}
+    inputs:
+      command: push
+      containerRegistry: acr-connection
+      repository: $(imageName)
+  - script: docker push $(registry)/app
+    displayName: Manual push

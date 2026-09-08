@@ -1,0 +1,12 @@
+# Terraform backend variables and credentials.
+parameters:
+  - name: clientSecret
+    type: string
+
+variables:
+  - name: backendKey
+    value: dev/prod/terraform.tfstate
+  - name: apiToken
+    value: abc123def456
+  - name: storageAccount
+    value: tfstatewesteurope

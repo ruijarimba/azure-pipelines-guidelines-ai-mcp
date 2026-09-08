@@ -1,0 +1,5 @@
+trigger:
+  - main
+
+steps:
+  - template: /pipelines/steps/build.yml

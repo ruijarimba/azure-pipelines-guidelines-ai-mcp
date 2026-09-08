@@ -1,0 +1,6 @@
+jobs:
+- job: build
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - script: echo build

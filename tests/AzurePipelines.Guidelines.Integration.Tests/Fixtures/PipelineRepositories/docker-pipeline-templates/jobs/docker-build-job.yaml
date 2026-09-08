@@ -1,0 +1,16 @@
+# Reusable docker build job template.
+# Consumes steps templates and exposes a validate flag.
+parameters:
+  - name: validationMode
+    type: boolean
+    default: false
+
+jobs:
+  - job: dockerBuild
+    timeoutInMinutes: 30
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - checkout: self
+      - template: /templates/steps/docker-install-steps.yaml
+      - template: /templates/steps/docker-push-steps.yaml

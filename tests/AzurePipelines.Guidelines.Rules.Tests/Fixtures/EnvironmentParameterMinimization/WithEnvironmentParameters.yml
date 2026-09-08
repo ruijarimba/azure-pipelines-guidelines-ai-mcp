@@ -1,0 +1,12 @@
+parameters:
+  - name: environment
+    type: string
+    default: dev
+  - name: region
+    type: string
+    default: westus2
+
+jobs:
+  - job: Build
+    steps:
+      - script: echo Build

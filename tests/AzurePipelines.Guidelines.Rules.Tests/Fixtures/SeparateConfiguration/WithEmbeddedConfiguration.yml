@@ -1,0 +1,8 @@
+trigger:
+  - main
+
+jobs:
+  - template: templates/build.yml
+    parameters:
+      environment: prod
+      region: westus

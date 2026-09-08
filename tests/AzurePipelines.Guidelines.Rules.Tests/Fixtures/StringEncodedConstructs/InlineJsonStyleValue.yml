@@ -1,0 +1,8 @@
+variables:
+- name: EnabledFeatures
+  value: '["build","test"]'
+
+jobs:
+- job: Build
+  steps:
+  - script: echo hello

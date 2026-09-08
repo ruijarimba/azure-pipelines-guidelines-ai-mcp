@@ -1,0 +1,14 @@
+jobs:
+  - job: buildTestDeploy
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: terraform init && terraform test
+        displayName: Build test and deploy
+      - template: steps/deploy-terraform.yml
+  - job: publishState
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: terraform output
+        displayName: Publish state
