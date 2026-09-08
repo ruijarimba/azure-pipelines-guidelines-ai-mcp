@@ -1,6 +1,6 @@
 # TODO list
 
-This file tracks unresolved work and items to review in a future development session.
+This file tracks unresolved work and items to review in a future development session. 
 
 ## Watch items
 
