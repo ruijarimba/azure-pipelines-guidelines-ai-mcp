@@ -19,11 +19,13 @@ The executable defaults to **stdio**. This default supports process-launching cl
 
 ## Container runtime
 
-The Docker image uses `mcr.microsoft.com/dotnet/aspnet:10.0`, not `mcr.microsoft.com/dotnet/runtime:10.0`. This is required because the host references `ModelContextProtocol.AspNetCore` for the HTTP transport. That package requires the `Microsoft.AspNetCore.App` shared framework.
+The Docker image uses `mcr.microsoft.com/dotnet/aspnet:10.0-alpine`, not `mcr.microsoft.com/dotnet/runtime:10.0`. This is required because the host references `ModelContextProtocol.AspNetCore` for the HTTP transport. That package requires the `Microsoft.AspNetCore.App` shared framework. Alpine keeps the image smaller while retaining that shared framework.
 
 .NET checks required shared frameworks when the process starts. It does this even when you run the host in `stdio` mode. The smaller `runtime` image does not include `Microsoft.AspNetCore.App`, so the process would exit before it could start the stdio server.
 
 The project intentionally publishes **one ASP.NET runtime image** for both `stdio` and HTTP.
+
+The container runs as numeric non-root UID `1001`. Alpine does not include the Debian user-management utilities used to create a named user in the previous image.
 
 | Image approach | Result | Maintenance cost |
 | --- | --- | --- |
@@ -50,7 +52,11 @@ From the repository root, build the local image with:
 pwsh ./scripts/build-mcp-image.ps1
 ```
 
-The image is created only when the solution tests pass. Use `publish-mcp-image.ps1` when you are ready to publish a multi-architecture image to Docker Hub.
+The image is created only when the solution tests pass. Use `publish-mcp-image.ps1` when you are ready to publish a multi-architecture image to Docker Hub. The publish script runs Dockerfile build checks before login, then shows Docker Scout vulnerability summaries and details after the push. Use `-ShowSbom` to print the complete published SBOM; otherwise the script verifies the SBOM without printing the full package list.
+
+```powershell
+pwsh ./scripts/publish-mcp-image.ps1 -ShowSbom
+```
 
 ## Run in stdio mode
 

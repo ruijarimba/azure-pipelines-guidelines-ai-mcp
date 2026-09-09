@@ -55,16 +55,13 @@ RUN dotnet publish tools/AzurePipelines.Guidelines.Mcp.Host/AzurePipelines.Guide
 # which requires the Microsoft.AspNetCore.App shared framework at process startup.
 # One aspnet image supports both stdio and HTTP. Using runtime would require separately built,
 # tested, published, and documented stdio-only and HTTP images.
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 
 # Run as a non-root user for security best practice.
-RUN groupadd --system --gid 1001 mcpgroup \
-    && useradd --system --uid 1001 --gid mcpgroup --no-create-home mcpuser
+USER 1001
 
 WORKDIR /app
 COPY --from=build /app/publish .
-
-USER mcpuser
 
 # Use Streamable HTTP for independently hosted containers. Set MCP_TRANSPORT=stdio
 # and keep stdin open when an MCP client launches the container as a child process.

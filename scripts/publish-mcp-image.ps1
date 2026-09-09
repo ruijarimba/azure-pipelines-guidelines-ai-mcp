@@ -5,11 +5,13 @@ Builds and publishes the MCP container image to Docker Hub.
 .DESCRIPTION
 Use this script only when an approved Docker image release is ready to publish.
 The script validates configuration and platform support before logging in or starting
-a build, then publishes the multi-architecture latest tag configured by DOCKERHUB_IMAGE.
+a build, checks the Dockerfile, then publishes the multi-architecture latest tag configured
+by DOCKERHUB_IMAGE.
 The publish generates an SPDX SBOM and SLSA build provenance for each platform and
 attaches them to the image as OCI attestations, so Docker Hub and Docker Scout can
-read the SBOM directly from the registry. After the push the script verifies that
-the published image carries an SBOM attestation. For local builds and validation,
+read the SBOM directly from the registry. After the push the script reports current
+vulnerabilities and verifies that the published image carries an SBOM attestation.
+Use -ShowSbom to print the complete published SBOM. For local builds and validation,
 use build-mcp-image.ps1 instead.
 
 .PARAMETER EnvironmentFile
@@ -21,6 +23,9 @@ The path to the Docker Hub environment file. Defaults to .env at the repository 
 .EXAMPLE
 ./publish-mcp-image.ps1 -EnvironmentFile .env.publish
 
+.EXAMPLE
+./publish-mcp-image.ps1 -ShowSbom
+
 .NOTES
 Requires Docker Desktop with its Linux engine, Docker Buildx, and an environment file
 containing Docker Hub settings. The token is passed to Docker through stdin and is never
@@ -31,7 +36,8 @@ registry access and must not be committed or passed as a command-line argument.
 #>
 [CmdletBinding()]
 param(
-    [string]$EnvironmentFile = ".env"
+    [string]$EnvironmentFile = ".env",
+    [switch]$ShowSbom
 )
 
 $ErrorActionPreference = "Stop"
@@ -161,6 +167,42 @@ function Invoke-Docker {
     }
 }
 
+function Test-Dockerfile {
+    Write-Host "Running Dockerfile build checks ..."
+    & docker build --check .
+    if ($LASTEXITCODE -ne 0) {
+        throw "Dockerfile build checks failed."
+    }
+}
+
+function Invoke-ScoutReport {
+    param(
+        [Parameter(Mandatory)]
+        [string]$ImageTag,
+        [switch]$ShowSbom
+    )
+
+    Write-Host "Docker Scout vulnerability summary for $ImageTag ..."
+    Invoke-Docker -Arguments @("scout", "quickview", $ImageTag)
+
+    Write-Host "Docker Scout vulnerability details for $ImageTag ..."
+    Invoke-Docker -Arguments @("scout", "cves", $ImageTag)
+
+    if ($ShowSbom) {
+        Write-Host "Docker Scout SBOM for $ImageTag ..."
+        Invoke-Docker -Arguments @("scout", "sbom", $ImageTag)
+    }
+    else {
+        Write-Host "Verifying the SBOM attestation on $ImageTag ..."
+        & docker scout sbom $ImageTag *> $null
+        if ($LASTEXITCODE -ne 0) {
+            throw "Published image '$ImageTag' has no readable SBOM attestation. Check the build output and try again."
+        }
+    }
+
+    Write-Host "SBOM attestation verified on $ImageTag." -ForegroundColor Green
+}
+
 $values = Read-EnvironmentFile -Path $environmentPath
 $username = Get-RequiredValue -Values $values -Name "DOCKERHUB_USERNAME"
 $token = Get-RequiredValue -Values $values -Name "DOCKERHUB_TOKEN"
@@ -176,6 +218,7 @@ Test-DockerHubConfiguration -Username $username -Token $token -Image $image
 Test-DockerPrerequisites
 
 Set-Location $repoRoot
+Test-Dockerfile
 
 # Never add the token to command arguments or diagnostic output.
 $token | & docker login --username $username --password-stdin
@@ -203,13 +246,4 @@ Invoke-Docker -Arguments @(
 
 Write-Host "Published $imageTag for linux/amd64 and linux/arm64." -ForegroundColor Green
 
-# Verify the pushed image carries an SBOM attestation. Scout reads attestations directly
-# from the registry, so a successful exit code confirms the registry image has a readable
-# SBOM attachment. A missing attestation is a release defect and fails the publish.
-Write-Host "Verifying the SBOM attestation on $imageTag ..."
-& docker scout sbom $imageTag *> $null
-if ($LASTEXITCODE -ne 0) {
-    throw "Published image '$imageTag' has no readable SBOM attestation. Check the build output and try again."
-}
-
-Write-Host "SBOM attestation verified on $imageTag." -ForegroundColor Green
+Invoke-ScoutReport -ImageTag $imageTag -ShowSbom:$ShowSbom

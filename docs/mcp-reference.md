@@ -170,15 +170,20 @@ Restart or reload the MCP server from VS Code after saving the file. The contain
 YAML immediately. `MCP_LOG_RESPONSES=true` writes only static discovery responses to the MCP console;
 remove the two `-e` entries for this variable after troubleshooting.
 
-#### Verify the image (SBOM and provenance)
+#### Verify the published image (SBOM, provenance, and vulnerabilities)
 
 Published images carry supply-chain attestations that push with the image to Docker Hub: an SPDX
-SBOM and SLSA build provenance for each platform. To inspect what is inside the image before running
-it, use Docker Scout (bundled with Docker Desktop):
+To inspect the published image and review its current vulnerability summary, use Docker Scout
+(bundled with Docker Desktop):
 
 ```bash
+docker scout quickview ruijarimba/azure-pipelines-guidelines-mcp:latest
+docker scout cves ruijarimba/azure-pipelines-guidelines-mcp:latest
 docker scout sbom ruijarimba/azure-pipelines-guidelines-mcp:latest
 ```
+
+The publish script runs the summary and vulnerability commands after pushing the image. Pass
+`-ShowSbom` to the script when you need the complete package listing in the publish output.
 
 To list the SBOM and provenance attestations attached to the image manifest:
 
