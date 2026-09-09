@@ -93,7 +93,7 @@ The executable defaults to `stdio` for process-launching clients. Use the HTTP t
 
 ### Container runtime decision
 
-The Docker image uses `mcr.microsoft.com/dotnet/aspnet:10.0` because `ModelContextProtocol.AspNetCore` requires the `Microsoft.AspNetCore.App` shared framework. The same ASP.NET runtime image supports both `stdio` and HTTP, so Docker, editor integrations, local debugging, and hosted deployments use one tested executable and runtime path.
+The Docker image uses `mcr.microsoft.com/dotnet/aspnet:10.0-alpine` because `ModelContextProtocol.AspNetCore` requires the `Microsoft.AspNetCore.App` shared framework. The Alpine runtime keeps the image footprint small while supporting both `stdio` and HTTP, so Docker, editor integrations, local debugging, and hosted deployments share one tested executable and runtime path. The container runs as numeric non-root UID 1001 because Alpine does not include the Debian user-management utilities used by the previous image.
 
 Using the smaller `mcr.microsoft.com/dotnet/runtime:10.0` image would require separate stdio and HTTP images. The full rationale is recorded in [the MCP host README](../tools/AzurePipelines.Guidelines.Mcp.Host/README.md#container-runtime).
 

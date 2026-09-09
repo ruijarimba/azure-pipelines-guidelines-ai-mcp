@@ -415,8 +415,9 @@ container images so they can assess components and vulnerabilities before runnin
 **Decision:** Generate the SBOM at build time with Buildx build attestations. The publish script
 (`scripts/publish-mcp-image.ps1`) passes `--sbom=true --provenance=true` to `docker buildx build`,
 which produces an SPDX SBOM and SLSA build provenance for each platform and attaches them to the
-image manifest as OCI attestations that push to Docker Hub with the image. Docker Scout is used
-only to verify the attestation after the push, not to generate the SBOM.  
+image manifest as OCI attestations that push to Docker Hub with the image. Docker Scout verifies
+the attestation and reports the published image's vulnerability summary after the push, but does
+not generate the SBOM.
 **Rationale:**
 
 - Build attestations are the industry-standard, registry-native way to attach an SBOM to a
@@ -428,12 +429,15 @@ only to verify the attestation after the push, not to generate the SBOM.
   at near-zero cost; the default mode is used instead of `max` to limit embedded build metadata.
 - Using Scout for verification keeps generation and inspection separate and fails the publish
   when the SBOM is missing rather than silently shipping an image without one.
+- Reporting Scout's vulnerability summary after the push makes the security result visible without
+  treating unfixed upstream vulnerabilities as an automatic publication failure.
 
 **Consequences:**
 
 - The published `:latest` image always carries an SBOM and provenance attestation for both
   linux/amd64 and linux/arm64.
 - The publish script requires Docker Scout to be available (bundled with Docker Desktop).
+- The publish script reports Docker Scout vulnerability counts and details for the published tag.
 - Attestations add small manifest overhead but no runtime cost.
 - Because only `:latest` is published, the SBOM always describes the latest build; versioned
   tags would need the same flags to keep per-version SBOMs.
